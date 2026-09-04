@@ -1,0 +1,24 @@
+nerd-fonts-gtk
+Copyright (c) 2026 smearor
+
+Licensed under the MIT License.
+
+This crate bundles font files from third-party projects:
+
+1. Nerd Fonts Symbols Only (SymbolsNerdFont-Regular.ttf, SymbolsNerdFontMono-Regular.ttf)
+   Copyright (c) 2014 Ryan L McIntyre (Nerd Fonts project)
+   Licensed under the MIT License.
+   Individual icon sets included in Nerd Fonts Symbols Only originate from their
+   respective upstream projects under licenses such as SIL OFL 1.1, Apache 2.0,
+   or CC BY 4.0.
+   https://github.com/ryanoasis/nerd-fonts
+
+2. JetBrains Mono Nerd Font (JetBrainsMonoNLNerdFont-*.woff2)
+   Copyright (c) 2020, JetBrains Mono Project Authors
+   Base font licensed under the SIL Open Font License 1.1 (OFL-1.1).
+   Appended icon glyphs licensed under the MIT License (Nerd Fonts project).
+   https://github.com/JetBrains/JetBrainsMono
+   https://github.com/ryanoasis/nerd-fonts
+
+3. nerd_gtk_icons (codepoint map and SVG icon registration)
+   https://github.com/smearor/nerd_gtk_icons

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+    <gresource prefix="/io/smearor/nerd_fonts">
+        <file alias="SymbolsNerdFont-Regular.ttf">NerdFontsSymbolsOnly/SymbolsNerdFont-Regular.ttf</file>
+        <file alias="SymbolsNerdFontMono-Regular.ttf">NerdFontsSymbolsOnly/SymbolsNerdFontMono-Regular.ttf</file>
+    </gresource>
+</gresources>

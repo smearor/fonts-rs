@@ -1,0 +1,29 @@
+[package]
+name = "nerd-fonts-gtk"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "Shared Nerd Font integration for GTK4 projects: icon resolution, font loading, software rendering, and CSS generation"
+
+[features]
+default = ["gtk"]
+
+# GTK4 icon name resolution, color application, GResource registration
+gtk = ["dep:gtk4"]
+
+# Software rendering with ab_glyph (pixel buffer, no GTK required)
+render = ["dep:ab_glyph", "dep:woff2-patched"]
+
+# Web CSS generation (per-icon codepoint mappings for web instances)
+web = []
+
+# Embed font files into the binary via include_bytes!
+# Without this feature, fonts are loaded from disk at runtime
+embed-fonts = []
+
+[dependencies]
+nerd_gtk_icons = "0.1"
+gtk4 = { version = "0.11", optional = true }
+ab_glyph = { version = "0.2", optional = true }
+woff2-patched = { version = "0.4", optional = true }
+tracing = "0.1"
