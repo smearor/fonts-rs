@@ -1,0 +1,12 @@
+[book]
+title = "nerd-fonts-gtk Documentation"
+authors = ["Andreas Schaeffer <hanack@nooblounge.net>"]
+language = "en"
+src = "src"
+
+[preprocessor.mermaid]
+command = "mdbook-mermaid"
+
+[output.html]
+git-repository-url = "https://github.com/smearor/nerd-fonts-gtk"
+additional-js = ["mermaid.min.js", "mermaid-init.js"]
