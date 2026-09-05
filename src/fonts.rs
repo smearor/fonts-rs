@@ -163,3 +163,36 @@ fn convert_woff2(data: Vec<u8>) -> Option<FontVec> {
         }
     }
 }
+
+#[cfg(all(test, feature = "embed-fonts"))]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn nerd_font_loads_from_embedded_data() {
+        let font = nerd_font();
+        assert!(font.is_some(), "embedded Nerd Font should parse successfully");
+    }
+
+    #[test]
+    fn label_font_loads_from_embedded_woff2() {
+        let font = label_font();
+        assert!(font.is_some(), "embedded label font (WOFF2) should decompress and parse successfully");
+    }
+
+    #[test]
+    fn nerd_font_is_cached() {
+        let font1 = nerd_font();
+        let font2 = nerd_font();
+        assert!(font1.is_some());
+        assert!(core::ptr::eq(font1.unwrap() as *const _, font2.unwrap() as *const _));
+    }
+
+    #[test]
+    fn label_font_is_cached() {
+        let font1 = label_font();
+        let font2 = label_font();
+        assert!(font1.is_some());
+        assert!(core::ptr::eq(font1.unwrap() as *const _, font2.unwrap() as *const _));
+    }
+}

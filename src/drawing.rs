@@ -60,17 +60,31 @@ pub fn draw_nerd_font_icon(
 
     let color = icon_color.unwrap_or_else(|| default_text_color(is_active));
 
-    let icon_size = (width.min(height) as f32 * 0.6).min(48.0);
-    let scale = PxScale::from(icon_size);
-    let scaled_font = font.as_scaled(scale);
-
+    let icon_size = width.min(height) as f32 * 0.6;
     let glyph_id = font.glyph_id(codepoint);
-    let glyph: Glyph = glyph_id.with_scale_and_position(
-        scale,
-        ab_glyph::point((width as f32 - scaled_font.h_advance(glyph_id)) / 2.0, (height as f32 * 0.4) + scaled_font.ascent() / 2.0),
-    );
+    let em_scale = glyph_fit_scale(font, glyph_id, icon_size);
+    let scale = PxScale::from(em_scale);
 
-    draw_glyph(pixels, width, height, font, &glyph, color);
+    // Use outline px_bounds for precise centering (glyph_bounds includes side bearings)
+    let probe = glyph_id.with_scale(scale);
+    if let Some(outline) = font.outline_glyph(probe.clone()) {
+        let pb = outline.px_bounds();
+        let glyph_w = pb.width();
+        let glyph_h = pb.height();
+        let pos_x = (width as f32 - glyph_w) / 2.0 - pb.min.x;
+        let pos_y = (height as f32 * 0.4) - glyph_h / 2.0 - pb.min.y;
+        let glyph: Glyph = glyph_id.with_scale_and_position(scale, ab_glyph::point(pos_x, pos_y));
+        draw_glyph(pixels, width, height, font, &glyph, color);
+    } else {
+        // Fallback: use glyph_bounds
+        let bounds = font.glyph_bounds(&probe);
+        let glyph_w = bounds.width();
+        let glyph_h = bounds.height();
+        let pos_x = (width as f32 - glyph_w) / 2.0 - bounds.min.x;
+        let pos_y = (height as f32 * 0.4) - glyph_h / 2.0 - bounds.min.y;
+        let glyph: Glyph = glyph_id.with_scale_and_position(scale, ab_glyph::point(pos_x, pos_y));
+        draw_glyph(pixels, width, height, font, &glyph, color);
+    }
 }
 
 /// Draw a simple circular placeholder when the font or icon is unavailable.
@@ -118,7 +132,7 @@ pub fn draw_label_text(pixels: &mut [u8], width: u32, height: u32, text: &str, i
 
     let color = text_color_override.unwrap_or_else(|| default_text_color(is_active));
 
-    let font_size = (height as f32 * 0.22).min(16.0).max(8.0);
+    let font_size = (height as f32 * 0.22).max(8.0);
     let scale = PxScale::from(font_size);
     let scaled_font = font.as_scaled(scale);
 
@@ -148,14 +162,25 @@ pub fn draw_nerd_font_codepoint(pixels: &mut [u8], width: u32, height: u32, code
         None => return,
     };
 
-    let scale = PxScale::from(icon_size);
-    let scaled_font = font.as_scaled(scale);
     let glyph_id = font.glyph_id(codepoint);
-    let glyph: Glyph = glyph_id.with_scale_and_position(
-        scale,
-        ab_glyph::point(center_x - scaled_font.h_advance(glyph_id) / 2.0, center_y + scaled_font.ascent() / 2.0),
-    );
-    draw_glyph(pixels, width, height, font, &glyph, color);
+    let em_scale = glyph_fit_scale(font, glyph_id, icon_size);
+    let scale = PxScale::from(em_scale);
+
+    // Center the glyph at (center_x, center_y) using outline px_bounds
+    let probe = glyph_id.with_scale(scale);
+    if let Some(outline) = font.outline_glyph(probe.clone()) {
+        let pb = outline.px_bounds();
+        let pos_x = center_x - pb.width() / 2.0 - pb.min.x;
+        let pos_y = center_y - pb.height() / 2.0 - pb.min.y;
+        let glyph: Glyph = glyph_id.with_scale_and_position(scale, ab_glyph::point(pos_x, pos_y));
+        draw_glyph(pixels, width, height, font, &glyph, color);
+    } else {
+        let bounds = font.glyph_bounds(&probe);
+        let pos_x = center_x - bounds.width() / 2.0 - bounds.min.x;
+        let pos_y = center_y - bounds.height() / 2.0 - bounds.min.y;
+        let glyph: Glyph = glyph_id.with_scale_and_position(scale, ab_glyph::point(pos_x, pos_y));
+        draw_glyph(pixels, width, height, font, &glyph, color);
+    }
 }
 
 /// Draw text centered horizontally at a given y-baseline with a configurable font size.
@@ -224,9 +249,7 @@ pub fn draw_icon_grid(
     let rows = ((icons.len() as u32 + grid_cols - 1) / grid_cols).max(1);
     let cell_w = width / grid_cols;
     let cell_h = height / rows;
-    let icon_size = (cell_w.min(cell_h) as f32 * 0.6).min(24.0);
-    let scale = PxScale::from(icon_size);
-    let scaled_font = font.as_scaled(scale);
+    let icon_size = cell_w.min(cell_h) as f32 * 0.6;
     let color = default_text_color(is_active);
 
     for (i, icon_name) in icons.iter().enumerate() {
@@ -241,24 +264,64 @@ pub fn draw_icon_grid(
         let cy = row * cell_h + cell_h / 2;
 
         let glyph_id = font.glyph_id(codepoint);
-        let glyph: Glyph = glyph_id.with_scale_and_position(
-            scale,
-            ab_glyph::point(
-                cx as f32 - scaled_font.h_advance(glyph_id) / 2.0,
-                cy as f32 + scaled_font.ascent() / 2.0,
-            ),
-        );
-        draw_glyph(pixels, width, height, font, &glyph, color);
+        let em_scale = glyph_fit_scale(font, glyph_id, icon_size);
+        let scale = PxScale::from(em_scale);
+
+        // Center the glyph in its cell using outline px_bounds
+        let probe = glyph_id.with_scale(scale);
+        if let Some(outline) = font.outline_glyph(probe.clone()) {
+            let pb = outline.px_bounds();
+            let pos_x = cx as f32 - pb.width() / 2.0 - pb.min.x;
+            let pos_y = cy as f32 - pb.height() / 2.0 - pb.min.y;
+            let glyph: Glyph = glyph_id.with_scale_and_position(scale, ab_glyph::point(pos_x, pos_y));
+            draw_glyph(pixels, width, height, font, &glyph, color);
+        } else {
+            let bounds = font.glyph_bounds(&probe);
+            let pos_x = cx as f32 - bounds.width() / 2.0 - bounds.min.x;
+            let pos_y = cy as f32 - bounds.height() / 2.0 - bounds.min.y;
+            let glyph: Glyph = glyph_id.with_scale_and_position(scale, ab_glyph::point(pos_x, pos_y));
+            draw_glyph(pixels, width, height, font, &glyph, color);
+        }
     }
 }
 
 /// Default text color based on active state.
 fn default_text_color(is_active: bool) -> [u8; 4] {
-    if is_active {
-        [100, 180, 255, 255]
-    } else {
-        [240, 240, 240, 255]
+    if is_active { [100, 180, 255, 255] } else { [240, 240, 240, 255] }
+}
+
+/// Compute the em-scale needed so that a glyph's largest dimension (width or
+/// height) equals `target_px` pixels.
+///
+/// `PxScale::from(x)` sets the **em** size, not the glyph size. Nerd Font
+/// symbols typically occupy only a small fraction of the em square, so a
+/// 76px em can produce a ~12px glyph. This function probes the glyph at 1px
+/// em, measures its design-space bounds, and returns the em-scale that makes
+/// the glyph's largest dimension match `target_px`.
+fn glyph_fit_scale(font: &FontVec, glyph_id: ab_glyph::GlyphId, target_px: f32) -> f32 {
+    // Probe at a large enough scale to get accurate pixel measurements.
+    // outline_glyph rounds to integer pixels, so scale=1.0 gives 0 or 1 px
+    // which is too imprecise. Use 100.0 em and scale the result.
+    let probe_scale = 100.0_f32;
+    let probe = glyph_id.with_scale(probe_scale);
+    if let Some(outline) = font.outline_glyph(probe) {
+        let pb = outline.px_bounds();
+        let gw = pb.width().max(0.0);
+        let gh = pb.height().max(0.0);
+        let max_g = gw.max(gh);
+        if max_g > 0.01 {
+            // max_g is the pixel size at probe_scale em.
+            // To get target_px pixels: em_scale = target_px * probe_scale / max_g
+            return target_px * probe_scale / max_g;
+        }
     }
+    // Fallback: use glyph_bounds (design-space, not pixel-accurate)
+    let probe = glyph_id.with_scale(1.0);
+    let bounds = font.glyph_bounds(&probe);
+    let gw = bounds.width().max(0.0);
+    let gh = bounds.height().max(0.0);
+    let max_g = gw.max(gh);
+    if max_g > 0.01 { target_px / max_g } else { target_px }
 }
 
 /// Truncate text to fit within a maximum pixel width.

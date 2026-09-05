@@ -37,6 +37,10 @@ pub fn init(#[cfg(feature = "render")] base_dir: Option<&str>, #[cfg(not(feature
     #[cfg(feature = "render")]
     fonts::init(base_dir);
 
+    if let Err(e) = gio::resources_register_include!("compiled.gresource") {
+        tracing::error!("Failed to register nerd-fonts GResource: {e}");
+    }
+
     if let Err(e) = nerd_gtk_icons::register_icons() {
         tracing::error!("Failed to register nerd font icons: {e}");
     }
@@ -44,11 +48,7 @@ pub fn init(#[cfg(feature = "render")] base_dir: Option<&str>, #[cfg(not(feature
     let provider = gtk4::CssProvider::new();
     provider.load_from_data(css::FONT_FACE_CSS);
     if let Some(display) = gtk4::gdk::Display::default() {
-        gtk4::style_context_add_provider_for_display(
-            &display,
-            &provider,
-            gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION,
-        );
+        gtk4::style_context_add_provider_for_display(&display, &provider, gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION);
     }
 }
 

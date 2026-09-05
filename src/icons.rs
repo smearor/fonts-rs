@@ -24,3 +24,44 @@ pub fn resolve_icon_codepoint(icon_name: &str) -> Option<char> {
         .find(|(_, name)| **name == with_suffix)
         .map(|(c, _)| *c)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn resolve_known_icon() {
+        let codepoint = resolve_icon_codepoint("nf-fa-gamepad");
+        assert_eq!(codepoint, Some('\u{F11B}'));
+    }
+
+    #[test]
+    fn resolve_icon_with_underscores() {
+        let codepoint = resolve_icon_codepoint("nf_linux_tux");
+        assert_eq!(codepoint, Some('\u{F31A}'));
+    }
+
+    #[test]
+    fn resolve_icon_already_has_symbolic_suffix() {
+        let codepoint = resolve_icon_codepoint("nf-fa-gamepad-symbolic");
+        assert_eq!(codepoint, Some('\u{F11B}'));
+    }
+
+    #[test]
+    fn resolve_icon_case_insensitive() {
+        let codepoint = resolve_icon_codepoint("NF-FA-GAMEPAD");
+        assert_eq!(codepoint, Some('\u{F11B}'));
+    }
+
+    #[test]
+    fn resolve_unknown_icon_returns_none() {
+        let codepoint = resolve_icon_codepoint("nf-nonexistent-icon-xyz");
+        assert_eq!(codepoint, None);
+    }
+
+    #[test]
+    fn resolve_empty_string_returns_none() {
+        let codepoint = resolve_icon_codepoint("");
+        assert_eq!(codepoint, None);
+    }
+}

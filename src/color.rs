@@ -63,3 +63,58 @@ impl From<[u8; 4]> for Color {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn new_sets_alpha_to_one() {
+        let color = Color::new(0.5, 0.25, 0.75);
+        assert_eq!(color.a, 1.0);
+    }
+
+    #[test]
+    fn new_rgba_preserves_alpha() {
+        let color = Color::new_rgba(0.1, 0.2, 0.3, 0.4);
+        assert_eq!(color.a, 0.4);
+    }
+
+    #[test]
+    fn black_constant() {
+        assert_eq!(Color::BLACK, Color::new(0.0, 0.0, 0.0));
+    }
+
+    #[test]
+    fn white_constant() {
+        assert_eq!(Color::WHITE, Color::new(1.0, 1.0, 1.0));
+    }
+
+    #[test]
+    fn to_u8_round_trip() {
+        let color = Color::new_rgba(1.0, 0.0, 1.0, 0.0);
+        let bytes = color.to_u8();
+        assert_eq!(bytes, [255, 0, 255, 0]);
+        let restored: Color = bytes.into();
+        assert_eq!(restored, color);
+    }
+
+    #[test]
+    fn to_u8_black() {
+        assert_eq!(Color::BLACK.to_u8(), [0, 0, 0, 255]);
+    }
+
+    #[test]
+    fn to_u8_white() {
+        assert_eq!(Color::WHITE.to_u8(), [255, 255, 255, 255]);
+    }
+
+    #[test]
+    fn from_u8_array() {
+        let color: Color = [128, 64, 32, 255].into();
+        assert_eq!(color.r, 128.0 / 255.0);
+        assert_eq!(color.g, 64.0 / 255.0);
+        assert_eq!(color.b, 32.0 / 255.0);
+        assert_eq!(color.a, 1.0);
+    }
+}
