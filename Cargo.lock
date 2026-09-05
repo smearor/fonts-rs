@@ -518,6 +518,9 @@ name = "nerd-fonts-gtk"
 version = "0.1.0"
 dependencies = [
  "ab_glyph",
+ "gio",
+ "glib",
+ "glib-build-tools",
  "gtk4",
  "nerd_gtk_icons",
  "tracing",
