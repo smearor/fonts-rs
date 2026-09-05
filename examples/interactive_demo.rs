@@ -106,11 +106,7 @@ fn build_ui(app: &Application) {
     main_box.append(&build_label_section());
     main_box.append(&build_rendering_section());
 
-    let scrolled = gtk4::ScrolledWindow::builder()
-        .child(&main_box)
-        .hexpand(true)
-        .vexpand(true)
-        .build();
+    let scrolled = gtk4::ScrolledWindow::builder().child(&main_box).hexpand(true).vexpand(true).build();
 
     window.set_child(Some(&scrolled));
     window.present();
@@ -645,7 +641,10 @@ fn build_rendering_section() -> Frame {
     section.append(&grid);
 
     // Progress bar demo (dynamic)
-    let progress_label = Label::builder().label("Progress bar rendering demo (drag slider to update):").halign(Align::Start).build();
+    let progress_label = Label::builder()
+        .label("Progress bar rendering demo (drag slider to update):")
+        .halign(Align::Start)
+        .build();
     section.append(&progress_label);
 
     let progress_width: u32 = 256;
@@ -680,13 +679,13 @@ fn build_rendering_section() -> Frame {
     section.append(&progress_slider);
 
     progress_slider.connect_value_changed(glib::clone!(
-            #[weak]
-            progress_image,
-            move |slider| {
-                let texture = render_progress(slider.value() as f32);
-                progress_image.set_paintable(Some(&texture));
-            }
-        ));
+        #[weak]
+        progress_image,
+        move |slider| {
+            let texture = render_progress(slider.value() as f32);
+            progress_image.set_paintable(Some(&texture));
+        }
+    ));
 
     Frame::builder().label("Software Rendering").child(&section).build()
 }
