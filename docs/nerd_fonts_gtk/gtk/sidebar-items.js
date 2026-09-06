@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["apply_icon_color","apply_text_color","resolve_gtk_nerd_icon"]};

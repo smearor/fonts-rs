@@ -1,0 +1,1 @@
+rd_("nnerd_fonts_gtk")
