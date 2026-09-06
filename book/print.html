@@ -1,0 +1,837 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>nerd-fonts-gtk Documentation</title>
+        <meta name="robots" content="noindex">
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-cb10c0ab.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-efed3993.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">nerd-fonts-gtk Documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/smearor/nerd-fonts-gtk" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
+<p><strong>nerd-fonts-gtk</strong> is a Rust library for integrating <a href="https://www.nerdfonts.com/">Nerd Fonts</a>
+into GTK4 projects. It provides icon name resolution, font loading, software rendering,
+and CSS generation for Nerd Font symbols.</p>
+<h2 id="what-are-nerd-fonts"><a class="header" href="#what-are-nerd-fonts">What Are Nerd Fonts?</a></h2>
+<p><a href="https://www.nerdfonts.com/">Nerd Fonts</a> are developer-targeted fonts that patch
+popular programming fonts with thousands of iconic glyphs. They are commonly used in
+terminals, editors, and development tools to display file-type icons, Git status
+symbols, and other developer-oriented pictograms.</p>
+<h2 id="features"><a class="header" href="#features">Features</a></h2>
+<ul>
+<li><strong>Icon Name Resolution</strong> - Map human-readable names like <code>nf-fa-gamepad</code> to
+Unicode codepoints via the <code>nerd_gtk_icons</code> codepoint map</li>
+<li><strong>GTK4 Integration</strong> - Register GResource fonts, apply icon colors to
+<code>gtk4::Image</code> and <code>gtk4::Label</code> widgets via display-scoped CSS providers</li>
+<li><strong>Software Rendering</strong> - Draw Nerd Font icons, text labels, progress bars, and
+icon grids onto raw RGBA pixel buffers using <code>ab_glyph</code> (no GTK required)</li>
+<li><strong>CSS Generation</strong> - GTK <code>@font-face</code> CSS and web CSS with per-icon
+<code>content: "\XXXX"</code> mappings</li>
+<li><strong>Feature Gates</strong> - Use only what you need: <code>gtk</code>, <code>render</code>, <code>web</code>, <code>embed-fonts</code></li>
+</ul>
+<h2 id="module-overview"><a class="header" href="#module-overview">Module Overview</a></h2>
+<pre class="mermaid">graph TD
+    Lib["nerd-fonts-gtk"]
+
+    subgraph "gtk feature"
+        GTK["gtk.rs&lt;br/&gt;Icon resolution &amp; color"]
+        CSS["css.rs&lt;br/&gt;GTK @font-face CSS"]
+    end
+
+    subgraph "render feature"
+        Drawing["drawing.rs&lt;br/&gt;Pixel buffer rendering"]
+        Fonts["fonts.rs&lt;br/&gt;Font loading (TTF/WOFF2)"]
+    end
+
+    subgraph "web feature"
+        Web["web.rs&lt;br/&gt;Web CSS constant"]
+    end
+
+    Icons["icons.rs&lt;br/&gt;Codepoint resolution"]
+    Color["color.rs&lt;br/&gt;RGBA color type"]
+
+    Lib --&gt; Icons
+    Lib --&gt; Color
+    Lib --&gt; GTK
+    Lib --&gt; CSS
+    Lib --&gt; Drawing
+    Lib --&gt; Fonts
+    Lib --&gt; Web
+</pre>
+
+<h2 id="license"><a class="header" href="#license">License</a></h2>
+<p>MIT. See <a href="https://github.com/smearor/nerd-fonts-gtk/blob/main/LICENSE">LICENSE</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="getting-started"><a class="header" href="#getting-started">Getting Started</a></h1>
+<h2 id="prerequisites"><a class="header" href="#prerequisites">Prerequisites</a></h2>
+<h3 id="rust"><a class="header" href="#rust">Rust</a></h3>
+<p>A working Rust toolchain is required. The project uses Rust Edition 2024.</p>
+<pre><code class="language-bash">curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+</code></pre>
+<h3 id="minimum-supported-rust-version-msrv"><a class="header" href="#minimum-supported-rust-version-msrv">Minimum Supported Rust Version (MSRV)</a></h3>
+<p>The crate declares <code>rust-version = "1.85"</code> in its <code>Cargo.toml</code>. The MSRV is
+verified by CI on every push and pull request.</p>
+<h3 id="linux-system-dependencies"><a class="header" href="#linux-system-dependencies">Linux System Dependencies</a></h3>
+<p>The <code>gtk</code> feature requires GTK 4 development libraries.</p>
+<p><strong>Ubuntu/Debian:</strong></p>
+<pre><code class="language-bash">sudo apt-get install -y pkg-config libgtk-4-dev libglib2.0-dev
+</code></pre>
+<p><strong>Fedora:</strong></p>
+<pre><code class="language-bash">sudo dnf install -y pkg-config gtk4-devel glib2-devel
+</code></pre>
+<p><strong>Arch Linux:</strong></p>
+<pre><code class="language-bash">sudo pacman -S pkgconf gtk4 glib2
+</code></pre>
+<h3 id="no-system-dependencies-render-only"><a class="header" href="#no-system-dependencies-render-only">No System Dependencies (render-only)</a></h3>
+<p>If you only need software rendering (<code>render</code> feature) or web CSS (<code>web</code> feature),
+no system libraries are required beyond a Rust toolchain.</p>
+<h2 id="installation"><a class="header" href="#installation">Installation</a></h2>
+<h3 id="from-cratesio"><a class="header" href="#from-cratesio">From crates.io</a></h3>
+<pre><code class="language-toml">[dependencies]
+nerd-fonts-gtk = "0.1"
+</code></pre>
+<h3 id="from-source"><a class="header" href="#from-source">From Source</a></h3>
+<pre><code class="language-bash">git clone https://github.com/smearor/nerd-fonts-gtk.git
+cd nerd-fonts-gtk
+cargo build --release
+</code></pre>
+<h2 id="feature-selection"><a class="header" href="#feature-selection">Feature Selection</a></h2>
+<p>Choose only the features you need:</p>
+<pre><code class="language-toml"># GTK4 integration (default)
+nerd-fonts-gtk = "0.1"
+
+# Software rendering only (no GTK)
+nerd-fonts-gtk = { version = "0.1", default-features = false, features = ["render"] }
+
+# Web CSS only
+nerd-fonts-gtk = { version = "0.1", default-features = false, features = ["web"] }
+
+# Everything + embedded fonts
+nerd-fonts-gtk = { version = "0.1", features = ["gtk", "render", "web", "embed-fonts"] }
+</code></pre>
+<h2 id="quick-start"><a class="header" href="#quick-start">Quick Start</a></h2>
+<h3 id="gtk4-application"><a class="header" href="#gtk4-application">GTK4 Application</a></h3>
+<pre class="playground"><code class="language-rust">use nerd_fonts_gtk::{init, resolve_icon_codepoint};
+
+fn main() {
+    // Call once at startup
+    init(None);
+
+    // Resolve an icon name to its Unicode codepoint
+    if let Some(c) = resolve_icon_codepoint("nf-fa-gamepad") {
+        println!("Gamepad icon: U+{:04X}", c as u32);
+    }
+}</code></pre>
+<h3 id="software-rendering"><a class="header" href="#software-rendering">Software Rendering</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use nerd_fonts_gtk::drawing::{fill_background, draw_nerd_font_icon};
+
+let mut pixels = vec![0u8; 64 * 64 * 4];
+fill_background(&amp;mut pixels, 64, 64, [30, 30, 30, 255]);
+draw_nerd_font_icon(
+    &amp;mut pixels, 64, 64,
+    "nf-fa-gamepad",
+    true,
+    nerd_fonts_gtk::resolve_icon_codepoint,
+    Some([100, 180, 255, 255]),
+);
+<span class="boring">}</span></code></pre>
+<h2 id="running-tests"><a class="header" href="#running-tests">Running Tests</a></h2>
+<pre><code class="language-bash">cargo test
+</code></pre>
+<h2 id="building-the-documentation"><a class="header" href="#building-the-documentation">Building the Documentation</a></h2>
+<pre><code class="language-bash">cd book
+mdbook build
+</code></pre>
+<p>The rendered HTML is placed in <code>book/book/</code>. Open <code>book/book/index.html</code> in a
+browser, or run <code>mdbook serve</code> for live preview during development.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="architecture"><a class="header" href="#architecture">Architecture</a></h1>
+<h2 id="module-structure"><a class="header" href="#module-structure">Module Structure</a></h2>
+<p>The crate is organized into modules gated by feature flags:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Module</th><th>Feature</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>icons</code></td><td>always</td><td>Icon name to Unicode codepoint resolution</td></tr>
+<tr><td><code>color</code></td><td>always</td><td>RGBA color type for rendering and GTK</td></tr>
+<tr><td><code>css</code></td><td>always</td><td>CSS string constants (GResource prefix, font-face CSS)</td></tr>
+<tr><td><code>gtk</code></td><td><code>gtk</code></td><td>GTK4 icon name resolution and color application</td></tr>
+<tr><td><code>drawing</code></td><td><code>render</code></td><td>Software rendering onto pixel buffers</td></tr>
+<tr><td><code>fonts</code></td><td><code>render</code></td><td>Font loading (TTF and WOFF2) with caching</td></tr>
+<tr><td><code>web</code></td><td><code>web</code></td><td>Web CSS constant for web instances</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="initialization-flow"><a class="header" href="#initialization-flow">Initialization Flow</a></h2>
+<pre class="mermaid">sequenceDiagram
+    participant App as Application
+    participant Init as nerd_fonts_gtk::init()
+    participant Fonts as fonts::init()
+    participant GResource as GResource
+    participant Icons as nerd_gtk_icons
+    participant CSS as CssProvider
+
+    App-&gt;&gt;Init: init(base_dir)
+    alt render feature
+        Init-&gt;&gt;Fonts: fonts::init(base_dir)
+        Fonts-&gt;&gt;Fonts: Set font search directory
+    end
+    alt gtk feature
+        Init-&gt;&gt;GResource: resources_register_include!("compiled.gresource")
+        Init-&gt;&gt;Icons: nerd_gtk_icons::register_icons()
+        Init-&gt;&gt;CSS: Load FONT_FACE_CSS into CssProvider
+        Init-&gt;&gt;CSS: Add provider to display
+    end
+    Init--&gt;&gt;App: Ready
+</pre>
+
+<h2 id="font-loading-strategy"><a class="header" href="#font-loading-strategy">Font Loading Strategy</a></h2>
+<p>Fonts can be loaded in two ways:</p>
+<ol>
+<li><strong>Embedded</strong> (<code>embed-fonts</code> feature) - Font files are compiled into the binary
+via <code>include_bytes!</code>. No runtime file access needed.</li>
+<li><strong>From disk</strong> (default) - Font files are read from a base directory at runtime.
+The base directory is set via <code>init(base_dir: Option&lt;&amp;str&gt;)</code>.</li>
+</ol>
+<p>The Nerd Font symbol font (<code>SymbolsNerdFont-Regular.ttf</code>) is used for icon
+rendering. The label font (<code>JetBrainsMonoNLNerdFont-Regular.woff2</code>) is used for
+text labels in rendered images.</p>
+<h2 id="gresource-registration"><a class="header" href="#gresource-registration">GResource Registration</a></h2>
+<p>The <code>build.rs</code> script compiles <code>resources/nerd-fonts.gresource.xml</code> into a
+<code>compiled.gresource</code> binary using <code>glib_build_tools::compile_resources</code>. At
+runtime, <code>init()</code> registers this binary via
+<code>gio::resources_register_include!("compiled.gresource")</code>.</p>
+<p>The GResource contains:</p>
+<ul>
+<li><code>SymbolsNerdFont-Regular.ttf</code> - Nerd Font symbol font</li>
+<li><code>SymbolsNerdFontMono-Regular.ttf</code> - Monospace Nerd Font symbol font</li>
+</ul>
+<p>These are referenced by the <code>@font-face</code> CSS rules in <code>FONT_FACE_CSS</code>.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="icon-resolution"><a class="header" href="#icon-resolution">Icon Resolution</a></h1>
+<p>The <code>icons</code> module maps human-readable Nerd Font icon names to their Unicode
+codepoints.</p>
+<h2 id="how-it-works"><a class="header" href="#how-it-works">How It Works</a></h2>
+<p>Icon names follow the pattern <code>nf-{prefix}-{name}</code>, for example:</p>
+<ul>
+<li><code>nf-fa-gamepad</code> - Font Awesome gamepad icon</li>
+<li><code>nf-md-cube</code> - Material Design cube icon</li>
+<li><code>nf-linux-tux</code> - Linux Tux icon</li>
+</ul>
+<p>The <code>resolve_icon_codepoint</code> function:</p>
+<ol>
+<li>Normalizes the input to kebab-case, lower-case</li>
+<li>Appends <code>-symbolic</code> suffix if not already present (GTK symbolic icon convention)</li>
+<li>Looks up the normalized name in the <code>nerd_gtk_icons</code> codepoint map</li>
+<li>Returns the Unicode character if found</li>
+</ol>
+<h2 id="usage"><a class="header" href="#usage">Usage</a></h2>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use nerd_fonts_gtk::resolve_icon_codepoint;
+
+// Basic resolution
+let codepoint = resolve_icon_codepoint("nf-fa-gamepad");
+assert_eq!(codepoint, Some('\u{F11B}'));
+
+// Underscores are normalized to hyphens
+let codepoint = resolve_icon_codepoint("nf_linux_tux");
+assert_eq!(codepoint, Some('\u{F31A}'));
+
+// Case-insensitive
+let codepoint = resolve_icon_codepoint("NF-FA-GAMEPAD");
+assert_eq!(codepoint, Some('\u{F11B}'));
+
+// Already has -symbolic suffix
+let codepoint = resolve_icon_codepoint("nf-fa-gamepad-symbolic");
+assert_eq!(codepoint, Some('\u{F11B}'));
+
+// Unknown icon returns None
+let codepoint = resolve_icon_codepoint("nf-nonexistent-icon-xyz");
+assert_eq!(codepoint, None);
+<span class="boring">}</span></code></pre>
+<h2 id="gtk-icon-name-resolution"><a class="header" href="#gtk-icon-name-resolution">GTK Icon Name Resolution</a></h2>
+<p>The <code>gtk</code> module provides <code>resolve_gtk_nerd_icon</code> which converts CSS class names
+(like <code>nf-fa-gamepad</code> or <code>fa-gamepad</code>) into GTK icon names that
+<code>gtk4::Image::from_icon_name</code> understands.</p>
+<p>The <code>nerd_gtk_icons</code> crate registers SVG icons as GResource under the path
+<code>/io/nerd_fonts/icons/</code>. Each icon follows the naming pattern
+<code>nf-{prefix}-{name}-symbolic</code> (kebab-case, lower-case).</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use nerd_fonts_gtk::gtk::resolve_gtk_nerd_icon;
+
+let icon_name = resolve_gtk_nerd_icon("nf-fa-gamepad");
+// Returns "nf-fa-gamepad-symbolic"
+<span class="boring">}</span></code></pre>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="font-loading"><a class="header" href="#font-loading">Font Loading</a></h1>
+<p>The <code>fonts</code> module (enabled with the <code>render</code> feature) handles loading Nerd Font
+files for software rendering.</p>
+<h2 id="font-types"><a class="header" href="#font-types">Font Types</a></h2>
+<p>Two fonts are loaded:</p>
+<ol>
+<li><strong>Nerd Font</strong> (<code>SymbolsNerdFont-Regular.ttf</code>) - Used for rendering Nerd Font
+icons. This is a TTF file.</li>
+<li><strong>Label Font</strong> (<code>JetBrainsMonoNLNerdFont-Regular.woff2</code>) - Used for rendering
+text labels in images. This is a WOFF2 file that is decompressed to TTF at
+load time.</li>
+</ol>
+<h2 id="loading-modes"><a class="header" href="#loading-modes">Loading Modes</a></h2>
+<h3 id="embedded-fonts-embed-fonts-feature"><a class="header" href="#embedded-fonts-embed-fonts-feature">Embedded Fonts (<code>embed-fonts</code> feature)</a></h3>
+<p>Font files are compiled into the binary via <code>include_bytes!</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// No runtime file access needed
+nerd_fonts_gtk::fonts::nerd_font(); // Returns &amp;'static FontVec
+nerd_fonts_gtk::fonts::label_font(); // Returns &amp;'static FontVec
+<span class="boring">}</span></code></pre>
+<h3 id="from-disk-default"><a class="header" href="#from-disk-default">From Disk (default)</a></h3>
+<p>Fonts are loaded from a base directory at runtime. Set the base directory via
+<code>init()</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Use default base directory (relative to executable)
+nerd_fonts_gtk::init(None);
+
+// Or specify a custom base directory
+nerd_fonts_gtk::init(Some("/usr/share/fonts/nerd-fonts"));
+<span class="boring">}</span></code></pre>
+<p>The font files are expected at:</p>
+<ul>
+<li><code>{base_dir}/resources/NerdFontsSymbolsOnly/SymbolsNerdFont-Regular.ttf</code></li>
+<li><code>{base_dir}/resources/JetBrainsMonoNLNerdFont/JetBrainsMonoNLNerdFont-Regular.woff2</code></li>
+</ul>
+<h2 id="caching"><a class="header" href="#caching">Caching</a></h2>
+<p>Both fonts are loaded once and cached in a <code>OnceLock</code>. Subsequent calls return
+a reference to the cached <code>FontVec</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use nerd_fonts_gtk::fonts::nerd_font;
+
+let font1 = nerd_font().unwrap();
+let font2 = nerd_font().unwrap();
+assert!(core::ptr::eq(font1 as *const _, font2 as *const _));
+<span class="boring">}</span></code></pre>
+<h2 id="woff2-decompression"><a class="header" href="#woff2-decompression">WOFF2 Decompression</a></h2>
+<p>The label font is stored as WOFF2. The <code>convert_woff2</code> function decompresses it
+to TTF using the <code>woff2-patched</code> crate. If decompression fails, it falls back to
+parsing the data directly as TTF.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="software-rendering-1"><a class="header" href="#software-rendering-1">Software Rendering</a></h1>
+<p>The <code>drawing</code> module (enabled with the <code>render</code> feature) provides functions for
+rendering Nerd Font icons and text onto raw RGBA pixel buffers using <code>ab_glyph</code>.</p>
+<h2 id="pixel-buffer-format"><a class="header" href="#pixel-buffer-format">Pixel Buffer Format</a></h2>
+<p>All drawing functions operate on a flat <code>&amp;mut [u8]</code> buffer in RGBA format (4 bytes
+per pixel, row-major order). The buffer dimensions are specified as <code>width</code> and
+<code>height</code> parameters.</p>
+<h2 id="drawing-functions"><a class="header" href="#drawing-functions">Drawing Functions</a></h2>
+<h3 id="background"><a class="header" href="#background">Background</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use nerd_fonts_gtk::drawing::fill_background;
+
+let mut pixels = vec![0u8; 64 * 64 * 4];
+fill_background(&amp;mut pixels, 64, 64, [30, 30, 30, 255]);
+<span class="boring">}</span></code></pre>
+<h3 id="nerd-font-icons"><a class="header" href="#nerd-font-icons">Nerd Font Icons</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use nerd_fonts_gtk::drawing::draw_nerd_font_icon;
+
+draw_nerd_font_icon(
+    &amp;mut pixels, 64, 64,
+    "nf-fa-gamepad",
+    true,  // is_active (affects default color)
+    nerd_fonts_gtk::resolve_icon_codepoint,
+    Some([100, 180, 255, 255]),  // custom color
+);
+<span class="boring">}</span></code></pre>
+<p>If the font or icon is unavailable, a circular placeholder is drawn instead.</p>
+<h3 id="text-labels"><a class="header" href="#text-labels">Text Labels</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use nerd_fonts_gtk::drawing::draw_label_text;
+
+draw_label_text(
+    &amp;mut pixels, 64, 64,
+    "Settings",
+    true,
+    None,  // use default text color
+);
+<span class="boring">}</span></code></pre>
+<p>Text is automatically truncated to fit within 90% of the image width.</p>
+<h3 id="centered-text"><a class="header" href="#centered-text">Centered Text</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use nerd_fonts_gtk::drawing::draw_text_centered;
+
+draw_text_centered(
+    &amp;mut pixels, 128, 64,
+    "Hello World",
+    32.0,  // baseline y position
+    16.0,  // font size
+    [240, 240, 240, 255],
+);
+<span class="boring">}</span></code></pre>
+<h3 id="progress-bar"><a class="header" href="#progress-bar">Progress Bar</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use nerd_fonts_gtk::drawing::draw_progress_bar;
+
+draw_progress_bar(&amp;mut pixels, 64, 64, 0.7, [100, 180, 255, 255]);
+<span class="boring">}</span></code></pre>
+<p>Draws a 4px high bar at the bottom of the image. The filled portion uses the
+specified color; the unfilled portion uses a darkened version.</p>
+<h3 id="icon-grid"><a class="header" href="#icon-grid">Icon Grid</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use nerd_fonts_gtk::drawing::draw_icon_grid;
+
+let icons = ["nf-fa-gamepad", "nf-md-cube", "nf-linux-tux", "nf-fa-home"];
+draw_icon_grid(
+    &amp;mut pixels, 128, 64,
+    &amp;icons,
+    2,  // grid columns
+    true,
+    nerd_fonts_gtk::resolve_icon_codepoint,
+);
+<span class="boring">}</span></code></pre>
+<h3 id="custom-position"><a class="header" href="#custom-position">Custom Position</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use nerd_fonts_gtk::drawing::draw_nerd_font_codepoint;
+
+draw_nerd_font_codepoint(
+    &amp;mut pixels, 128, 64,
+    '\u{F11B}',  // gamepad codepoint
+    32.0,  // center x
+    32.0,  // center y
+    24.0,  // icon size
+    [100, 180, 255, 255],
+);
+<span class="boring">}</span></code></pre>
+<h2 id="alpha-blending"><a class="header" href="#alpha-blending">Alpha Blending</a></h2>
+<p>All glyph drawing uses alpha blending. The <code>blend_pixel</code> function performs
+straight-alpha over compositing, correctly blending the source color over the
+existing destination pixel.</p>
+<h2 id="fallbacks"><a class="header" href="#fallbacks">Fallbacks</a></h2>
+<p>When no font is available, the <code>draw_text_bitmap</code> function provides a simple
+bitmap text renderer. This is a last-resort fallback that draws filled rectangles
+for each character.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="css-generation"><a class="header" href="#css-generation">CSS Generation</a></h1>
+<p>The <code>css</code> module provides CSS string constants for GTK and web usage.</p>
+<h2 id="gtk-font-face-css"><a class="header" href="#gtk-font-face-css">GTK Font-Face CSS</a></h2>
+<p>The <code>FONT_FACE_CSS</code> constant contains <code>@font-face</code> rules for Nerd Font symbol
+fonts and <code>.nerd-icon</code> helper classes. It is loaded automatically by <code>init()</code>
+when the <code>gtk</code> feature is enabled.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use nerd_fonts_gtk::css::FONT_FACE_CSS;
+
+// The CSS references GResource URLs:
+// resource:///io/smearor/nerd_fonts/SymbolsNerdFont-Regular.ttf
+// resource:///io/smearor/nerd_fonts/SymbolsNerdFontMono-Regular.ttf
+<span class="boring">}</span></code></pre>
+<p>The CSS defines:</p>
+<ul>
+<li><code>@font-face</code> for <code>NerdFontsSymbolsOnly</code> (proportional)</li>
+<li><code>@font-face</code> for <code>NerdFontsSymbolsOnlyMono</code> (monospace)</li>
+<li><code>.nerd-icon</code> class for proportional icons</li>
+<li><code>.nerd-icon-mono</code> class for monospace icons</li>
+</ul>
+<h2 id="gresource-prefix"><a class="header" href="#gresource-prefix">GResource Prefix</a></h2>
+<p>The <code>GRESOURCE_PREFIX</code> constant defines where font files are registered in the
+GResource system:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use nerd_fonts_gtk::css::GRESOURCE_PREFIX;
+
+assert_eq!(GRESOURCE_PREFIX, "/io/smearor/nerd_fonts");
+<span class="boring">}</span></code></pre>
+<h2 id="manual-css-loading"><a class="header" href="#manual-css-loading">Manual CSS Loading</a></h2>
+<p>If you need to load the CSS manually (e.g., in a custom initialization flow):</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use gtk4::CssProvider;
+
+let provider = gtk4::CssProvider::new();
+provider.load_from_data(nerd_fonts_gtk::css::FONT_FACE_CSS);
+
+if let Some(display) = gtk4::gdk::Display::default() {
+    gtk4::style_context_add_provider_for_display(
+        &amp;display,
+        &amp;provider,
+        gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION,
+    );
+}
+<span class="boring">}</span></code></pre>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="gtk-integration"><a class="header" href="#gtk-integration">GTK Integration</a></h1>
+<p>The <code>gtk</code> module (enabled with the <code>gtk</code> feature) provides GTK4-specific
+functionality for icon resolution and color application.</p>
+<h2 id="initialization"><a class="header" href="#initialization">Initialization</a></h2>
+<p>Call <code>init()</code> once at application startup:</p>
+<pre class="playground"><code class="language-rust">use nerd_fonts_gtk::init;
+
+fn main() {
+    init(None);
+    // ...
+}</code></pre>
+<p><code>init()</code> performs the following:</p>
+<ol>
+<li><strong>Font initialization</strong> (with <code>render</code> feature) - Sets the font search base
+directory</li>
+<li><strong>GResource registration</strong> - Registers the compiled GResource binary</li>
+<li><strong>Icon registration</strong> - Registers <code>nerd_gtk_icons</code> SVG icons</li>
+<li><strong>CSS loading</strong> - Loads <code>FONT_FACE_CSS</code> into a <code>CssProvider</code> and adds it to
+the default display</li>
+</ol>
+<h2 id="icon-color-application"><a class="header" href="#icon-color-application">Icon Color Application</a></h2>
+<h3 id="image-icons"><a class="header" href="#image-icons">Image Icons</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use nerd_fonts_gtk::gtk::apply_icon_color;
+use nerd_fonts_gtk::Color;
+
+let icon = gtk4::Image::new();
+apply_icon_color(&amp;icon, Color::new(1.0, 0.0, 0.0)); // Red
+<span class="boring">}</span></code></pre>
+<p>This adds a unique CSS class to the icon widget and loads a display-scoped
+<code>CssProvider</code> targeting only that class. This follows the GTK 4.10 recommendation
+to avoid widget-scoped <code>StyleContext::add_provider</code> (deprecated since 4.10).</p>
+<h3 id="label-text-color"><a class="header" href="#label-text-color">Label Text Color</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use nerd_fonts_gtk::gtk::apply_text_color;
+use nerd_fonts_gtk::Color;
+
+let label = gtk4::Label::new(Some("Status"));
+
+// Apply a color
+apply_text_color(&amp;label, Some(Color::new(1.0, 0.5, 0.0)));
+
+// Reset to default (remove custom color)
+apply_text_color::&lt;Color&gt;(&amp;label, None);
+<span class="boring">}</span></code></pre>
+<p>On each call, all previously applied <code>text-color-*</code> CSS classes are removed
+before the new class is added. This prevents CSS class accumulation across
+repeated <code>update_ui()</code> calls.</p>
+<h2 id="gtk-icon-name-resolution-1"><a class="header" href="#gtk-icon-name-resolution-1">GTK Icon Name Resolution</a></h2>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use nerd_fonts_gtk::gtk::resolve_gtk_nerd_icon;
+
+let icon_name = resolve_gtk_nerd_icon("nf-fa-gamepad");
+// Returns "nf-fa-gamepad-symbolic"
+
+let image = gtk4::Image::from_icon_name(&amp;icon_name.unwrap());
+<span class="boring">}</span></code></pre>
+<p>The function normalizes CSS class names (like <code>nf-fa-gamepad</code> or <code>fa-gamepad</code>)
+into GTK icon names that <code>gtk4::Image::from_icon_name</code> understands.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="web-css"><a class="header" href="#web-css">Web CSS</a></h1>
+<p>The <code>web</code> module (enabled with the <code>web</code> feature) provides a CSS constant for
+web-based widget rendering.</p>
+<h2 id="web_nerdfont_css"><a class="header" href="#web_nerdfont_css">WEB_NERDFONT_CSS</a></h2>
+<p>The <code>WEB_NERDFONT_CSS</code> constant contains a complete CSS stylesheet with:</p>
+<ul>
+<li><code>@font-face</code> rules for loading Nerd Font symbol fonts</li>
+<li>Per-icon <code>content: "\XXXX"</code> mappings for use in web widgets</li>
+</ul>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use nerd_fonts_gtk::web::WEB_NERDFONT_CSS;
+
+// Include in your web HTML
+let html = format!(
+    "&lt;style&gt;{}&lt;/style&gt;&lt;span class='nf-fa-gamepad'&gt;&lt;/span&gt;",
+    WEB_NERDFONT_CSS
+);
+<span class="boring">}</span></code></pre>
+<h2 id="usage-with-web-instances"><a class="header" href="#usage-with-web-instances">Usage with Web Instances</a></h2>
+<p>The web CSS is designed for web-based widget rendering systems that display
+Nerd Font icons in HTML pages. Each icon class maps to its Unicode codepoint
+via the CSS <code>content</code> property.</p>
+<h3 id="example-html"><a class="header" href="#example-html">Example HTML</a></h3>
+<pre><code class="language-html">&lt;link rel="stylesheet" href="nerdfont.css"&gt;
+&lt;span class="nerd-icon nf-fa-gamepad"&gt;&lt;/span&gt;
+</code></pre>
+<p>The CSS is generated from the <code>SymbolsNerdFont-Regular.ttf</code> glyph table and
+includes mappings for all Nerd Font symbols.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="platform-notes"><a class="header" href="#platform-notes">Platform Notes</a></h1>
+<h2 id="linux"><a class="header" href="#linux">Linux</a></h2>
+<p>Linux is the primary target for the <code>gtk</code> feature.</p>
+<h3 id="system-dependencies"><a class="header" href="#system-dependencies">System Dependencies</a></h3>
+<pre><code class="language-bash"># Ubuntu/Debian
+sudo apt-get install -y pkg-config libgtk-4-dev libglib2.0-dev
+
+# Fedora
+sudo dnf install -y pkg-config gtk4-devel glib2-devel
+
+# Arch Linux
+sudo pacman -S pkgconf gtk4 glib2
+</code></pre>
+<h3 id="gresource-compilation"><a class="header" href="#gresource-compilation">GResource Compilation</a></h3>
+<p>The <code>build.rs</code> script uses <code>glib_build_tools::compile_resources</code> to compile
+the GResource XML into a binary. This requires <code>glib-build-tools</code> as a
+build dependency and the GTK 4 development headers to be installed.</p>
+<h2 id="macos"><a class="header" href="#macos">macOS</a></h2>
+<p>The <code>gtk</code> feature can be used on macOS with GTK 4 installed via Homebrew:</p>
+<pre><code class="language-bash">brew install gtk4
+</code></pre>
+<p>No additional configuration is needed beyond the standard Rust build process.</p>
+<h2 id="windows"><a class="header" href="#windows">Windows</a></h2>
+<p>The <code>gtk</code> feature can be used on Windows with GTK 4 installed via MSYS2 or
+gvsbuild. See the <a href="https://gtk.org/docs/installations/windows/">GTK4 Windows installation
+guide</a> for details.</p>
+<h2 id="render-only-mode"><a class="header" href="#render-only-mode">Render-Only Mode</a></h2>
+<p>The <code>render</code> feature has no platform-specific dependencies. It works on any
+platform supported by Rust and <code>ab_glyph</code>.</p>
+<pre><code class="language-toml">[dependencies]
+nerd-fonts-gtk = { version = "0.1", default-features = false, features = ["render"] }
+</code></pre>
+<h2 id="web-only-mode"><a class="header" href="#web-only-mode">Web-Only Mode</a></h2>
+<p>The <code>web</code> feature has no platform-specific dependencies. It simply provides a
+CSS string constant.</p>
+<pre><code class="language-toml">[dependencies]
+nerd-fonts-gtk = { version = "0.1", default-features = false, features = ["web"] }
+</code></pre>
+<h2 id="embedded-fonts"><a class="header" href="#embedded-fonts">Embedded Fonts</a></h2>
+<p>The <code>embed-fonts</code> feature compiles font files directly into the binary. This
+increases binary size by approximately 200-500 KB but eliminates the need for
+runtime file access. This is useful for:</p>
+<ul>
+<li>Standalone binaries</li>
+<li>Environments without a filesystem</li>
+<li>Simplified deployment</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-609e4cb8.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid-eefea253.min.js"></script>
+        <script src="mermaid-init-ccf746f1.js"></script>
+
+        <script>
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+
+
+    </div>
+    </body>
+</html>
