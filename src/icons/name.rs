@@ -2,6 +2,8 @@
 
 use std::fmt;
 
+use super::set::IconSet;
+
 /// A normalized GTK icon name derived from a Nerd Font glyph name.
 ///
 /// Follows the naming convention `nf-{prefix}-{name}-symbolic` (kebab-case,
@@ -22,8 +24,8 @@ pub struct IconName(String);
 impl IconName {
     /// Creates an `IconName` from a raw glyph name, applying normalization.
     ///
-    /// Returns `None` if the normalized name would be empty (e.g. when the
-    /// input is empty or consists only of non-alphanumeric characters).
+    /// Returns `None` if the normalized name would be empty or does not
+    /// match a known [`IconSet`] prefix (e.g. `nf-fa-`, `nf-md-`).
     pub fn from_glyph_name(name: &str) -> Option<Self> {
         let name = name.to_lowercase();
         let name = name.replace('_', "-");
@@ -32,7 +34,29 @@ impl IconName {
         if name.is_empty() {
             return None;
         }
-        Some(Self(format!("nf-{}-symbolic", name)))
+        let full_name = format!("nf-{}-symbolic", name);
+        // Validate that the normalized name matches a known icon set prefix.
+        if IconSet::detect(&full_name) == IconSet::Other {
+            return None;
+        }
+        Some(Self(full_name))
+    }
+
+    /// Returns the [`IconSet`] this icon belongs to.
+    ///
+    /// Determined by the icon name prefix (e.g. `nf-fa-*` -> `FontAwesome`).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use nerd_fonts_gtk::icons::IconName;
+    /// use nerd_fonts_gtk::icons::IconSet;
+    ///
+    /// let name = IconName::from_glyph_name("fa-gamepad").unwrap();
+    /// assert_eq!(name.icon_set(), IconSet::FontAwesome);
+    /// ```
+    pub fn icon_set(&self) -> IconSet {
+        IconSet::detect(&self.0)
     }
 }
 
@@ -63,6 +87,10 @@ impl<'de> serde::Deserialize<'de> for IconName {
         D: serde::Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
+        // Validate that the string matches a known icon set prefix.
+        if IconSet::detect(&s) == IconSet::Other {
+            return Err(serde::de::Error::custom(format!("unknown icon set prefix for icon name: '{}'", s)));
+        }
         Ok(Self(s))
     }
 }
