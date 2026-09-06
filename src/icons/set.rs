@@ -117,6 +117,7 @@ impl IconSet {
     /// assert_eq!(IconSet::FontAwesome.prefix(), "nf-fa-");
     /// assert_eq!(IconSet::MaterialDesign.prefix(), "nf-md-");
     /// ```
+    #[allow(dead_code)]
     pub const fn prefix(self) -> &'static str {
         match self {
             IconSet::MaterialDesign => "nf-md-",
@@ -149,6 +150,7 @@ impl IconSet {
     }
 
     /// Returns all known icon sets (excluding `Other`).
+    #[allow(dead_code)]
     pub const fn all() -> &'static [IconSet] {
         &[
             IconSet::MaterialDesign,

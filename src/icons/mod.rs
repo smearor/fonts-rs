@@ -4,7 +4,7 @@
 //! - `register_icons()`: registers the compiled GResource bundle
 //! - `codepoint_map::ICONS`: `phf::Map<char, &'static str>` (codepoint -> name)
 //! - `codepoint_map::REVERSE_ICONS`: `phf::Map<&'static str, char>` (name -> codepoint)
-//! - `icon_constants`: auto-generated icon name constants
+//! - `constants`: auto-generated icon name constants
 //!
 //! Copyright (c) 2026 smearor
 //! Licensed under the MIT License.
@@ -32,20 +32,10 @@ pub fn register_icons() -> Result<(), gio::glib::Error> {
 }
 
 /// Auto-generated Nerd Font icon name constants.
-///
-/// Each constant represents a GTK-compatible icon name (lowercase with
-/// `-symbolic` suffix for symbolic rendering).
-pub mod icon_constants {
-    include!(concat!(env!("OUT_DIR"), "/icons.rs"));
-}
+pub mod constants;
 
 /// Mapping between Unicode codepoints and icon names.
-///
-/// - `ICONS`: codepoint -> icon name
-/// - `REVERSE_ICONS`: icon name -> codepoint
-pub mod codepoint_map {
-    include!(concat!(env!("OUT_DIR"), "/codemap.rs"));
-}
+pub mod codepoint_map;
 
 /// Unicode codepoint newtype for type-safe codepoint handling.
 pub mod codepoint;
