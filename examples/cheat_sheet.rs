@@ -24,7 +24,10 @@ const APP_ID: &str = "io.smearor.nerd_fonts_gtk.cheat_sheet";
 
 /// Collect all icons from the codepoint map as (codepoint, css_class_name) pairs.
 fn collect_all_icons() -> Vec<(char, String)> {
-    let mut icons: Vec<(char, String)> = nerd_gtk_icons::codepoint_map::ICONS.entries().map(|(c, name)| (*c, name.to_string())).collect();
+    let mut icons: Vec<(char, String)> = nerd_fonts_gtk::icons::codepoint_map::ICONS
+        .entries()
+        .map(|(c, name)| (*c, name.to_string()))
+        .collect();
     icons.sort_by(|a, b| a.1.cmp(&b.1));
     icons
 }

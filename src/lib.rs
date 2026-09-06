@@ -10,6 +10,9 @@ pub mod color;
 pub mod css;
 pub mod icons;
 
+#[cfg(feature = "export")]
+pub mod generator;
+
 #[cfg(feature = "gtk")]
 pub mod gtk;
 
@@ -27,7 +30,7 @@ pub use icons::resolve_icon_codepoint;
 /// Initialize nerd-fonts-gtk.
 ///
 /// - Registers GResource (gtk feature)
-/// - Registers nerd_gtk_icons (gtk feature)
+/// - Registers vendored icon GResource (gtk feature)
 /// - Sets font search base directory (render feature, without embed-fonts)
 /// - Loads font-face CSS into GTK display (gtk feature)
 ///
@@ -41,7 +44,7 @@ pub fn init(#[cfg(feature = "render")] base_dir: Option<&str>, #[cfg(not(feature
         tracing::error!("Failed to register nerd-fonts GResource: {e}");
     }
 
-    if let Err(e) = nerd_gtk_icons::register_icons() {
+    if let Err(e) = icons::register_icons() {
         tracing::error!("Failed to register nerd font icons: {e}");
     }
 

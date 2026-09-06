@@ -21,3 +21,11 @@ target
 .idea/
 
 book/book
+
+# Generated icon resources (regenerated from font by build.rs)
+resources/icons/
+resources/metadata.json
+resources/icons.gresource.xml
+resources/.font-hash
+resources/web/nerdfont.css
+resources/nerdfont.css

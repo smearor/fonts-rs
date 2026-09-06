@@ -16,7 +16,7 @@ CSS generation for Nerd Font symbols.
 ## Features
 
 - **Icon Name Resolution** - Map human-readable names like `nf-fa-gamepad` to
-  Unicode codepoints via the `nerd_gtk_icons` codepoint map
+  Unicode codepoints via the vendored codepoint map
 - **GTK4 Integration** - Register GResource fonts, apply icon colors to
   `gtk4::Image` and `gtk4::Label` widgets via display-scoped CSS providers
 - **Software Rendering** - Draw Nerd Font icons, text labels, progress bars, and
