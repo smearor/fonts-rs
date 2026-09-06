@@ -45,5 +45,9 @@ glib = "0.22"
 name = "interactive_demo"
 required-features = ["gtk", "render", "embed-fonts"]
 
+[[example]]
+name = "cheat_sheet"
+required-features = ["gtk", "render", "embed-fonts"]
+
 [build-dependencies]
 glib-build-tools = "0.22"
