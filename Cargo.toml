@@ -29,13 +29,20 @@ web = []
 # Without this feature, fonts are loaded from disk at runtime
 embed-fonts = []
 
+# Export Nerd Font glyphs as SVG icons (enables export_icons binary)
+export = ["dep:ttf-parser", "dep:clap", "dep:serde_json"]
+
 [dependencies]
-nerd_gtk_icons = "0.1"
 gio = { version = "0.22", optional = true }
 gtk4 = { version = "0.11", optional = true }
 ab_glyph = { version = "0.2", optional = true }
 woff2-patched = { version = "0.4", optional = true }
+phf = { version = "0.13", features = ["macros"] }
 tracing = "0.1"
+ttf-parser = { version = "0.25", optional = true }
+clap = { version = "4.6", optional = true, features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0", optional = true }
 
 [dev-dependencies]
 gtk4 = "0.11"
@@ -49,5 +56,12 @@ required-features = ["gtk", "render", "embed-fonts"]
 name = "cheat_sheet"
 required-features = ["gtk", "render", "embed-fonts"]
 
+[[bin]]
+name = "export_icons"
+required-features = ["export"]
+
 [build-dependencies]
 glib-build-tools = "0.22"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+ttf-parser = "0.25"

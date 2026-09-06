@@ -14,9 +14,12 @@ use crate::color::Color;
 /// Resolves a CSS class name (e.g. `"nf-fa-gamepad"` or `"fa-gamepad"`)
 /// into an icon name string that `gtk4::Image::from_icon_name` understands.
 ///
-/// The `nerd_gtk_icons` crate registers SVG icons as GResource under
-/// the path `/io/nerd_fonts/icons/`. Each icon is named following the
-/// pattern `nf-{prefix}-{name}-symbolic` (kebab-case, lower-case).
+/// The vendored icon GResource registers SVG icons under
+/// the path `/io/smearor/nerd_fonts/icons/`. Each icon is named following
+/// the pattern `nf-{prefix}-{name}-symbolic` (kebab-case, lower-case).
+///
+/// Returns `None` if the resolved icon name does not exist in the
+/// codepoint map.
 pub fn resolve_gtk_nerd_icon(css_class: &str) -> Option<String> {
     let clean_name = css_class.strip_prefix("nf-").unwrap_or(css_class);
     let normalized = clean_name.replace('-', "_").to_uppercase();
@@ -35,6 +38,9 @@ pub fn resolve_gtk_nerd_icon(css_class: &str) -> Option<String> {
 
     trace!("resolve_gtk_nerd_icon: input='{}' -> output='{}'", css_class, gtk_friendly_name);
 
+    // Validate that the icon actually exists in the codepoint map
+    crate::icons::resolve_icon_codepoint(&gtk_friendly_name)?;
+
     Some(gtk_friendly_name)
 }
 
@@ -43,8 +49,24 @@ pub fn resolve_gtk_nerd_icon(css_class: &str) -> Option<String> {
 /// A unique CSS class is added to the icon widget, and a CSS rule targeting only that class
 /// is loaded on the display. This follows the GTK 4.10 recommendation to avoid widget-scoped
 /// `StyleContext::add_provider` (deprecated since 4.10).
+///
+/// On each call, all previously applied `icon-color-*` CSS classes are removed from the
+/// icon before the new class is added. This prevents CSS class accumulation across
+/// repeated calls (e.g. theme color changes).
 pub fn apply_icon_color<C: Into<Color>>(icon: &gtk4::Image, color: C) {
     let color = color.into();
+
+    let existing_classes: Vec<String> = icon
+        .css_classes()
+        .iter()
+        .filter(|c| c.starts_with("icon-color-"))
+        .map(|c| c.to_string())
+        .collect();
+
+    for class_name in existing_classes {
+        icon.remove_css_class(&class_name);
+    }
+
     let class_name = format!(
         "icon-color-{:02x}{:02x}{:02x}{:02x}",
         (color.r * 255.0).round() as u8,
@@ -146,7 +168,13 @@ mod tests {
 
     #[test]
     fn resolve_icon_single_segment() {
-        let result = resolve_gtk_nerd_icon("nf-custom-icon");
-        assert_eq!(result, Some("nf-custom-icon-symbolic".to_string()));
+        let result = resolve_gtk_nerd_icon("nf-linux-tux");
+        assert_eq!(result, Some("nf-linux-tux-symbolic".to_string()));
+    }
+
+    #[test]
+    fn resolve_unknown_icon_returns_none() {
+        let result = resolve_gtk_nerd_icon("nf-nonexistent-icon-xyz");
+        assert_eq!(result, None);
     }
 }

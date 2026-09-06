@@ -20,5 +20,7 @@ This crate bundles font files from third-party projects:
    https://github.com/JetBrains/JetBrainsMono
    https://github.com/ryanoasis/nerd-fonts
 
-3. nerd_gtk_icons (codepoint map and SVG icon registration)
-   https://github.com/smearor/nerd_gtk_icons
+3. Nerd Font SVG Icons (10.403 icons, generated from SymbolsNerdFont-Regular.ttf)
+   Generated at build time using ttf-parser. Derived from the Nerd Fonts
+   project (see item 1 above) for glyph data.
+   https://github.com/ryanoasis/nerd-fonts

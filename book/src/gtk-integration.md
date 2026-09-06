@@ -21,7 +21,7 @@ fn main() {
 1. **Font initialization** (with `render` feature) - Sets the font search base
    directory
 2. **GResource registration** - Registers the compiled GResource binary
-3. **Icon registration** - Registers `nerd_gtk_icons` SVG icons
+3. **Icon registration** - Registers vendored Nerd Font SVG icons
 4. **CSS loading** - Loads `FONT_FACE_CSS` into a `CssProvider` and adds it to
    the default display
 

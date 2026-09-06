@@ -15,7 +15,7 @@ The `resolve_icon_codepoint` function:
 
 1. Normalizes the input to kebab-case, lower-case
 2. Appends `-symbolic` suffix if not already present (GTK symbolic icon convention)
-3. Looks up the normalized name in the `nerd_gtk_icons` codepoint map
+3. Looks up the normalized name in the vendored codepoint map
 4. Returns the Unicode character if found
 
 ## Usage
@@ -50,8 +50,8 @@ The `gtk` module provides `resolve_gtk_nerd_icon` which converts CSS class names
 (like `nf-fa-gamepad` or `fa-gamepad`) into GTK icon names that
 `gtk4::Image::from_icon_name` understands.
 
-The `nerd_gtk_icons` crate registers SVG icons as GResource under the path
-`/io/nerd_fonts/icons/`. Each icon follows the naming pattern
+The vendored icon GResource registers SVG icons under the path
+`/io/smearor/nerd_fonts/icons/`. Each icon follows the naming pattern
 `nf-{prefix}-{name}-symbolic` (kebab-case, lower-case).
 
 ```rust

@@ -3,8 +3,7 @@
 //! Copyright (c) 2026 smearor
 //! Licensed under the MIT License.
 
-/// GResource prefix for font files.
-pub const GRESOURCE_PREFIX: &str = "/io/smearor/nerd_fonts";
+pub use crate::icons::paths::GRESOURCE_PREFIX;
 
 /// GTK CSS: `@font-face` rules for Nerd Font symbol fonts and `.nerd-icon` helper classes.
 ///

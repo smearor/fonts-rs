@@ -246,7 +246,7 @@ pub fn draw_icon_grid(
         None => return,
     };
 
-    let rows = ((icons.len() as u32 + grid_cols - 1) / grid_cols).max(1);
+    let rows = (icons.len() as u32).div_ceil(grid_cols).max(1);
     let cell_w = width / grid_cols;
     let cell_h = height / rows;
     let icon_size = cell_w.min(cell_h) as f32 * 0.6;
