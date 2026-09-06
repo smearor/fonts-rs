@@ -2,9 +2,9 @@
 
 use std::path::PathBuf;
 
+use super::IconEntry;
 use super::error::GenerateError;
 use super::generate::NerdFontsGenerator;
-use super::IconEntry;
 
 /// Generates phf::Map constants for both codepoint-to-name and name-to-codepoint lookups.
 pub struct IconsCodemapGenerator;

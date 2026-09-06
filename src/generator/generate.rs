@@ -3,8 +3,8 @@
 use std::fs;
 use std::path::PathBuf;
 
-use super::error::GenerateError;
 use super::IconEntry;
+use super::error::GenerateError;
 
 /// Trait for code generators that produce output from icon metadata.
 ///

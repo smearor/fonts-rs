@@ -3,9 +3,9 @@
 use std::collections::HashSet;
 use std::path::PathBuf;
 
+use super::IconEntry;
 use super::error::GenerateError;
 use super::generate::NerdFontsGenerator;
-use super::IconEntry;
 
 /// Generates Rust constants for each icon name.
 pub struct IconsRustGenerator;

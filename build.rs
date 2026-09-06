@@ -10,6 +10,9 @@ use std::path::Path;
 #[path = "src/icons/codepoint.rs"]
 mod codepoint;
 
+#[path = "src/icons/set.rs"]
+mod set;
+
 #[path = "src/icons/name.rs"]
 mod name;
 

@@ -18,6 +18,7 @@ pub use name::IconName;
 pub use paths::GRESOURCE_PREFIX;
 pub use paths::ICONS_RESOURCE_PATH;
 pub use resource_path::ResourcePath;
+pub use set::IconSet;
 
 use std::convert::TryFrom;
 
@@ -26,9 +27,7 @@ impl TryFrom<&IconName> for CodePoint {
     type Error = CodePointParseError;
 
     fn try_from(icon_name: &IconName) -> Result<Self, Self::Error> {
-        resolve_icon_codepoint(icon_name.as_ref())
-            .map(Self)
-            .ok_or(CodePointParseError::IconNotFound)
+        resolve_icon_codepoint(icon_name.as_ref()).map(Self).ok_or(CodePointParseError::IconNotFound)
     }
 }
 
@@ -78,6 +77,9 @@ pub fn resolve_icon_codepoint(icon_name: &str) -> Option<char> {
 
 /// Unicode codepoint newtype for type-safe codepoint handling.
 pub mod codepoint;
+
+/// Icon collection enum for prefix-based grouping.
+pub mod set;
 
 /// Normalized GTK icon name newtype for type-safe icon name handling.
 pub mod name;

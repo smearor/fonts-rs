@@ -2,9 +2,9 @@
 
 use std::path::PathBuf;
 
+use super::IconEntry;
 use super::error::GenerateError;
 use super::generate::NerdFontsGenerator;
-use super::IconEntry;
 
 /// Generates the web CSS file (`resources/nerdfont.css`) with per-icon
 /// `content: "\XXXX"` mappings from metadata.json.

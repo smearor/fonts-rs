@@ -25,6 +25,8 @@ pub mod fonts;
 pub mod web;
 
 pub use color::Color;
+pub use color::ColorParseError;
+pub use icons::IconSet;
 pub use icons::resolve_icon_codepoint;
 
 /// Initialize nerd-fonts-gtk.
