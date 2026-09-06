@@ -1,7 +1,12 @@
 //! Normalized GTK icon name newtype for type-safe icon name handling.
 
+use std::convert::TryFrom;
 use std::fmt;
 
+#[cfg(is_lib)]
+use super::codepoint::CodePoint;
+#[cfg(is_lib)]
+use super::codepoint::CodePointParseError;
 use super::set::IconSet;
 
 /// A normalized GTK icon name derived from a Nerd Font glyph name.
@@ -57,6 +62,38 @@ impl IconName {
     /// ```
     pub fn icon_set(&self) -> IconSet {
         IconSet::detect(&self.0)
+    }
+
+    /// Resolves this icon name to its Unicode [`CodePoint`].
+    ///
+    /// Returns `None` if the icon name is not found in the codepoint map.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use nerd_fonts_gtk::icons::IconName;
+    ///
+    /// let name = IconName::from_glyph_name("fa-gamepad").unwrap();
+    /// let codepoint = name.codepoint();
+    /// assert!(codepoint.is_some());
+    /// assert_eq!(codepoint.unwrap().as_char(), '\u{F11B}');
+    /// ```
+    #[cfg(is_lib)]
+    pub fn codepoint(&self) -> Option<CodePoint> {
+        super::codepoint_map::REVERSE_ICONS
+            .get(self.0.as_str())
+            .copied()
+            .map(CodePoint)
+    }
+}
+
+/// Convert an [`IconName`] to a [`CodePoint`] via the codepoint map.
+#[cfg(is_lib)]
+impl TryFrom<&IconName> for CodePoint {
+    type Error = CodePointParseError;
+
+    fn try_from(icon_name: &IconName) -> Result<Self, Self::Error> {
+        icon_name.codepoint().ok_or(CodePointParseError::IconNotFound)
     }
 }
 

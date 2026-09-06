@@ -16,8 +16,8 @@ use nerd_fonts_gtk::color::Color;
 use nerd_fonts_gtk::drawing;
 use nerd_fonts_gtk::gtk::apply_text_color;
 use nerd_fonts_gtk::gtk::resolve_gtk_nerd_icon;
+use nerd_fonts_gtk::icons::IconName;
 use nerd_fonts_gtk::init;
-use nerd_fonts_gtk::resolve_icon_codepoint;
 
 use gtk4::Align;
 use gtk4::Application;
@@ -208,7 +208,7 @@ fn do_resolve(result_label: &Label, name: &str) {
         result_label.set_label("Codepoint: —\nGTK icon name: —");
         return;
     }
-    let cp = resolve_icon_codepoint(name);
+    let cp = IconName::from_glyph_name(name.strip_prefix("nf-").unwrap_or(name)).and_then(|n| n.codepoint()).map(|c| c.as_char());
     let gtk_name = resolve_gtk_nerd_icon(name);
     match cp {
         Some(c) => result_label.set_label(&format!("Codepoint: U+{:04X} ('{}')\nGTK icon name: {}", c as u32, c, gtk_name.as_deref().unwrap_or("—"))),
@@ -263,7 +263,7 @@ fn build_gallery_section() -> Frame {
     }
 
     for (i, icon_name) in GALLERY_ICONS.iter().enumerate() {
-        let codepoint = resolve_icon_codepoint(icon_name).map(|c| c.to_string()).unwrap_or_else(|| "?".to_string());
+        let codepoint = IconName::from_glyph_name(icon_name.strip_prefix("nf-").unwrap_or(icon_name)).and_then(|n| n.codepoint()).map(|c| c.to_string()).unwrap_or_else(|| "?".to_string());
 
         let icon = Label::builder()
             .label(&codepoint)
@@ -319,9 +319,7 @@ fn build_gallery_section() -> Frame {
         .margin_top(8)
         .build();
 
-    let preview_codepoint = resolve_icon_codepoint("nf-fa-gamepad")
-        .map(|c| c.to_string())
-        .unwrap_or_else(|| "?".to_string());
+    let preview_codepoint = IconName::from_glyph_name("fa-gamepad").and_then(|n| n.codepoint()).map(|c| c.to_string()).unwrap_or_else(|| "?".to_string());
 
     let preview_icon = Label::builder()
         .label(&preview_codepoint)
@@ -390,7 +388,7 @@ fn build_gallery_section() -> Frame {
                     #[weak]
                     grid,
                     move |_, _, _, _| {
-                        if let Some(cp) = resolve_icon_codepoint(&name) {
+                        if let Some(cp) = IconName::from_glyph_name(name.strip_prefix("nf-").unwrap_or(&name)).and_then(|n| n.codepoint()) {
                             preview_icon.set_label(&cp.to_string());
                             let color = current_color(&r_scale, &g_scale, &b_scale, &a_scale);
                             apply_text_color(&preview_icon, Some(color));
@@ -620,7 +618,7 @@ fn build_rendering_section() -> Frame {
     for (i, icon_name) in GALLERY_ICONS.iter().take(8).enumerate() {
         let mut pixels = vec![0u8; (icon_size * icon_size * 4) as usize];
         drawing::fill_background(&mut pixels, icon_size, icon_size, [30, 30, 30, 255]);
-        drawing::draw_nerd_font_icon(&mut pixels, icon_size, icon_size, icon_name, true, resolve_icon_codepoint, Some([100, 180, 255, 255]));
+        drawing::draw_nerd_font_icon(&mut pixels, icon_size, icon_size, icon_name, true, |name: &str| IconName::from_glyph_name(name.strip_prefix("nf-").unwrap_or(name)).and_then(|n| n.codepoint()).map(|c| c.as_char()), Some([100, 180, 255, 255]));
         drawing::draw_label_text(&mut pixels, icon_size, icon_size, &icon_name.replace("nf-", ""), false, None);
 
         let bytes = glib::Bytes::from(&pixels);

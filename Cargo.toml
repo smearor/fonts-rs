@@ -36,6 +36,7 @@ export = ["dep:ttf-parser", "dep:clap", "dep:serde_json"]
 gio = { version = "0.22", optional = true }
 gtk4 = { version = "0.11", optional = true }
 ab_glyph = { version = "0.2", optional = true }
+bytemuck = "1.23"
 woff2-patched = { version = "0.4", optional = true }
 phf = { version = "0.13", features = ["macros"] }
 tracing = "0.1"
@@ -65,3 +66,6 @@ glib-build-tools = "0.22"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 ttf-parser = "0.25"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(is_lib)'] }

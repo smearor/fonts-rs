@@ -20,17 +20,6 @@ pub use paths::ICONS_RESOURCE_PATH;
 pub use resource_path::ResourcePath;
 pub use set::IconSet;
 
-use std::convert::TryFrom;
-
-/// Convert an [`IconName`] to a [`CodePoint`] via the codepoint map.
-impl TryFrom<&IconName> for CodePoint {
-    type Error = CodePointParseError;
-
-    fn try_from(icon_name: &IconName) -> Result<Self, Self::Error> {
-        resolve_icon_codepoint(icon_name.as_ref()).map(Self).ok_or(CodePointParseError::IconNotFound)
-    }
-}
-
 /// Registers embedded Nerd Font icons as a GResource.
 ///
 /// Must be called once before using any icons through GTK/GIO APIs.
@@ -56,23 +45,6 @@ pub mod icon_constants {
 /// - `REVERSE_ICONS`: icon name -> codepoint
 pub mod codepoint_map {
     include!(concat!(env!("OUT_DIR"), "/codemap.rs"));
-}
-
-/// Resolve a Nerd Font icon name (e.g. `nf-weather-day_sunny`) to its
-/// Unicode codepoint character by looking it up in the reverse codepoint map.
-///
-/// The name is normalized to the GTK symbolic icon name format
-/// (kebab-case, `-symbolic` suffix) before lookup.
-///
-/// Lookup is O(1) via a compile-time `phf::Map`.
-pub fn resolve_icon_codepoint(icon_name: &str) -> Option<char> {
-    let normalized = icon_name.replace('_', "-").to_lowercase();
-    let with_suffix = if normalized.ends_with("-symbolic") {
-        normalized
-    } else {
-        format!("{}-symbolic", normalized)
-    };
-    codepoint_map::REVERSE_ICONS.get(with_suffix.as_str()).copied()
 }
 
 /// Unicode codepoint newtype for type-safe codepoint handling.
@@ -112,38 +84,34 @@ mod tests {
     use super::*;
 
     #[test]
-    fn resolve_known_icon() {
-        let codepoint = resolve_icon_codepoint("nf-fa-gamepad");
-        assert_eq!(codepoint, Some('\u{F11B}'));
+    fn icon_name_codepoint_known_icon() {
+        let name = IconName::from_glyph_name("fa-gamepad").unwrap();
+        let codepoint = name.codepoint();
+        assert!(codepoint.is_some());
+        assert_eq!(codepoint.unwrap().as_char(), '\u{F11B}');
     }
 
     #[test]
-    fn resolve_icon_with_underscores() {
-        let codepoint = resolve_icon_codepoint("nf_linux_tux");
-        assert_eq!(codepoint, Some('\u{F31A}'));
+    fn icon_name_codepoint_with_underscores() {
+        let name = IconName::from_glyph_name("linux_tux").unwrap();
+        let codepoint = name.codepoint();
+        assert!(codepoint.is_some());
+        assert_eq!(codepoint.unwrap().as_char(), '\u{F31A}');
     }
 
     #[test]
-    fn resolve_icon_already_has_symbolic_suffix() {
-        let codepoint = resolve_icon_codepoint("nf-fa-gamepad-symbolic");
-        assert_eq!(codepoint, Some('\u{F11B}'));
+    fn icon_name_codepoint_unknown_icon() {
+        let name = IconName::from_glyph_name("fa-nonexistent-xyz");
+        if let Some(name) = name {
+            assert_eq!(name.codepoint(), None);
+        }
     }
 
     #[test]
-    fn resolve_icon_case_insensitive() {
-        let codepoint = resolve_icon_codepoint("NF-FA-GAMEPAD");
-        assert_eq!(codepoint, Some('\u{F11B}'));
-    }
-
-    #[test]
-    fn resolve_unknown_icon_returns_none() {
-        let codepoint = resolve_icon_codepoint("nf-nonexistent-icon-xyz");
-        assert_eq!(codepoint, None);
-    }
-
-    #[test]
-    fn resolve_empty_string_returns_none() {
-        let codepoint = resolve_icon_codepoint("");
-        assert_eq!(codepoint, None);
+    fn try_from_icon_name_to_codepoint() {
+        let name = IconName::from_glyph_name("fa-gamepad").unwrap();
+        let codepoint: Result<CodePoint, _> = CodePoint::try_from(&name);
+        assert!(codepoint.is_ok());
+        assert_eq!(codepoint.unwrap().as_char(), '\u{F11B}');
     }
 }
