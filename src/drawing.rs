@@ -17,13 +17,19 @@ use ab_glyph::ScaleFont;
 use tracing::debug;
 
 /// Fill the entire pixel buffer with a solid background color.
+///
+/// Reinterprets the `&mut [u8]` buffer as `&mut [u32]` (RGBA = 4 bytes =
+/// one `u32` in little-endian) and uses `slice::fill()` for SIMD-vectorized
+/// writes instead of a pixel-by-pixel nested loop.
+///
+/// If the buffer is smaller than `width * height * 4`, only the available
+/// bytes are filled. If it is larger, only the expected region is written.
 pub fn fill_background(pixels: &mut [u8], width: u32, height: u32, color: [u8; 4]) {
-    for y in 0..height {
-        for x in 0..width {
-            let idx = ((y * width + x) * 4) as usize;
-            pixels[idx..idx + 4].copy_from_slice(&color);
-        }
-    }
+    let expected = (width as usize) * (height as usize) * 4;
+    let len = pixels.len().min(expected);
+    let color_u32 = u32::from_le_bytes(color);
+    let pixels_u32: &mut [u32] = bytemuck::cast_slice_mut(&mut pixels[..len]);
+    pixels_u32.fill(color_u32);
 }
 
 /// Draw a Nerd Font icon centered on the image, occupying the upper portion.
@@ -325,15 +331,18 @@ fn glyph_fit_scale(font: &FontVec, glyph_id: ab_glyph::GlyphId, target_px: f32) 
 }
 
 /// Truncate text to fit within a maximum pixel width.
+///
+/// Uses incremental width tracking — O(n) in the number of characters.
 fn truncate_text_to_width(text: &str, scaled_font: &PxScaleFont<&FontVec>, max_width: f32) -> String {
     let mut result = String::new();
+    let mut current_width: f32 = 0.0;
     for ch in text.chars() {
         let glyph_id = scaled_font.glyph_id(ch);
         let char_width = scaled_font.h_advance(glyph_id);
-        let current_width: f32 = result.chars().map(|c| scaled_font.h_advance(scaled_font.glyph_id(c))).sum();
         if current_width + char_width > max_width {
             break;
         }
+        current_width += char_width;
         result.push(ch);
     }
     result
@@ -393,6 +402,68 @@ fn draw_text_bitmap(pixels: &mut [u8], width: u32, height: u32, text: &str, _is_
                     pixels[idx..idx + 4].copy_from_slice(&color);
                 }
             }
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn fill_background_fills_all_pixels() {
+        let width = 4u32;
+        let height = 3u32;
+        let mut pixels = vec![0u8; (width * height * 4) as usize];
+        let color = [10, 20, 30, 255];
+        fill_background(&mut pixels, width, height, color);
+
+        for px in pixels.chunks_exact(4) {
+            assert_eq!(px, &color);
+        }
+    }
+
+    #[test]
+    fn fill_background_single_pixel() {
+        let mut pixels = vec![0u8; 4];
+        let color = [255, 0, 128, 200];
+        fill_background(&mut pixels, 1, 1, color);
+        assert_eq!(&pixels[..], &color);
+    }
+
+    #[test]
+    fn fill_background_undersized_buffer_fills_available() {
+        let mut pixels = vec![0u8; 8];
+        let color = [10, 20, 30, 255];
+        fill_background(&mut pixels, 2, 2, color);
+        // Only 2 pixels fit in 8 bytes
+        assert_eq!(&pixels[..4], &color);
+        assert_eq!(&pixels[4..8], &color);
+    }
+
+    #[test]
+    fn fill_background_oversized_buffer_fills_expected_region() {
+        let mut pixels = vec![0u8; 24];
+        let color = [10, 20, 30, 255];
+        fill_background(&mut pixels, 2, 2, color);
+        // First 16 bytes (2x2x4) should be filled
+        assert_eq!(&pixels[..16], &[10, 20, 30, 255, 10, 20, 30, 255, 10, 20, 30, 255, 10, 20, 30, 255]);
+        // Remaining 8 bytes should be untouched
+        assert_eq!(&pixels[16..], &[0, 0, 0, 0, 0, 0, 0, 0]);
+    }
+
+    #[test]
+    fn fill_background_preserves_color_via_u32_round_trip() {
+        let width = 2u32;
+        let height = 2u32;
+        let mut pixels = vec![0u8; 16];
+        let color = [0xAB, 0xCD, 0xEF, 0x12];
+        fill_background(&mut pixels, width, height, color);
+
+        let pixels_u32: &[u32] = bytemuck::cast_slice(&pixels);
+        let expected = u32::from_le_bytes(color);
+        for &px in pixels_u32 {
+            assert_eq!(px, expected);
         }
     }
 }

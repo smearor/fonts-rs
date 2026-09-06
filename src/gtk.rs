@@ -10,6 +10,7 @@ use gtk4::prelude::WidgetExt;
 use tracing::trace;
 
 use crate::color::Color;
+use crate::icons::IconName;
 
 /// Resolves a CSS class name (e.g. `"nf-fa-gamepad"` or `"fa-gamepad"`)
 /// into an icon name string that `gtk4::Image::from_icon_name` understands.
@@ -38,8 +39,15 @@ pub fn resolve_gtk_nerd_icon(css_class: &str) -> Option<String> {
 
     trace!("resolve_gtk_nerd_icon: input='{}' -> output='{}'", css_class, gtk_friendly_name);
 
-    // Validate that the icon actually exists in the codepoint map
-    crate::icons::resolve_icon_codepoint(&gtk_friendly_name)?;
+    // Validate that the icon actually exists in the codepoint map.
+    // Strip the `nf-` prefix and `-symbolic` suffix since `from_glyph_name`
+    // re-adds them during normalization.
+    let glyph_name = gtk_friendly_name
+        .strip_prefix("nf-")
+        .unwrap_or(&gtk_friendly_name)
+        .strip_suffix("-symbolic")
+        .unwrap_or(&gtk_friendly_name);
+    IconName::from_glyph_name(glyph_name)?.codepoint()?;
 
     Some(gtk_friendly_name)
 }

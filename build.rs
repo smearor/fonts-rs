@@ -42,6 +42,10 @@ use generator::generate::NerdFontsGenerator;
 use generator::icons::IconsRustGenerator;
 
 fn main() {
+    // Set cfg flag to indicate lib compilation (not build script).
+    // This enables codepoint() in name.rs which needs the codepoint map.
+    println!("cargo:rustc-cfg=is_lib");
+
     // ----------------------------
     // 1. Rebuild triggers
     // ----------------------------
