@@ -9,7 +9,7 @@ use std::str::FromStr;
 /// Serializes as an uppercase hex string (e.g. `"F11B"`) in JSON.
 /// Can be constructed from a `char` and parsed back from a hex string.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct CodePoint(pub char);
+pub struct CodePoint(char);
 
 /// Error returned when parsing a `CodePoint` from a string.
 #[derive(Debug, Clone, PartialEq, Eq)]

@@ -1,7 +1,9 @@
 //! Normalized GTK icon name newtype for type-safe icon name handling.
 
-use std::convert::TryFrom;
 use std::fmt;
+
+#[cfg(is_lib)]
+use std::convert::TryFrom;
 
 #[cfg(is_lib)]
 use super::codepoint::CodePoint;
@@ -60,6 +62,7 @@ impl IconName {
     /// let name = IconName::from_glyph_name("fa-gamepad").unwrap();
     /// assert_eq!(name.icon_set(), IconSet::FontAwesome);
     /// ```
+    #[allow(dead_code)]
     pub fn icon_set(&self) -> IconSet {
         IconSet::detect(&self.0)
     }
@@ -80,10 +83,7 @@ impl IconName {
     /// ```
     #[cfg(is_lib)]
     pub fn codepoint(&self) -> Option<CodePoint> {
-        super::codepoint_map::REVERSE_ICONS
-            .get(self.0.as_str())
-            .copied()
-            .map(CodePoint)
+        super::codepoint_map::REVERSE_ICONS.get(self.0.as_str()).copied().map(CodePoint::from)
     }
 }
 
