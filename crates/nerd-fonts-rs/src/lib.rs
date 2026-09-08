@@ -37,3 +37,7 @@ pub use icons::all_icons_typed;
 pub use init::InitError;
 pub use init::InitOptions;
 pub use init::init;
+
+// Re-export CSS
+pub use css::font_face_css;
+pub use css::GtkVersion;

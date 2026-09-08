@@ -22,8 +22,8 @@ fn main() {
    directory
 2. **GResource registration** - Registers the compiled GResource binary
 3. **Icon registration** - Registers vendored Nerd Font SVG icons
-4. **CSS loading** - Loads `FONT_FACE_CSS` into a `CssProvider` and adds it to
-   the default display
+4. **CSS loading** - Loads version-adapted `@font-face` CSS via
+   `font_face_css()` into a `CssProvider` and adds it to the default display
 
 ## Icon Color Application
 
