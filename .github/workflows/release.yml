@@ -33,16 +33,14 @@ jobs:
         run: cargo build --workspace --release --verbose
       - name: Dry-run publish (nerd-fonts-model)
         run: cargo publish --dry-run --locked -p nerd-fonts-model --token ${{ secrets.CRATES_IO_TOKEN }}
-      - name: Dry-run publish (nerd-fonts-generator)
-        run: cargo publish --dry-run --locked -p nerd-fonts-generator --token ${{ secrets.CRATES_IO_TOKEN }}
-      - name: Dry-run publish (nerd-fonts-rs)
-        run: cargo publish --dry-run --locked -p nerd-fonts-rs --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish nerd-fonts-model
         run: cargo publish --locked -p nerd-fonts-model --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish nerd-fonts-generator
         run: cargo publish --locked -p nerd-fonts-generator --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish nerd-fonts-rs
         run: cargo publish --locked -p nerd-fonts-rs --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish nerd-fonts-cheat-sheet
+        run: cargo publish --locked -p nerd-fonts-cheat-sheet --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
