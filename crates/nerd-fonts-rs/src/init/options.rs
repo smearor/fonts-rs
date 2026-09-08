@@ -65,7 +65,16 @@ impl InitOptions {
             crate::icons::register_icons().map_err(|e| InitError::IconRegister(e.to_string()))?;
 
             let provider = gtk4::CssProvider::new();
-            provider.load_from_data(crate::css::FONT_FACE_CSS);
+            let css = crate::css::font_face_css();
+            #[cfg(feature = "v4_12")]
+            {
+                provider.load_from_string(&css);
+            }
+            #[cfg(not(feature = "v4_12"))]
+            {
+                #[allow(deprecated)]
+                provider.load_from_data(&css);
+            }
             if let Some(display) = gtk4::gdk::Display::default() {
                 gtk4::style_context_add_provider_for_display(&display, &provider, gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION);
             }
