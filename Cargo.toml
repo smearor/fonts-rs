@@ -1,71 +1,22 @@
-[package]
-name = "nerd-fonts-gtk"
+[workspace]
+members = [
+    "crates/nerd-fonts-model",
+    "crates/nerd-fonts-generator",
+    "crates/nerd-fonts-rs",
+    "crates/nerd-fonts-cheat-sheet",
+]
+resolver = "2"
+
+[workspace.package]
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.85"
 license = "MIT"
 authors = ["Andreas Schaeffer <hanack@nooblounge.net>"]
-description = "Shared Nerd Font integration for GTK4 projects: icon resolution, font loading, software rendering, and CSS generation"
 repository = "https://github.com/smearor/nerd-fonts-gtk"
 homepage = "https://github.com/smearor/nerd-fonts-gtk"
-documentation = "https://docs.rs/nerd-fonts-gtk"
-readme = "README.md"
 keywords = ["gtk4", "nerd-fonts", "icons", "font", "rendering"]
 categories = ["graphics", "gui", "rendering"]
 
-[features]
-default = ["gtk"]
-
-# GTK4 icon name resolution, color application, GResource registration
-gtk = ["dep:gtk4", "dep:gio"]
-
-# Software rendering with ab_glyph (pixel buffer, no GTK required)
-render = ["dep:ab_glyph", "dep:woff2-patched"]
-
-# Web CSS generation (per-icon codepoint mappings for web instances)
-web = []
-
-# Embed font files into the binary via include_bytes!
-# Without this feature, fonts are loaded from disk at runtime
-embed-fonts = []
-
-# Export Nerd Font glyphs as SVG icons (enables export_icons binary)
-export = ["dep:ttf-parser", "dep:clap", "dep:serde_json"]
-
-[dependencies]
-gio = { version = "0.22", optional = true }
-gtk4 = { version = "0.11", optional = true }
-ab_glyph = { version = "0.2", optional = true }
-bytemuck = "1.23"
-woff2-patched = { version = "0.4", optional = true }
-phf = { version = "0.13", features = ["macros"] }
-tracing = "0.1"
-ttf-parser = { version = "0.25", optional = true }
-clap = { version = "4.6", optional = true, features = ["derive"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = { version = "1.0", optional = true }
-
-[dev-dependencies]
-gtk4 = "0.11"
-glib = "0.22"
-
-[[example]]
-name = "interactive_demo"
-required-features = ["gtk", "render", "embed-fonts"]
-
-[[example]]
-name = "cheat_sheet"
-required-features = ["gtk", "render", "embed-fonts"]
-
-[[bin]]
-name = "export_icons"
-required-features = ["export"]
-
-[build-dependencies]
-glib-build-tools = "0.22"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-ttf-parser = "0.25"
-
-[lints.rust]
+[workspace.lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(is_lib)'] }

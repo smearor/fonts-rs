@@ -30,11 +30,19 @@ jobs:
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2
       - name: Build (Release Mode)
-        run: cargo build --release --verbose
-      - name: Dry-run publish
-        run: cargo publish --dry-run --locked --token ${{ secrets.CRATES_IO_TOKEN }}
-      - name: Publish
-        run: cargo publish --locked --token ${{ secrets.CRATES_IO_TOKEN }}
+        run: cargo build --workspace --release --verbose
+      - name: Dry-run publish (nerd-fonts-model)
+        run: cargo publish --dry-run --locked -p nerd-fonts-model --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Dry-run publish (nerd-fonts-generator)
+        run: cargo publish --dry-run --locked -p nerd-fonts-generator --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Dry-run publish (nerd-fonts-rs)
+        run: cargo publish --dry-run --locked -p nerd-fonts-rs --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish nerd-fonts-model
+        run: cargo publish --locked -p nerd-fonts-model --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish nerd-fonts-generator
+        run: cargo publish --locked -p nerd-fonts-generator --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish nerd-fonts-rs
+        run: cargo publish --locked -p nerd-fonts-rs --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:

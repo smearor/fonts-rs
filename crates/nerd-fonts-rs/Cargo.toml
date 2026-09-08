@@ -1,0 +1,61 @@
+[package]
+name = "nerd-fonts-rs"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Shared Nerd Font integration for GTK4 projects: icon resolution, font loading, and CSS generation"
+readme = "../../README.md"
+
+[features]
+default = ["gtk"]
+
+# GTK4 icon name resolution, color application, GResource registration
+gtk = ["dep:gtk4", "dep:gio"]
+
+# Software rendering with ab_glyph (pixel buffer, no GTK required)
+render = ["dep:ab_glyph", "dep:woff2-patched"]
+
+# Web CSS generation (per-icon codepoint mappings for web instances)
+web = []
+
+# Embed font files into the binary via include_bytes!
+# Without this feature, fonts are loaded from disk at runtime
+embed-fonts = []
+
+# Icon metadata: keywords and categories for search functionality
+# Embeds keyword/category data for 10.000+ icons (estimated 200-500 KB)
+metadata = []
+
+[dependencies]
+nerd-fonts-model = { path = "../nerd-fonts-model" }
+gio = { version = "0.22", optional = true }
+gtk4 = { version = "0.11", optional = true }
+ab_glyph = { version = "0.2", optional = true }
+woff2-patched = { version = "0.4", optional = true }
+phf = { version = "0.13", features = ["macros"] }
+tracing = "0.1"
+thiserror = "2.0"
+serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]
+gtk4 = "0.11"
+glib = "0.22"
+miette = "7.4"
+
+[[example]]
+name = "interactive_demo"
+required-features = ["gtk", "embed-fonts"]
+
+[build-dependencies]
+nerd-fonts-generator = { path = "../nerd-fonts-generator" }
+nerd-fonts-model = { path = "../nerd-fonts-model" }
+glib-build-tools = "0.22"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+ttf-parser = "0.25"
+
+[lints]
+workspace = true
