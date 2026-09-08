@@ -5,8 +5,27 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
 description = "Shared Nerd Font integration for GTK4 projects: icon resolution, font loading, and CSS generation"
-readme = "../../README.md"
+publish = true
+
+include = [
+    "src/**/*.rs",
+    "build.rs",
+    "examples/*.rs",
+    "resources/NerdFontsSymbolsOnly/*.ttf",
+    "resources/NerdFontsSymbolsOnly/LICENSE",
+    "resources/JetBrainsMonoNLNerdFont/*.woff2",
+    "resources/JetBrainsMonoNLNerdFont/LICENSE",
+    "resources/metadata/**/*",
+    "resources/metadata/*.json",
+    "resources/font-face.css",
+    "resources/nerd-fonts.gresource.xml",
+    "Cargo.toml",
+]
 
 [features]
 default = ["gtk"]
@@ -29,7 +48,7 @@ embed-fonts = []
 metadata = []
 
 [dependencies]
-nerd-fonts-model = { path = "../nerd-fonts-model" }
+nerd-fonts-model = { version = "0.1.0", path = "../nerd-fonts-model" }
 gio = { version = "0.22", optional = true }
 gtk4 = { version = "0.11", optional = true }
 ab_glyph = { version = "0.2", optional = true }
@@ -49,8 +68,8 @@ name = "interactive_demo"
 required-features = ["gtk", "embed-fonts"]
 
 [build-dependencies]
-nerd-fonts-generator = { path = "../nerd-fonts-generator" }
-nerd-fonts-model = { path = "../nerd-fonts-model" }
+nerd-fonts-generator = { version = "0.1.0", path = "../nerd-fonts-generator" }
+nerd-fonts-model = { version = "0.1.0", path = "../nerd-fonts-model" }
 glib-build-tools = "0.22"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
