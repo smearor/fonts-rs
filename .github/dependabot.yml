@@ -28,3 +28,59 @@ updates:
         update-types:
           - "minor"
           - "patch"
+  - package-ecosystem: "cargo"
+    directory: "/crates/nerd-fonts-model"
+    schedule:
+      interval: "daily"
+      time: "18:00"
+      timezone: "Europe/Berlin"
+    labels:
+      - "p:dependencies"
+    open-pull-requests-limit: 10
+    groups:
+      rust-dependencies:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "cargo"
+    directory: "/crates/nerd-fonts-generator"
+    schedule:
+      interval: "daily"
+      time: "18:00"
+      timezone: "Europe/Berlin"
+    labels:
+      - "p:dependencies"
+    open-pull-requests-limit: 10
+    groups:
+      rust-dependencies:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "cargo"
+    directory: "/crates/nerd-fonts-rs"
+    schedule:
+      interval: "daily"
+      time: "18:00"
+      timezone: "Europe/Berlin"
+    labels:
+      - "p:dependencies"
+    open-pull-requests-limit: 10
+    groups:
+      rust-dependencies:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "cargo"
+    directory: "/crates/nerd-fonts-cheat-sheet"
+    schedule:
+      interval: "daily"
+      time: "18:00"
+      timezone: "Europe/Berlin"
+    labels:
+      - "p:dependencies"
+    open-pull-requests-limit: 10
+    groups:
+      rust-dependencies:
+        update-types:
+          - "minor"
+          - "patch"

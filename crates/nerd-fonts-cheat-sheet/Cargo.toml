@@ -1,0 +1,24 @@
+[package]
+name = "nerd-fonts-cheat-sheet"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Nerd Fonts cheat sheet application"
+
+[features]
+default = ["gtk", "embed-fonts", "metadata"]
+
+gtk = ["nerd-fonts-rs/gtk"]
+embed-fonts = ["nerd-fonts-rs/embed-fonts"]
+metadata = ["nerd-fonts-rs/metadata"]
+
+[dependencies]
+nerd-fonts-model = { path = "../nerd-fonts-model" }
+nerd-fonts-rs = { path = "../nerd-fonts-rs" }
+gtk4 = "0.11"
+miette = "7.6"
+
+[lints]
+workspace = true
