@@ -1,24 +1,11 @@
 //! Error type for code generators.
 
+use thiserror::Error;
+
 /// Error returned by [`NerdFontsGenerator`](super::generate::NerdFontsGenerator) implementations.
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum GenerateError {
     /// An I/O error occurred while writing the generated output.
-    Io(std::io::Error),
+    #[error("I/O error: {0}")]
+    Io(#[from] std::io::Error),
 }
-
-impl From<std::io::Error> for GenerateError {
-    fn from(e: std::io::Error) -> Self {
-        Self::Io(e)
-    }
-}
-
-impl std::fmt::Display for GenerateError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Io(e) => write!(f, "I/O error: {e}"),
-        }
-    }
-}
-
-impl std::error::Error for GenerateError {}
