@@ -20,7 +20,7 @@ impl IconMetadataSource for DeviconMetadata {
         "nf-dev-"
     }
 
-    fn from_file(path: &Path) -> Result<Self, Box<dyn std::error::Error>> {
+    fn from_file(path: &Path) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
         let content = std::fs::read_to_string(path)?;
         let entries: Vec<DeviconEntry> = serde_json::from_str(&content)?;
 

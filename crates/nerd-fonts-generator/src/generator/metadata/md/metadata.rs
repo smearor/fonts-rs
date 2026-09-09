@@ -19,7 +19,7 @@ impl IconMetadataSource for MdMetadata {
         "nf-md-"
     }
 
-    fn from_file(path: &Path) -> Result<Self, Box<dyn std::error::Error>> {
+    fn from_file(path: &Path) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
         let content = std::fs::read_to_string(path)?;
         let stripped = strip_xssi_prefix(&content);
         let metadata: MdMetadataFile = serde_json::from_str(stripped)?;

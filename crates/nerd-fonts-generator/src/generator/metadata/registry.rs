@@ -5,6 +5,7 @@
 
 use std::path::Path;
 
+use super::super::error::GenerateError;
 use super::mapping::RawCategory;
 use super::mapping::RawKeyword;
 use super::source::IconMetadataSource;
@@ -33,11 +34,14 @@ impl IconMetadataRegistry {
 
     /// Parses and registers a metadata source from file.
     ///
-    /// # Panics
+    /// # Errors
     ///
-    /// Panics if the metadata file cannot be parsed.
-    pub fn register<S: IconMetadataSource + 'static>(mut self, path: &Path, label: &str) -> Self {
-        let source = S::from_file(path).unwrap_or_else(|e| panic!("Failed to parse {label} metadata: {e}"));
+    /// Returns [`GenerateError::Metadata`] if the metadata file cannot be parsed.
+    pub fn register<S: IconMetadataSource + 'static>(mut self, path: &Path, label: &str) -> Result<Self, GenerateError> {
+        let source = S::from_file(path).map_err(|e| GenerateError::Metadata {
+            label: label.to_string(),
+            source: e,
+        })?;
         eprintln!(
             "build.rs: {label}: {} categories, {} keywords, {} aliases",
             source.category_count(),
@@ -45,7 +49,7 @@ impl IconMetadataRegistry {
             source.alias_count()
         );
         self.sources.push(Box::new(source));
-        self
+        Ok(self)
     }
 
     /// Finds the source matching the given Nerd Font icon name prefix.
@@ -89,17 +93,25 @@ impl IconMetadataRegistry {
     /// Returns all aliases from all registered sources as (alias_nf_name, canonical_nf_name) pairs.
     ///
     /// Each pair uses full Nerd Font icon names with `-symbolic` suffix.
-    pub fn all_aliases(&self) -> Vec<(String, String)> {
-        let mut entries = Vec::new();
+    /// Names are validated and normalized via [`IconName::parse`].
+    /// Duplicate alias keys (after normalization) are deduplicated.
+    pub fn all_aliases(&self) -> Vec<(IconName, IconName)> {
+        use std::collections::HashMap;
+
+        let mut entries: HashMap<IconName, IconName> = HashMap::new();
         for source in &self.sources {
             let prefix = source.prefix();
             for (alias, canonical) in source.mapping().aliases.iter() {
                 let alias_nf = format!("{}{}-symbolic", prefix, alias.as_str());
                 let canonical_nf = format!("{}{}-symbolic", prefix, canonical.as_str());
-                entries.push((alias_nf, canonical_nf));
+                if let (Some(a), Some(c)) = (IconName::parse(&alias_nf), IconName::parse(&canonical_nf)) {
+                    entries.entry(a).or_insert(c);
+                }
             }
         }
-        entries
+        let mut result: Vec<(IconName, IconName)> = entries.into_iter().collect();
+        result.sort_by(|(a, _), (b, _)| a.cmp(b));
+        result
     }
 }
 
@@ -142,7 +154,7 @@ mod tests {
             self.prefix
         }
 
-        fn from_file(_path: &std::path::Path) -> Result<Self, Box<dyn std::error::Error>> {
+        fn from_file(_path: &std::path::Path) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
             Ok(Self {
                 prefix: "",
                 mapping: MetadataMapping::new(),

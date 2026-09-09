@@ -10,6 +10,8 @@
 use std::path::PathBuf;
 
 use clap::Parser;
+use miette::Context;
+use miette::IntoDiagnostic;
 
 /// Export Nerd Fonts to GTK4 symbolic icons + GResource.
 #[derive(Parser)]
@@ -23,8 +25,12 @@ struct Cli {
     output: PathBuf,
 }
 
-fn main() {
+fn main() -> miette::Result<()> {
     let cli = Cli::parse();
-    let count = nerd_fonts_generator::export_icons(&cli.font, &cli.output).expect("Failed to export icons");
+    let font_display = cli.font.display().to_string();
+    let count = nerd_fonts_generator::export_icons(&cli.font, &cli.output)
+        .into_diagnostic()
+        .context(format!("Failed to export icons from {font_display}"))?;
     println!("Exported {} icons to {}", count, cli.output.display());
+    Ok(())
 }

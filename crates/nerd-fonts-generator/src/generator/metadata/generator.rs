@@ -105,7 +105,7 @@ impl IconsMetadataGenerator {
 
         output.push_str("\npub static ALIASES: phf::Map<&'static str, &'static str> = phf_map! {\n");
         for (alias, canonical) in &alias_entries {
-            output.push_str(&format!("    \"{}\" => \"{}\",\n", escape_str(alias), escape_str(canonical)));
+            output.push_str(&format!("    \"{}\" => \"{}\",\n", escape_str(alias.as_ref()), escape_str(canonical.as_ref())));
         }
         output.push_str("};\n");
 

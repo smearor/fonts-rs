@@ -18,7 +18,7 @@ impl IconMetadataSource for OcticonsMetadata {
         "nf-oct-"
     }
 
-    fn from_file(path: &Path) -> Result<Self, Box<dyn std::error::Error>> {
+    fn from_file(path: &Path) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
         let content = std::fs::read_to_string(path)?;
         let keywords: std::collections::HashMap<String, Vec<RawKeyword>> = serde_json::from_str(&content)?;
 
