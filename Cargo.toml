@@ -20,3 +20,38 @@ categories = ["graphics", "gui", "rendering"]
 
 [workspace.lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(is_lib)'] }
+
+[workspace.dependencies]
+# Internal crates
+nerd-fonts-model = { version = "0.1.0", path = "crates/nerd-fonts-model" }
+nerd-fonts-generator = { version = "0.1.0", path = "crates/nerd-fonts-generator" }
+nerd-fonts-rs = { version = "0.1.0", path = "crates/nerd-fonts-rs" }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+
+# Error handling
+thiserror = "2.0"
+miette = "7.6"
+
+# Font parsing
+ttf-parser = "0.25"
+ab_glyph = "0.2"
+woff2-patched = "0.4"
+
+# GTK4 ecosystem
+gtk4 = "0.11"
+gio = "0.22"
+glib = "0.22"
+glib-build-tools = "0.22"
+
+# CLI
+clap = { version = "4.6", features = ["derive"] }
+
+# Code generation
+phf = { version = "0.14", features = ["macros"] }
+
+# Logging
+tracing = "0.1"
