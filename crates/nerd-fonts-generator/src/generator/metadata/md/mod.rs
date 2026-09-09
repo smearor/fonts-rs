@@ -13,7 +13,9 @@ pub use metadata::MdMetadata;
 
 #[cfg(test)]
 mod tests {
-    use super::super::mapping::{MetadataMapping, RawCategory, RawKeyword};
+    use super::super::mapping::MetadataMapping;
+    use super::super::mapping::RawCategory;
+    use super::super::mapping::RawKeyword;
     use super::super::source::IconMetadataSource;
     use super::*;
 

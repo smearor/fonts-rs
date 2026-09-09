@@ -3,7 +3,8 @@
 use std::path::Path;
 
 use super::super::mapping::MetadataMapping;
-use super::super::source::{IconMetadataSource, strip_xssi_prefix};
+use super::super::source::IconMetadataSource;
+use super::super::source::strip_xssi_prefix;
 use super::file::MdMetadataFile;
 
 /// Parsed Material Design metadata: icon name to categories and tags.

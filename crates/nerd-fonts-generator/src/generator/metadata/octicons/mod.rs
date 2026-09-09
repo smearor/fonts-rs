@@ -11,7 +11,8 @@ pub use metadata::OcticonsMetadata;
 
 #[cfg(test)]
 mod tests {
-    use super::super::mapping::{MetadataMapping, RawKeyword};
+    use super::super::mapping::MetadataMapping;
+    use super::super::mapping::RawKeyword;
     use super::super::source::IconMetadataSource;
     use super::*;
 

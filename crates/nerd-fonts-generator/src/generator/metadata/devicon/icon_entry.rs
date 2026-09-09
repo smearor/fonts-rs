@@ -4,7 +4,8 @@
 
 use serde::Deserialize;
 
-use super::super::mapping::{RawAlias, RawKeyword};
+use super::super::mapping::RawAlias;
+use super::super::mapping::RawKeyword;
 use super::style_alias::DeviconStyleAlias;
 
 /// A single icon entry in `devicon.json`.

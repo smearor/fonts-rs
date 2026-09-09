@@ -10,7 +10,7 @@ use std::path::PathBuf;
 
 use super::super::error::GenerateError;
 use super::super::generate::NerdFontsGenerator;
-use super::source::IconMetadataRegistry;
+use super::registry::IconMetadataRegistry;
 use nerd_fonts_model::IconEntry;
 use nerd_fonts_model::IconName;
 

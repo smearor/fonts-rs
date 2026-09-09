@@ -19,12 +19,10 @@ pub use version::GtkVersion;
 pub const FONT_FACE_CSS: &str = include_str!("../resources/font-face.css");
 
 /// GResource path for the proportional Nerd Font symbol font.
-const FONT_REGULAR_PATH: &str =
-    "resource:///io/smearor/nerd_fonts/SymbolsNerdFont-Regular.ttf";
+const FONT_REGULAR_PATH: &str = "resource:///io/smearor/nerd_fonts/SymbolsNerdFont-Regular.ttf";
 
 /// GResource path for the monospace Nerd Font symbol font.
-const FONT_MONO_PATH: &str =
-    "resource:///io/smearor/nerd_fonts/SymbolsNerdFontMono-Regular.ttf";
+const FONT_MONO_PATH: &str = "resource:///io/smearor/nerd_fonts/SymbolsNerdFontMono-Regular.ttf";
 
 /// Generates a version-adapted `@font-face` CSS string for the runtime GTK4
 /// CSS parser.
@@ -60,11 +58,7 @@ pub fn font_face_css() -> String {
 
 /// Builds the `@font-face` CSS string for a given GTK4 version.
 fn build_font_face_css(version: GtkVersion) -> String {
-    let format_hint = if version.at_least(4, 10) {
-        " format(\"truetype\")"
-    } else {
-        ""
-    };
+    let format_hint = if version.at_least(4, 10) { " format(\"truetype\")" } else { "" };
 
     let mut css = String::with_capacity(512);
 

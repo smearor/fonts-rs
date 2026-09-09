@@ -2,7 +2,9 @@
 
 use std::path::Path;
 
-use super::super::mapping::{MetadataMapping, RawAlias, RawKeyword};
+use super::super::mapping::MetadataMapping;
+use super::super::mapping::RawAlias;
+use super::super::mapping::RawKeyword;
 use super::super::source::IconMetadataSource;
 use super::icon_entry::DeviconEntry;
 

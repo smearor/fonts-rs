@@ -4,7 +4,8 @@
 
 use serde::Deserialize;
 
-use super::super::mapping::{RawCategory, RawKeyword};
+use super::super::mapping::RawCategory;
+use super::super::mapping::RawKeyword;
 
 /// A single icon entry in the Material Design metadata.
 #[derive(Debug, Deserialize)]
