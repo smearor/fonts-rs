@@ -12,15 +12,15 @@ pub struct SvgPathBuilder {
     pub path: String,
 }
 
-impl Default for SvgPathBuilder {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl SvgPathBuilder {
     pub fn new() -> Self {
         Self { path: String::new() }
+    }
+}
+
+impl Default for SvgPathBuilder {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
