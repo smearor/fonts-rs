@@ -13,8 +13,10 @@ use super::error::GenerateError;
 pub trait NerdFontsGenerator {
     /// Generates the output content from icon metadata.
     fn generate(icons: &[IconEntry]) -> Result<String, GenerateError>;
+
     /// Returns the destination path for the generated output.
     fn output_path() -> PathBuf;
+
     /// Generates the content and writes it to the output path.
     fn run(icons: &[IconEntry]) -> Result<(), GenerateError> {
         let content = Self::generate(icons)?;
