@@ -51,33 +51,33 @@ embed-fonts = []
 metadata = []
 
 [dependencies]
-nerd-fonts-model = { version = "0.1.0", path = "../nerd-fonts-model" }
-gio = { version = "0.22", optional = true }
-gtk4 = { version = "0.11", optional = true }
-ab_glyph = { version = "0.2", optional = true }
-woff2-patched = { version = "0.4", optional = true }
-phf = { version = "0.13", features = ["macros"] }
-tracing = "0.1"
-thiserror = "2.0"
-serde = { version = "1.0", features = ["derive"] }
+nerd-fonts-model.workspace = true
+gio = { workspace = true, optional = true }
+gtk4 = { workspace = true, optional = true }
+ab_glyph = { workspace = true, optional = true }
+woff2-patched = { workspace = true, optional = true }
+phf.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+serde.workspace = true
 
 [dev-dependencies]
-gtk4 = { version = "0.11", features = ["v4_12"] }
-glib = "0.22"
-miette = "7.4"
+gtk4 = { workspace = true, features = ["v4_12"] }
+glib.workspace = true
+miette.workspace = true
 
 [[example]]
 name = "interactive_demo"
 required-features = ["gtk", "embed-fonts"]
 
 [build-dependencies]
-nerd-fonts-generator = { version = "0.1.0", path = "../nerd-fonts-generator" }
-nerd-fonts-model = { version = "0.1.0", path = "../nerd-fonts-model" }
-glib-build-tools = "0.22"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-serde_yaml = "0.9"
-ttf-parser = "0.25"
+nerd-fonts-generator.workspace = true
+nerd-fonts-model.workspace = true
+glib-build-tools.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+serde_yaml.workspace = true
+ttf-parser.workspace = true
 
 [lints]
 workspace = true
