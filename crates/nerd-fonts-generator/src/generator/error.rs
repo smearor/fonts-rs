@@ -12,4 +12,13 @@ pub enum GenerateError {
     /// A required environment variable was not set.
     #[error("environment variable error: {0}")]
     Env(#[from] std::env::VarError),
+
+    /// An upstream metadata source could not be parsed.
+    #[error("metadata parse error ({label}): {source}")]
+    Metadata {
+        /// Human-readable label identifying the metadata source.
+        label: String,
+        /// The underlying parse error.
+        source: Box<dyn std::error::Error + Send + Sync>,
+    },
 }

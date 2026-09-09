@@ -78,9 +78,13 @@ fn main() {
 
         let registry = IconMetadataRegistry::new()
             .register::<FaMetadata>(Path::new("resources/metadata/fontawesome"), "FA")
+            .expect("Failed to register FA metadata")
             .register::<MdMetadata>(Path::new("resources/metadata/materialdesign-icons.json"), "MD")
+            .expect("Failed to register MD metadata")
             .register::<DeviconMetadata>(Path::new("resources/metadata/devicon.json"), "Devicon")
-            .register::<OcticonsMetadata>(Path::new("resources/metadata/octicons-keywords.json"), "Octicons");
+            .expect("Failed to register Devicon metadata")
+            .register::<OcticonsMetadata>(Path::new("resources/metadata/octicons-keywords.json"), "Octicons")
+            .expect("Failed to register Octicons metadata");
 
         IconsMetadataGenerator::run_with_registry(&icons, &registry).expect("Failed to generate icon metadata");
     }

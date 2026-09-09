@@ -658,6 +658,7 @@ name = "nerd-fonts-generator"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "miette",
  "nerd-fonts-model",
  "serde",
  "serde_json",

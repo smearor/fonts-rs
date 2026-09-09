@@ -27,7 +27,7 @@ pub trait IconMetadataSource {
     /// # Errors
     ///
     /// Returns an error if the file cannot be read or the data is malformed.
-    fn from_file(path: &Path) -> Result<Self, Box<dyn std::error::Error>>
+    fn from_file(path: &Path) -> Result<Self, Box<dyn std::error::Error + Send + Sync>>
     where
         Self: Sized;
 
@@ -117,7 +117,7 @@ mod tests {
             self.prefix
         }
 
-        fn from_file(_path: &std::path::Path) -> Result<Self, Box<dyn std::error::Error>> {
+        fn from_file(_path: &std::path::Path) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
             Ok(Self {
                 prefix: "",
                 mapping: MetadataMapping::new(),

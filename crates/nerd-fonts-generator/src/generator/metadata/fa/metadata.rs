@@ -22,7 +22,7 @@ impl IconMetadataSource for FaMetadata {
         "nf-fa-"
     }
 
-    fn from_file(dir: &Path) -> Result<Self, Box<dyn std::error::Error>> {
+    fn from_file(dir: &Path) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
         let categories_path = dir.join("categories.yml");
         let icons_path = dir.join("icons.yml");
 
