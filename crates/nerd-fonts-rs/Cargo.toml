@@ -59,7 +59,6 @@ woff2-patched = { workspace = true, optional = true }
 phf.workspace = true
 tracing.workspace = true
 thiserror.workspace = true
-serde.workspace = true
 
 [dev-dependencies]
 gtk4 = { workspace = true, features = ["v4_12"] }
@@ -74,10 +73,7 @@ required-features = ["gtk", "embed-fonts"]
 nerd-fonts-generator.workspace = true
 nerd-fonts-model.workspace = true
 glib-build-tools.workspace = true
-serde.workspace = true
 serde_json.workspace = true
-serde_yaml.workspace = true
-ttf-parser.workspace = true
 
 [lints]
 workspace = true
