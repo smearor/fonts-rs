@@ -3,7 +3,8 @@
 use std::collections::HashMap;
 use std::path::Path;
 
-use super::super::mapping::{MetadataMapping, RawAlias};
+use super::super::mapping::MetadataMapping;
+use super::super::mapping::RawAlias;
 use super::super::source::IconMetadataSource;
 use super::categories::FaCategories;
 use super::icon_entry::FaIconEntry;

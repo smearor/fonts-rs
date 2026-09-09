@@ -12,7 +12,7 @@ use nerd_fonts_generator::generator::metadata::devicon::DeviconMetadata;
 use nerd_fonts_generator::generator::metadata::fa::FaMetadata;
 use nerd_fonts_generator::generator::metadata::md::MdMetadata;
 use nerd_fonts_generator::generator::metadata::octicons::OcticonsMetadata;
-use nerd_fonts_generator::generator::metadata::source::IconMetadataRegistry;
+use nerd_fonts_generator::generator::metadata::registry::IconMetadataRegistry;
 
 use nerd_fonts_model::IconEntry;
 

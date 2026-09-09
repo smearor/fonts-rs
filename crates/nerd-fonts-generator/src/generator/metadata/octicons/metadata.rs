@@ -2,7 +2,8 @@
 
 use std::path::Path;
 
-use super::super::mapping::{MetadataMapping, RawKeyword};
+use super::super::mapping::MetadataMapping;
+use super::super::mapping::RawKeyword;
 use super::super::source::IconMetadataSource;
 
 /// Parsed Octicons metadata: icon name to keywords.

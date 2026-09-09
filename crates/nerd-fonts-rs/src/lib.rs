@@ -39,5 +39,5 @@ pub use init::InitOptions;
 pub use init::init;
 
 // Re-export CSS
-pub use css::font_face_css;
 pub use css::GtkVersion;
+pub use css::font_face_css;

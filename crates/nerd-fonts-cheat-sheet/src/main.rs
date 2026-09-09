@@ -20,6 +20,7 @@ use gtk4::Box;
 use gtk4::Button;
 use gtk4::Entry;
 use gtk4::FlowBox;
+use gtk4::HeaderBar;
 use gtk4::Label;
 use gtk4::Orientation;
 use gtk4::Scale;
@@ -36,6 +37,52 @@ use nerd_fonts_rs::metadata;
 
 const APP_ID: &str = "io.smearor.nerd_fonts_gtk.cheat_sheet";
 
+/// A navigable history entry: either a search query or an icon detail view.
+#[derive(Clone, PartialEq, Eq)]
+enum HistoryEntry {
+    Search(String),
+    Icon(IconName, CodePoint),
+}
+
+/// Update sensitivity of Back/Forward buttons based on current history position.
+fn update_nav_buttons(back_btn: &Button, forward_btn: &Button, history: &[HistoryEntry], index: usize) {
+    back_btn.set_sensitive(index > 0);
+    forward_btn.set_sensitive(index + 1 < history.len());
+}
+
+/// Navigate to a history entry: search filters the grid, icon opens the sidebar.
+fn navigate_to(
+    entry: &HistoryEntry,
+    search_entry: &Entry,
+    sidebar: &Box,
+    content: &Box,
+    selected_name: &Rc<RefCell<Option<IconName>>>,
+    selected_cell: &Rc<RefCell<Option<gtk4::Box>>>,
+    window: &ApplicationWindow,
+) {
+    // Clear previous selection.
+    if let Some(old) = selected_cell.borrow_mut().take() {
+        old.remove_css_class("cheat-cell-selected");
+    }
+    match entry {
+        HistoryEntry::Search(filter) => {
+            search_entry.set_text(filter);
+            search_entry.set_position(-1);
+            *selected_name.borrow_mut() = None;
+            sidebar.set_visible(false);
+            window.set_default_size(460, 800);
+            window.set_size_request(460, -1);
+        }
+        HistoryEntry::Icon(name, cp) => {
+            *selected_name.borrow_mut() = Some(name.clone());
+            sidebar.set_visible(true);
+            window.set_default_size(784, 800);
+            window.set_size_request(784, -1);
+            show_detail(content, name, *cp, search_entry);
+        }
+    }
+}
+
 fn main() -> Result<glib::ExitCode> {
     gtk4::init().into_diagnostic()?;
     nerd_fonts_rs::init().into_diagnostic()?;
@@ -48,9 +95,10 @@ fn main() -> Result<glib::ExitCode> {
 fn build_ui(app: &Application) {
     let window = ApplicationWindow::builder()
         .application(app)
-        .title("Nerd Font Cheat Sheet")
+        .title("Nerd Fonts - Cheat Sheet")
         .default_width(1280)
         .default_height(800)
+        .width_request(460)
         .build();
 
     window.connect_close_request({
@@ -64,9 +112,11 @@ fn build_ui(app: &Application) {
     // Global CSS.
     let css = r#"
         .cheat-icon-label { font-size: 42px; }
-        .cheat-cell { padding: 10px; border-radius: 8px; }
+        .cheat-cell { padding: 10px; border-radius: 8px; min-width: 180px; }
         .cheat-cell:hover { background-color: rgba(100, 180, 255, 0.15); }
         .cheat-cell-selected { background-color: rgba(100, 180, 255, 0.30); }
+        .cheat-meta-flow { background: transparent; }
+        .cheat-meta-flow flowboxchild { background: transparent; padding: 0; }
         .cheat-name, .cheat-cp { -gtk-user-select: text; }
         .cheat-meta { font-size: 9px; opacity: 0.7; }
         button.cat-btn { background: rgba(76, 175, 80, 0.3); border-radius: 12px; padding: 2px 8px; font-size: 10px; border: none; box-shadow: none; }
@@ -89,6 +139,26 @@ fn build_ui(app: &Application) {
     let all_icons = all_icons_typed();
     let total = all_icons.len();
 
+    // --- HeaderBar with Back/Forward history navigation ---
+    let header_bar = HeaderBar::builder()
+        .title_widget(&gtk4::Label::new(Some("Nerd Fonts - Cheat Sheet")))
+        .show_title_buttons(true)
+        .build();
+
+    let back_btn = Button::builder()
+        .icon_name("go-previous-symbolic")
+        .tooltip_text("Back")
+        .sensitive(false)
+        .build();
+    let forward_btn = Button::builder().icon_name("go-next-symbolic").tooltip_text("Forward").sensitive(false).build();
+    header_bar.pack_start(&back_btn);
+    header_bar.pack_start(&forward_btn);
+
+    // --- Navigation history state ---
+    let history: Rc<RefCell<Vec<HistoryEntry>>> = Rc::new(RefCell::new(Vec::new()));
+    let history_index: Rc<RefCell<usize>> = Rc::new(RefCell::new(0));
+    let suppress_history: Rc<RefCell<bool>> = Rc::new(RefCell::new(false));
+
     // --- Top bar: title, count, search, size slider ---
     let top_bar = Box::builder()
         .orientation(Orientation::Vertical)
@@ -98,13 +168,6 @@ fn build_ui(app: &Application) {
         .margin_start(12)
         .margin_end(12)
         .build();
-
-    let title = Label::builder()
-        .label("Nerd Font Cheat Sheet")
-        .css_classes(["title-1"])
-        .halign(Align::Center)
-        .build();
-    top_bar.append(&title);
 
     let count_bar = Box::builder()
         .orientation(Orientation::Horizontal)
@@ -191,10 +254,11 @@ fn build_ui(app: &Application) {
         .row_spacing(8)
         .halign(Align::Fill)
         .hexpand(true)
-        .homogeneous(true)
         .margin_top(8)
         .margin_bottom(8)
         .selection_mode(gtk4::SelectionMode::None)
+        .max_children_per_line(20)
+        .min_children_per_line(2)
         .build();
 
     scrolled.set_child(Some(&grid));
@@ -241,6 +305,7 @@ fn build_ui(app: &Application) {
         let content_for_close = sidebar_content.clone();
         let selected_name_for_close = selected_name.clone();
         let selected_cell_for_close = selected_cell.clone();
+        let window_for_close = window.clone();
         close_btn.connect_clicked(move |_| {
             if let Some(cell) = selected_cell_for_close.borrow_mut().take() {
                 cell.remove_css_class("cheat-cell-selected");
@@ -250,6 +315,8 @@ fn build_ui(app: &Application) {
                 content_for_close.remove(&child);
             }
             sidebar_for_close.set_visible(false);
+            window_for_close.set_default_size(460, 800);
+            window_for_close.set_size_request(460, -1);
         });
     }
 
@@ -299,6 +366,12 @@ fn build_ui(app: &Application) {
     let search_entry_clone = search_entry.clone();
     let selected_name_for_grid = selected_name.clone();
     let selected_cell_for_grid = selected_cell.clone();
+    let history_for_grid = history.clone();
+    let history_index_for_grid = history_index.clone();
+    let suppress_for_grid = suppress_history.clone();
+    let back_btn_for_grid = back_btn.clone();
+    let forward_btn_for_grid = forward_btn.clone();
+    let window_for_grid = window.clone();
 
     let populate_batch = move |start: usize, end: usize, icons: &[(CodePoint, IconName)], icon_size: f64, _cols: u32| {
         if start == 0 {
@@ -340,39 +413,55 @@ fn build_ui(app: &Application) {
                 .build();
 
             // Metadata buttons: keywords (orange) and categories (green).
-            let meta_box = Box::builder().orientation(Orientation::Vertical).spacing(2).halign(Align::Center).build();
+            let meta_box = Box::builder().orientation(Orientation::Vertical).spacing(2).halign(Align::Fill).build();
 
             let keywords = metadata::icon_keywords(name);
             let categories = metadata::icon_categories(name);
 
-            // Category buttons (green).
+            // Category buttons (green) — wrapped via FlowBox.
             if !categories.is_empty() {
-                let cat_row = Box::builder().orientation(Orientation::Horizontal).spacing(4).halign(Align::Center).build();
-                for cat in categories.iter().take(3) {
+                let cat_flow = FlowBox::builder()
+                    .orientation(Orientation::Horizontal)
+                    .selection_mode(gtk4::SelectionMode::None)
+                    .column_spacing(4)
+                    .row_spacing(2)
+                    .halign(Align::Center)
+                    .max_children_per_line(4)
+                    .css_classes(["cheat-meta-flow"])
+                    .build();
+                for cat in categories.iter().take(5) {
                     let cat_label = cat.as_str().to_string();
                     let btn = Button::builder().label(&cat_label).css_classes(["cat-btn"]).build();
                     let search_entry_ref = search_entry_clone.clone();
                     btn.connect_clicked(move |_| {
                         search_entry_ref.set_text(&cat_label);
                     });
-                    cat_row.append(&btn);
+                    cat_flow.insert(&btn, -1);
                 }
-                meta_box.append(&cat_row);
+                meta_box.append(&cat_flow);
             }
 
-            // Keyword buttons (orange).
+            // Keyword buttons (orange) — wrapped via FlowBox.
             if !keywords.is_empty() {
-                let kw_row = Box::builder().orientation(Orientation::Horizontal).spacing(4).halign(Align::Center).build();
-                for kw in keywords.iter().take(3) {
+                let kw_flow = FlowBox::builder()
+                    .orientation(Orientation::Horizontal)
+                    .selection_mode(gtk4::SelectionMode::None)
+                    .column_spacing(4)
+                    .row_spacing(2)
+                    .halign(Align::Center)
+                    .max_children_per_line(4)
+                    .css_classes(["cheat-meta-flow"])
+                    .build();
+                for kw in keywords.iter().take(5) {
                     let kw_label = kw.as_str().to_string();
                     let btn = Button::builder().label(&kw_label).css_classes(["kw-btn"]).build();
                     let search_entry_ref = search_entry_clone.clone();
                     btn.connect_clicked(move |_| {
                         search_entry_ref.set_text(&kw_label);
                     });
-                    kw_row.append(&btn);
+                    kw_flow.insert(&btn, -1);
                 }
-                meta_box.append(&kw_row);
+                meta_box.append(&kw_flow);
             }
 
             let vbox = Box::builder()
@@ -405,6 +494,12 @@ fn build_ui(app: &Application) {
             let vbox_ref = vbox.clone();
             let selected_name_ref = selected_name_for_grid.clone();
             let selected_cell_ref = selected_cell_for_grid.clone();
+            let history_ref = history_for_grid.clone();
+            let history_index_ref = history_index_for_grid.clone();
+            let suppress_ref = suppress_for_grid.clone();
+            let back_btn_ref = back_btn_for_grid.clone();
+            let forward_btn_ref = forward_btn_for_grid.clone();
+            let window_ref = window_for_grid.clone();
             let gesture = gtk4::GestureClick::new();
             gesture.connect_released(move |gesture, _n, x, y| {
                 if let Some(widget) = gesture.widget() {
@@ -426,6 +521,8 @@ fn build_ui(app: &Application) {
                     }
                     *selected_name_ref.borrow_mut() = None;
                     sidebar_ref.set_visible(false);
+                    window_ref.set_default_size(460, 800);
+                    window_ref.set_size_request(460, -1);
                     return;
                 }
                 if let Some(old) = selected_cell_ref.borrow_mut().take() {
@@ -435,7 +532,23 @@ fn build_ui(app: &Application) {
                 vbox_ref.add_css_class("cheat-cell-selected");
                 *selected_cell_ref.borrow_mut() = Some(vbox_ref.clone());
                 sidebar_ref.set_visible(true);
+                window_ref.set_default_size(784, 800);
+                window_ref.set_size_request(784, -1);
                 show_detail(&content_ref, &name_for_click, cp_for_click, &search_entry_ref);
+
+                // Record icon view in history.
+                if !*suppress_ref.borrow() {
+                    let entry = HistoryEntry::Icon(name_for_click.clone(), cp_for_click);
+                    let mut hist = history_ref.borrow_mut();
+                    let mut idx = history_index_ref.borrow_mut();
+                    if hist.get(*idx).is_some_and(|h| h == &entry) {
+                        return;
+                    }
+                    hist.truncate(*idx + 1);
+                    hist.push(entry);
+                    *idx = hist.len() - 1;
+                    update_nav_buttons(&back_btn_ref, &forward_btn_ref, &hist, *idx);
+                }
             });
             vbox.add_controller(gesture);
 
@@ -487,11 +600,30 @@ fn build_ui(app: &Application) {
     let render_grid_for_search = render_grid.clone();
     let refresh_grid_for_search = refresh_grid.clone();
     let current_icons_for_search = current_icons.clone();
+    let history_for_search = history.clone();
+    let history_index_for_search = history_index.clone();
+    let suppress_for_search = suppress_history.clone();
+    let back_btn_for_search = back_btn.clone();
+    let forward_btn_for_search = forward_btn.clone();
     search_entry.connect_changed(move |entry| {
         let filter = entry.text().to_string();
         let filtered = render_grid_for_search(&filter);
         *current_icons_for_search.borrow_mut() = filtered;
         refresh_grid_for_search(true);
+
+        // Record search in history (unless navigating via back/forward).
+        if !*suppress_for_search.borrow() {
+            let entry = HistoryEntry::Search(filter);
+            let mut hist = history_for_search.borrow_mut();
+            let mut idx = history_index_for_search.borrow_mut();
+            if hist.get(*idx).is_some_and(|h| h == &entry) {
+                return;
+            }
+            hist.truncate(*idx + 1);
+            hist.push(entry);
+            *idx = hist.len() - 1;
+            update_nav_buttons(&back_btn_for_search, &forward_btn_for_search, &hist, *idx);
+        }
     });
 
     // --- Size slider ---
@@ -515,6 +647,87 @@ fn build_ui(app: &Application) {
 
     // FlowBox handles dynamic column reflow automatically — no manual calculation needed.
 
+    // --- Back/Forward button handlers ---
+    {
+        let search_entry_for_back = search_entry.clone();
+        let sidebar_for_back = sidebar.clone();
+        let content_for_back = sidebar_content.clone();
+        let selected_name_for_back = selected_name.clone();
+        let selected_cell_for_back = selected_cell.clone();
+        let history_for_back = history.clone();
+        let history_index_for_back = history_index.clone();
+        let suppress_for_back = suppress_history.clone();
+        let forward_btn_for_back = forward_btn.clone();
+        let back_btn_for_handler = back_btn.clone();
+        let window_for_back = window.clone();
+        back_btn.connect_clicked(move |_| {
+            let hist = history_for_back.borrow();
+            let mut idx = history_index_for_back.borrow_mut();
+            if *idx > 0 && !hist.is_empty() {
+                *idx -= 1;
+                let prev = hist[*idx].clone();
+                drop(idx);
+                drop(hist);
+                *suppress_for_back.borrow_mut() = true;
+                navigate_to(
+                    &prev,
+                    &search_entry_for_back,
+                    &sidebar_for_back,
+                    &content_for_back,
+                    &selected_name_for_back,
+                    &selected_cell_for_back,
+                    &window_for_back,
+                );
+                *suppress_for_back.borrow_mut() = false;
+                let hist = history_for_back.borrow();
+                let idx = history_index_for_back.borrow();
+                update_nav_buttons(&back_btn_for_handler, &forward_btn_for_back, &hist, *idx);
+            }
+        });
+    }
+    {
+        let search_entry_for_fwd = search_entry.clone();
+        let sidebar_for_fwd = sidebar.clone();
+        let content_for_fwd = sidebar_content.clone();
+        let selected_name_for_fwd = selected_name.clone();
+        let selected_cell_for_fwd = selected_cell.clone();
+        let history_for_fwd = history.clone();
+        let history_index_for_fwd = history_index.clone();
+        let suppress_for_fwd = suppress_history.clone();
+        let back_btn_for_fwd = back_btn.clone();
+        let forward_btn_for_handler = forward_btn.clone();
+        let window_for_fwd = window.clone();
+        forward_btn.connect_clicked(move |_| {
+            let hist = history_for_fwd.borrow();
+            let mut idx = history_index_for_fwd.borrow_mut();
+            if *idx + 1 < hist.len() {
+                *idx += 1;
+                let next = hist[*idx].clone();
+                drop(idx);
+                drop(hist);
+                *suppress_for_fwd.borrow_mut() = true;
+                navigate_to(
+                    &next,
+                    &search_entry_for_fwd,
+                    &sidebar_for_fwd,
+                    &content_for_fwd,
+                    &selected_name_for_fwd,
+                    &selected_cell_for_fwd,
+                    &window_for_fwd,
+                );
+                *suppress_for_fwd.borrow_mut() = false;
+                let hist = history_for_fwd.borrow();
+                let idx = history_index_for_fwd.borrow();
+                update_nav_buttons(&back_btn_for_fwd, &forward_btn_for_handler, &hist, *idx);
+            }
+        });
+    }
+
+    // Initialize history with empty search.
+    history.borrow_mut().push(HistoryEntry::Search(String::new()));
+    update_nav_buttons(&back_btn, &forward_btn, &history.borrow(), 0);
+
+    window.set_titlebar(Some(&header_bar));
     window.set_child(Some(&main_box));
     window.present();
 }
