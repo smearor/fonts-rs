@@ -25,8 +25,8 @@ impl NerdFontsGenerator for IconsRustGenerator {
         Ok(output)
     }
 
-    fn output_path() -> PathBuf {
-        let out_dir = std::env::var("OUT_DIR").unwrap();
-        PathBuf::from(out_dir).join("icons.rs")
+    fn output_path() -> Result<PathBuf, GenerateError> {
+        let out_dir = std::env::var("OUT_DIR")?;
+        Ok(PathBuf::from(out_dir).join("icons.rs"))
     }
 }

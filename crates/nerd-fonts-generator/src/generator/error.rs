@@ -8,4 +8,8 @@ pub enum GenerateError {
     /// An I/O error occurred while writing the generated output.
     #[error("I/O error: {0}")]
     Io(#[from] std::io::Error),
+
+    /// A required environment variable was not set.
+    #[error("environment variable error: {0}")]
+    Env(#[from] std::env::VarError),
 }

@@ -115,7 +115,7 @@ impl IconsMetadataGenerator {
     /// Writes the generated metadata to the output path.
     pub fn run_with_registry(icons: &[IconEntry], registry: &IconMetadataRegistry) -> Result<(), GenerateError> {
         let content = Self::generate_with_registry(icons, registry)?;
-        let path = Self::output_path();
+        let path = Self::output_path()?;
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
         }
@@ -131,9 +131,9 @@ impl NerdFontsGenerator for IconsMetadataGenerator {
         Self::generate_with_registry(icons, &empty_registry)
     }
 
-    fn output_path() -> PathBuf {
-        let out_dir = std::env::var("OUT_DIR").unwrap();
-        PathBuf::from(out_dir).join("metadata.rs")
+    fn output_path() -> Result<PathBuf, GenerateError> {
+        let out_dir = std::env::var("OUT_DIR")?;
+        Ok(PathBuf::from(out_dir).join("metadata.rs"))
     }
 }
 
