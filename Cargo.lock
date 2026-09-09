@@ -687,12 +687,9 @@ dependencies = [
  "nerd-fonts-generator",
  "nerd-fonts-model",
  "phf",
- "serde",
  "serde_json",
- "serde_yaml",
  "thiserror 2.0.20",
  "tracing",
- "ttf-parser",
  "woff2-patched",
 ]
 
