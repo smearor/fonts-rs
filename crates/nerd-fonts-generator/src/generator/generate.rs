@@ -15,12 +15,12 @@ pub trait NerdFontsGenerator {
     fn generate(icons: &[IconEntry]) -> Result<String, GenerateError>;
 
     /// Returns the destination path for the generated output.
-    fn output_path() -> PathBuf;
+    fn output_path() -> Result<PathBuf, GenerateError>;
 
     /// Generates the content and writes it to the output path.
     fn run(icons: &[IconEntry]) -> Result<(), GenerateError> {
         let content = Self::generate(icons)?;
-        let path = Self::output_path();
+        let path = Self::output_path()?;
         if let Some(parent) = path.parent() {
             fs::create_dir_all(parent)?;
         }

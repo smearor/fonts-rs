@@ -36,8 +36,8 @@ impl NerdFontsGenerator for IconsCodemapGenerator {
         Ok(output)
     }
 
-    fn output_path() -> PathBuf {
-        let out_dir = std::env::var("OUT_DIR").unwrap();
-        PathBuf::from(out_dir).join("codemap.rs")
+    fn output_path() -> Result<PathBuf, GenerateError> {
+        let out_dir = std::env::var("OUT_DIR")?;
+        Ok(PathBuf::from(out_dir).join("codemap.rs"))
     }
 }

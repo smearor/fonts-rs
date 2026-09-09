@@ -47,7 +47,7 @@ impl NerdFontsGenerator for WebCssGenerator {
         Ok(output)
     }
 
-    fn output_path() -> PathBuf {
-        PathBuf::from("resources/nerdfont.css")
+    fn output_path() -> Result<PathBuf, GenerateError> {
+        Ok(PathBuf::from("resources/nerdfont.css"))
     }
 }
