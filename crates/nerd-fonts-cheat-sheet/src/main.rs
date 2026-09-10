@@ -25,11 +25,15 @@ use gtk4::Label;
 use gtk4::Orientation;
 use gtk4::Scale;
 use gtk4::ScrolledWindow;
+use gtk4::TextView;
+use gtk4::WrapMode;
+use gtk4::gio;
 use gtk4::glib;
 use gtk4::prelude::*;
 use miette::IntoDiagnostic;
 use miette::Result;
 use nerd_fonts_model::CodePoint;
+use nerd_fonts_model::ICONS_RESOURCE_PATH;
 use nerd_fonts_model::IconName;
 use nerd_fonts_rs::icons::IconNameExt;
 use nerd_fonts_rs::icons::all_icons_typed;
@@ -900,6 +904,46 @@ fn show_detail(content: &Box, name: &IconName, codepoint: CodePoint, search_entr
             cat_box.insert(&btn, -1);
         }
         content.append(&cat_box);
+    }
+
+    // SVG section.
+    let resource_path = format!("{}/{}.svg", ICONS_RESOURCE_PATH, name);
+    if let Ok(bytes) = gio::resources_lookup_data(&resource_path, gio::ResourceLookupFlags::NONE) {
+        let svg_xml = String::from_utf8_lossy(bytes.as_ref()).into_owned();
+
+        let svg_heading = Label::builder()
+            .label("SVG")
+            .css_classes(["heading"])
+            .halign(Align::Start)
+            .margin_top(12)
+            .build();
+        content.append(&svg_heading);
+
+        let text_view = TextView::builder().editable(false).css_classes(["monospace"]).wrap_mode(WrapMode::Char).build();
+        text_view.buffer().set_text(&svg_xml);
+
+        let scrolled = ScrolledWindow::builder()
+            .hexpand(true)
+            .vexpand(true)
+            .min_content_height(150)
+            .max_content_height(300)
+            .child(&text_view)
+            .build();
+        content.append(&scrolled);
+
+        let svg_copy = Button::builder()
+            .icon_name("edit-copy-symbolic")
+            .label("Copy SVG")
+            .tooltip_text("Copy SVG XML to clipboard")
+            .halign(Align::Start)
+            .build();
+        let svg_xml_for_copy = svg_xml;
+        svg_copy.connect_clicked(move |_| {
+            if let Some(display) = gtk4::gdk::Display::default() {
+                display.clipboard().set_text(&svg_xml_for_copy);
+            }
+        });
+        content.append(&svg_copy);
     }
 
     content.show();
