@@ -71,9 +71,7 @@ fn main() -> miette::Result<()> {
 
     match cli.command {
         Command::Rust => {
-            let output = IconsRustGenerator::generate(&icons)
-                .into_diagnostic()
-                .context("IconsRustGenerator failed")?;
+            let output = IconsRustGenerator::generate(&icons).into_diagnostic().context("IconsRustGenerator failed")?;
             println!("{output}");
         }
         Command::Codemap => {
@@ -83,9 +81,7 @@ fn main() -> miette::Result<()> {
             println!("{output}");
         }
         Command::Css => {
-            let output = WebCssGenerator::generate(&icons)
-                .into_diagnostic()
-                .context("WebCssGenerator failed")?;
+            let output = WebCssGenerator::generate(&icons).into_diagnostic().context("WebCssGenerator failed")?;
             println!("{output}");
         }
     }
