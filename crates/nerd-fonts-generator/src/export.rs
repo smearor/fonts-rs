@@ -8,103 +8,19 @@
 //! The export logic is also available as a CLI binary via
 //! `cargo run --features export --bin export_icons`.
 
-use std::collections::HashMap;
 use std::collections::HashSet;
 use std::fs;
 use std::io::Write;
 use std::path::Path;
 
-use nerd_fonts_model::CodePoint;
-use nerd_fonts_model::GRESOURCE_PREFIX;
 use nerd_fonts_model::IconEntry;
 use nerd_fonts_model::IconName;
 use nerd_fonts_model::ResourcePath;
 
-use crate::svg_path_builder::SvgPathBuilder;
-
-/// Generate the SVG content for a single glyph.
-fn glyph_to_svg(face: &ttf_parser::Face, glyph_id: ttf_parser::GlyphId) -> Option<String> {
-    let mut builder = SvgPathBuilder::new();
-    let bbox = face.outline_glyph(glyph_id, &mut builder)?;
-
-    let width = bbox.x_max - bbox.x_min;
-    let height = bbox.y_max - bbox.y_min;
-
-    if width <= 0 || height <= 0 {
-        return None;
-    }
-
-    // Flip Y axis (font coords are bottom-up, SVG is top-down)
-    let transform = format!("matrix(1 0 0 -1 0 {})", bbox.y_max);
-
-    Some(format!(
-        r#"<svg xmlns="http://www.w3.org/2000/svg" width="{}" height="{}" viewBox="{} {} {} {}"><g transform="{}"><path d="{}"/></g></svg>"#,
-        width,
-        height,
-        bbox.x_min,
-        bbox.y_min,
-        width,
-        height,
-        transform,
-        builder.path.trim()
-    ))
-}
-
-/// Build a reverse cmap (GlyphId -> char) by probing Unicode codepoints.
-///
-/// Nerd Fonts map glyphs to codepoints in several Unicode ranges:
-/// - BMP PUA: U+E000-U+F8FF
-/// - Supplementary PUA: U+F0001-U+10FFFF
-/// - Miscellaneous Technical: U+23FB-U+23FE (IEC power symbols)
-/// - Miscellaneous Symbols and Arrows: U+2B58
-///
-/// To cover all cases, we scan the entire BMP (U+0000-U+FFFF) plus
-/// the supplementary PUA. At ~16ns per `glyph_index` lookup, this
-/// takes ~17ms total.
-fn build_reverse_cmap(face: &ttf_parser::Face) -> HashMap<ttf_parser::GlyphId, char> {
-    let mut map = HashMap::new();
-
-    // Full BMP: U+0000 - U+FFFF
-    for codepoint in 0..=0xFFFFu32 {
-        if let Some(ch) = char::from_u32(codepoint) {
-            if let Some(glyph_id) = face.glyph_index(ch) {
-                map.insert(glyph_id, ch);
-            }
-        }
-    }
-
-    // Supplementary PUA: U+F0001 - U+10FFFF
-    for codepoint in 0xF0001..=0x10FFFFu32 {
-        if let Some(ch) = char::from_u32(codepoint) {
-            if let Some(glyph_id) = face.glyph_index(ch) {
-                map.insert(glyph_id, ch);
-            }
-        }
-    }
-
-    map
-}
-
-/// Generate the GResource XML manifest file.
-fn generate_gresource_xml(icons: &[IconEntry], output_path: &Path) -> std::io::Result<()> {
-    let mut xml = String::new();
-    xml.push_str("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-    xml.push_str("<gresources>\n");
-    xml.push_str(&format!("  <gresource prefix=\"{}\">\n", GRESOURCE_PREFIX));
-
-    let mut sorted: Vec<&IconEntry> = icons.iter().collect();
-    sorted.sort_by(|a, b| a.name.cmp(&b.name));
-
-    for icon in sorted {
-        xml.push_str(&format!("    <file>icons/{}.svg</file>\n", icon.name));
-    }
-
-    xml.push_str("  </gresource>\n");
-    xml.push_str("</gresources>\n");
-
-    fs::write(output_path, xml)?;
-    Ok(())
-}
+use crate::font::build_reverse_cmap;
+use crate::gresource::generate_gresource_xml;
+use crate::svg::EMPTY_SVG;
+use crate::svg::glyph_to_svg;
 
 /// Export all Nerd Font glyphs from a TTF/OTF font file as GTK4 symbolic SVG icons.
 ///
@@ -158,7 +74,7 @@ pub fn export_icons(font_path: &Path, output_dir: &Path) -> std::io::Result<usiz
         }
         seen_names.insert(icon_name.as_ref().to_string());
 
-        let codepoint = reverse_cmap.get(&glyph_id).map(|ch| CodePoint::from(*ch));
+        let codepoint = reverse_cmap.get(&glyph_id).copied();
 
         // Generate SVG (or empty placeholder for glyphs without outline)
         let svg = match glyph_to_svg(&face, glyph_id) {
@@ -166,7 +82,7 @@ pub fn export_icons(font_path: &Path, output_dir: &Path) -> std::io::Result<usiz
             None => {
                 // Glyph has no outline (e.g. nonmarkingreturn, blank).
                 // Create a minimal empty SVG so the icon name is still registered.
-                r#"<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1" viewBox="0 0 1 1"><path d=""/></svg>"#.to_string()
+                EMPTY_SVG.to_string()
             }
         };
 

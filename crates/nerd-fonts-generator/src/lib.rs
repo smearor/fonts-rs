@@ -6,8 +6,10 @@
 //! - Metadata parsers for upstream icon sets (Font Awesome, Material Design, etc.)
 
 pub mod export;
+pub mod font;
 pub mod generator;
-pub mod svg_path_builder;
+pub mod gresource;
+pub mod svg;
 
 pub use export::export_icons;
 pub use generator::codemap::IconsCodemapGenerator;
