@@ -17,6 +17,7 @@ fonts-rs-model.workspace = true
 skrifa.workspace = true
 serde.workspace = true
 serde_json.workspace = true
+quick-xml.workspace = true
 thiserror.workspace = true
 
 [lints]
