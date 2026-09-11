@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **MSRV bumped to 1.92**: required by gtk4 0.11.x / glib 0.22.x ecosystem
 - **Workspace architecture**: migrated from single-crate `nerd-fonts-gtk` package to a 4-crate Cargo workspace with centralized dependency management via `[workspace.dependencies]`
 - **Feature flags**: restructured features (`gtk`, `render`, `metadata`, `web`, `embed-fonts`, `export`) across crate boundaries
 - **Resource paths**: updated GResource prefix from `/io/nerd_fonts/icons/` to `/io/smearor/nerd_fonts/icons/`
