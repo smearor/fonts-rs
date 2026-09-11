@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-cb10c0ab.js";
+            window.path_to_searchindex_js = "searchindex-cd7d9998.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-efed3993.js"></script>
+        <script src="toc-4fa96b66.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -193,9 +193,9 @@ fn main() {
 <li><strong>Font initialization</strong> (with <code>render</code> feature) - Sets the font search base
 directory</li>
 <li><strong>GResource registration</strong> - Registers the compiled GResource binary</li>
-<li><strong>Icon registration</strong> - Registers <code>nerd_gtk_icons</code> SVG icons</li>
-<li><strong>CSS loading</strong> - Loads <code>FONT_FACE_CSS</code> into a <code>CssProvider</code> and adds it to
-the default display</li>
+<li><strong>Icon registration</strong> - Registers vendored Nerd Font SVG icons</li>
+<li><strong>CSS loading</strong> - Loads version-adapted <code>@font-face</code> CSS via
+<code>font_face_css()</code> into a <code>CssProvider</code> and adds it to the default display</li>
 </ol>
 <h2 id="icon-color-application"><a class="header" href="#icon-color-application">Icon Color Application</a></h2>
 <h3 id="image-icons"><a class="header" href="#image-icons">Image Icons</a></h3>

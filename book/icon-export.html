@@ -3,8 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Page not found - nerd-fonts-gtk Documentation</title>
-        <base href="/">
+        <title>Icon Export - nerd-fonts-gtk Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -178,14 +177,163 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="document-not-found-404"><a class="header" href="#document-not-found-404">Document not found (404)</a></h1>
-<p>This URL is invalid, sorry. Please use the navigation bar or search to continue.</p>
+                        <h1 id="icon-export"><a class="header" href="#icon-export">Icon Export</a></h1>
+<p>Nerd Font glyphs are extracted as GTK4 symbolic SVG icons at build time
+using <a href="https://crates.io/crates/ttf-parser"><code>ttf-parser</code></a>. The export logic
+lives in <code>src/icons/export.rs</code> and is called automatically by <code>build.rs</code>.</p>
+<h2 id="automatic-generation"><a class="header" href="#automatic-generation">Automatic Generation</a></h2>
+<p><code>build.rs</code> generates the icon resources on demand. The export is triggered
+when <code>resources/metadata.json</code> does not exist (e.g. on a fresh clone) <strong>or</strong>
+when the font file has changed since the last export:</p>
+<pre class="mermaid">flowchart TD
+    A["build.rs runs"] --&gt; B{"metadata.json exists?"}
+    B --&gt;|No| D["Export icons from font"]
+    B --&gt;|Yes| C{"Font hash matches?"}
+    C --&gt;|No| D
+    C --&gt;|Yes| E["Skip export"]
+    D --&gt; F["Write SVGs, metadata.json, icons.gresource.xml"]
+    F --&gt; G["Write .font-hash"]
+    E --&gt; H["Compile GResource bundles"]
+    G --&gt; H
+    H --&gt; I["Generate phf::Map + icon constants"]
+</pre>
+
+<pre><code>resources/NerdFontsSymbolsOnly/SymbolsNerdFont-Regular.ttf
+  ↓  build.rs (ttf-parser outline extraction, ~2s)
+resources/icons/*.svg          (10.403 SVG files)
+resources/metadata.json        (name, codepoint, file path)
+resources/icons.gresource.xml  (GResource manifest)
+resources/.font-hash           (FNV-1a hash of font file)
+  ↓  build.rs (code generation)
+$OUT_DIR/codemap.rs            (phf::Map&lt;char, &amp;str&gt; + phf::Map&lt;&amp;str, char&gt;)
+$OUT_DIR/icons.rs              (icon name constants)
+  ↓  build.rs (glib-build-tools)
+compiled.gresource             (font GResource bundle)
+icons.gresource                (icon GResource bundle)
+</code></pre>
+<p>The generated files (<code>resources/icons/</code>, <code>resources/metadata.json</code>,
+<code>resources/icons.gresource.xml</code>, <code>resources/.font-hash</code>) are in <code>.gitignore</code>
+and not checked into the repository. They are regenerated from the font file
+as needed.</p>
+<h3 id="caching"><a class="header" href="#caching">Caching</a></h3>
+<p><code>build.rs</code> uses two mechanisms for caching:</p>
+<p><strong>Cargo rebuild triggers</strong> (<code>cargo:rerun-if-changed</code>):</p>
+<ul>
+<li><code>resources/NerdFontsSymbolsOnly/SymbolsNerdFont-Regular.ttf</code> — triggers
+<code>build.rs</code> re-execution</li>
+<li><code>resources/metadata.json</code> — triggers phf::Map regeneration</li>
+<li><code>resources/icons.gresource.xml</code> — triggers GResource recompilation</li>
+<li><code>resources/nerd-fonts.gresource.xml</code> — triggers font GResource recompilation</li>
+<li><code>build.rs</code> — triggers full rebuild</li>
+</ul>
+<p><strong>Font hash comparison</strong> (FNV-1a):</p>
+<p>When <code>build.rs</code> runs, it computes an FNV-1a hash of the font file and compares
+it against the stored hash in <code>resources/.font-hash</code>. If the hashes differ
+(or the file is missing), the full icon export is triggered. Otherwise the
+export is skipped.</p>
+<p>This means:</p>
+<ul>
+<li><strong>Fresh clone</strong>: <code>metadata.json</code> missing → export runs (~2 seconds)</li>
+<li><strong>Font updated</strong>: hash differs → export runs automatically</li>
+<li><strong>No changes</strong>: hash matches → export skipped (fast incremental build)</li>
+<li><strong>Deleted generated files</strong>: <code>metadata.json</code> missing → export runs</li>
+</ul>
+<p>No manual <code>rm -rf</code> or <code>cargo clean</code> is needed when updating the font file.</p>
+<h2 id="cli-binary"><a class="header" href="#cli-binary">CLI Binary</a></h2>
+<p>The <code>export_icons</code> binary provides a command-line interface to the same
+export logic. It requires the <code>export</code> feature:</p>
+<pre><code class="language-sh">cargo run --features export --bin export_icons -- &lt;font.ttf&gt; -o &lt;output_dir&gt;/
+</code></pre>
+<p>For example, to export from the bundled Symbols Nerd Font to a custom
+directory:</p>
+<pre><code class="language-sh">cargo run --features export --bin export_icons -- \
+    resources/NerdFontsSymbolsOnly/SymbolsNerdFont-Regular.ttf \
+    -o /tmp/my-icons/
+</code></pre>
+<h2 id="library-api"><a class="header" href="#library-api">Library API</a></h2>
+<p>The export functionality is available as a public API for library users
+who want to generate SVG icons programmatically:</p>
+<pre><code class="language-rust ignore">use nerd_fonts_gtk::icons::export;
+
+let count = export::export_icons(
+    std::path::Path::new("font.ttf"),
+    std::path::Path::new("output/"),
+).expect("Failed to export icons");
+
+println!("Exported {} icons", count);</code></pre>
+<p>This requires the <code>export</code> feature:</p>
+<pre><code class="language-toml">[dependencies]
+nerd-fonts-gtk = { version = "0.1", features = ["export"] }
+</code></pre>
+<h2 id="how-it-works"><a class="header" href="#how-it-works">How It Works</a></h2>
+<h3 id="glyph-outline-extraction"><a class="header" href="#glyph-outline-extraction">Glyph Outline Extraction</a></h3>
+<p>The export uses <code>ttf_parser::Face::outline_glyph()</code> with a custom
+<code>OutlineBuilder</code> implementation that converts Bezier curve commands
+directly into SVG path data:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>OutlineBuilder method</th><th>SVG path command</th></tr>
+</thead>
+<tbody>
+<tr><td><code>move_to(x, y)</code></td><td><code>M x y</code></td></tr>
+<tr><td><code>line_to(x, y)</code></td><td><code>L x y</code></td></tr>
+<tr><td><code>quad_to(x1, y1, x, y)</code></td><td><code>Q x1 y1 x y</code></td></tr>
+<tr><td><code>curve_to(x1, y1, x2, y2, x, y)</code></td><td><code>C x1 y1 x2 y2 x y</code></td></tr>
+<tr><td><code>close()</code></td><td><code>Z</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>Both TrueType (<code>glyf</code>) and OpenType/CFF outlines are supported transparently
+by <code>ttf-parser</code>.</p>
+<h3 id="codepoint-resolution"><a class="header" href="#codepoint-resolution">Codepoint Resolution</a></h3>
+<p>Nerd Fonts use codepoints across multiple Unicode ranges:</p>
+<ul>
+<li><strong>BMP PUA</strong>: U+E000–U+F8FF (most icons)</li>
+<li><strong>Miscellaneous Technical</strong>: U+23FB–U+23FE (IEC power symbols)</li>
+<li><strong>Miscellaneous Symbols and Arrows</strong>: U+2B58</li>
+<li><strong>Supplementary PUA</strong>: U+F0001–U+10FFFF</li>
+</ul>
+<p>The export builds a reverse character map (GlyphId → char) by probing all BMP
+codepoints (U+0000–U+FFFF) plus the supplementary PUA. This takes ~17ms total
+at ~16ns per <code>glyph_index()</code> lookup.</p>
+<h3 id="name-normalization"><a class="header" href="#name-normalization">Name Normalization</a></h3>
+<p>Glyph names from the font’s <code>post</code>/<code>CFF</code> tables are normalized to GTK-friendly
+icon names:</p>
+<ol>
+<li>Lowercase</li>
+<li>Replace <code>_</code> with <code>-</code></li>
+<li>Replace non-alphanumeric characters (except <code>-</code>) with <code>-</code></li>
+<li>Collapse consecutive <code>-</code></li>
+<li>Strip leading/trailing <code>-</code></li>
+<li>Prefix with <code>nf-</code> and suffix with <code>-symbolic</code></li>
+</ol>
+<p>Example: <code>uniF11B</code> → <code>nf-f11b-symbolic</code></p>
+<h3 id="empty-glyphs"><a class="header" href="#empty-glyphs">Empty Glyphs</a></h3>
+<p>Some glyphs (e.g. <code>nonmarkingreturn</code>, <code>blank</code>) have no outline data. These
+are exported as minimal empty SVGs so their icon names remain registered in
+<code>metadata.json</code>.</p>
+<h2 id="feature-gate"><a class="header" href="#feature-gate">Feature Gate</a></h2>
+<p>The <code>export</code> feature enables <code>ttf-parser</code>, <code>clap</code>, <code>serde</code>, and <code>serde_json</code>
+as runtime dependencies for the library API and CLI binary. It is not enabled
+by default to keep the dependency tree minimal.</p>
+<p><code>ttf-parser</code> is also a build-dependency (always present) so that <code>build.rs</code>
+can run the export without the <code>export</code> feature being enabled.</p>
+<pre><code class="language-toml">[features]
+export = ["dep:ttf-parser", "dep:clap", "dep:serde", "dep:serde_json"]
+</code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="icon-resolution.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
 
+                            <a rel="next prefetch" href="font-loading.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -193,7 +341,13 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="icon-resolution.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
 
+                    <a rel="next prefetch" href="font-loading.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
             </nav>
 
         </div>

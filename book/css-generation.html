@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-cb10c0ab.js";
+            window.path_to_searchindex_js = "searchindex-cd7d9998.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-efed3993.js"></script>
+        <script src="toc-4fa96b66.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -180,13 +180,21 @@
                         <h1 id="css-generation"><a class="header" href="#css-generation">CSS Generation</a></h1>
 <p>The <code>css</code> module provides CSS string constants for GTK and web usage.</p>
 <h2 id="gtk-font-face-css"><a class="header" href="#gtk-font-face-css">GTK Font-Face CSS</a></h2>
-<p>The <code>FONT_FACE_CSS</code> constant contains <code>@font-face</code> rules for Nerd Font symbol
-fonts and <code>.nerd-icon</code> helper classes. It is loaded automatically by <code>init()</code>
-when the <code>gtk</code> feature is enabled.</p>
+<p>The <code>font_face_css()</code> function generates a version-adapted <code>@font-face</code> CSS
+string at runtime. It detects the GTK4 library version and adjusts the <code>src</code>
+descriptor syntax for compatibility:</p>
+<ul>
+<li><strong>GTK &gt;= 4.10</strong>: emits <code>src: url("...") format("truetype")</code> for better spec
+compliance with the new GtkCssParser.</li>
+<li><strong>GTK &lt; 4.10</strong>: emits <code>src: url("...")</code> without a <code>format()</code> hint to avoid
+parse errors with the legacy parser.</li>
+</ul>
+<p>It is loaded automatically by <code>init()</code> when the <code>gtk</code> feature is enabled.</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>use nerd_fonts_gtk::css::FONT_FACE_CSS;
+</span>use nerd_fonts_gtk::css::font_face_css;
 
+let css = font_face_css();
 // The CSS references GResource URLs:
 // resource:///io/smearor/nerd_fonts/SymbolsNerdFont-Regular.ttf
 // resource:///io/smearor/nerd_fonts/SymbolsNerdFontMono-Regular.ttf
@@ -198,6 +206,24 @@ when the <code>gtk</code> feature is enabled.</p>
 <li><code>.nerd-icon</code> class for proportional icons</li>
 <li><code>.nerd-icon-mono</code> class for monospace icons</li>
 </ul>
+<p>The static <code>FONT_FACE_CSS</code> constant retains the baseline CSS (without
+<code>format()</code> hints) for backward compatibility and testing.</p>
+<h2 id="runtime-version-detection"><a class="header" href="#runtime-version-detection">Runtime Version Detection</a></h2>
+<p>The <code>GtkVersion</code> struct wraps the runtime GTK4 version and provides
+comparison helpers:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use nerd_fonts_gtk::css::GtkVersion;
+
+#[cfg(feature = "gtk")]
+let version = GtkVersion::runtime();
+
+let legacy = GtkVersion::new(4, 8, 0);
+assert!(!legacy.at_least(4, 10));
+
+let modern = GtkVersion::new(4, 14, 2);
+assert!(modern.at_least(4, 10));
+<span class="boring">}</span></code></pre>
 <h2 id="gresource-prefix"><a class="header" href="#gresource-prefix">GResource Prefix</a></h2>
 <p>The <code>GRESOURCE_PREFIX</code> constant defines where font files are registered in the
 GResource system:</p>
@@ -214,7 +240,15 @@ assert_eq!(GRESOURCE_PREFIX, "/io/smearor/nerd_fonts");
 </span>use gtk4::CssProvider;
 
 let provider = gtk4::CssProvider::new();
-provider.load_from_data(nerd_fonts_gtk::css::FONT_FACE_CSS);
+let css = nerd_fonts_gtk::css::font_face_css();
+
+#[cfg(feature = "v4_12")]
+provider.load_from_string(&amp;css);
+#[cfg(not(feature = "v4_12"))]
+{
+    #[allow(deprecated)]
+    provider.load_from_data(&amp;css);
+}
 
 if let Some(display) = gtk4::gdk::Display::default() {
     gtk4::style_context_add_provider_for_display(
