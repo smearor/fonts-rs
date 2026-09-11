@@ -314,6 +314,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "fonts-rs-seven-segment"
+version = "0.1.0"
+dependencies = [
+ "ab_glyph",
+ "const_format",
+ "fonts-rs-generator",
+ "fonts-rs-model",
+ "gio",
+ "glib-build-tools",
+ "gtk4",
+ "miette",
+ "phf",
+ "serde_json",
+ "tracing",
+]
+
+[[package]]
 name = "four-cc"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
