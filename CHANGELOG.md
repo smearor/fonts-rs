@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Repository rename**: project renamed from `nerd-fonts-gtk` to `fonts-rs` with updated repository URL (`https://github.com/smearor/fonts-rs`), App IDs (`io.smearor.fonts_rs.*`), log messages, and doc comments
+- **CI feature coverage**: `--all-features` flag added to `cargo clippy`, `cargo test`, `cargo build`, `cargo doc`, and doctest jobs to test all feature gates (`v4_12`, `render`, `web`, `embed-fonts`, `metadata`)
 - **Workspace split into 4 crates**: `nerd-fonts-model` (shared data types), `nerd-fonts-generator` (build-time code generation and icon export), `nerd-fonts-rs` (GTK4 integration library), and `nerd-fonts-cheat-sheet` (browseable icon application)
 - **Metadata resolution system**: keyword and category lookup for Nerd Font icons, sourced from upstream icon set metadata (Font Awesome, Material Design, Devicon, Octicons) via a build-time `phf::Map` code generation pipeline
 - **Cheat sheet application** (`nerd-fonts-cheat-sheet`): GTK4 app to browse all Nerd Font icons with search filtering (names, keywords, categories, aliases), icon detail sidebar, navigation history, and SVG preview
@@ -28,6 +30,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Resource paths**: updated GResource prefix from `/io/nerd_fonts/icons/` to `/io/smearor/nerd_fonts/icons/`
 - **Code quality**: panic-free error handling throughout (`Result` types, `thiserror`/`miette`), removed `unwrap()`/`expect()` from production paths
 - **Documentation**: updated `architecture.md`, `css-generation.md`, `gtk-integration.md`, `icon-resolution.md`, and `introduction.md` to reflect new crate structure
+- **Feature flag documentation**: added missing `v4_12` and `metadata` features to README and book; updated `render` feature description from "software rendering" to "font loading" after `pixel-drawing` extraction
+- **GTK integration docs**: removed obsolete `Color` struct, `apply_icon_color`, and `apply_text_color` documentation from `gtk-integration.md` (moved to `pixel-drawing`)
+- **Icon export docs**: updated `icon-export.md` to reference `nerd-fonts-generator` crate instead of non-existent `export` feature
+
+### Removed
+
+- **`software-rendering.md`**: removed from book (content lives in `pixel-drawing` book); removed from `SUMMARY.md`
 
 ### Fixed
 
