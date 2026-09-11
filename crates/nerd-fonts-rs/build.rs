@@ -1,20 +1,24 @@
+// build.rs uses the generic export pipeline directly.
+
 use std::fs;
 use std::io::Read;
 use std::path::Path;
 
+use nerd_fonts_generator::FontDefinition;
 use nerd_fonts_generator::IconsCodemapGenerator;
 use nerd_fonts_generator::IconsMetadataGenerator;
 use nerd_fonts_generator::IconsRustGenerator;
+use nerd_fonts_generator::NerdFontsDefinition;
 use nerd_fonts_generator::NerdFontsGenerator;
 use nerd_fonts_generator::WebCssGenerator;
-use nerd_fonts_generator::export_icons;
 use nerd_fonts_generator::generator::metadata::devicon::DeviconMetadata;
 use nerd_fonts_generator::generator::metadata::fa::FaMetadata;
 use nerd_fonts_generator::generator::metadata::md::MdMetadata;
 use nerd_fonts_generator::generator::metadata::octicons::OcticonsMetadata;
 use nerd_fonts_generator::generator::metadata::registry::IconMetadataRegistry;
 
-use nerd_fonts_model::IconEntry;
+use nerd_fonts_model::GlyphEntry;
+use nerd_fonts_model::IconName;
 
 fn main() {
     // Set cfg flag to indicate lib compilation (not build script).
@@ -50,7 +54,7 @@ fn main() {
 
     if needs_export {
         eprintln!("build.rs: exporting icons from font...");
-        let count = export_icons(Path::new(font_path), Path::new("resources")).expect("Failed to export icons from font");
+        let count = NerdFontsDefinition::export_glyphs(Path::new(font_path), Path::new("resources")).expect("Failed to export icons from font");
         eprintln!("build.rs: exported {} icons", count);
         fs::write(hash_path, &current_hash).expect("Failed to write font hash");
     }
@@ -65,7 +69,7 @@ fn main() {
     // 4. Generate Rust constants and phf maps from metadata.json
     // ----------------------------
     let json = fs::read_to_string("resources/metadata.json").expect("Failed to read metadata.json");
-    let icons: Vec<IconEntry> = serde_json::from_str(&json).expect("Invalid metadata.json");
+    let icons: Vec<GlyphEntry<IconName>> = serde_json::from_str(&json).expect("Invalid metadata.json");
     IconsRustGenerator::run(&icons).expect("Failed to generate Rust icons");
     IconsCodemapGenerator::run(&icons).expect("Failed to generate codepoint map");
     WebCssGenerator::run(&icons).expect("Failed to generate web CSS");

@@ -3,15 +3,16 @@
 use std::collections::HashSet;
 use std::path::PathBuf;
 
-use super::IconEntry;
 use super::error::GenerateError;
 use super::generate::NerdFontsGenerator;
+use nerd_fonts_model::GlyphEntry;
+use nerd_fonts_model::IconName;
 
 /// Generates Rust constants for each icon name.
 pub struct IconsRustGenerator;
 
 impl NerdFontsGenerator for IconsRustGenerator {
-    fn generate(icons: &[IconEntry]) -> Result<String, GenerateError> {
+    fn generate(icons: &[GlyphEntry<IconName>]) -> Result<String, GenerateError> {
         let icons: HashSet<String> = icons.iter().map(|icon| icon.name.to_string()).collect();
 
         let mut output = String::new();

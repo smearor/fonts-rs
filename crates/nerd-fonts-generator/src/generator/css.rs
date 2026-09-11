@@ -2,16 +2,17 @@
 
 use std::path::PathBuf;
 
-use super::IconEntry;
 use super::error::GenerateError;
 use super::generate::NerdFontsGenerator;
+use nerd_fonts_model::GlyphEntry;
+use nerd_fonts_model::IconName;
 
 /// Generates the web CSS file (`resources/nerdfont.css`) with per-icon
 /// `content: "\XXXX"` mappings from metadata.json.
 pub struct WebCssGenerator;
 
 impl NerdFontsGenerator for WebCssGenerator {
-    fn generate(icons: &[IconEntry]) -> Result<String, GenerateError> {
+    fn generate(icons: &[GlyphEntry<IconName>]) -> Result<String, GenerateError> {
         let mut output = String::new();
         output.push_str("/* Nerd Font icon mappings for web instances.\n");
         output.push_str(" * Maps nf-* icon names to Unicode codepoints.\n");
@@ -35,7 +36,7 @@ impl NerdFontsGenerator for WebCssGenerator {
         output.push_str("    line-height: 1;\n");
         output.push_str("}\n\n");
 
-        let mut sorted: Vec<&IconEntry> = icons.iter().filter(|i| i.code.is_some()).collect();
+        let mut sorted: Vec<&GlyphEntry<IconName>> = icons.iter().filter(|i| i.code.is_some()).collect();
         sorted.sort_by(|a, b| a.name.cmp(&b.name));
 
         for icon in sorted {

@@ -1,7 +1,7 @@
 //! `NerdFontsDefinition` — `FontDefinition` implementation for Nerd Fonts.
 //!
 //! This module implements the generic [`FontDefinition`] trait for the Nerd Fonts
-//! font family, allowing the generic `export_glyphs` pipeline to be used.
+//! font family, allowing the `FontDefinition::export_glyphs` pipeline to be used.
 
 use fonts_rs_generator::FontDefinition;
 use fonts_rs_model::FontFamily;
@@ -22,7 +22,7 @@ impl FontFamily for NerdFonts {}
 /// Build-time configuration for the Nerd Fonts font family.
 ///
 /// Implements [`FontDefinition`] to plug into the generic
-/// [`export_glyphs`](fonts_rs_generator::export_glyphs) pipeline.
+/// [`FontDefinition::export_glyphs`] pipeline.
 pub struct NerdFontsDefinition;
 
 impl FontDefinition for NerdFontsDefinition {

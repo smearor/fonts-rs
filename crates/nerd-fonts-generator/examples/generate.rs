@@ -1,6 +1,6 @@
 //! Example: using `nerd-fonts-generator` as a library.
 //!
-//! Demonstrates how to construct [`IconEntry`] data and use the
+//! Demonstrates how to construct [`GlyphEntry<IconName>`] data and use the
 //! [`NerdFontsGenerator`] trait to generate Rust constants, phf codepoint
 //! maps, and web CSS — all in-memory, without writing files.
 //!
@@ -22,7 +22,7 @@ use nerd_fonts_generator::IconsRustGenerator;
 use nerd_fonts_generator::NerdFontsGenerator;
 use nerd_fonts_generator::WebCssGenerator;
 use nerd_fonts_model::CodePoint;
-use nerd_fonts_model::IconEntry;
+use nerd_fonts_model::GlyphEntry;
 use nerd_fonts_model::IconName;
 use nerd_fonts_model::ResourcePath;
 
@@ -59,7 +59,7 @@ fn main() -> miette::Result<()> {
             let content = std::fs::read_to_string(path)
                 .into_diagnostic()
                 .context(format!("Failed to read {}", path.display()))?;
-            serde_json::from_str::<Vec<IconEntry>>(&content)
+            serde_json::from_str::<Vec<GlyphEntry<IconName>>>(&content)
                 .into_diagnostic()
                 .context("Failed to parse metadata JSON")?
         }
@@ -89,7 +89,7 @@ fn main() -> miette::Result<()> {
     Ok(())
 }
 
-fn sample_icons() -> Vec<IconEntry> {
+fn sample_icons() -> Vec<GlyphEntry<IconName>> {
     let names = ["nf-fa-gamepad", "nf-fa-star", "nf-md-home", "nf-oct-mark-github"];
 
     names
@@ -98,7 +98,7 @@ fn sample_icons() -> Vec<IconEntry> {
         .filter_map(|(i, name)| {
             let icon_name = IconName::parse(name)?;
             let code = CodePoint::from(char::from_u32(0xF11B + i as u32)?);
-            Some(IconEntry {
+            Some(GlyphEntry {
                 code: Some(code),
                 name: icon_name.clone(),
                 file: PathBuf::from(format!("resources/icons/{icon_name}.svg")),
