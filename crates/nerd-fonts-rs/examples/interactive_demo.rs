@@ -1,4 +1,4 @@
-//! Interactive demo for nerd-fonts-gtk.
+//! Interactive demo for fonts-rs.
 //!
 //! Demonstrates icon name resolution and GTK icon name resolution.
 //!
@@ -26,7 +26,7 @@ use gtk4::prelude::*;
 use miette::IntoDiagnostic;
 use miette::Result;
 
-const APP_ID: &str = "io.smearor.nerd_fonts_gtk.interactive_demo";
+const APP_ID: &str = "io.smearor.fonts_rs.interactive_demo";
 
 /// A curated selection of Nerd Font icons to display in the icon gallery.
 const GALLERY_ICONS: &[&str] = &[
@@ -58,7 +58,7 @@ fn main() -> Result<glib::ExitCode> {
 fn build_ui(app: &Application) {
     let window = ApplicationWindow::builder()
         .application(app)
-        .title("nerd-fonts-gtk Interactive Demo")
+        .title("fonts-rs Interactive Demo")
         .default_width(1024)
         .default_height(768)
         .build();
@@ -81,7 +81,7 @@ fn build_ui(app: &Application) {
         .build();
 
     let title = Label::builder()
-        .label("nerd-fonts-gtk Interactive Demo")
+        .label("fonts-rs Interactive Demo")
         .css_classes(["title-1"])
         .halign(Align::Center)
         .build();

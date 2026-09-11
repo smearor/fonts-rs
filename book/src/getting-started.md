@@ -12,7 +12,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 ### Minimum Supported Rust Version (MSRV)
 
-The crate declares `rust-version = "1.85"` in its `Cargo.toml`. The MSRV is
+The crate declares `rust-version = "1.92"` in its `Cargo.toml`. The MSRV is
 verified by CI on every push and pull request.
 
 ### Linux System Dependencies
@@ -37,9 +37,9 @@ sudo dnf install -y pkg-config gtk4-devel glib2-devel
 sudo pacman -S pkgconf gtk4 glib2
 ```
 
-### No System Dependencies (render-only)
+### No System Dependencies (font loading or web only)
 
-If you only need software rendering (`render` feature) or web CSS (`web` feature),
+If you only need font loading (`render` feature) or web CSS (`web` feature),
 no system libraries are required beyond a Rust toolchain.
 
 ## Installation
@@ -48,14 +48,14 @@ no system libraries are required beyond a Rust toolchain.
 
 ```toml
 [dependencies]
-nerd-fonts-gtk = "0.1"
+nerd-fonts-rs = "0.1"
 ```
 
 ### From Source
 
 ```bash
-git clone https://github.com/smearor/nerd-fonts-gtk.git
-cd nerd-fonts-gtk
+git clone https://github.com/smearor/fonts-rs.git
+cd fonts-rs
 cargo build --release
 ```
 
@@ -65,16 +65,22 @@ Choose only the features you need:
 
 ```toml
 # GTK4 integration (default)
-nerd-fonts-gtk = "0.1"
+nerd-fonts-rs = "0.1"
 
-# Software rendering only (no GTK)
-nerd-fonts-gtk = { version = "0.1", default-features = false, features = ["render"] }
+# GTK4 with 4.12+ APIs
+nerd-fonts-rs = { version = "0.1", features = ["gtk", "v4_12"] }
+
+# Font loading only (no GTK)
+nerd-fonts-rs = { version = "0.1", default-features = false, features = ["render"] }
 
 # Web CSS only
-nerd-fonts-gtk = { version = "0.1", default-features = false, features = ["web"] }
+nerd-fonts-rs = { version = "0.1", default-features = false, features = ["web"] }
+
+# Icon metadata (keywords & categories)
+nerd-fonts-rs = { version = "0.1", features = ["metadata"] }
 
 # Everything + embedded fonts
-nerd-fonts-gtk = { version = "0.1", features = ["gtk", "render", "web", "embed-fonts"] }
+nerd-fonts-rs = { version = "0.1", features = ["gtk", "v4_12", "render", "web", "embed-fonts", "metadata"] }
 ```
 
 ## Quick Start
@@ -82,7 +88,7 @@ nerd-fonts-gtk = { version = "0.1", features = ["gtk", "render", "web", "embed-f
 ### GTK4 Application
 
 ```rust
-use nerd_fonts_gtk::{init, resolve_icon_codepoint};
+use nerd_fonts_rs::{init, resolve_icon_codepoint};
 
 fn main() {
     // Call once at startup
@@ -93,22 +99,6 @@ fn main() {
         println!("Gamepad icon: U+{:04X}", c as u32);
     }
 }
-```
-
-### Software Rendering
-
-```rust
-use nerd_fonts_gtk::drawing::{fill_background, draw_nerd_font_icon};
-
-let mut pixels = vec![0u8; 64 * 64 * 4];
-fill_background(&mut pixels, 64, 64, [30, 30, 30, 255]);
-draw_nerd_font_icon(
-    &mut pixels, 64, 64,
-    "nf-fa-gamepad",
-    true,
-    nerd_fonts_gtk::resolve_icon_codepoint,
-    Some([100, 180, 255, 255]),
-);
 ```
 
 ## Running Tests

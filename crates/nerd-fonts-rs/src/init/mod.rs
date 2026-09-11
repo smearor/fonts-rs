@@ -1,4 +1,4 @@
-//! Initialization module: builder pattern for configuring and initializing nerd-fonts-gtk.
+//! Initialization module: builder pattern for configuring and initializing fonts-rs.
 
 pub mod error;
 pub mod options;

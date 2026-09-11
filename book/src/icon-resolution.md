@@ -21,7 +21,7 @@ The `resolve_icon_codepoint` function:
 ## Usage
 
 ```rust
-use nerd_fonts_gtk::resolve_icon_codepoint;
+use nerd_fonts_rs::resolve_icon_codepoint;
 
 // Basic resolution
 let codepoint = resolve_icon_codepoint("nf-fa-gamepad");
@@ -55,7 +55,7 @@ The vendored icon GResource registers SVG icons under the path
 `nf-{prefix}-{name}-symbolic` (kebab-case, lower-case).
 
 ```rust
-use nerd_fonts_gtk::gtk::resolve_gtk_nerd_icon;
+use nerd_fonts_rs::gtk::resolve_gtk_nerd_icon;
 
 let icon_name = resolve_gtk_nerd_icon("nf-fa-gamepad");
 // Returns "nf-fa-gamepad-symbolic"

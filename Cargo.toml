@@ -13,8 +13,8 @@ edition = "2024"
 rust-version = "1.92"
 license = "MIT"
 authors = ["Andreas Schaeffer <hanack@nooblounge.net>"]
-repository = "https://github.com/smearor/nerd-fonts-gtk"
-homepage = "https://github.com/smearor/nerd-fonts-gtk"
+repository = "https://github.com/smearor/fonts-rs"
+homepage = "https://github.com/smearor/fonts-rs"
 keywords = ["gtk4", "nerd-fonts", "icons", "font", "rendering"]
 categories = ["graphics", "gui", "rendering"]
 

@@ -1,6 +1,6 @@
 //! Shared constants for GResource paths.
 
-/// GResource prefix for all nerd-fonts-gtk resources.
+/// GResource prefix for all fonts-rs resources.
 pub const GRESOURCE_PREFIX: &str = "/io/smearor/nerd_fonts";
 
 /// Root path inside the compiled GResource bundle where icons are stored.

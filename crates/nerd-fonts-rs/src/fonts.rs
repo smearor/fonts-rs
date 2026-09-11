@@ -55,7 +55,7 @@ fn read_font_file(relative: &str) -> Result<Vec<u8>, std::io::Error> {
     for path in &candidates {
         match std::fs::read(path) {
             Ok(data) => {
-                trace!("nerd-fonts-gtk: loaded font from {}", path.display());
+                trace!("fonts-rs: loaded font from {}", path.display());
                 return Ok(data);
             }
             Err(_) => continue,
@@ -92,7 +92,7 @@ pub fn nerd_font() -> Option<&'static FontVec> {
                 match FontVec::try_from_vec(data) {
                     Ok(font) => Some(font),
                     Err(e) => {
-                        trace!("nerd-fonts-gtk: failed to parse embedded Nerd Font: {}", e);
+                        trace!("fonts-rs: failed to parse embedded Nerd Font: {}", e);
                         None
                     }
                 }
@@ -103,12 +103,12 @@ pub fn nerd_font() -> Option<&'static FontVec> {
                     Ok(data) => match FontVec::try_from_vec(data) {
                         Ok(font) => Some(font),
                         Err(e) => {
-                            trace!("nerd-fonts-gtk: failed to parse Nerd Font: {}", e);
+                            trace!("fonts-rs: failed to parse Nerd Font: {}", e);
                             None
                         }
                     },
                     Err(e) => {
-                        error!("nerd-fonts-gtk: failed to read Nerd Font: {}", e);
+                        error!("fonts-rs: failed to read Nerd Font: {}", e);
                         None
                     }
                 }
@@ -131,7 +131,7 @@ pub fn label_font() -> Option<&'static FontVec> {
                 match read_font_file(LABEL_FONT_RELATIVE) {
                     Ok(data) => convert_woff2(data),
                     Err(e) => {
-                        error!("nerd-fonts-gtk: failed to read label font: {}", e);
+                        error!("fonts-rs: failed to read label font: {}", e);
                         None
                     }
                 }
@@ -143,19 +143,19 @@ pub fn label_font() -> Option<&'static FontVec> {
 /// Convert WOFF2 data to a `FontVec`, falling back to direct TTF parsing.
 fn convert_woff2(data: Vec<u8>) -> Option<FontVec> {
     if !is_woff2(&data) {
-        debug!("nerd-fonts-gtk: label font file is not WOFF2, trying as TTF");
+        debug!("fonts-rs: label font file is not WOFF2, trying as TTF");
         return FontVec::try_from_vec(data).ok();
     }
     match convert_woff2_to_ttf(&mut std::io::Cursor::new(data)) {
         Ok(ttf_data) => match FontVec::try_from_vec(ttf_data) {
             Ok(font) => Some(font),
             Err(e) => {
-                trace!("nerd-fonts-gtk: failed to parse decompressed label font: {}", e);
+                trace!("fonts-rs: failed to parse decompressed label font: {}", e);
                 None
             }
         },
         Err(e) => {
-            error!("nerd-fonts-gtk: failed to decompress WOFF2 label font: {}", e);
+            error!("fonts-rs: failed to decompress WOFF2 label font: {}", e);
             None
         }
     }

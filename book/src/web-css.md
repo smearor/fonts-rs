@@ -11,7 +11,7 @@ The `WEB_NERDFONT_CSS` constant contains a complete CSS stylesheet with:
 - Per-icon `content: "\XXXX"` mappings for use in web widgets
 
 ```rust
-use nerd_fonts_gtk::web::WEB_NERDFONT_CSS;
+use nerd_fonts_rs::web::WEB_NERDFONT_CSS;
 
 // Include in your web HTML
 let html = format!(

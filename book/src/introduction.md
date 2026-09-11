@@ -1,6 +1,6 @@
 # Introduction
 
-**nerd-fonts-gtk** is a Rust library for integrating [Nerd Fonts](https://www.nerdfonts.com/)
+**fonts-rs** is a Rust library for integrating [Nerd Fonts](https://www.nerdfonts.com/)
 into GTK4 projects. It provides icon name resolution, font loading, software rendering,
 and CSS generation for Nerd Font symbols.
 
@@ -17,17 +17,17 @@ symbols, and other developer-oriented pictograms.
   Unicode codepoints via the vendored codepoint map
 - **GTK4 Integration** - Register GResource fonts, apply icon colors to
   `gtk4::Image` and `gtk4::Label` widgets via display-scoped CSS providers
-- **Software Rendering** - Draw Nerd Font icons, text labels, progress bars, and
-  icon grids onto raw RGBA pixel buffers using `ab_glyph` (no GTK required)
+- **Font Loading** - Load Nerd Font TTF/WOFF2 files for software rendering
+  via `ab_glyph` (no GTK required, see [`pixel-drawing`](https://github.com/smearor/pixel-drawing) for rendering)
 - **CSS Generation** - GTK `@font-face` CSS and web CSS with per-icon
   `content: "\XXXX"` mappings
-- **Feature Gates** - Use only what you need: `gtk`, `render`, `web`, `embed-fonts`
+- **Feature Gates** - Use only what you need: `gtk`, `v4_12`, `render`, `web`, `embed-fonts`, `metadata`
 
 ## Module Overview
 
 ```mermaid
 graph TD
-    Lib["nerd-fonts-gtk"]
+    Lib["fonts-rs"]
 
     subgraph "gtk feature"
         GTK["gtk.rs<br/>Icon resolution & color"]
@@ -35,7 +35,6 @@ graph TD
     end
 
     subgraph "render feature"
-        Drawing["drawing.rs<br/>Pixel buffer rendering"]
         Fonts["fonts.rs<br/>Font loading (TTF/WOFF2)"]
     end
 
@@ -43,18 +42,22 @@ graph TD
         Web["web.rs<br/>Web CSS constant"]
     end
 
+    subgraph "metadata feature"
+        Metadata["metadata.rs<br/>Keywords & categories"]
+    end
+
     Icons["icons.rs<br/>Codepoint resolution"]
-    Color["color.rs<br/>RGBA color type"]
+    Init["init/<br/>Builder pattern init"]
 
     Lib --> Icons
-    Lib --> Color
+    Lib --> Init
     Lib --> GTK
     Lib --> CSS
-    Lib --> Drawing
     Lib --> Fonts
     Lib --> Web
+    Lib --> Metadata
 ```
 
 ## License
 
-MIT. See [LICENSE](https://github.com/smearor/nerd-fonts-gtk/blob/main/LICENSE).
+MIT. See [LICENSE](https://github.com/smearor/fonts-rs/blob/main/LICENSE).
