@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["convert_woff2","init","label_font","nerd_font"],"static":["BASE_DIR","LABEL_FONT","NERD_FONT"]};
