@@ -39,8 +39,8 @@ pub trait FontDefinition {
 
     /// Icon context subdirectory within the GResource prefix.
     ///
-    /// Follows the GTK 4 `GtkIconTheme` directory convention:
-    /// `{prefix}/scalable/{context}/{name}.svg`.
+    /// Follows the Freedesktop Icon Theme Specification used by GTK 4's
+    /// `GtkIconTheme`: `{prefix}/scalable/{context}/{name}.svg`.
     ///
     /// The `scalable` directory signals that icons are vector (SVG) and
     /// can be rendered at any size. The `context` subdirectory groups
@@ -159,7 +159,7 @@ pub trait FontDefinition {
         let font_data = fs::read(font_path)?;
         let font = Font::from_data(&font_data).map_err(|e| std::io::Error::other(format!("Failed to parse font: {e}")))?;
 
-        // SVG output directory follows GTK 4 IconTheme convention:
+        // SVG output directory follows Freedesktop Icon Theme convention:
         // {output_dir}/scalable/{context}/
         let icons_dir = output_dir.join("scalable").join(Self::ICONS_CONTEXT);
         fs::create_dir_all(&icons_dir)?;
@@ -205,7 +205,7 @@ pub trait FontDefinition {
             let mut file = fs::File::create(&filename)?;
             file.write_all(svg.as_bytes())?;
 
-            // GResource path follows GTK 4 GtkIconTheme convention:
+            // GResource path follows Freedesktop Icon Theme convention:
             // {prefix}/scalable/{context}/{name}.svg
             let resource_prefix = format!("{}/scalable/{}", Self::GRESOURCE_PREFIX, Self::ICONS_CONTEXT);
             let resource_path = ResourcePath::from_name(&resource_prefix, glyph_name.as_ref());

@@ -17,6 +17,7 @@ license-file = "resources/DSEG7Classic-LICENSE.txt"
 include = [
     "src/**/*.rs",
     "build.rs",
+    "examples/*.rs",
     "resources/DSEG7Classic-Regular.ttf",
     "resources/DSEG7Classic-LICENSE.txt",
     "resources/icons.gresource.xml",
@@ -49,3 +50,12 @@ serde_json.workspace = true
 
 [lints]
 workspace = true
+
+[dev-dependencies]
+gtk4 = { workspace = true, features = ["v4_12"] }
+glib.workspace = true
+miette.workspace = true
+
+[[example]]
+name = "interactive_demo"
+required-features = ["gtk", "embed-fonts"]
