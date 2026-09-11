@@ -11,6 +11,7 @@ pub mod codepoint;
 pub mod font_family;
 pub mod glyph_entry;
 pub mod glyph_name;
+pub mod paths;
 pub mod resource_path;
 
 pub use codepoint::CodePoint;
@@ -19,4 +20,5 @@ pub use font_family::FontFamily;
 pub use font_family::sealed;
 pub use glyph_entry::GlyphEntry;
 pub use glyph_name::GlyphName;
+pub use paths::GRESOURCE_BASE_PREFIX;
 pub use resource_path::ResourcePath;

@@ -1,6 +1,7 @@
-//! Reverse codepoint map construction from font glyph tables.
+//! Font parsing utilities for glyph export.
 
 use std::collections::HashMap;
+use std::ops::Deref;
 
 use read_fonts::ReadError;
 use skrifa::FontRef;
@@ -63,7 +64,7 @@ impl<'a> Font<'a> {
     }
 }
 
-impl<'a> std::ops::Deref for Font<'a> {
+impl<'a> Deref for Font<'a> {
     type Target = FontRef<'a>;
 
     fn deref(&self) -> &Self::Target {

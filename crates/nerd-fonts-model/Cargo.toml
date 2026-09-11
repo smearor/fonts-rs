@@ -13,6 +13,8 @@ description = "Shared data types for Nerd Font icon handling"
 publish = true
 
 [dependencies]
+const_format.workspace = true
+fonts-rs-model.workspace = true
 serde.workspace = true
 
 [lints]

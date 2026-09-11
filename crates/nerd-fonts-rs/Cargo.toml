@@ -24,6 +24,7 @@ include = [
     "resources/metadata/*.json",
     "resources/font-face.css",
     "resources/nerd-fonts.gresource.xml",
+    "resources/icons.gresource.xml",
     "Cargo.toml",
 ]
 
@@ -52,6 +53,7 @@ metadata = []
 
 [dependencies]
 nerd-fonts-model.workspace = true
+const_format.workspace = true
 gio = { workspace = true, optional = true }
 gtk4 = { workspace = true, optional = true }
 ab_glyph = { workspace = true, optional = true }

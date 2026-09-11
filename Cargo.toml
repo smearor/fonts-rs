@@ -1,5 +1,7 @@
 [workspace]
 members = [
+    "crates/fonts-rs-model",
+    "crates/fonts-rs-generator",
     "crates/nerd-fonts-model",
     "crates/nerd-fonts-generator",
     "crates/nerd-fonts-rs",
@@ -23,6 +25,8 @@ unexpected_cfgs = { level = "warn", check-cfg = ['cfg(is_lib)'] }
 
 [workspace.dependencies]
 # Internal crates
+fonts-rs-model = { version = "0.1.0", path = "crates/fonts-rs-model" }
+fonts-rs-generator = { version = "0.1.0", path = "crates/fonts-rs-generator" }
 nerd-fonts-model = { version = "0.1.0", path = "crates/nerd-fonts-model" }
 nerd-fonts-generator = { version = "0.1.0", path = "crates/nerd-fonts-generator" }
 nerd-fonts-rs = { version = "0.1.0", path = "crates/nerd-fonts-rs" }
@@ -31,13 +35,19 @@ nerd-fonts-rs = { version = "0.1.0", path = "crates/nerd-fonts-rs" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 serde_yaml = "0.9"
+quick-xml = { version = "0.42", features = ["serialize"] }
+
+# Compile-time string formatting
+const_format = "0.2"
 
 # Error handling
 thiserror = "2.0"
 miette = "7.6"
 
 # Font parsing
-ttf-parser = "0.25"
+skrifa = "0.47"
+read-fonts = "0.44"
+font-types = "0.12"
 ab_glyph = "0.2"
 woff2-patched = "0.4"
 

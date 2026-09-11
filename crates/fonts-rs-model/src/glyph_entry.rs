@@ -1,9 +1,9 @@
 //! Generic metadata entry for a single exported glyph.
 
-use std::path::PathBuf;
-use serde::{Deserialize, Serialize};
 use crate::codepoint::CodePoint;
 use crate::resource_path::ResourcePath;
+use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
 /// Metadata for a single exported glyph.
 ///
