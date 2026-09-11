@@ -41,8 +41,14 @@ jobs:
           tool: cargo-msrv@0.19.3
       - name: Version of cargo msrv
         run: cargo msrv --version
-      - name: Verify MSRV
-        run: cargo msrv --output-format json verify
+      - name: Verify MSRV (nerd-fonts-model)
+        run: cargo msrv --output-format json verify --path crates/nerd-fonts-model
+      - name: Verify MSRV (nerd-fonts-generator)
+        run: cargo msrv --output-format json verify --path crates/nerd-fonts-generator
+      - name: Verify MSRV (nerd-fonts-rs)
+        run: cargo msrv --output-format json verify --path crates/nerd-fonts-rs
+      - name: Verify MSRV (nerd-fonts-cheat-sheet)
+        run: cargo msrv --output-format json verify --path crates/nerd-fonts-cheat-sheet
       - name: Find MSRV on verify failure
         if: ${{ failure() }}
-        run: cargo msrv --output-format json find || true
+        run: cargo msrv --output-format json find --path crates/nerd-fonts-rs || true
