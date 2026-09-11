@@ -1,0 +1,20 @@
+[package]
+name = "fonts-rs-model"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+description = "Generic model types for font glyph packaging: CodePoint, ResourcePath, GlyphName, GlyphEntry"
+publish = true
+
+[dependencies]
+serde.workspace = true
+thiserror.workspace = true
+
+[lints]
+workspace = true
