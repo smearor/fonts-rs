@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["file","icon_entry","metadata"]};

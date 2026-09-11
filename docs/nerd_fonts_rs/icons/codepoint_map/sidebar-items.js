@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"static":["ICONS","REVERSE_ICONS"]};

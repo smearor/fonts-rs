@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["alias","alias_mapping","category","category_mapping","keyword","keyword_mapping","metadata_mapping"]};

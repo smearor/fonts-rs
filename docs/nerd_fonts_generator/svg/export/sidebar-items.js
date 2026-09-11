@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["EMPTY_SVG"],"fn":["glyph_to_svg"]};

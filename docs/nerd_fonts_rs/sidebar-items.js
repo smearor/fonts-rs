@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CodePointParseError","IconSet"],"mod":["css","gtk","icons","init","metadata"],"struct":["CodePoint","IconCategory","IconEntry","IconKeyword","IconName","ResourcePath"]};

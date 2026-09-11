@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["GRESOURCE_PREFIX","ICONS_RESOURCE_PATH"]};

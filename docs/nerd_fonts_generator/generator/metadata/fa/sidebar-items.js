@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["categories","icon_entry","metadata","search_term","shim","shim_replacement"]};

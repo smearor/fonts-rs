@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["devicon","fa","generator","mapping","md","octicons","registry","source"]};

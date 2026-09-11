@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["category","codepoint","entry","keyword","name","paths","resource_path","set"]};

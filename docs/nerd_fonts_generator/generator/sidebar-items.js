@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["codemap","css","error","generate","icons","metadata"],"struct":["IconEntry","IconName"]};
