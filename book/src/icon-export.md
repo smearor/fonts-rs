@@ -76,17 +76,17 @@ No manual `rm -rf` or `cargo clean` is needed when updating the font file.
 ## CLI Binary
 
 The `export_icons` binary provides a command-line interface to the same
-export logic. It requires the `export` feature:
+export logic. It is part of the `nerd-fonts-generator` crate:
 
 ```sh
-cargo run --features export --bin export_icons -- <font.ttf> -o <output_dir>/
+cargo run -p nerd-fonts-generator --bin export_icons -- <font.ttf> -o <output_dir>/
 ```
 
 For example, to export from the bundled Symbols Nerd Font to a custom
 directory:
 
 ```sh
-cargo run --features export --bin export_icons -- \
+cargo run -p nerd-fonts-generator --bin export_icons -- \
     resources/NerdFontsSymbolsOnly/SymbolsNerdFont-Regular.ttf \
     -o /tmp/my-icons/
 ```
@@ -97,9 +97,9 @@ The export functionality is available as a public API for library users
 who want to generate SVG icons programmatically:
 
 ```rust,ignore
-use nerd_fonts_gtk::icons::export;
+use nerd_fonts_generator::export_icons;
 
-let count = export::export_icons(
+let count = export_icons(
     std::path::Path::new("font.ttf"),
     std::path::Path::new("output/"),
 ).expect("Failed to export icons");
@@ -107,11 +107,11 @@ let count = export::export_icons(
 println!("Exported {} icons", count);
 ```
 
-This requires the `export` feature:
+This uses the `nerd-fonts-generator` crate:
 
 ```toml
 [dependencies]
-nerd-fonts-gtk = { version = "0.1", features = ["export"] }
+nerd-fonts-generator = "0.1"
 ```
 
 ## How It Works
@@ -166,16 +166,15 @@ Some glyphs (e.g. `nonmarkingreturn`, `blank`) have no outline data. These
 are exported as minimal empty SVGs so their icon names remain registered in
 `metadata.json`.
 
-## Feature Gate
+## Crate Structure
 
-The `export` feature enables `ttf-parser`, `clap`, `serde`, and `serde_json`
-as runtime dependencies for the library API and CLI binary. It is not enabled
-by default to keep the dependency tree minimal.
-
-`ttf-parser` is also a build-dependency (always present) so that `build.rs`
-can run the export without the `export` feature being enabled.
+The export logic lives in the `nerd-fonts-generator` crate, which provides
+`ttf-parser`, `clap`, `serde`, and `serde_json` as dependencies for the library
+API and CLI binary. It is a build-dependency of `nerd-fonts-rs` so that
+`build.rs` can run the export automatically.
 
 ```toml
-[features]
-export = ["dep:ttf-parser", "dep:clap", "dep:serde", "dep:serde_json"]
+# nerd-fonts-rs/Cargo.toml (build-dependency)
+[build-dependencies]
+nerd-fonts-generator.workspace = true
 ```

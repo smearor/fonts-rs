@@ -1,7 +1,7 @@
 # Font Loading
 
 The `fonts` module (enabled with the `render` feature) handles loading Nerd Font
-files for software rendering.
+files for use with [`pixel-drawing`](https://github.com/smearor/pixel-drawing).
 
 ## Font Types
 
@@ -21,8 +21,8 @@ Font files are compiled into the binary via `include_bytes!`:
 
 ```rust
 // No runtime file access needed
-nerd_fonts_gtk::fonts::nerd_font(); // Returns &'static FontVec
-nerd_fonts_gtk::fonts::label_font(); // Returns &'static FontVec
+nerd_fonts_rs::fonts::nerd_font(); // Returns &'static FontVec
+nerd_fonts_rs::fonts::label_font(); // Returns &'static FontVec
 ```
 
 ### From Disk (default)
@@ -32,10 +32,10 @@ Fonts are loaded from a base directory at runtime. Set the base directory via
 
 ```rust
 // Use default base directory (relative to executable)
-nerd_fonts_gtk::init(None);
+nerd_fonts_rs::init(None);
 
 // Or specify a custom base directory
-nerd_fonts_gtk::init(Some("/usr/share/fonts/nerd-fonts"));
+nerd_fonts_rs::init(Some("/usr/share/fonts/nerd-fonts"));
 ```
 
 The font files are expected at:
@@ -49,7 +49,7 @@ Both fonts are loaded once and cached in a `OnceLock`. Subsequent calls return
 a reference to the cached `FontVec`:
 
 ```rust
-use nerd_fonts_gtk::fonts::nerd_font;
+use nerd_fonts_rs::fonts::nerd_font;
 
 let font1 = nerd_font().unwrap();
 let font2 = nerd_font().unwrap();

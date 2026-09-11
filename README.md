@@ -1,17 +1,18 @@
-# nerd-fonts-gtk
+# fonts-rs
 
-[![crates.io](https://img.shields.io/crates/v/nerd-fonts-gtk.svg)](https://crates.io/crates/nerd-fonts-gtk)
+[![crates.io](https://img.shields.io/crates/v/nerd-fonts-rs.svg)](https://crates.io/crates/nerd-fonts-rs)
 [![Rust Edition 2024](https://img.shields.io/badge/Rust-Edition%202024-orange.svg)](https://doc.rust-lang.org/edition-guide/editions/2024/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-[![CI Build](https://github.com/smearor/nerd-fonts-gtk/actions/workflows/build.yml/badge.svg)](https://github.com/smearor/nerd-fonts-gtk/actions/workflows/build.yml)
-[![MSRV](https://github.com/smearor/nerd-fonts-gtk/actions/workflows/msrv.yml/badge.svg)](https://github.com/smearor/nerd-fonts-gtk/actions/workflows/msrv.yml)
-[![Security Audit](https://github.com/smearor/nerd-fonts-gtk/actions/workflows/audit.yml/badge.svg)](https://github.com/smearor/nerd-fonts-gtk/actions/workflows/audit.yml)
-[![Book](https://github.com/smearor/nerd-fonts-gtk/actions/workflows/book.yml/badge.svg)](https://github.com/smearor/nerd-fonts-gtk/actions/workflows/book.yml)
+[![CI Build](https://github.com/smearor/fonts-rs/actions/workflows/build.yml/badge.svg)](https://github.com/smearor/fonts-rs/actions/workflows/build.yml)
+[![MSRV](https://github.com/smearor/fonts-rs/actions/workflows/msrv.yml/badge.svg)](https://github.com/smearor/fonts-rs/actions/workflows/msrv.yml)
+[![Security Audit](https://github.com/smearor/fonts-rs/actions/workflows/audit.yml/badge.svg)](https://github.com/smearor/fonts-rs/actions/workflows/audit.yml)
+[![Book](https://github.com/smearor/fonts-rs/actions/workflows/book.yml/badge.svg)](https://github.com/smearor/fonts-rs/actions/workflows/book.yml)
 
 A Rust library for integrating [Nerd Fonts](https://www.nerdfonts.com/) into GTK4
-projects. It provides icon name resolution, font loading, software rendering, and
-CSS generation for Nerd Font symbols.
+projects. It provides icon name resolution, font loading, and CSS generation
+for Nerd Font symbols. Software rendering is available via the
+[`pixel-drawing`](https://github.com/smearor/pixel-drawing) crate.
 
 ## Features
 
@@ -19,12 +20,12 @@ CSS generation for Nerd Font symbols.
   Unicode codepoints via the vendored codepoint map
 - **GTK4 Integration** - Register GResource fonts, apply icon colors to
   `gtk4::Image` and `gtk4::Label` widgets via display-scoped CSS providers
-- **Software Rendering** - Draw Nerd Font icons, text labels, progress bars, and
-  icon grids onto raw RGBA pixel buffers using `ab_glyph` (no GTK required)
+- **Font Loading** - Load Nerd Font TTF/WOFF2 files via `ab_glyph` for use with
+  [`pixel-drawing`](https://github.com/smearor/pixel-drawing) (no GTK required)
 - **CSS Generation** - GTK `@font-face` CSS and web CSS with per-icon
   `content: "\XXXX"` mappings
-- **Feature Gates** - Use only what you need: `gtk`, `render`, `web`,
-  `embed-fonts`
+- **Feature Gates** - Use only what you need: `gtk`, `v4_12`, `render`, `web`,
+  `embed-fonts`, `metadata`
 
 ## Quick Start
 
@@ -37,13 +38,13 @@ CSS generation for Nerd Font symbols.
 
 ```toml
 [dependencies]
-nerd-fonts-gtk = "0.1"
+nerd-fonts-rs = "0.1"
 ```
 
 ### Usage
 
 ```rust
-use nerd_fonts_gtk::{init, resolve_icon_codepoint};
+use nerd_fonts_rs::{init, resolve_icon_codepoint};
 
 fn main() {
     // Call once at startup (with gtk feature)
@@ -56,35 +57,21 @@ fn main() {
 }
 ```
 
-### Software Rendering (no GTK)
-
-```rust
-use nerd_fonts_gtk::drawing::{fill_background, draw_nerd_font_icon};
-
-let mut pixels = vec![0u8; 64 * 64 * 4];
-fill_background(&mut pixels, 64, 64, [30, 30, 30, 255]);
-draw_nerd_font_icon(
-    &mut pixels, 64, 64,
-    "nf-fa-gamepad",
-    true,
-    nerd_fonts_gtk::resolve_icon_codepoint,
-    Some([100, 180, 255, 255]),
-);
-```
-
 ## Feature Flags
 
-| Feature       | Default  | Description                                                        |
-|---------------|----------|--------------------------------------------------------------------|
-| `gtk`         | yes      | GTK4 icon resolution, color application, GResource registration    |
-| `render`      | no       | Software rendering with `ab_glyph` (pixel buffer, no GTK required) |
-| `web`         | no       | Web CSS generation (per-icon codepoint mappings)                   |
-| `embed-fonts` | no       | Embed font files into the binary via `include_bytes!`              |
+| Feature       | Default  | Description                                                         |
+|---------------|----------|---------------------------------------------------------------------|
+| `gtk`         | yes      | GTK4 icon resolution, color application, GResource registration     |
+| `v4_12`       | no       | Enable GTK 4.12+ APIs (`load_from_string` for `CssProvider`)        |
+| `render`      | no       | Font loading with `ab_glyph` (TTF/WOFF2, no GTK required)           |
+| `web`         | no       | Web CSS generation (per-icon codepoint mappings)                    |
+| `embed-fonts` | no       | Embed font files into the binary via `include_bytes!`               |
+| `metadata`    | no       | Icon metadata: keywords and categories for search (~200-500 KB)     |
 
 ## Documentation
 
-- **User Guide**: [mdBook](https://smearor.github.io/nerd-fonts-gtk/book/)
-- **API Reference**: [docs.rs](https://docs.rs/nerd-fonts-gtk)
+- **User Guide**: [mdBook](https://smearor.github.io/fonts-rs/book/)
+- **API Reference**: [docs.rs](https://docs.rs/nerd-fonts-rs)
 - **Changelog**: [CHANGELOG.md](./CHANGELOG.md)
 
 ## Bundled Fonts

@@ -16,7 +16,7 @@ descriptor syntax for compatibility:
 It is loaded automatically by `init()` when the `gtk` feature is enabled.
 
 ```rust
-use nerd_fonts_gtk::css::font_face_css;
+use nerd_fonts_rs::css::font_face_css;
 
 let css = font_face_css();
 // The CSS references GResource URLs:
@@ -40,7 +40,7 @@ The `GtkVersion` struct wraps the runtime GTK4 version and provides
 comparison helpers:
 
 ```rust
-use nerd_fonts_gtk::css::GtkVersion;
+use nerd_fonts_rs::css::GtkVersion;
 
 #[cfg(feature = "gtk")]
 let version = GtkVersion::runtime();
@@ -58,7 +58,7 @@ The `GRESOURCE_PREFIX` constant defines where font files are registered in the
 GResource system:
 
 ```rust
-use nerd_fonts_gtk::css::GRESOURCE_PREFIX;
+use nerd_fonts_rs::css::GRESOURCE_PREFIX;
 
 assert_eq!(GRESOURCE_PREFIX, "/io/smearor/nerd_fonts");
 ```
@@ -71,7 +71,7 @@ If you need to load the CSS manually (e.g., in a custom initialization flow):
 use gtk4::CssProvider;
 
 let provider = gtk4::CssProvider::new();
-let css = nerd_fonts_gtk::css::font_face_css();
+let css = nerd_fonts_rs::css::font_face_css();
 
 #[cfg(feature = "v4_12")]
 provider.load_from_string(&css);

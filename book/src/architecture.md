@@ -4,22 +4,22 @@
 
 The crate is organized into modules gated by feature flags:
 
-| Module    | Feature  | Description                                            |
-|-----------|----------|--------------------------------------------------------|
-| `icons`   | always   | Icon name to Unicode codepoint resolution              |
-| `color`   | always   | RGBA color type for rendering and GTK                  |
-| `css`     | always   | CSS string constants (GResource prefix, font-face CSS) |
-| `gtk`     | `gtk`    | GTK4 icon name resolution and color application        |
-| `drawing` | `render` | Software rendering onto pixel buffers                  |
-| `fonts`   | `render` | Font loading (TTF and WOFF2) with caching              |
-| `web`     | `web`    | Web CSS constant for web instances                     |
+| Module     | Feature    | Description                                            |
+|------------|------------|--------------------------------------------------------|
+| `icons`    | always     | Icon name to Unicode codepoint resolution              |
+| `css`      | always     | CSS string constants (GResource prefix, font-face CSS) |
+| `init`     | always     | Builder pattern for initialization                     |
+| `gtk`      | `gtk`      | GTK4 icon name resolution and color application        |
+| `fonts`    | `render`   | Font loading (TTF and WOFF2) with caching              |
+| `web`      | `web`      | Web CSS constant for web instances                     |
+| `metadata` | `metadata` | Icon keywords and categories for search                |
 
 ## Initialization Flow
 
 ```mermaid
 sequenceDiagram
     participant App as Application
-    participant Init as nerd_fonts_gtk::init()
+    participant Init as nerd_fonts_rs::init()
     participant Fonts as fonts::init()
     participant GResource as GResource
     participant Icons as icons::register_icons()

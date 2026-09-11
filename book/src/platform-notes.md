@@ -39,14 +39,14 @@ The `gtk` feature can be used on Windows with GTK 4 installed via MSYS2 or
 gvsbuild. See the [GTK4 Windows installation
 guide](https://gtk.org/docs/installations/windows/) for details.
 
-## Render-Only Mode
+## Font Loading Mode
 
-The `render` feature has no platform-specific dependencies. It works on any
-platform supported by Rust and `ab_glyph`.
+The `render` feature enables font loading (TTF/WOFF2) via `ab_glyph`. It has no
+platform-specific dependencies and works on any platform supported by Rust.
 
 ```toml
 [dependencies]
-nerd-fonts-gtk = { version = "0.1", default-features = false, features = ["render"] }
+nerd-fonts-rs = { version = "0.1", default-features = false, features = ["render"] }
 ```
 
 ## Web-Only Mode
@@ -56,7 +56,7 @@ CSS string constant.
 
 ```toml
 [dependencies]
-nerd-fonts-gtk = { version = "0.1", default-features = false, features = ["web"] }
+nerd-fonts-rs = { version = "0.1", default-features = false, features = ["web"] }
 ```
 
 ## Embedded Fonts

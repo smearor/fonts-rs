@@ -39,7 +39,7 @@ use nerd_fonts_rs::icons::IconNameExt;
 use nerd_fonts_rs::icons::all_icons_typed;
 use nerd_fonts_rs::metadata;
 
-const APP_ID: &str = "io.smearor.nerd_fonts_gtk.cheat_sheet";
+const APP_ID: &str = "io.smearor.fonts_rs.cheat_sheet";
 
 /// A navigable history entry: either a search query or an icon detail view.
 #[derive(Clone, PartialEq, Eq)]

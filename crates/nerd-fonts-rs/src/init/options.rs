@@ -1,8 +1,8 @@
-//! Builder pattern for nerd-fonts-gtk initialization.
+//! Builder pattern for fonts-rs initialization.
 
 use super::error::InitError;
 
-/// Configuration options for initializing nerd-fonts-gtk.
+/// Configuration options for initializing fonts-rs.
 ///
 /// Construct with [`InitOptions::new`] and chain optional configuration
 /// methods before calling [`InitOptions::init`].
@@ -42,7 +42,7 @@ impl InitOptions {
         self
     }
 
-    /// Initializes nerd-fonts-gtk with the configured options.
+    /// Initializes fonts-rs with the configured options.
     ///
     /// - Registers GResource bundles (gtk feature)
     /// - Registers vendored icon GResource (gtk feature)
