@@ -1,0 +1,23 @@
+[package]
+name = "fonts-rs-generator"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+description = "Generic build-time pipeline for font glyph export, SVG generation, and GResource packaging"
+publish = true
+
+[dependencies]
+fonts-rs-model.workspace = true
+skrifa.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+
+[lints]
+workspace = true
