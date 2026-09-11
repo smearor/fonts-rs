@@ -22,8 +22,8 @@ pub mod web;
 // Re-export model types
 pub use nerd_fonts_model::CodePoint;
 pub use nerd_fonts_model::CodePointParseError;
+pub use nerd_fonts_model::GlyphEntry;
 pub use nerd_fonts_model::IconCategory;
-pub use nerd_fonts_model::IconEntry;
 pub use nerd_fonts_model::IconKeyword;
 pub use nerd_fonts_model::IconName;
 pub use nerd_fonts_model::IconSet;

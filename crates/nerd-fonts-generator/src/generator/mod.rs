@@ -18,5 +18,4 @@ pub use generate::NerdFontsGenerator;
 pub use icons::IconsRustGenerator;
 pub use metadata::IconsMetadataGenerator;
 
-pub use nerd_fonts_model::IconEntry;
 pub use nerd_fonts_model::IconName;
