@@ -41,9 +41,9 @@ jobs:
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2
       - name: Run cargo doc
-        run: cargo doc --workspace --no-deps --document-private-items --verbose
+        run: cargo doc --workspace --no-deps --all-features --document-private-items --verbose
       - name: Run doctests
-        run: cargo test --workspace --doc --verbose
+        run: cargo test --workspace --doc --all-features --verbose
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
         if: ${{ github.ref == 'refs/heads/main' }}
