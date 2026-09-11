@@ -5,14 +5,13 @@ use std::fs;
 use std::io::Write;
 use std::path::Path;
 
-use skrifa::FontRef;
 use skrifa::GlyphId;
 use skrifa::MetadataProvider;
 
 use fonts_rs_model::GlyphEntry;
 use fonts_rs_model::ResourcePath;
 
-use crate::font::build_reverse_cmap;
+use crate::font::Font;
 use crate::font_definition::FontDefinition;
 use crate::gresource::generate_gresource_xml;
 use crate::svg::EMPTY_SVG;
@@ -44,14 +43,14 @@ use crate::svg::glyph_to_svg;
 /// The number of exported glyphs on success, or an `io::Error` on failure.
 pub fn export_glyphs<F: FontDefinition>(font_path: &Path, output_dir: &Path) -> std::io::Result<usize> {
     let font_data = fs::read(font_path)?;
-    let font = FontRef::from_index(&font_data, 0).map_err(|e| std::io::Error::other(format!("Failed to parse font: {e}")))?;
+    let font = Font::from_data(&font_data).map_err(|e| std::io::Error::other(format!("Failed to parse font: {e}")))?;
 
     // SVG output directory follows GTK 4 IconTheme convention:
     // {output_dir}/scalable/{context}/
     let icons_dir = output_dir.join("scalable").join(F::ICONS_CONTEXT);
     fs::create_dir_all(&icons_dir)?;
 
-    let reverse_cmap = build_reverse_cmap(&font);
+    let reverse_cmap = font.build_reverse_cmap::<F>();
 
     let mut entries: Vec<GlyphEntry<F::Name>> = Vec::new();
     let mut seen_names: HashSet<String> = HashSet::new();

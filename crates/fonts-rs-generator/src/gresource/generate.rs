@@ -28,7 +28,10 @@ pub fn generate_gresource_xml<F: FontDefinition>(entries: &[GlyphEntry<F::Name>]
         .collect();
 
     let manifest = GResources {
-        gresource: GResource { prefix: F::GRESOURCE_PREFIX.to_string(), files },
+        gresource: GResource {
+            prefix: F::GRESOURCE_PREFIX.to_string(),
+            files,
+        },
     };
 
     let mut buffer = String::new();

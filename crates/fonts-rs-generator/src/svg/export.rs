@@ -1,6 +1,5 @@
 //! SVG icon generation from font glyphs.
 
-use skrifa::FontRef;
 use skrifa::GlyphId;
 use skrifa::MetadataProvider;
 use skrifa::instance::LocationRef;
@@ -8,6 +7,7 @@ use skrifa::instance::Size;
 use skrifa::outline::DrawSettings;
 
 use super::path_builder::SvgPathBuilder;
+use crate::font::Font;
 
 /// Minimal empty SVG placeholder for glyphs without outlines.
 pub const EMPTY_SVG: &str = r#"<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1" viewBox="0 0 1 1"><path d=""/></svg>"#;
@@ -15,7 +15,7 @@ pub const EMPTY_SVG: &str = r#"<svg xmlns="http://www.w3.org/2000/svg" width="1"
 /// Generate the SVG content for a single glyph.
 ///
 /// Returns `None` if the glyph has no outline or a zero-sized bounding box.
-pub fn glyph_to_svg(font: &FontRef, glyph_id: GlyphId) -> Option<String> {
+pub fn glyph_to_svg(font: &Font, glyph_id: GlyphId) -> Option<String> {
     let mut builder = SvgPathBuilder::new();
     let outlines = font.outline_glyphs();
     let outline = outlines.get(glyph_id)?;

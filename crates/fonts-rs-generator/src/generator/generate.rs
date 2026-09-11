@@ -1,10 +1,10 @@
 //! Trait for code generators that produce output from glyph metadata.
 
-use std::fs;
-use std::path::PathBuf;
-use serde::{Deserialize, Serialize};
 use super::error::GenerateError;
 use fonts_rs_model::GlyphEntry;
+use serde::{Deserialize, Serialize};
+use std::fs;
+use std::path::PathBuf;
 
 /// Trait for code generators that produce output from glyph metadata.
 ///
