@@ -2,7 +2,9 @@
 
 use std::fmt;
 
+use super::paths::ICONS_RESOURCE_PATH;
 use super::set::IconSet;
+use fonts_rs_model::ResourcePath;
 
 /// A normalized GTK icon name derived from a Nerd Font glyph name.
 ///
@@ -135,6 +137,12 @@ impl<'de> serde::Deserialize<'de> for IconName {
             return Err(serde::de::Error::custom(format!("unknown icon set prefix for icon name: '{}'", s)));
         }
         Ok(Self(s))
+    }
+}
+
+impl From<&IconName> for ResourcePath {
+    fn from(name: &IconName) -> Self {
+        ResourcePath::from_name(ICONS_RESOURCE_PATH, name.as_ref())
     }
 }
 

@@ -14,13 +14,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Workspace split into 4 crates**: `nerd-fonts-model` (shared data types), `nerd-fonts-generator` (build-time code generation and icon export), `nerd-fonts-rs` (GTK4 integration library), and `nerd-fonts-cheat-sheet` (browseable icon application)
 - **Metadata resolution system**: keyword and category lookup for Nerd Font icons, sourced from upstream icon set metadata (Font Awesome, Material Design, Devicon, Octicons) via a build-time `phf::Map` code generation pipeline
 - **Cheat sheet application** (`nerd-fonts-cheat-sheet`): GTK4 app to browse all Nerd Font icons with search filtering (names, keywords, categories, aliases), icon detail sidebar, navigation history, and SVG preview
-- **SVG icon export**: `ttf-parser`-based glyph outline extraction producing GTK4 symbolic SVG icons, with `SvgPathBuilder` implementing `OutlineBuilder` for Bezier-to-SVG-path conversion
+- **SVG icon export**: `skrifa`-based glyph outline extraction producing GTK4 symbolic SVG icons, with `SvgPathBuilder` implementing `OutlinePen` for Bezier-to-SVG-path conversion
 - **Reverse codepoint map**: font glyph-to-codepoint resolution by probing BMP and supplementary PUA ranges
 - **GResource XML generation**: automatic `icons.gresource.xml` manifest creation for GTK4 icon bundles
 - **CSS version targeting**: `GtkVersion` enum and GTK 4.10+ compatibility CSS generation (`css/version.rs`)
 - **`InitOptions`**: configurable initialization with GTK version targeting
 - **Book documentation**: new `icon-export.md` page covering the export pipeline, caching, CLI, and library API
 - **Vendored metadata resources**: bundled `devicon.json`, `fontawesome/icons.yml`, `fontawesome/categories.yml`, `materialdesign-icons.json`, and `octicons-keywords.json`
+
+### Security
+
+- **RUSTSEC-2026-0192**: replaced direct dependency on unmaintained `ttf-parser` crate with `skrifa` (Google Fonts fontations project) for font parsing, glyph outline extraction, and codepoint mapping. `skrifa` is actively maintained, `#![forbid(unsafe_code)]`, and provides a richer metadata API via `MetadataProvider` trait
 
 ### Changed
 

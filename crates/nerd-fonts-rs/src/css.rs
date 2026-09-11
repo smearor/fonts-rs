@@ -7,6 +7,8 @@
 
 pub mod version;
 
+use const_format::concatcp;
+
 pub use nerd_fonts_model::GRESOURCE_PREFIX;
 pub use version::GtkVersion;
 
@@ -19,10 +21,10 @@ pub use version::GtkVersion;
 pub const FONT_FACE_CSS: &str = include_str!("../resources/font-face.css");
 
 /// GResource path for the proportional Nerd Font symbol font.
-const FONT_REGULAR_PATH: &str = "resource:///io/smearor/nerd_fonts/SymbolsNerdFont-Regular.ttf";
+const FONT_REGULAR_PATH: &str = concatcp!("resource://", GRESOURCE_PREFIX, "/SymbolsNerdFont-Regular.ttf");
 
 /// GResource path for the monospace Nerd Font symbol font.
-const FONT_MONO_PATH: &str = "resource:///io/smearor/nerd_fonts/SymbolsNerdFontMono-Regular.ttf";
+const FONT_MONO_PATH: &str = concatcp!("resource://", GRESOURCE_PREFIX, "/SymbolsNerdFontMono-Regular.ttf");
 
 /// Generates a version-adapted `@font-face` CSS string for the runtime GTK4
 /// CSS parser.
@@ -98,7 +100,7 @@ mod tests {
 
     #[test]
     fn gresource_prefix_is_correct() {
-        assert_eq!(GRESOURCE_PREFIX, "/io/smearor/nerd_fonts");
+        assert_eq!(GRESOURCE_PREFIX, "/io/smearor/fonts/nerd_fonts");
     }
 
     #[test]
@@ -109,8 +111,8 @@ mod tests {
 
     #[test]
     fn font_face_css_contains_gresource_url() {
-        assert!(FONT_FACE_CSS.contains("resource:///io/smearor/nerd_fonts/SymbolsNerdFont-Regular.ttf"));
-        assert!(FONT_FACE_CSS.contains("resource:///io/smearor/nerd_fonts/SymbolsNerdFontMono-Regular.ttf"));
+        assert!(FONT_FACE_CSS.contains("resource:///io/smearor/fonts/nerd_fonts/SymbolsNerdFont-Regular.ttf"));
+        assert!(FONT_FACE_CSS.contains("resource:///io/smearor/fonts/nerd_fonts/SymbolsNerdFontMono-Regular.ttf"));
     }
 
     #[test]

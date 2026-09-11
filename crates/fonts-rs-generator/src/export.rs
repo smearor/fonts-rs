@@ -15,7 +15,6 @@ use crate::font::Font;
 use crate::font_definition::FontDefinition;
 use crate::gresource::generate_gresource_xml;
 use crate::svg::EMPTY_SVG;
-use crate::svg::glyph_to_svg;
 
 /// Export all glyphs from a TTF/OTF font file as GTK 4 symbolic SVG icons.
 ///
@@ -82,7 +81,7 @@ pub fn export_glyphs<F: FontDefinition>(font_path: &Path, output_dir: &Path) -> 
 
         let codepoint = reverse_cmap.get(&glyph_id).copied();
 
-        let svg = match glyph_to_svg(&font, glyph_id) {
+        let svg = match font.glyph_to_svg(glyph_id) {
             Some(svg) => svg,
             None => EMPTY_SVG.to_string(),
         };

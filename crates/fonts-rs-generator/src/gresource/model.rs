@@ -15,7 +15,7 @@ pub struct GResources {
 #[derive(Debug, Serialize)]
 #[serde(rename = "gresource")]
 pub struct GResource {
-    /// The GResource prefix (e.g. `/io/smearor/nerd_fonts`).
+    /// The GResource prefix (e.g. `/io/smearor/fonts/nerd_fonts`).
     #[serde(rename = "@prefix")]
     pub prefix: String,
 

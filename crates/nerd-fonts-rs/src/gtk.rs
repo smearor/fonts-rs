@@ -12,7 +12,7 @@ use crate::icons::IconNameExt;
 /// into an icon name string that `gtk4::Image::from_icon_name` understands.
 ///
 /// The vendored icon GResource registers SVG icons under
-/// the path `/io/smearor/nerd_fonts/icons/`. Each icon is named following
+/// the path `/io/smearor/fonts/nerd_fonts/icons/`. Each icon is named following
 /// the pattern `nf-{prefix}-{name}-symbolic` (kebab-case, lower-case).
 ///
 /// Returns `None` if the resolved icon name does not exist in the

@@ -26,4 +26,3 @@ pub use generator::rust_constants::RustConstantsGenerator;
 pub use gresource::generate_gresource_xml;
 pub use svg::EMPTY_SVG;
 pub use svg::SvgPathBuilder;
-pub use svg::glyph_to_svg;

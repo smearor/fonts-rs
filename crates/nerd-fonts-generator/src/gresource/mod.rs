@@ -1,5 +1,5 @@
 //! GResource XML manifest generation for GTK4 icon bundles.
+//!
+//! Re-exports the generic GResource generation from `fonts-rs-generator`.
 
-mod generate;
-
-pub use generate::generate_gresource_xml;
+pub use fonts_rs_generator::generate_gresource_xml;

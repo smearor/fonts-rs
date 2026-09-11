@@ -2,6 +2,7 @@
 
 use std::fmt::Write;
 
+use font_types::BoundingBox;
 use skrifa::outline::OutlinePen;
 
 /// SVG path data builder implementing `skrifa::outline::OutlinePen`.
@@ -12,14 +13,8 @@ use skrifa::outline::OutlinePen;
 pub struct SvgPathBuilder {
     /// Accumulated SVG path data string.
     pub path: String,
-    /// Minimum X coordinate of the bounding box.
-    pub x_min: f32,
-    /// Minimum Y coordinate of the bounding box.
-    pub y_min: f32,
-    /// Maximum X coordinate of the bounding box.
-    pub x_max: f32,
-    /// Maximum Y coordinate of the bounding box.
-    pub y_max: f32,
+    /// Bounding box of all points visited.
+    bbox: BoundingBox<f32>,
 }
 
 impl SvgPathBuilder {
@@ -27,27 +22,29 @@ impl SvgPathBuilder {
     pub fn new() -> Self {
         Self {
             path: String::new(),
-            x_min: f32::MAX,
-            y_min: f32::MAX,
-            x_max: f32::MIN,
-            y_max: f32::MIN,
+            bbox: BoundingBox {
+                x_min: f32::MAX,
+                y_min: f32::MAX,
+                x_max: f32::MIN,
+                y_max: f32::MIN,
+            },
         }
     }
 
     fn update_bounds(&mut self, x: f32, y: f32) {
-        self.x_min = self.x_min.min(x);
-        self.y_min = self.y_min.min(y);
-        self.x_max = self.x_max.max(x);
-        self.y_max = self.y_max.max(y);
+        self.bbox.x_min = self.bbox.x_min.min(x);
+        self.bbox.y_min = self.bbox.y_min.min(y);
+        self.bbox.x_max = self.bbox.x_max.max(x);
+        self.bbox.y_max = self.bbox.y_max.max(y);
     }
 
-    /// Returns the bounding box as `(x_min, y_min, x_max, y_max)` if any
-    /// points were visited, or `None` if the path is empty.
-    pub fn bounds(&self) -> Option<(f32, f32, f32, f32)> {
-        if self.x_min > self.x_max || self.y_min > self.y_max {
+    /// Returns the bounding box if any points were visited, or `None` if
+    /// the path is empty.
+    pub fn bounds(&self) -> Option<BoundingBox<f32>> {
+        if self.bbox.x_min > self.bbox.x_max || self.bbox.y_min > self.bbox.y_max {
             None
         } else {
-            Some((self.x_min, self.y_min, self.x_max, self.y_max))
+            Some(self.bbox)
         }
     }
 }

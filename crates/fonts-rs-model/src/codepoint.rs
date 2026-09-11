@@ -1,9 +1,9 @@
 //! Unicode codepoint newtype for type-safe codepoint handling.
 
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 use std::num::ParseIntError;
 use std::str::FromStr;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use thiserror::Error;
 
 /// A Unicode codepoint wrapped in a newtype for type safety.

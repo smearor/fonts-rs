@@ -1,7 +1,7 @@
 //! Generator for phf::Map codepoint lookup tables.
 
 use std::path::PathBuf;
-
+use serde::{Deserialize, Serialize};
 use super::error::GenerateError;
 use super::generate::GlyphGenerator;
 use fonts_rs_model::GlyphEntry;
@@ -11,7 +11,7 @@ pub struct CodemapGenerator;
 
 impl<N> GlyphGenerator<N> for CodemapGenerator
 where
-    N: AsRef<str> + Clone + Ord + serde::Serialize + for<'a> serde::Deserialize<'a>,
+    N: AsRef<str> + Clone + Ord + Serialize + for<'a> Deserialize<'a>,
 {
     fn generate(entries: &[GlyphEntry<N>]) -> Result<String, GenerateError> {
         let mut output = String::new();
