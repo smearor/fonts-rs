@@ -4,8 +4,8 @@
 //! crate implements [`FontDefinition`] to specify its GResource prefix,
 //! naming convention, and glyph name normalization logic.
 
-use serde::{Deserialize, Serialize};
 use fonts_rs_model::FontFamily;
+use serde::{Deserialize, Serialize};
 
 /// Defines a font family's build-time configuration for the generic
 /// export pipeline.
@@ -34,6 +34,17 @@ pub trait FontDefinition {
     /// Font families can override this to use a different context if
     /// needed (e.g. `"emoji"` for Noto Emoji).
     const ICONS_CONTEXT: &'static str = "glyphs";
+
+    /// Unicode codepoint ranges to probe when building the reverse cmap.
+    ///
+    /// Each tuple is `(start, end)` inclusive. The generic pipeline probes
+    /// these ranges to map `GlyphId` -> `CodePoint` for each glyph in the
+    /// font.
+    ///
+    /// Defaults to the BMP (`U+0000`–`U+FFFF`), which covers most fonts.
+    /// Font families with glyphs in supplementary planes (e.g. Nerd Fonts
+    /// PUA at `U+F0001`–`U+10FFFF`) should override this.
+    const CODEPOINT_RANGES: &[(u32, u32)] = &[(0x0000, 0xFFFF)];
 
     /// The glyph name type used by this font family.
     ///

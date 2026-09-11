@@ -2,4 +2,4 @@
 
 mod reverse_codepoint_map;
 
-pub use reverse_codepoint_map::build_reverse_cmap;
+pub use reverse_codepoint_map::Font;

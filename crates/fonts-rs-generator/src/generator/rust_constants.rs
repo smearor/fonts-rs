@@ -1,11 +1,11 @@
 //! Generator for Rust glyph name constants.
 
-use std::collections::HashSet;
-use std::path::PathBuf;
-use serde::{Deserialize, Serialize};
 use super::error::GenerateError;
 use super::generate::GlyphGenerator;
 use fonts_rs_model::GlyphEntry;
+use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
+use std::path::PathBuf;
 
 /// Generates Rust constants for each glyph name.
 pub struct RustConstantsGenerator;

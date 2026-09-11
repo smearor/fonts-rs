@@ -16,7 +16,7 @@ pub mod gresource;
 pub mod svg;
 
 pub use export::export_glyphs;
-pub use font::build_reverse_cmap;
+pub use font::Font;
 pub use font_definition::FontDefinition;
 pub use font_definition::normalize_to_kebab;
 pub use generator::codemap::CodemapGenerator;
