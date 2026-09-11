@@ -3,12 +3,16 @@ name = "fonts-rs-seven-segment"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-license.workspace = true
 authors.workspace = true
 repository.workspace = true
 homepage.workspace = true
 description = "DSEG7 Classic seven-segment display font integration for GTK 4 and pixel-drawing"
 publish = true
+
+# DSEG font is licensed under the SIL Open Font License (OFL-1.1).
+# The crate code itself is MIT (inherited from the workspace).
+# license-file bundles the OFL text required for font redistribution.
+license-file = "resources/DSEG7Classic-LICENSE.txt"
 
 include = [
     "src/**/*.rs",
