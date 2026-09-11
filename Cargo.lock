@@ -322,6 +322,7 @@ dependencies = [
  "fonts-rs-generator",
  "fonts-rs-model",
  "gio",
+ "glib",
  "glib-build-tools",
  "gtk4",
  "miette",

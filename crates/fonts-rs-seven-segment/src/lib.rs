@@ -19,7 +19,7 @@
 //! use fonts_rs_seven_segment::naming::SevenSegmentName;
 //! use fonts_rs_seven_segment::GlyphNameExt;
 //!
-//! let name = SevenSegmentName::new("dseg7-0".to_string());
+//! let name = SevenSegmentName::new("dseg7-zero".to_string());
 //! let codepoint = name.codepoint();
 //! ```
 
@@ -30,7 +30,6 @@ pub mod naming;
 #[cfg(feature = "render")]
 pub mod fonts;
 
-use fonts_rs_generator::FontDefinition;
 use fonts_rs_model::CodePoint;
 
 // Re-export key types
@@ -73,8 +72,6 @@ impl GlyphNameExt for SevenSegmentName {
 #[cfg(feature = "gtk")]
 pub fn register_glyphs() -> Result<(), gio::glib::Error> {
     gio::resources_register_include!("icons.gresource")?;
-    gtk4::IconTheme::default()
-        .add_resource_path(&format!("{}/scalable", naming::SevenSegmentDefinition::GRESOURCE_PREFIX));
     Ok(())
 }
 
