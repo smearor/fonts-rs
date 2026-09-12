@@ -12,13 +12,13 @@ use fonts_rs_model::GlyphEntry;
 use crate::CodemapGenerator;
 use crate::GlyphGenerator;
 use crate::RustConstantsGenerator;
+use crate::build_constants::FONT_GRESOURCE;
+use crate::build_constants::FONT_GRESOURCE_XML;
 use crate::build_constants::HASH_PATH;
 use crate::build_constants::ICONS_GRESOURCE;
 use crate::build_constants::ICONS_GRESOURCE_XML;
 use crate::build_constants::METADATA_PATH;
 use crate::build_constants::RESOURCES_DIR;
-use crate::build_constants::FONT_GRESOURCE;
-use crate::build_constants::FONT_GRESOURCE_XML;
 use crate::build_constants::hash_font_file;
 
 /// Builder for the common `build.rs` pipeline.
@@ -102,8 +102,7 @@ impl FontBuild {
             None => current_hash,
         };
 
-        let needs_export = !metadata_path.exists()
-            || fs::read_to_string(hash_path).ok().as_deref() != Some(current_hash.as_str());
+        let needs_export = !metadata_path.exists() || fs::read_to_string(hash_path).ok().as_deref() != Some(current_hash.as_str());
 
         if needs_export {
             eprintln!("build.rs: exporting glyphs from {}...", self.font_path);
@@ -112,18 +111,10 @@ impl FontBuild {
             fs::write(hash_path, &current_hash)?;
         }
 
-        glib_build_tools::compile_resources(
-            &[RESOURCES_DIR],
-            ICONS_GRESOURCE_XML,
-            ICONS_GRESOURCE,
-        );
+        glib_build_tools::compile_resources(&[RESOURCES_DIR], ICONS_GRESOURCE_XML, ICONS_GRESOURCE);
 
         if self.compile_font_gresource {
-            glib_build_tools::compile_resources(
-                &[RESOURCES_DIR],
-                FONT_GRESOURCE_XML,
-                FONT_GRESOURCE,
-            );
+            glib_build_tools::compile_resources(&[RESOURCES_DIR], FONT_GRESOURCE_XML, FONT_GRESOURCE);
         }
 
         let json = fs::read_to_string(METADATA_PATH)?;

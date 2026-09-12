@@ -1,7 +1,10 @@
 //! Phantom-typed glyph name newtype for compile-time font family safety.
 
 use crate::font_family::FontFamily;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::Deserialize;
+use serde::Deserializer;
+use serde::Serialize;
+use serde::Serializer;
 use std::fmt;
 use std::marker::PhantomData;
 

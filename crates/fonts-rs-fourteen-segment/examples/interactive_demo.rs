@@ -7,8 +7,8 @@
 //! cargo run --example interactive_demo --features gtk,embed-fonts
 //! ```
 
-use fonts_rs_fourteen_segment::GlyphNameExt;
 use fonts_rs_fourteen_segment::FourteenSegmentName;
+use fonts_rs_fourteen_segment::GlyphNameExt;
 use fonts_rs_fourteen_segment::all_glyphs;
 use fonts_rs_fourteen_segment::register_glyphs;
 use fonts_rs_fourteen_segment::variant;
@@ -33,15 +33,49 @@ const APP_ID: &str = "io.smearor.fonts_rs.fourteen_segment_demo";
 
 /// Base glyph names (without variant prefix) exported by the build pipeline.
 const GALLERY_GLYPH_BASES: &[&str] = &[
-    "zero", "one", "two", "three", "four",
-    "five", "six", "seven", "eight", "nine",
-    "a", "b", "c", "d", "e", "f",
-    "g", "h", "i", "j", "k", "l",
-    "m", "n", "o", "p", "q", "r",
-    "s", "t", "u", "v", "w", "x",
-    "y", "z",
-    "colon", "hyphen", "period", "degree",
-    "exclam", "space", "nonmarkingreturn",
+    "zero",
+    "one",
+    "two",
+    "three",
+    "four",
+    "five",
+    "six",
+    "seven",
+    "eight",
+    "nine",
+    "a",
+    "b",
+    "c",
+    "d",
+    "e",
+    "f",
+    "g",
+    "h",
+    "i",
+    "j",
+    "k",
+    "l",
+    "m",
+    "n",
+    "o",
+    "p",
+    "q",
+    "r",
+    "s",
+    "t",
+    "u",
+    "v",
+    "w",
+    "x",
+    "y",
+    "z",
+    "colon",
+    "hyphen",
+    "period",
+    "degree",
+    "exclam",
+    "space",
+    "nonmarkingreturn",
 ];
 
 fn main() -> Result<glib::ExitCode> {
@@ -57,9 +91,7 @@ fn main() -> Result<glib::ExitCode> {
 
 fn build_ui(app: &Application) {
     let provider = gtk4::CssProvider::new();
-    provider.load_from_string(
-        ".dseg14-glyph { color: #00ff00; -gtk-icon-size: 96px; }"
-    );
+    provider.load_from_string(".dseg14-glyph { color: #00ff00; -gtk-icon-size: 96px; }");
     if let Some(display) = gtk4::gdk::Display::default() {
         gtk4::style_context_add_provider_for_display(&display, &provider, gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION);
     }
@@ -149,20 +181,13 @@ fn build_resolution_section() -> Frame {
 
     section.append(&input_row);
 
-    let result_label = Label::builder()
-        .label("Codepoint: —")
-        .halign(Align::Start)
-        .css_classes(["dim-label"])
-        .build();
+    let result_label = Label::builder().label("Codepoint: —").halign(Align::Start).css_classes(["dim-label"]).build();
     section.append(&result_label);
 
     let quick_label = Label::builder().label("Or pick from common glyphs:").halign(Align::Start).build();
     section.append(&quick_label);
 
-    let dropdown_names: Vec<String> = GALLERY_GLYPH_BASES
-        .iter()
-        .map(|base| format!("{}-{}", variant::GLYPH_PREFIX, base))
-        .collect();
+    let dropdown_names: Vec<String> = GALLERY_GLYPH_BASES.iter().map(|base| format!("{}-{}", variant::GLYPH_PREFIX, base)).collect();
     let dropdown_refs: Vec<&str> = dropdown_names.iter().map(|s| s.as_str()).collect();
     let dropdown = DropDown::from_strings(&dropdown_refs);
     section.append(&dropdown);
@@ -253,11 +278,7 @@ fn build_gallery_section() -> Frame {
 
     for (i, base_name) in GALLERY_GLYPH_BASES.iter().enumerate() {
         let full_name = format!("{}-{}", variant::GLYPH_PREFIX, base_name);
-        let resource_path = format!(
-            "{}/scalable/glyphs/{}.svg",
-            variant::GRESOURCE_PREFIX,
-            full_name,
-        );
+        let resource_path = format!("{}/scalable/glyphs/{}.svg", variant::GRESOURCE_PREFIX, full_name,);
         let icon = gtk4::Image::from_resource(&resource_path);
         icon.add_css_class("dseg14-glyph");
 

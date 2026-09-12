@@ -43,12 +43,36 @@ struct DieType {
 }
 
 const DIE_TYPES: &[DieType] = &[
-    DieType { name: "D4",  sides: 4,  glyph_prefix: "d4" },
-    DieType { name: "D6",  sides: 6,  glyph_prefix: "d6" },
-    DieType { name: "D8",  sides: 8,  glyph_prefix: "d8" },
-    DieType { name: "D10", sides: 10, glyph_prefix: "d10" },
-    DieType { name: "D12", sides: 12, glyph_prefix: "d12" },
-    DieType { name: "D20", sides: 20, glyph_prefix: "d20" },
+    DieType {
+        name: "D4",
+        sides: 4,
+        glyph_prefix: "d4",
+    },
+    DieType {
+        name: "D6",
+        sides: 6,
+        glyph_prefix: "d6",
+    },
+    DieType {
+        name: "D8",
+        sides: 8,
+        glyph_prefix: "d8",
+    },
+    DieType {
+        name: "D10",
+        sides: 10,
+        glyph_prefix: "d10",
+    },
+    DieType {
+        name: "D12",
+        sides: 12,
+        glyph_prefix: "d12",
+    },
+    DieType {
+        name: "D20",
+        sides: 20,
+        glyph_prefix: "d20",
+    },
 ];
 
 /// Fate die faces: minus, zero, plus.
@@ -68,12 +92,7 @@ const MAX_DICE: u32 = 8;
 
 /// Convert a `gdk::RGBA` to a `#rrggbb` hex string.
 fn rgba_to_hex(rgba: &gtk4::gdk::RGBA) -> String {
-    format!(
-        "#{:02x}{:02x}{:02x}",
-        (rgba.red() * 255.0) as u8,
-        (rgba.green() * 255.0) as u8,
-        (rgba.blue() * 255.0) as u8,
-    )
+    format!("#{:02x}{:02x}{:02x}", (rgba.red() * 255.0) as u8, (rgba.green() * 255.0) as u8, (rgba.blue() * 255.0) as u8,)
 }
 
 /// Load an SVG from a GResource, replace `currentColor` with the given hex color,
@@ -104,7 +123,8 @@ fn random_face(die: &DieType) -> u32 {
 
 /// Simple LCG random number generator (no external dependency).
 fn simple_rng() -> u32 {
-    use std::sync::atomic::{AtomicU64, Ordering};
+    use std::sync::atomic::AtomicU64;
+    use std::sync::atomic::Ordering;
     static SEED: AtomicU64 = AtomicU64::new(0);
     let mut s = SEED.load(Ordering::Relaxed);
     if s == 0 {
@@ -235,7 +255,7 @@ fn build_ui(app: &Application) {
             background-color: #e94560;
             color: white;
         }
-        "#
+        "#,
     );
     if let Some(display) = gtk4::gdk::Display::default() {
         gtk4::style_context_add_provider_for_display(&display, &provider, gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION);
@@ -274,15 +294,9 @@ fn build_ui(app: &Application) {
         .css_classes(["dice-tray"])
         .build();
 
-    let tray_header = Box::builder()
-        .orientation(Orientation::Horizontal)
-        .spacing(8)
-        .build();
+    let tray_header = Box::builder().orientation(Orientation::Horizontal).spacing(8).build();
 
-    let tray_title = Label::builder()
-        .label("🎲 Dice Tray")
-        .css_classes(["section-label"])
-        .build();
+    let tray_title = Label::builder().label("🎲 Dice Tray").css_classes(["section-label"]).build();
     tray_header.append(&tray_title);
 
     let total_label = Label::builder()
@@ -352,26 +366,16 @@ fn build_ui(app: &Application) {
             .halign(Align::Fill)
             .build();
 
-        let die_name = Label::builder()
-            .label(die.name)
-            .css_classes(["section-label"])
-            .build();
+        let die_name = Label::builder().label(die.name).css_classes(["section-label"]).build();
         die_col.append(&die_name);
 
-        let count_row = Box::builder()
-            .orientation(Orientation::Horizontal)
-            .spacing(4)
-            .halign(Align::Center)
-            .build();
+        let count_row = Box::builder().orientation(Orientation::Horizontal).spacing(4).halign(Align::Center).build();
 
         let minus_btn = Button::with_label("−");
         minus_btn.add_css_class("die-button");
         minus_btn.set_size_request(36, 36);
 
-        let count_label = Label::builder()
-            .label("0")
-            .css_classes(["count-label"])
-            .build();
+        let count_label = Label::builder().label("0").css_classes(["count-label"]).build();
         count_label.set_size_request(24, 36);
 
         let plus_btn = Button::with_label("+");
@@ -393,11 +397,7 @@ fn build_ui(app: &Application) {
     controls.append(&dice_selectors);
 
     // Toggle row: fate dice + dot-d6 style
-    let toggle_row = Box::builder()
-        .orientation(Orientation::Horizontal)
-        .spacing(12)
-        .halign(Align::Center)
-        .build();
+    let toggle_row = Box::builder().orientation(Orientation::Horizontal).spacing(12).halign(Align::Center).build();
 
     let fate_toggle = gtk4::ToggleButton::with_label("Fate Dice (F)");
     fate_toggle.add_css_class("toggle-button");
@@ -412,15 +412,9 @@ fn build_ui(app: &Application) {
     controls.append(&toggle_row);
 
     // Size slider
-    let size_row = Box::builder()
-        .orientation(Orientation::Horizontal)
-        .spacing(8)
-        .build();
+    let size_row = Box::builder().orientation(Orientation::Horizontal).spacing(8).build();
 
-    let size_label = Label::builder()
-        .label("Size:")
-        .css_classes(["count-label"])
-        .build();
+    let size_label = Label::builder().label("Size:").css_classes(["count-label"]).build();
     size_row.append(&size_label);
 
     let size_scale = gtk4::Scale::with_range(Orientation::Horizontal, 32.0, 128.0, 8.0);
@@ -434,30 +428,21 @@ fn build_ui(app: &Application) {
     controls.append(&size_row);
 
     // Color pickers
-    let color_row = Box::builder()
-        .orientation(Orientation::Horizontal)
-        .spacing(8)
-        .build();
+    let color_row = Box::builder().orientation(Orientation::Horizontal).spacing(8).build();
 
     let color_dialog = ColorDialog::new();
 
-    let dice_btn = ColorDialogButton::builder()
-        .tooltip_text("Dice color")
-        .build();
+    let dice_btn = ColorDialogButton::builder().tooltip_text("Dice color").build();
     dice_btn.set_dialog(&color_dialog);
     dice_btn.set_rgba(&gtk4::gdk::RGBA::new(0.85, 0.15, 0.25, 1.0));
     color_row.append(&dice_btn);
 
-    let bg_btn = ColorDialogButton::builder()
-        .tooltip_text("Tray background")
-        .build();
+    let bg_btn = ColorDialogButton::builder().tooltip_text("Tray background").build();
     bg_btn.set_dialog(&color_dialog);
     bg_btn.set_rgba(&gtk4::gdk::RGBA::new(0.09, 0.13, 0.24, 1.0));
     color_row.append(&bg_btn);
 
-    let accent_btn = ColorDialogButton::builder()
-        .tooltip_text("Accent / text")
-        .build();
+    let accent_btn = ColorDialogButton::builder().tooltip_text("Accent / text").build();
     accent_btn.set_dialog(&color_dialog);
     accent_btn.set_rgba(&gtk4::gdk::RGBA::new(0.91, 0.27, 0.38, 1.0));
     color_row.append(&accent_btn);
@@ -479,11 +464,7 @@ fn build_ui(app: &Application) {
     // --- State ---
     let dynamic_provider = gtk4::CssProvider::new();
     if let Some(display) = gtk4::gdk::Display::default() {
-        gtk4::style_context_add_provider_for_display(
-            &display,
-            &dynamic_provider,
-            gtk4::STYLE_PROVIDER_PRIORITY_USER,
-        );
+        gtk4::style_context_add_provider_for_display(&display, &dynamic_provider, gtk4::STYLE_PROVIDER_PRIORITY_USER);
     }
 
     let state = Rc::new(RefCell::new(DiceState {
@@ -612,12 +593,7 @@ fn update_dynamic_css(state: &Rc<RefCell<DiceState>>) {
     let bg = &s.bg_color;
     let accent = &s.accent_color;
     let accent_hex = rgba_to_hex(accent);
-    let bg_css = format!(
-        "rgba({}, {}, {}, 1.0)",
-        (bg.red() * 255.0) as u8,
-        (bg.green() * 255.0) as u8,
-        (bg.blue() * 255.0) as u8,
-    );
+    let bg_css = format!("rgba({}, {}, {}, 1.0)", (bg.red() * 255.0) as u8, (bg.green() * 255.0) as u8, (bg.blue() * 255.0) as u8,);
     let css = format!(
         ".dice-tray {{ background-color: {bg_css}; }}\n\
          .section-label {{ color: {accent_hex}; }}\n\
@@ -748,7 +724,13 @@ fn animate_roll(state: &Rc<RefCell<DiceState>>) {
             if dw.is_fate {
                 let fate_idx = (simple_rng() % 3) as usize;
                 let fate_name = FATE_FACES[fate_idx].to_string();
-                let fate_val = if fate_idx == 0 { 0u32 } else if fate_idx == 1 { 1u32 } else { 2u32 };
+                let fate_val = if fate_idx == 0 {
+                    0u32
+                } else if fate_idx == 1 {
+                    1u32
+                } else {
+                    2u32
+                };
                 (format!("dicefont-{}", fate_name), fate_val, fate_name)
             } else if dw.is_dot_d6 {
                 let face = random_face(&dw.die);
@@ -820,7 +802,13 @@ fn finish_roll(state: &Rc<RefCell<DiceState>>) {
                 _ => 1,
             };
             total += val;
-            let sign = if val < 0 { "−" } else if val > 0 { "+" } else { "0" };
+            let sign = if val < 0 {
+                "−"
+            } else if val > 0 {
+                "+"
+            } else {
+                "0"
+            };
             roll_parts.push(format!("F({})", sign));
         } else {
             total += dw.final_face as i32;

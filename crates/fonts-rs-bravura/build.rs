@@ -38,8 +38,7 @@ struct GlyphNameEntry {
 ///
 /// The JSON format is: `{ "glyphName": { "codepoint": "U+E050", "description": "..." } }`
 fn parse_glyphnames(json: &str) -> miette::Result<HashMap<String, u32>> {
-    let entries: HashMap<String, GlyphNameEntry> =
-        serde_json::from_str(json).map_err(|e| miette::miette!("Failed to parse glyphnames.json: {e}"))?;
+    let entries: HashMap<String, GlyphNameEntry> = serde_json::from_str(json).map_err(|e| miette::miette!("Failed to parse glyphnames.json: {e}"))?;
 
     let mut map = HashMap::new();
     for (name, entry) in entries {
@@ -47,8 +46,7 @@ fn parse_glyphnames(json: &str) -> miette::Result<HashMap<String, u32>> {
             .codepoint
             .strip_prefix("U+")
             .ok_or_else(|| miette::miette!("Invalid codepoint format: {}", entry.codepoint))?;
-        let cp = u32::from_str_radix(codepoint, 16)
-            .map_err(|e| miette::miette!("Failed to parse codepoint {}: {e}", entry.codepoint))?;
+        let cp = u32::from_str_radix(codepoint, 16).map_err(|e| miette::miette!("Failed to parse codepoint {}: {e}", entry.codepoint))?;
         map.insert(name, cp);
     }
     Ok(map)
@@ -61,14 +59,12 @@ fn main() -> miette::Result<()> {
     eprintln!("build.rs: exporting glyphs from {font_path}");
 
     // Set env var with absolute path so include_bytes! in fonts.rs can find it.
-    let crate_dir = std::env::var("CARGO_MANIFEST_DIR")
-        .unwrap_or_else(|_| std::env::current_dir().unwrap().to_string_lossy().to_string());
+    let crate_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap_or_else(|_| std::env::current_dir().unwrap().to_string_lossy().to_string());
     let absolute_font_path = Path::new(&crate_dir).join(&font_path);
     println!("cargo:rustc-env=BRAVURA_FONT_PATH={}", absolute_font_path.display());
 
     // Parse SMuFL glyph names
-    let glyphnames_json = std::fs::read_to_string(&glyphnames_path)
-        .map_err(|e| miette::miette!("Failed to read {glyphnames_path}: {e}"))?;
+    let glyphnames_json = std::fs::read_to_string(&glyphnames_path).map_err(|e| miette::miette!("Failed to read {glyphnames_path}: {e}"))?;
     let name_map = parse_glyphnames(&glyphnames_json)?;
     eprintln!("build.rs: parsed {} SMuFL glyph names", name_map.len());
 
@@ -84,9 +80,7 @@ fn main() -> miette::Result<()> {
         name_filter: None,
     };
 
-    let icons_dir = Path::new(build_constants::RESOURCES_DIR)
-        .join("scalable")
-        .join("glyphs");
+    let icons_dir = Path::new(build_constants::RESOURCES_DIR).join("scalable").join("glyphs");
 
     FontBuild::new(&font_path)
         .run(|font_path, resources_dir| {

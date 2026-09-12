@@ -944,5 +944,4 @@ fn show_detail(content: &Box, name: &IconName, codepoint: CodePoint, search_entr
         });
         content.append(&svg_copy);
     }
-
 }

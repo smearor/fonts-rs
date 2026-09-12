@@ -52,66 +52,111 @@ fn ts() -> String {
 
 /// All 25 variants in the 5x5 matrix: (feature_name, label, wght, rond).
 const VARIANTS: &[(&str, &str, f32, f32)] = &[
-    ("ultra-light-square",      "Ultra-Light Square",      100.0,   0.0),
-    ("ultra-light-soft-square", "Ultra-Light Soft Square", 100.0,  25.0),
-    ("ultra-light-medium",      "Ultra-Light Medium",      100.0,  50.0),
-    ("ultra-light-soft-dot",    "Ultra-Light Soft Dot",    100.0,  75.0),
-    ("ultra-light-dot",         "Ultra-Light Dot",         100.0, 100.0),
-    ("light-square",      "Light Square",      300.0,   0.0),
-    ("light-soft-square", "Light Soft Square", 300.0,  25.0),
-    ("light-medium",      "Light Medium",      300.0,  50.0),
-    ("light-soft-dot",    "Light Soft Dot",    300.0,  75.0),
-    ("light-dot",         "Light Dot",         300.0, 100.0),
-    ("regular-square",      "Regular Square",      500.0,   0.0),
-    ("regular-soft-square", "Regular Soft Square", 500.0,  25.0),
-    ("regular-medium",      "Regular Medium",      500.0,  50.0),
-    ("regular-soft-dot",    "Regular Soft Dot",    500.0,  75.0),
-    ("regular-dot",         "Regular Dot",         500.0, 100.0),
-    ("bold-square",      "Bold Square",      700.0,   0.0),
-    ("bold-soft-square", "Bold Soft Square", 700.0,  25.0),
-    ("bold-medium",      "Bold Medium",      700.0,  50.0),
-    ("bold-soft-dot",    "Bold Soft Dot",    700.0,  75.0),
-    ("bold-dot",         "Bold Dot",         700.0, 100.0),
-    ("extra-bold-square",      "Extra-Bold Square",      900.0,   0.0),
-    ("extra-bold-soft-square", "Extra-Bold Soft Square", 900.0,  25.0),
-    ("extra-bold-medium",      "Extra-Bold Medium",      900.0,  50.0),
-    ("extra-bold-soft-dot",    "Extra-Bold Soft Dot",    900.0,  75.0),
-    ("extra-bold-dot",         "Extra-Bold Dot",         900.0, 100.0),
+    ("ultra-light-square", "Ultra-Light Square", 100.0, 0.0),
+    ("ultra-light-soft-square", "Ultra-Light Soft Square", 100.0, 25.0),
+    ("ultra-light-medium", "Ultra-Light Medium", 100.0, 50.0),
+    ("ultra-light-soft-dot", "Ultra-Light Soft Dot", 100.0, 75.0),
+    ("ultra-light-dot", "Ultra-Light Dot", 100.0, 100.0),
+    ("light-square", "Light Square", 300.0, 0.0),
+    ("light-soft-square", "Light Soft Square", 300.0, 25.0),
+    ("light-medium", "Light Medium", 300.0, 50.0),
+    ("light-soft-dot", "Light Soft Dot", 300.0, 75.0),
+    ("light-dot", "Light Dot", 300.0, 100.0),
+    ("regular-square", "Regular Square", 500.0, 0.0),
+    ("regular-soft-square", "Regular Soft Square", 500.0, 25.0),
+    ("regular-medium", "Regular Medium", 500.0, 50.0),
+    ("regular-soft-dot", "Regular Soft Dot", 500.0, 75.0),
+    ("regular-dot", "Regular Dot", 500.0, 100.0),
+    ("bold-square", "Bold Square", 700.0, 0.0),
+    ("bold-soft-square", "Bold Soft Square", 700.0, 25.0),
+    ("bold-medium", "Bold Medium", 700.0, 50.0),
+    ("bold-soft-dot", "Bold Soft Dot", 700.0, 75.0),
+    ("bold-dot", "Bold Dot", 700.0, 100.0),
+    ("extra-bold-square", "Extra-Bold Square", 900.0, 0.0),
+    ("extra-bold-soft-square", "Extra-Bold Soft Square", 900.0, 25.0),
+    ("extra-bold-medium", "Extra-Bold Medium", 900.0, 50.0),
+    ("extra-bold-soft-dot", "Extra-Bold Soft Dot", 900.0, 75.0),
+    ("extra-bold-dot", "Extra-Bold Dot", 900.0, 100.0),
 ];
 
 /// Map an ASCII character to its Doto glyph base name.
 fn char_to_glyph_base(ch: char) -> Option<&'static str> {
     let names = [
-        (' ', "space"), ('!', "exclam"), ('"', "quotedbl"), ('#', "numbersign"),
-        ('$', "dollar"), ('%', "percent"), ('&', "ampersand"), ('\'', "quotesingle"),
-        ('(', "parenleft"), (')', "parenright"), ('*', "asterisk"), ('+', "plus"),
-        (',', "comma"), ('-', "hyphen"), ('.', "period"), ('/', "slash"),
-        ('0', "zero"), ('1', "one"), ('2', "two"), ('3', "three"),
-        ('4', "four"), ('5', "five"), ('6', "six"), ('7', "seven"),
-        ('8', "eight"), ('9', "nine"), (':', "colon"), (';', "semicolon"),
-        ('<', "less"), ('=', "equal"), ('>', "greater"), ('?', "question"),
-        ('@', "at"), ('A', "a"), ('B', "b"), ('C', "c"),
-        ('D', "d"), ('E', "e"), ('F', "f"), ('G', "g"),
-        ('H', "h"), ('I', "i"), ('J', "j"), ('K', "k"),
-        ('L', "l"), ('M', "m"), ('N', "n"), ('O', "o"),
-        ('P', "p"), ('Q', "q"), ('R', "r"), ('S', "s"),
-        ('T', "t"), ('U', "u"), ('V', "v"), ('W', "w"),
-        ('X', "x"), ('Y', "y"), ('Z', "z"),
-        ('[', "bracketleft"), ('\\', "backslash"), (']', "bracketright"),
-        ('^', "asciicircum"), ('`', "grave"), ('{', "braceleft"),
-        ('|', "bar"), ('}', "braceright"), ('~', "asciitilde"),
+        (' ', "space"),
+        ('!', "exclam"),
+        ('"', "quotedbl"),
+        ('#', "numbersign"),
+        ('$', "dollar"),
+        ('%', "percent"),
+        ('&', "ampersand"),
+        ('\'', "quotesingle"),
+        ('(', "parenleft"),
+        (')', "parenright"),
+        ('*', "asterisk"),
+        ('+', "plus"),
+        (',', "comma"),
+        ('-', "hyphen"),
+        ('.', "period"),
+        ('/', "slash"),
+        ('0', "zero"),
+        ('1', "one"),
+        ('2', "two"),
+        ('3', "three"),
+        ('4', "four"),
+        ('5', "five"),
+        ('6', "six"),
+        ('7', "seven"),
+        ('8', "eight"),
+        ('9', "nine"),
+        (':', "colon"),
+        (';', "semicolon"),
+        ('<', "less"),
+        ('=', "equal"),
+        ('>', "greater"),
+        ('?', "question"),
+        ('@', "at"),
+        ('A', "a"),
+        ('B', "b"),
+        ('C', "c"),
+        ('D', "d"),
+        ('E', "e"),
+        ('F', "f"),
+        ('G', "g"),
+        ('H', "h"),
+        ('I', "i"),
+        ('J', "j"),
+        ('K', "k"),
+        ('L', "l"),
+        ('M', "m"),
+        ('N', "n"),
+        ('O', "o"),
+        ('P', "p"),
+        ('Q', "q"),
+        ('R', "r"),
+        ('S', "s"),
+        ('T', "t"),
+        ('U', "u"),
+        ('V', "v"),
+        ('W', "w"),
+        ('X', "x"),
+        ('Y', "y"),
+        ('Z', "z"),
+        ('[', "bracketleft"),
+        ('\\', "backslash"),
+        (']', "bracketright"),
+        ('^', "asciicircum"),
+        ('`', "grave"),
+        ('{', "braceleft"),
+        ('|', "bar"),
+        ('}', "braceright"),
+        ('~', "asciitilde"),
     ];
     names.iter().find(|(c, _)| *c == ch).map(|(_, name)| *name)
 }
 
 /// Convert a `gdk::RGBA` to a `#rrggbb` hex string (alpha ignored for glyph coloring).
 fn rgba_to_hex(rgba: &gtk4::gdk::RGBA) -> String {
-    format!(
-        "#{:02x}{:02x}{:02x}",
-        (rgba.red() * 255.0) as u8,
-        (rgba.green() * 255.0) as u8,
-        (rgba.blue() * 255.0) as u8,
-    )
+    format!("#{:02x}{:02x}{:02x}", (rgba.red() * 255.0) as u8, (rgba.green() * 255.0) as u8, (rgba.blue() * 255.0) as u8,)
 }
 
 /// Update the dynamic CSS provider with current colors and transparency.
@@ -129,12 +174,7 @@ fn update_dynamic_css(state: &Rc<RefCell<MarqueeState>>) {
     let window_bg = if s.fullscreen {
         "transparent".to_string()
     } else {
-        format!(
-            "rgb({}, {}, {})",
-            (bg.red() * 255.0) as u8,
-            (bg.green() * 255.0) as u8,
-            (bg.blue() * 255.0) as u8,
-        )
+        format!("rgb({}, {}, {})", (bg.red() * 255.0) as u8, (bg.green() * 255.0) as u8, (bg.blue() * 255.0) as u8,)
     };
     let css = format!(
         "window {{ background-color: {window_bg}; }}\n\
@@ -247,7 +287,7 @@ fn build_ui(app: &Application) {
         .hint {
             color: #888;
         }
-        "#
+        "#,
     );
     if let Some(display) = gtk4::gdk::Display::default() {
         gtk4::style_context_add_provider_for_display(&display, &provider, gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION);
@@ -295,14 +335,8 @@ fn build_ui(app: &Application) {
 
     // Spacer widgets on each side to center the slots.
     // They expand to fill leftover space equally, and shrink to zero when window is small.
-    let spacer_left = Box::builder()
-        .hexpand(true)
-        .halign(Align::Fill)
-        .build();
-    let spacer_right = Box::builder()
-        .hexpand(true)
-        .halign(Align::Fill)
-        .build();
+    let spacer_left = Box::builder().hexpand(true).halign(Align::Fill).build();
+    let spacer_right = Box::builder().hexpand(true).halign(Align::Fill).build();
 
     marquee.append(&spacer_left);
     marquee.append(&spacer_right);
@@ -318,11 +352,7 @@ fn build_ui(app: &Application) {
 
     let input_row = Box::builder().orientation(Orientation::Horizontal).spacing(8).build();
 
-    let entry = Entry::builder()
-        .placeholder_text("Type something...")
-        .text("HELLO DOTO")
-        .hexpand(true)
-        .build();
+    let entry = Entry::builder().placeholder_text("Type something...").text("HELLO DOTO").hexpand(true).build();
     input_row.append(&entry);
 
     let scroll_button = Button::with_label("⏸ Pause");
@@ -333,10 +363,7 @@ fn build_ui(app: &Application) {
     // --- Size slider ---
     let size_row = Box::builder().orientation(Orientation::Horizontal).spacing(8).build();
 
-    let size_label = Label::builder()
-        .label("Size:")
-        .css_classes(["variant-label"])
-        .build();
+    let size_label = Label::builder().label("Size:").css_classes(["variant-label"]).build();
     size_row.append(&size_label);
 
     let size_scale = gtk4::Scale::with_range(Orientation::Horizontal, 16.0, 512.0, 16.0);
@@ -352,10 +379,7 @@ fn build_ui(app: &Application) {
     // --- Speed slider ---
     let speed_row = Box::builder().orientation(Orientation::Horizontal).spacing(8).build();
 
-    let speed_label = Label::builder()
-        .label("Speed:")
-        .css_classes(["variant-label"])
-        .build();
+    let speed_label = Label::builder().label("Speed:").css_classes(["variant-label"]).build();
     speed_row.append(&speed_label);
 
     let speed_scale = gtk4::Scale::with_range(Orientation::Horizontal, 50.0, 1000.0, 50.0);
@@ -364,7 +388,13 @@ fn build_ui(app: &Application) {
     speed_scale.set_hexpand(true);
     speed_scale.set_inverted(true);
     for mark in [50, 200, 400, 600, 800, 1000] {
-        let label = if mark <= 200 { "fast" } else if mark <= 600 { "medium" } else { "slow" };
+        let label = if mark <= 200 {
+            "fast"
+        } else if mark <= 600 {
+            "medium"
+        } else {
+            "slow"
+        };
         speed_scale.add_mark(mark as f64, gtk4::PositionType::Bottom, Some(label));
     }
     speed_row.append(&speed_scale);
@@ -373,10 +403,7 @@ fn build_ui(app: &Application) {
     // --- Spacing slider ---
     let spacing_row = Box::builder().orientation(Orientation::Horizontal).spacing(8).build();
 
-    let spacing_label = Label::builder()
-        .label("Spacing:")
-        .css_classes(["variant-label"])
-        .build();
+    let spacing_label = Label::builder().label("Spacing:").css_classes(["variant-label"]).build();
     spacing_row.append(&spacing_label);
 
     let spacing_scale = gtk4::Scale::with_range(Orientation::Horizontal, 0.0, 32.0, 1.0);
@@ -398,10 +425,7 @@ fn build_ui(app: &Application) {
 
     let weight_row = Box::builder().orientation(Orientation::Horizontal).spacing(8).build();
 
-    let weight_label = Label::builder()
-        .label("Weight:")
-        .css_classes(["variant-label"])
-        .build();
+    let weight_label = Label::builder().label("Weight:").css_classes(["variant-label"]).build();
     weight_row.append(&weight_label);
 
     let weight_scale = gtk4::Scale::with_range(Orientation::Horizontal, 0.0, 1000.0, 100.0);
@@ -440,10 +464,7 @@ fn build_ui(app: &Application) {
     // --- Rond slider (read-only) ---
     let rond_row = Box::builder().orientation(Orientation::Horizontal).spacing(8).build();
 
-    let rond_label = Label::builder()
-        .label("Rond:")
-        .css_classes(["variant-label"])
-        .build();
+    let rond_label = Label::builder().label("Rond:").css_classes(["variant-label"]).build();
     rond_row.append(&rond_label);
 
     let rond_scale = gtk4::Scale::with_range(Orientation::Horizontal, 0.0, 100.0, 10.0);
@@ -484,30 +505,22 @@ fn build_ui(app: &Application) {
 
     let color_dialog = gtk4::ColorDialog::new();
 
-    let fg_btn = ColorDialogButton::builder()
-        .tooltip_text("Vordergrund (Glyphen)")
-        .build();
+    let fg_btn = ColorDialogButton::builder().tooltip_text("Vordergrund (Glyphen)").build();
     fg_btn.set_dialog(&color_dialog);
     fg_btn.set_rgba(&gtk4::gdk::RGBA::new(1.0, 0.4, 0.0, 1.0));
     color_row.append(&fg_btn);
 
-    let glow_btn = ColorDialogButton::builder()
-        .tooltip_text("Glüh-Effekt")
-        .build();
+    let glow_btn = ColorDialogButton::builder().tooltip_text("Glüh-Effekt").build();
     glow_btn.set_dialog(&color_dialog);
     glow_btn.set_rgba(&gtk4::gdk::RGBA::new(1.0, 0.67, 0.0, 1.0));
     color_row.append(&glow_btn);
 
-    let dim_btn = ColorDialogButton::builder()
-        .tooltip_text("Dim (inaktive Glyphen)")
-        .build();
+    let dim_btn = ColorDialogButton::builder().tooltip_text("Dim (inaktive Glyphen)").build();
     dim_btn.set_dialog(&color_dialog);
     dim_btn.set_rgba(&gtk4::gdk::RGBA::new(0.2, 0.1, 0.0, 1.0));
     color_row.append(&dim_btn);
 
-    let bg_btn = ColorDialogButton::builder()
-        .tooltip_text("Hintergrund")
-        .build();
+    let bg_btn = ColorDialogButton::builder().tooltip_text("Hintergrund").build();
     bg_btn.set_dialog(&color_dialog);
     bg_btn.set_rgba(&gtk4::gdk::RGBA::new(0.04, 0.04, 0.04, 1.0));
     color_row.append(&bg_btn);
@@ -548,11 +561,7 @@ fn build_ui(app: &Application) {
     // --- Marquee logic ---
     let dynamic_provider = gtk4::CssProvider::new();
     if let Some(display) = gtk4::gdk::Display::default() {
-        gtk4::style_context_add_provider_for_display(
-            &display,
-            &dynamic_provider,
-            gtk4::STYLE_PROVIDER_PRIORITY_USER,
-        );
+        gtk4::style_context_add_provider_for_display(&display, &dynamic_provider, gtk4::STYLE_PROVIDER_PRIORITY_USER);
     }
 
     let state = Rc::new(RefCell::new(MarqueeState {
@@ -617,7 +626,14 @@ fn build_ui(app: &Application) {
                             }
                         }
                         update_marquee(&state);
-                        eprintln!("[{}] [FS-EXIT] saved_width={}, target_slots={}, current_slots_after_trim={}, window.width={}", ts(), saved, target_slots, state.borrow().images.len(), window.width());
+                        eprintln!(
+                            "[{}] [FS-EXIT] saved_width={}, target_slots={}, current_slots_after_trim={}, window.width={}",
+                            ts(),
+                            saved,
+                            target_slots,
+                            state.borrow().images.len(),
+                            window.width()
+                        );
                         // 1. Temp constraints zurücksetzen
                         marquee.set_hexpand(false);
                         window.set_size_request(-1, -1);
@@ -644,7 +660,14 @@ fn build_ui(app: &Application) {
                         }
                         s.fullscreen = true;
                         s.unfullscreening = false;
-                        eprintln!("[{}] [FS-ENTER] saved_width={}, saved_slots={}, window.width={}, unfullscreening={}", ts(), s.saved_width, s.saved_slot_count, window.width(), s.unfullscreening);
+                        eprintln!(
+                            "[{}] [FS-ENTER] saved_width={}, saved_slots={}, window.width={}, unfullscreening={}",
+                            ts(),
+                            s.saved_width,
+                            s.saved_slot_count,
+                            window.width(),
+                            s.unfullscreening
+                        );
                         drop(s);
                         marquee.set_hexpand(true);
                         window.set_decorated(false);
@@ -683,7 +706,14 @@ fn build_ui(app: &Application) {
                             }
                         }
                         update_marquee(&state);
-                        eprintln!("[{}] [ESC-EXIT] saved_width={}, target_slots={}, current_slots_after_trim={}, window.width={}", ts(), saved, target_slots, state.borrow().images.len(), window.width());
+                        eprintln!(
+                            "[{}] [ESC-EXIT] saved_width={}, target_slots={}, current_slots_after_trim={}, window.width={}",
+                            ts(),
+                            saved,
+                            target_slots,
+                            state.borrow().images.len(),
+                            window.width()
+                        );
                         // 1. Temp constraints zurücksetzen
                         marquee.set_hexpand(false);
                         window.set_size_request(-1, -1);
@@ -735,12 +765,26 @@ fn build_ui(app: &Application) {
 
                 // Log every tick while unfullscreening
                 if s.unfullscreening {
-                    eprintln!("[{}] [POLL-UNFS] width={}, saved_width={}, slots={}, saved_slots={}, stable={}", ts(), width, s.saved_width, s.images.len(), s.saved_slot_count, stable);
+                    eprintln!(
+                        "[{}] [POLL-UNFS] width={}, saved_width={}, slots={}, saved_slots={}, stable={}",
+                        ts(),
+                        width,
+                        s.saved_width,
+                        s.images.len(),
+                        s.saved_slot_count,
+                        stable
+                    );
                 }
                 // Clear unfullscreening guard once window has shrunk to <= saved_width
                 // and been stable for a few ticks
                 if s.unfullscreening && width <= s.saved_width && stable >= 3 {
-                    eprintln!("[{}] [POLL] unfullscreening cleared: width={} <= saved_width={}, stable={}", ts(), width, s.saved_width, stable);
+                    eprintln!(
+                        "[{}] [POLL] unfullscreening cleared: width={} <= saved_width={}, stable={}",
+                        ts(),
+                        width,
+                        s.saved_width,
+                        stable
+                    );
                     s.unfullscreening = false;
                     // Restore hexpand and re-enable resizing now that window has shrunk
                     eprintln!("[{}] [POLL] restoring hexpand=true, set_resizable(true)", ts());
@@ -753,7 +797,11 @@ fn build_ui(app: &Application) {
                 let s = state.borrow();
                 let pixel_size = s.pixel_size;
                 let slot_width = pixel_size + s.glyph_spacing;
-                let available = if width > 2 * MARQUEE_PADDING { width - 2 * MARQUEE_PADDING } else { pixel_size };
+                let available = if width > 2 * MARQUEE_PADDING {
+                    width - 2 * MARQUEE_PADDING
+                } else {
+                    pixel_size
+                };
                 // Floor division: never add more slots than fit.
                 // Remaining space is split by the two spacers (left/right).
                 let needed = ((((available + s.glyph_spacing) / slot_width).max(1) - 1).max(1)) as usize;
@@ -931,7 +979,11 @@ fn adjust_marquee_slots(state: &Rc<RefCell<MarqueeState>>) {
     let width = s.win_width;
     let pixel_size = s.pixel_size;
     let slot_width = pixel_size + s.glyph_spacing;
-    let available = if width > 2 * MARQUEE_PADDING { width - 2 * MARQUEE_PADDING } else { pixel_size };
+    let available = if width > 2 * MARQUEE_PADDING {
+        width - 2 * MARQUEE_PADDING
+    } else {
+        pixel_size
+    };
     // Floor division: never add more slots than fit.
     let needed = ((((available + s.glyph_spacing) / slot_width).max(1) - 1).max(1)) as usize;
     let current = s.images.len();
@@ -940,10 +992,7 @@ fn adjust_marquee_slots(state: &Rc<RefCell<MarqueeState>>) {
     let mut s = state.borrow_mut();
     if needed > current {
         for _ in current..needed {
-            let img = Image::builder()
-                .css_classes(["marquee-dot-dim"])
-                .halign(Align::Center)
-                .build();
+            let img = Image::builder().css_classes(["marquee-dot-dim"]).halign(Align::Center).build();
             img.set_pixel_size(s.pixel_size);
             img.set_size_request(0, -1);
             img.insert_before(&s.marquee, Some(&s.spacer_right));
@@ -988,11 +1037,7 @@ fn update_marquee(state: &Rc<RefCell<MarqueeState>>) {
         match char_to_glyph_base(ch) {
             Some(base) => {
                 let full_name = format!("{}-{}", variant::GLYPH_PREFIX, base);
-                let resource_path = format!(
-                    "{}/scalable/glyphs/{}.svg",
-                    variant::GRESOURCE_PREFIX,
-                    full_name,
-                );
+                let resource_path = format!("{}/scalable/glyphs/{}.svg", variant::GRESOURCE_PREFIX, full_name,);
                 // Alternate glow for a subtle pulse effect
                 let hex_color = if (s.offset + i).is_multiple_of(3) {
                     rgba_to_hex(&s.glow_color)

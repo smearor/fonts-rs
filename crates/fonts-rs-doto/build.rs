@@ -7,8 +7,8 @@
 use std::fs;
 use std::path::Path;
 
-use fonts_rs_generator::FontBuild;
 use fonts_rs_generator::ExportConfig;
+use fonts_rs_generator::FontBuild;
 use fonts_rs_generator::build_constants;
 use fonts_rs_generator::export_glyphs_with_config;
 use fonts_rs_model::GRESOURCE_BASE_PREFIX;
@@ -20,35 +20,35 @@ pub const FONT_FILE: &str = "Doto.ttf";
 /// All Doto variants in the 5x5 matrix: wght x rond.
 const VARIANTS: &[(&str, f32, f32)] = &[
     // wght=100 (ultra-light)
-    ("ultra-light-square",      100.0,   0.0),
-    ("ultra-light-soft-square", 100.0,  25.0),
-    ("ultra-light-medium",      100.0,  50.0),
-    ("ultra-light-soft-dot",    100.0,  75.0),
-    ("ultra-light-dot",         100.0, 100.0),
+    ("ultra-light-square", 100.0, 0.0),
+    ("ultra-light-soft-square", 100.0, 25.0),
+    ("ultra-light-medium", 100.0, 50.0),
+    ("ultra-light-soft-dot", 100.0, 75.0),
+    ("ultra-light-dot", 100.0, 100.0),
     // wght=300 (light)
-    ("light-square",      300.0,   0.0),
-    ("light-soft-square", 300.0,  25.0),
-    ("light-medium",      300.0,  50.0),
-    ("light-soft-dot",    300.0,  75.0),
-    ("light-dot",         300.0, 100.0),
+    ("light-square", 300.0, 0.0),
+    ("light-soft-square", 300.0, 25.0),
+    ("light-medium", 300.0, 50.0),
+    ("light-soft-dot", 300.0, 75.0),
+    ("light-dot", 300.0, 100.0),
     // wght=500 (regular)
-    ("regular-square",      500.0,   0.0),
-    ("regular-soft-square", 500.0,  25.0),
-    ("regular-medium",      500.0,  50.0),
-    ("regular-soft-dot",    500.0,  75.0),
-    ("regular-dot",         500.0, 100.0),
+    ("regular-square", 500.0, 0.0),
+    ("regular-soft-square", 500.0, 25.0),
+    ("regular-medium", 500.0, 50.0),
+    ("regular-soft-dot", 500.0, 75.0),
+    ("regular-dot", 500.0, 100.0),
     // wght=700 (bold)
-    ("bold-square",      700.0,   0.0),
-    ("bold-soft-square", 700.0,  25.0),
-    ("bold-medium",      700.0,  50.0),
-    ("bold-soft-dot",    700.0,  75.0),
-    ("bold-dot",         700.0, 100.0),
+    ("bold-square", 700.0, 0.0),
+    ("bold-soft-square", 700.0, 25.0),
+    ("bold-medium", 700.0, 50.0),
+    ("bold-soft-dot", 700.0, 75.0),
+    ("bold-dot", 700.0, 100.0),
     // wght=900 (extra-bold)
-    ("extra-bold-square",      900.0,   0.0),
-    ("extra-bold-soft-square", 900.0,  25.0),
-    ("extra-bold-medium",      900.0,  50.0),
-    ("extra-bold-soft-dot",    900.0,  75.0),
-    ("extra-bold-dot",         900.0, 100.0),
+    ("extra-bold-square", 900.0, 0.0),
+    ("extra-bold-soft-square", 900.0, 25.0),
+    ("extra-bold-medium", 900.0, 50.0),
+    ("extra-bold-soft-dot", 900.0, 75.0),
+    ("extra-bold-dot", 900.0, 100.0),
 ];
 
 fn main() -> miette::Result<()> {
@@ -71,18 +71,13 @@ fn main() -> miette::Result<()> {
         return Err(miette::miette!("expected at most one Doto variant feature, found {}", active.len()));
     }
 
-    let (feature, wght, rond) = if active.is_empty() {
-        ("regular-medium", 500.0, 50.0)
-    } else {
-        *active[0]
-    };
+    let (feature, wght, rond) = if active.is_empty() { ("regular-medium", 500.0, 50.0) } else { *active[0] };
     let font_path = format!("{}/{}", build_constants::RESOURCES_DIR, FONT_FILE);
 
     eprintln!("build.rs: active variant: {feature} (wght={wght}, rond={rond}) -> {font_path}");
 
     // Set env var with absolute path so include_bytes! in fonts.rs can find it.
-    let crate_dir = std::env::var("CARGO_MANIFEST_DIR")
-        .unwrap_or_else(|_| std::env::current_dir().unwrap().to_string_lossy().to_string());
+    let crate_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap_or_else(|_| std::env::current_dir().unwrap().to_string_lossy().to_string());
     let absolute_font_path = Path::new(&crate_dir).join(&font_path);
     println!("cargo:rustc-env=DOTO_FONT_PATH={}", absolute_font_path.display());
 
@@ -101,9 +96,7 @@ fn main() -> miette::Result<()> {
         name_filter: None,
     };
 
-    let icons_dir = Path::new(build_constants::RESOURCES_DIR)
-        .join("scalable")
-        .join("glyphs");
+    let icons_dir = Path::new(build_constants::RESOURCES_DIR).join("scalable").join("glyphs");
 
     FontBuild::new(&font_path)
         .extra_hash(feature)

@@ -69,10 +69,7 @@ impl GlyphNameExt for SevenSegmentName {
             return Some(CodePoint::from(ch));
         }
         let full = format!("{}-{}", variant::GLYPH_PREFIX, key);
-        codepoint_map::REVERSE_GLYPHS
-            .get(&full)
-            .copied()
-            .map(CodePoint::from)
+        codepoint_map::REVERSE_GLYPHS.get(&full).copied().map(CodePoint::from)
     }
 }
 
@@ -110,10 +107,7 @@ mod tests {
     #[test]
     fn all_glyphs_names_start_with_dseg7() {
         for (_, name) in all_glyphs() {
-            assert!(
-                name.starts_with("dseg7-"),
-                "glyph name '{name}' should start with 'dseg7-'"
-            );
+            assert!(name.starts_with("dseg7-"), "glyph name '{name}' should start with 'dseg7-'");
         }
     }
 

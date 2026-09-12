@@ -66,11 +66,7 @@ fn encode_ean13(input: &str) -> Result<String, String> {
         return Err(format!("Need 12 or 13 digits, got {}", digits.len()));
     }
 
-    let check_digit = if digits.len() == 13 {
-        digits[12]
-    } else {
-        compute_check_digit(&digits)
-    };
+    let check_digit = if digits.len() == 13 { digits[12] } else { compute_check_digit(&digits) };
 
     let first = digits[0];
     if first > 9 {
@@ -123,18 +119,12 @@ fn main() -> Result<glib::ExitCode> {
 }
 
 fn build_ui(app: &Application) {
-    let css = format!(
-        ".barcode-display {{\n    font-family: '{FONT_FAMILY}';\n    font-size: 192px;\n}}\n"
-    );
+    let css = format!(".barcode-display {{\n    font-family: '{FONT_FAMILY}';\n    font-size: 192px;\n}}\n");
 
     let provider = gtk4::CssProvider::new();
     provider.load_from_string(&css);
     if let Some(display) = gtk4::gdk::Display::default() {
-        gtk4::style_context_add_provider_for_display(
-            &display,
-            &provider,
-            gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION,
-        );
+        gtk4::style_context_add_provider_for_display(&display, &provider, gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION);
     }
 
     let window = ApplicationWindow::builder()
@@ -184,11 +174,7 @@ fn build_ui(app: &Application) {
         .build();
     main_box.append(&hint);
 
-    let write_label = Label::builder()
-        .label("Decoded")
-        .css_classes(["heading"])
-        .halign(Align::Start)
-        .build();
+    let write_label = Label::builder().label("Decoded").css_classes(["heading"]).halign(Align::Start).build();
     main_box.append(&write_label);
 
     let entry = Entry::builder()
@@ -215,30 +201,24 @@ fn build_ui(app: &Application) {
         .build();
     main_box.append(&barcode_label);
 
-    let status_label = Label::builder()
-        .label("")
-        .halign(Align::Center)
-        .css_classes(["dim-label"])
-        .build();
+    let status_label = Label::builder().label("").halign(Align::Center).css_classes(["dim-label"]).build();
     main_box.append(&status_label);
 
-    let update = |text: &str, barcode_label: &Label, status_label: &Label| {
-        match encode_ean13(text) {
-            Ok(encoded) => {
-                let digits: String = text.chars().filter(|c| c.is_ascii_digit()).collect();
-                let check = if digits.len() == 12 {
-                    let ds: Vec<u8> = digits.chars().filter_map(|c| c.to_digit(10).map(|d| d as u8)).collect();
-                    compute_check_digit(&ds)
-                } else {
-                    digits.chars().last().and_then(|c| c.to_digit(10)).map(|d| d as u8).unwrap_or(0)
-                };
-                barcode_label.set_label(&encoded);
-                status_label.set_label(&format!("Encoded: {encoded}  |  Check digit: {check}"));
-            }
-            Err(e) => {
-                barcode_label.set_label("");
-                status_label.set_label(&e);
-            }
+    let update = |text: &str, barcode_label: &Label, status_label: &Label| match encode_ean13(text) {
+        Ok(encoded) => {
+            let digits: String = text.chars().filter(|c| c.is_ascii_digit()).collect();
+            let check = if digits.len() == 12 {
+                let ds: Vec<u8> = digits.chars().filter_map(|c| c.to_digit(10).map(|d| d as u8)).collect();
+                compute_check_digit(&ds)
+            } else {
+                digits.chars().last().and_then(|c| c.to_digit(10)).map(|d| d as u8).unwrap_or(0)
+            };
+            barcode_label.set_label(&encoded);
+            status_label.set_label(&format!("Encoded: {encoded}  |  Check digit: {check}"));
+        }
+        Err(e) => {
+            barcode_label.set_label("");
+            status_label.set_label(&e);
         }
     };
 

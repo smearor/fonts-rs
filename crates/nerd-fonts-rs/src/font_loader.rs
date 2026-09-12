@@ -33,23 +33,15 @@ const SYSTEM_BASE_DIR: &str = "/usr/share/smearor";
 fn system_font_dirs() -> Vec<std::path::PathBuf> {
     #[cfg(target_os = "linux")]
     {
-        vec![
-            std::path::PathBuf::from("/usr/share/fonts"),
-            std::path::PathBuf::from("/usr/local/share/fonts"),
-        ]
+        vec![std::path::PathBuf::from("/usr/share/fonts"), std::path::PathBuf::from("/usr/local/share/fonts")]
     }
     #[cfg(target_os = "macos")]
     {
-        vec![
-            std::path::PathBuf::from("/Library/Fonts"),
-            std::path::PathBuf::from("/System/Library/Fonts"),
-        ]
+        vec![std::path::PathBuf::from("/Library/Fonts"), std::path::PathBuf::from("/System/Library/Fonts")]
     }
     #[cfg(target_os = "windows")]
     {
-        vec![
-            std::path::PathBuf::from("C:\\Windows\\Fonts"),
-        ]
+        vec![std::path::PathBuf::from("C:\\Windows\\Fonts")]
     }
     #[cfg(not(any(target_os = "linux", target_os = "macos", target_os = "windows")))]
     {
@@ -151,12 +143,8 @@ pub fn load_fonts() -> Result<(), InitError> {
         // Store guards to keep temp files alive for the process lifetime.
         let _ = TEMP_GUARDS.set(vec![regular_guard, mono_guard]);
 
-        font_map
-            .add_font_file(&regular_path)
-            .map_err(|e| InitError::GResourceRegister(e.to_string()))?;
-        font_map
-            .add_font_file(&mono_path)
-            .map_err(|e| InitError::GResourceRegister(e.to_string()))?;
+        font_map.add_font_file(&regular_path).map_err(|e| InitError::GResourceRegister(e.to_string()))?;
+        font_map.add_font_file(&mono_path).map_err(|e| InitError::GResourceRegister(e.to_string()))?;
     }
 
     #[cfg(not(feature = "embed-fonts"))]
@@ -164,12 +152,8 @@ pub fn load_fonts() -> Result<(), InitError> {
         let regular_path = find_font_file(SYMBOLS_REGULAR_RELATIVE)?;
         let mono_path = find_font_file(SYMBOLS_MONO_RELATIVE)?;
 
-        font_map
-            .add_font_file(&regular_path)
-            .map_err(|e| InitError::GResourceRegister(e.to_string()))?;
-        font_map
-            .add_font_file(&mono_path)
-            .map_err(|e| InitError::GResourceRegister(e.to_string()))?;
+        font_map.add_font_file(&regular_path).map_err(|e| InitError::GResourceRegister(e.to_string()))?;
+        font_map.add_font_file(&mono_path).map_err(|e| InitError::GResourceRegister(e.to_string()))?;
     }
 
     Ok(())

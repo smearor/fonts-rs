@@ -2,7 +2,8 @@
 
 use super::error::GenerateError;
 use fonts_rs_model::GlyphEntry;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use std::fs;
 use std::path::PathBuf;
 

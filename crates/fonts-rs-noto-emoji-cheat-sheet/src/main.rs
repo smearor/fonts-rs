@@ -360,9 +360,7 @@ fn build_ui(app: &Application) {
                 .filter(|(cp, name)| {
                     let hex = format!("{:X}", cp.as_char() as u32);
                     let char_str = cp.as_char().to_string();
-                    name.to_lowercase().contains(&filter_lower)
-                        || hex.to_lowercase().contains(&filter_lower)
-                        || char_str.contains(filter)
+                    name.to_lowercase().contains(&filter_lower) || hex.to_lowercase().contains(&filter_lower) || char_str.contains(filter)
                 })
                 .cloned()
                 .collect()

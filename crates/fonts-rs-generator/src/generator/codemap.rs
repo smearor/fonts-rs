@@ -1,10 +1,11 @@
 //! Generator for phf::Map codepoint lookup tables.
 
-use std::path::PathBuf;
-use serde::{Deserialize, Serialize};
 use super::error::GenerateError;
 use super::generate::GlyphGenerator;
 use fonts_rs_model::GlyphEntry;
+use serde::Deserialize;
+use serde::Serialize;
+use std::path::PathBuf;
 
 /// Generates phf::Map constants for both codepoint-to-name and name-to-codepoint lookups.
 pub struct CodemapGenerator;

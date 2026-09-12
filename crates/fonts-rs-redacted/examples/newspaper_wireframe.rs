@@ -152,8 +152,7 @@ fn compose_text_svg(text: &str, hex_color: &str) -> String {
         };
         let full_name = format!("{prefix}-{base}");
         let resource_path = format!("{gresource_prefix}/scalable/glyphs/{full_name}.svg");
-        let Ok(bytes) = gio::resources_lookup_data(&resource_path, gio::ResourceLookupFlags::NONE)
-        else {
+        let Ok(bytes) = gio::resources_lookup_data(&resource_path, gio::ResourceLookupFlags::NONE) else {
             continue;
         };
         let Ok(svg) = std::str::from_utf8(bytes.as_ref()) else {
@@ -170,9 +169,7 @@ fn compose_text_svg(text: &str, hex_color: &str) -> String {
         ));
     }
 
-    format!(
-        "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{total_width}\" height=\"{BASE_GLYPH_HEIGHT}\">{inner}</svg>"
-    )
+    format!("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{total_width}\" height=\"{BASE_GLYPH_HEIGHT}\">{inner}</svg>")
 }
 
 /// Text category controlling which size slider applies.
@@ -228,13 +225,7 @@ fn main() -> Result<glib::ExitCode> {
 /// `category` selects which size slider applies.
 /// `scale` is a multiplier within that category (e.g. 1.4 for masthead title).
 /// `can_justify` marks the line as eligible for body justification.
-fn create_text_block(
-    text: &str,
-    category: TextCategory,
-    scale: f64,
-    can_justify: bool,
-    all_text_blocks: &mut Vec<TextBlock>,
-) -> Picture {
+fn create_text_block(text: &str, category: TextCategory, scale: f64, can_justify: bool, all_text_blocks: &mut Vec<TextBlock>) -> Picture {
     let picture = Picture::new();
     picture.set_content_fit(ContentFit::Fill);
     picture.set_can_shrink(true);
@@ -460,11 +451,7 @@ fn build_ui(app: &Application) {
     hero.append(&subheadline_pic);
 
     // Hero content: inline image + text (simulates text wrapping)
-    let hero_content = Box::builder()
-        .orientation(Orientation::Horizontal)
-        .spacing(12)
-        .margin_top(12)
-        .build();
+    let hero_content = Box::builder().orientation(Orientation::Horizontal).spacing(12).margin_top(12).build();
 
     let hero_image = create_inline_placeholder_image(160, 180);
     hero_content.append(&hero_image);
@@ -561,11 +548,7 @@ fn build_ui(app: &Application) {
             col.append(&pic);
         }
 
-        let inline = Box::builder()
-            .orientation(Orientation::Horizontal)
-            .spacing(8)
-            .margin_top(4)
-            .build();
+        let inline = Box::builder().orientation(Orientation::Horizontal).spacing(8).margin_top(4).build();
 
         let inline_img = create_inline_placeholder_image(100, 80);
         inline.append(&inline_img);

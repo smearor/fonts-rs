@@ -2,7 +2,8 @@
 
 use crate::codepoint::CodePoint;
 use crate::resource_path::ResourcePath;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use std::path::PathBuf;
 
 /// Metadata for a single exported glyph.

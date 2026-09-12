@@ -80,14 +80,9 @@ pub fn default_name_filter(name: &str) -> bool {
 /// # Returns
 ///
 /// The number of exported glyphs on success, or an `io::Error` on failure.
-pub fn export_glyphs_with_config(
-    font_path: &Path,
-    output_dir: &Path,
-    config: &ExportConfig,
-) -> std::io::Result<usize> {
+pub fn export_glyphs_with_config(font_path: &Path, output_dir: &Path, config: &ExportConfig) -> std::io::Result<usize> {
     let font_data = fs::read(font_path)?;
-    let font = Font::from_data(&font_data)
-        .map_err(|e| std::io::Error::other(format!("Failed to parse font: {e}")))?;
+    let font = Font::from_data(&font_data).map_err(|e| std::io::Error::other(format!("Failed to parse font: {e}")))?;
 
     let location = font.location(&config.axes);
     let location_ref = LocationRef::from(&location);
@@ -158,12 +153,7 @@ pub fn export_glyphs_with_config(
 }
 
 /// Generate GResource XML with an explicit prefix (runtime version).
-fn generate_gresource_xml_with_prefix(
-    entries: &[GlyphEntry<String>],
-    output_path: &Path,
-    prefix: &str,
-    context: &str,
-) -> std::io::Result<()> {
+fn generate_gresource_xml_with_prefix(entries: &[GlyphEntry<String>], output_path: &Path, prefix: &str, context: &str) -> std::io::Result<()> {
     let mut sorted: Vec<&GlyphEntry<String>> = entries.iter().collect();
     sorted.sort_by(|a, b| a.name.cmp(&b.name));
 
@@ -221,15 +211,9 @@ fn generate_gresource_xml_with_prefix(
 /// # Returns
 ///
 /// The number of exported glyphs on success, or an `io::Error` on failure.
-pub fn export_glyphs_by_name_map(
-    font_path: &Path,
-    output_dir: &Path,
-    config: &ExportConfig,
-    name_map: &HashMap<String, u32>,
-) -> std::io::Result<usize> {
+pub fn export_glyphs_by_name_map(font_path: &Path, output_dir: &Path, config: &ExportConfig, name_map: &HashMap<String, u32>) -> std::io::Result<usize> {
     let font_data = fs::read(font_path)?;
-    let font = Font::from_data(&font_data)
-        .map_err(|e| std::io::Error::other(format!("Failed to parse font: {e}")))?;
+    let font = Font::from_data(&font_data).map_err(|e| std::io::Error::other(format!("Failed to parse font: {e}")))?;
 
     let location = font.location(&config.axes);
     let location_ref = LocationRef::from(&location);

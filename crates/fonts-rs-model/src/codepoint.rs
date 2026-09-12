@@ -1,6 +1,9 @@
 //! Unicode codepoint newtype for type-safe codepoint handling.
 
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::Deserialize;
+use serde::Deserializer;
+use serde::Serialize;
+use serde::Serializer;
 use std::fmt;
 use std::num::ParseIntError;
 use std::str::FromStr;

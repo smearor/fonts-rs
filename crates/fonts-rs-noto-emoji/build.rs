@@ -75,13 +75,8 @@ struct CldrAnnotations {
 /// The CLDR JSON uses the actual emoji character as the key.
 /// The `tts` field contains the canonical name (e.g. "grinning face").
 /// The `default` field contains search keywords (e.g. ["face", "grin"]).
-fn parse_cldr_annotations(json: &str) -> miette::Result<(
-    HashMap<String, u32>,
-    HashMap<u32, Vec<String>>,
-    HashMap<u32, String>,
-)> {
-    let data: CldrAnnotations =
-        serde_json::from_str(json).map_err(|e| miette::miette!("Failed to parse CLDR annotations: {e}"))?;
+fn parse_cldr_annotations(json: &str) -> miette::Result<(HashMap<String, u32>, HashMap<u32, Vec<String>>, HashMap<u32, String>)> {
+    let data: CldrAnnotations = serde_json::from_str(json).map_err(|e| miette::miette!("Failed to parse CLDR annotations: {e}"))?;
 
     let mut name_map = HashMap::new();
     let mut keyword_map = HashMap::new();
@@ -129,10 +124,7 @@ fn name_to_kebab(name: &str) -> String {
         .chars()
         .map(|c| if c.is_ascii_alphanumeric() || c == ' ' { c } else { ' ' })
         .collect();
-    let kebab: String = kebab
-        .split_whitespace()
-        .collect::<Vec<_>>()
-        .join("-");
+    let kebab: String = kebab.split_whitespace().collect::<Vec<_>>().join("-");
     kebab
 }
 
@@ -172,20 +164,17 @@ fn main() -> miette::Result<()> {
     eprintln!("build.rs: exporting glyphs from {font_path}");
 
     // Set env var with absolute path so include_bytes! in fonts.rs can find it.
-    let crate_dir = std::env::var("CARGO_MANIFEST_DIR")
-        .unwrap_or_else(|_| std::env::current_dir().unwrap().to_string_lossy().to_string());
+    let crate_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap_or_else(|_| std::env::current_dir().unwrap().to_string_lossy().to_string());
     let absolute_font_path = Path::new(&crate_dir).join(&font_path);
     println!("cargo:rustc-env=NOTO_EMOJI_FONT_PATH={}", absolute_font_path.display());
 
     // Parse CLDR annotations
-    let annotations_json = std::fs::read_to_string(&annotations_path)
-        .map_err(|e| miette::miette!("Failed to read {annotations_path}: {e}"))?;
+    let annotations_json = std::fs::read_to_string(&annotations_path).map_err(|e| miette::miette!("Failed to read {annotations_path}: {e}"))?;
     let (name_map, keyword_map, name_by_codepoint) = parse_cldr_annotations(&annotations_json)?;
     eprintln!("build.rs: parsed {} CLDR annotations", name_map.len());
 
     // Parse emoji-test.txt for categories
-    let emoji_test_content = std::fs::read_to_string(&emoji_test_path)
-        .map_err(|e| miette::miette!("Failed to read {emoji_test_path}: {e}"))?;
+    let emoji_test_content = std::fs::read_to_string(&emoji_test_path).map_err(|e| miette::miette!("Failed to read {emoji_test_path}: {e}"))?;
     let category_map = parse_emoji_test(&emoji_test_content);
     eprintln!("build.rs: parsed {} emoji categories", category_map.len());
 
@@ -201,9 +190,7 @@ fn main() -> miette::Result<()> {
         name_filter: None,
     };
 
-    let icons_dir = Path::new(build_constants::RESOURCES_DIR)
-        .join("scalable")
-        .join("emoji");
+    let icons_dir = Path::new(build_constants::RESOURCES_DIR).join("scalable").join("emoji");
 
     FontBuild::new(&font_path)
         .run(|font_path, resources_dir| {
@@ -230,8 +217,7 @@ fn main() -> miette::Result<()> {
         eprintln!("build.rs: generating emoji metadata (keywords/categories)...");
 
         // Read the generated metadata.json to get the full list of exported glyphs.
-        let metadata_json = std::fs::read_to_string(build_constants::METADATA_PATH)
-            .map_err(|e| miette::miette!("Failed to read metadata.json: {e}"))?;
+        let metadata_json = std::fs::read_to_string(build_constants::METADATA_PATH).map_err(|e| miette::miette!("Failed to read metadata.json: {e}"))?;
         let entries: Vec<fonts_rs_model::GlyphEntry<String>> =
             serde_json::from_str(&metadata_json).map_err(|e| miette::miette!("Failed to parse metadata.json: {e}"))?;
 

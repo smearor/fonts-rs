@@ -13,7 +13,8 @@ use fonts_rs_model::FontFamily;
 use fonts_rs_model::GlyphEntry;
 use fonts_rs_model::ResourcePath;
 use quick_xml::se::Serializer;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use skrifa::GlyphId;
 use skrifa::MetadataProvider;
 

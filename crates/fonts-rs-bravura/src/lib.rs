@@ -66,10 +66,7 @@ impl GlyphNameExt for BravuraName {
             return Some(CodePoint::from(ch));
         }
         let full = format!("{}-{}", variant::GLYPH_PREFIX, key);
-        codepoint_map::REVERSE_GLYPHS
-            .get(&full)
-            .copied()
-            .map(CodePoint::from)
+        codepoint_map::REVERSE_GLYPHS.get(&full).copied().map(CodePoint::from)
     }
 }
 
@@ -107,10 +104,7 @@ mod tests {
     #[test]
     fn all_glyphs_names_start_with_bravura() {
         for (_, name) in all_glyphs() {
-            assert!(
-                name.starts_with("bravura-"),
-                "glyph name '{name}' should start with 'bravura-'"
-            );
+            assert!(name.starts_with("bravura-"), "glyph name '{name}' should start with 'bravura-'");
         }
     }
 
