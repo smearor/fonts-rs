@@ -7,6 +7,7 @@ use read_fonts::ReadError;
 use skrifa::FontRef;
 use skrifa::GlyphId;
 use skrifa::MetadataProvider;
+use skrifa::instance::Location;
 
 use fonts_rs_model::CodePoint;
 
@@ -35,6 +36,16 @@ impl<'a> Font<'a> {
     /// Returns a reference to the underlying `FontRef`.
     pub fn as_ref(&self) -> &FontRef<'a> {
         &self.inner
+    }
+
+    /// Create a `Location` from user-space variation axis settings.
+    ///
+    /// Converts user coordinates (e.g. `("wght", 700.0)`) to normalized
+    /// coordinates for use with `glyph_to_svg_at` / `glyph_to_svg_full_height_at`.
+    ///
+    /// For non-variable fonts, returns the default location.
+    pub fn location(&self, settings: &[(&str, f32)]) -> Location {
+        self.inner.axes().location(settings.iter().copied())
     }
 
     /// Build a reverse cmap (GlyphId -> CodePoint) by probing Unicode codepoints.

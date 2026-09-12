@@ -88,6 +88,7 @@ fn main() -> miette::Result<()> {
         icons_context: "glyphs".to_string(),
         glyph_name_prefix: glyph_prefix.clone(),
         codepoint_ranges: &[(0x20, 0x7E)],
+        axes: vec![],
     };
 
     FontBuild::new(&font_path)

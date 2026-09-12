@@ -15,6 +15,7 @@ use quick_xml::se::Serializer;
 use serde::Serialize;
 use skrifa::GlyphId;
 use skrifa::MetadataProvider;
+use skrifa::instance::LocationRef;
 
 use crate::font::Font;
 use crate::font_definition::normalize_to_kebab;
@@ -37,6 +38,10 @@ pub struct ExportConfig {
     pub glyph_name_prefix: String,
     /// Unicode codepoint ranges to probe.
     pub codepoint_ranges: &'static [(u32, u32)],
+    /// Variable font axis settings in user space (e.g. `vec![("wght", 700.0), ("rond", 50.0)]`).
+    ///
+    /// Empty for non-variable fonts (renders at default location).
+    pub axes: Vec<(&'static str, f32)>,
 }
 
 /// Export all glyphs from a TTF/OTF font file using runtime [`ExportConfig`].
@@ -66,6 +71,9 @@ pub fn export_glyphs_with_config(
     let font_data = fs::read(font_path)?;
     let font = Font::from_data(&font_data)
         .map_err(|e| std::io::Error::other(format!("Failed to parse font: {e}")))?;
+
+    let location = font.location(&config.axes);
+    let location_ref = LocationRef::from(&location);
 
     let icons_dir = output_dir.join("scalable").join(&config.icons_context);
     fs::create_dir_all(&icons_dir)?;
@@ -99,7 +107,7 @@ pub fn export_glyphs_with_config(
 
         let codepoint = reverse_cmap.get(&glyph_id).copied();
 
-        let svg = match font.glyph_to_svg_full_height(glyph_id) {
+        let svg = match font.glyph_to_svg_full_height_at(glyph_id, location_ref) {
             Some(svg) => svg,
             None => EMPTY_SVG.to_string(),
         };

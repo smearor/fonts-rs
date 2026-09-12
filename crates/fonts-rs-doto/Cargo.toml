@@ -1,0 +1,87 @@
+[package]
+name = "fonts-rs-doto"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "Doto dot-matrix variable font integration for GTK 4 and pixel-drawing"
+publish = true
+
+# Doto font is licensed under the SIL Open Font License (OFL-1.1).
+# The crate code itself is MIT (inherited from the workspace).
+# license-file bundles the OFL text required for font redistribution.
+license-file = "resources/Doto-OFL.txt"
+
+include = [
+    "src/**/*.rs",
+    "build.rs",
+    "resources/*.ttf",
+    "resources/Doto-OFL.txt",
+    "resources/icons.gresource.xml",
+    "Cargo.toml",
+]
+
+[features]
+default = ["gtk"]
+
+# Each feature selects one instance from the 5x5 matrix:
+#   wght: 100 (ultra-light), 300 (light), 500 (regular), 700 (bold), 900 (extra-bold)
+#   rond: 0 (square), 25 (soft-square), 50 (medium), 75 (soft-dot), 100 (dot)
+# If none is active, build.rs defaults to `regular-medium`.
+ultra-light-square = []
+ultra-light-soft-square = []
+ultra-light-medium = []
+ultra-light-soft-dot = []
+ultra-light-dot = []
+light-square = []
+light-soft-square = []
+light-medium = []
+light-soft-dot = []
+light-dot = []
+regular-square = []
+regular-soft-square = []
+regular-medium = []
+regular-soft-dot = []
+regular-dot = []
+bold-square = []
+bold-soft-square = []
+bold-medium = []
+bold-soft-dot = []
+bold-dot = []
+extra-bold-square = []
+extra-bold-soft-square = []
+extra-bold-medium = []
+extra-bold-soft-dot = []
+extra-bold-dot = []
+
+gtk = ["dep:gtk4", "dep:gio"]
+render = ["dep:ab_glyph"]
+embed-fonts = []
+
+[dependencies]
+fonts-rs-generator.workspace = true
+fonts-rs-model.workspace = true
+gio = { workspace = true, optional = true }
+gtk4 = { workspace = true, optional = true }
+ab_glyph = { workspace = true, optional = true }
+phf.workspace = true
+tracing.workspace = true
+
+[build-dependencies]
+fonts-rs-generator.workspace = true
+fonts-rs-model.workspace = true
+miette.workspace = true
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+gtk4 = { workspace = true, features = ["v4_12"] }
+glib.workspace = true
+miette.workspace = true
+
+[[example]]
+name = "dot_matrix_marquee"
+required-features = ["gtk", "embed-fonts"]
