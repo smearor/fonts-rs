@@ -6,7 +6,7 @@ rust-version.workspace = true
 authors.workspace = true
 repository.workspace = true
 homepage.workspace = true
-description = "DSEG7 Classic seven-segment display font integration for GTK 4 and pixel-drawing"
+description = "DSEG7 seven-segment display font integration for GTK 4 and pixel-drawing"
 publish = true
 
 # DSEG font is licensed under the SIL Open Font License (OFL-1.1).
@@ -18,7 +18,7 @@ include = [
     "src/**/*.rs",
     "build.rs",
     "examples/*.rs",
-    "resources/DSEG7Classic-Regular.ttf",
+    "resources/*.ttf",
     "resources/DSEG7Classic-LICENSE.txt",
     "resources/icons.gresource.xml",
     "Cargo.toml",
@@ -26,12 +26,42 @@ include = [
 
 [features]
 default = ["gtk"]
+
+# Each feature selects one DSEG7 variant (style + weight).
+# If none is active, build.rs defaults to `classic-regular`.
+classic-regular = []
+classic-bold = []
+classic-italic = []
+classic-bold-italic = []
+classic-light = []
+classic-light-italic = []
+
+classic-mini-regular = []
+classic-mini-bold = []
+classic-mini-italic = []
+classic-mini-bold-italic = []
+classic-mini-light = []
+classic-mini-light-italic = []
+
+modern-regular = []
+modern-bold = []
+modern-italic = []
+modern-bold-italic = []
+modern-light = []
+modern-light-italic = []
+
+modern-mini-regular = []
+modern-mini-bold = []
+modern-mini-italic = []
+modern-mini-bold-italic = []
+modern-mini-light = []
+modern-mini-light-italic = []
+
 gtk = ["dep:gtk4", "dep:gio"]
 render = ["dep:ab_glyph"]
 embed-fonts = []
 
 [dependencies]
-const_format.workspace = true
 fonts-rs-generator.workspace = true
 fonts-rs-model.workspace = true
 gio = { workspace = true, optional = true }
@@ -41,7 +71,6 @@ phf.workspace = true
 tracing.workspace = true
 
 [build-dependencies]
-const_format.workspace = true
 fonts-rs-generator.workspace = true
 fonts-rs-model.workspace = true
 glib-build-tools.workspace = true

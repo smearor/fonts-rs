@@ -318,7 +318,6 @@ name = "fonts-rs-seven-segment"
 version = "0.1.0"
 dependencies = [
  "ab_glyph",
- "const_format",
  "fonts-rs-generator",
  "fonts-rs-model",
  "gio",

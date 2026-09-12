@@ -42,8 +42,16 @@ impl<'a> Font<'a> {
     /// Probes the codepoint ranges defined by [`FontDefinition::CODEPOINT_RANGES`]
     /// to map each glyph in the font to its Unicode codepoint.
     pub fn build_reverse_cmap<F: FontDefinition>(&self) -> HashMap<GlyphId, CodePoint> {
+        self.build_reverse_cmap_with_ranges(F::CODEPOINT_RANGES)
+    }
+
+    /// Build a reverse cmap (GlyphId -> CodePoint) using explicit codepoint ranges.
+    ///
+    /// Like [`build_reverse_cmap`](Self::build_reverse_cmap) but takes ranges
+    /// directly instead of requiring a `FontDefinition` impl.
+    pub fn build_reverse_cmap_with_ranges(&self, ranges: &[(u32, u32)]) -> HashMap<GlyphId, CodePoint> {
         let mut map = HashMap::new();
-        for &(start, end) in F::CODEPOINT_RANGES {
+        for &(start, end) in ranges {
             map.extend(self.probe_range(start, end));
         }
         map

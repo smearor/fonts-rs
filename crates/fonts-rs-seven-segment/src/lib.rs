@@ -1,31 +1,37 @@
-//! DSEG7 Classic seven-segment display font integration for GTK 4.
+//! DSEG7 seven-segment display font integration for GTK 4.
 //!
 //! Provides glyph name resolution, GResource registration, and codepoint
-//! lookup for the DSEG7 Classic font — a seven-segment display font
+//! lookup for the DSEG7 font family — a seven-segment display font
 //! suitable for retro-style digital readouts.
+//!
+//! The active variant (style + weight) is selected at build time via
+//! Cargo features (e.g. `classic-regular`, `modern-mini-bold`).
 //!
 //! ## Quick Start
 //!
 //! ```no_run
+//! # #[cfg(feature = "gtk")]
 //! use fonts_rs_seven_segment::register_glyphs;
 //!
+//! # #[cfg(feature = "gtk")]
 //! // Call once at startup before using any glyphs
 //! register_glyphs().unwrap();
 //! ```
 //!
-//! Then use glyph names with GTK's `Gtk::Image::from_icon_name`:
+//! Then resolve glyph names to Unicode codepoints:
 //!
 //! ```no_run
 //! use fonts_rs_seven_segment::naming::SevenSegmentName;
 //! use fonts_rs_seven_segment::GlyphNameExt;
 //!
-//! let name = SevenSegmentName::new("dseg7-zero".to_string());
+//! let name = SevenSegmentName::new("zero".to_string());
 //! let codepoint = name.codepoint();
 //! ```
 
 pub mod codepoint_map;
 pub mod constants;
 pub mod naming;
+pub mod variant;
 
 #[cfg(feature = "render")]
 pub mod fonts;
@@ -33,7 +39,6 @@ pub mod fonts;
 use fonts_rs_model::CodePoint;
 
 // Re-export key types
-pub use naming::SevenSegmentDefinition;
 pub use naming::SevenSegmentName;
 
 /// Type alias for this font family's glyph name type.
@@ -43,6 +48,11 @@ pub use naming::SevenSegmentName;
 pub type FamilyName = SevenSegmentName;
 
 /// Extension trait adding codepoint lookup to `GlyphName<SevenSegment>`.
+///
+/// Accepts either a base glyph name (e.g. `"zero"`) or a fully-qualified
+/// variant name (e.g. `"dseg7-classic-regular-zero"`). When a base name
+/// is given, the active variant's [`GLYPH_PREFIX`](variant::GLYPH_PREFIX)
+/// is prepended automatically.
 pub trait GlyphNameExt {
     /// Resolves this glyph name to its Unicode [`CodePoint`].
     ///
@@ -52,19 +62,23 @@ pub trait GlyphNameExt {
 
 impl GlyphNameExt for SevenSegmentName {
     fn codepoint(&self) -> Option<CodePoint> {
+        let key = self.as_ref();
+        if let Some(ch) = codepoint_map::REVERSE_GLYPHS.get(key).copied() {
+            return Some(CodePoint::from(ch));
+        }
+        let full = format!("{}-{}", variant::GLYPH_PREFIX, key);
         codepoint_map::REVERSE_GLYPHS
-            .get(self.as_ref())
+            .get(&full)
             .copied()
             .map(CodePoint::from)
     }
 }
 
-/// Registers embedded DSEG7 glyphs as a GResource and adds the
-/// resource path to the default `GtkIconTheme`.
+/// Registers embedded DSEG7 glyphs as a GResource.
 ///
 /// Must be called once before using any glyphs through GTK/GIO APIs.
-/// After registration, glyphs are resolvable via `Gtk::Image::from_icon_name`
-/// and similar GTK 4 icon APIs.
+/// After registration, glyphs are loadable via `Gtk::Image::from_resource`
+/// using the resource path `{GRESOURCE_PREFIX}/scalable/glyphs/{name}.svg`.
 ///
 /// # Errors
 ///

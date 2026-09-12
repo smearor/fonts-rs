@@ -8,12 +8,15 @@
 //! Each font family crate implements [`FontDefinition`] to plug into the
 //! generic [`FontDefinition::export_glyphs`] pipeline.
 
+pub mod export_config;
 pub mod font;
 pub mod font_definition;
 pub mod generator;
 pub mod gresource;
 pub mod svg;
 
+pub use export_config::ExportConfig;
+pub use export_config::export_glyphs_with_config;
 pub use font::Font;
 pub use font_definition::FontDefinition;
 pub use font_definition::normalize_to_kebab;
