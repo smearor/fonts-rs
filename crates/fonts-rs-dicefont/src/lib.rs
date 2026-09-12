@@ -66,10 +66,7 @@ impl GlyphNameExt for DicefontName {
             return Some(CodePoint::from(ch));
         }
         let full = format!("{}-{}", variant::GLYPH_PREFIX, key);
-        codepoint_map::REVERSE_GLYPHS
-            .get(&full)
-            .copied()
-            .map(CodePoint::from)
+        codepoint_map::REVERSE_GLYPHS.get(&full).copied().map(CodePoint::from)
     }
 }
 
@@ -107,10 +104,7 @@ mod tests {
     #[test]
     fn all_glyphs_names_start_with_dicefont() {
         for (_, name) in all_glyphs() {
-            assert!(
-                name.starts_with("dicefont-"),
-                "glyph name '{name}' should start with 'dicefont-'"
-            );
+            assert!(name.starts_with("dicefont-"), "glyph name '{name}' should start with 'dicefont-'");
         }
     }
 
@@ -139,10 +133,7 @@ mod tests {
     fn all_glyphs_codepoints_in_pua() {
         for (c, _) in all_glyphs() {
             let cp = c as u32;
-            assert!(
-                (0xF000..=0xFFFF).contains(&cp),
-                "codepoint U+{cp:04X} should be in the Private Use Area"
-            );
+            assert!((0xF000..=0xFFFF).contains(&cp), "codepoint U+{cp:04X} should be in the Private Use Area");
         }
     }
 }

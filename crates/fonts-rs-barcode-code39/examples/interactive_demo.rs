@@ -36,18 +36,12 @@ fn main() -> Result<glib::ExitCode> {
 }
 
 fn build_ui(app: &Application) {
-    let css = format!(
-        ".barcode-display {{\n    font-family: '{FONT_FAMILY}';\n    font-size: 192px;\n    font-feature-settings: \"calt\";\n}}\n"
-    );
+    let css = format!(".barcode-display {{\n    font-family: '{FONT_FAMILY}';\n    font-size: 192px;\n    font-feature-settings: \"calt\";\n}}\n");
 
     let provider = gtk4::CssProvider::new();
     provider.load_from_string(&css);
     if let Some(display) = gtk4::gdk::Display::default() {
-        gtk4::style_context_add_provider_for_display(
-            &display,
-            &provider,
-            gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION,
-        );
+        gtk4::style_context_add_provider_for_display(&display, &provider, gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION);
     }
 
     let window = ApplicationWindow::builder()
@@ -97,11 +91,7 @@ fn build_ui(app: &Application) {
         .build();
     main_box.append(&hint);
 
-    let write_label = Label::builder()
-        .label("Decoded")
-        .css_classes(["heading"])
-        .halign(Align::Start)
-        .build();
+    let write_label = Label::builder().label("Decoded").css_classes(["heading"]).halign(Align::Start).build();
     main_box.append(&write_label);
 
     let entry = Entry::builder()

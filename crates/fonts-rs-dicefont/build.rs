@@ -22,8 +22,7 @@ fn main() -> miette::Result<()> {
     eprintln!("build.rs: exporting glyphs from {font_path}");
 
     // Set env var with absolute path so include_bytes! in fonts.rs can find it.
-    let crate_dir = std::env::var("CARGO_MANIFEST_DIR")
-        .unwrap_or_else(|_| std::env::current_dir().unwrap().to_string_lossy().to_string());
+    let crate_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap_or_else(|_| std::env::current_dir().unwrap().to_string_lossy().to_string());
     let absolute_font_path = Path::new(&crate_dir).join(&font_path);
     println!("cargo:rustc-env=DICEFONT_FONT_PATH={}", absolute_font_path.display());
 
@@ -39,9 +38,7 @@ fn main() -> miette::Result<()> {
         name_filter: None,
     };
 
-    let icons_dir = Path::new(build_constants::RESOURCES_DIR)
-        .join("scalable")
-        .join("glyphs");
+    let icons_dir = Path::new(build_constants::RESOURCES_DIR).join("scalable").join("glyphs");
 
     FontBuild::new(&font_path)
         .run(|font_path, resources_dir| {

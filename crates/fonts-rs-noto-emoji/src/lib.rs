@@ -69,10 +69,7 @@ impl GlyphNameExt for NotoEmojiName {
             return Some(CodePoint::from(ch));
         }
         let full = format!("{}-{}", variant::GLYPH_PREFIX, key);
-        codepoint_map::REVERSE_GLYPHS
-            .get(&full)
-            .copied()
-            .map(CodePoint::from)
+        codepoint_map::REVERSE_GLYPHS.get(&full).copied().map(CodePoint::from)
     }
 }
 

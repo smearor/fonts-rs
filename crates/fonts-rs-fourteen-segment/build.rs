@@ -5,8 +5,8 @@
 
 use std::path::Path;
 
-use fonts_rs_generator::FontBuild;
 use fonts_rs_generator::ExportConfig;
+use fonts_rs_generator::FontBuild;
 use fonts_rs_generator::build_constants;
 use fonts_rs_generator::export_glyphs_with_config;
 use fonts_rs_model::GRESOURCE_BASE_PREFIX;
@@ -15,32 +15,32 @@ use miette::IntoDiagnostic;
 /// All DSEG14 variants and their mapping to TTF filenames.
 const VARIANTS: &[(&str, &str)] = &[
     // Classic
-    ("classic-regular",          "DSEG14Classic-Regular"),
-    ("classic-bold",             "DSEG14Classic-Bold"),
-    ("classic-italic",           "DSEG14Classic-Italic"),
-    ("classic-bold-italic",      "DSEG14Classic-BoldItalic"),
-    ("classic-light",            "DSEG14Classic-Light"),
-    ("classic-light-italic",     "DSEG14Classic-LightItalic"),
+    ("classic-regular", "DSEG14Classic-Regular"),
+    ("classic-bold", "DSEG14Classic-Bold"),
+    ("classic-italic", "DSEG14Classic-Italic"),
+    ("classic-bold-italic", "DSEG14Classic-BoldItalic"),
+    ("classic-light", "DSEG14Classic-Light"),
+    ("classic-light-italic", "DSEG14Classic-LightItalic"),
     // Classic Mini
-    ("classic-mini-regular",     "DSEG14ClassicMini-Regular"),
-    ("classic-mini-bold",        "DSEG14ClassicMini-Bold"),
-    ("classic-mini-italic",      "DSEG14ClassicMini-Italic"),
+    ("classic-mini-regular", "DSEG14ClassicMini-Regular"),
+    ("classic-mini-bold", "DSEG14ClassicMini-Bold"),
+    ("classic-mini-italic", "DSEG14ClassicMini-Italic"),
     ("classic-mini-bold-italic", "DSEG14ClassicMini-BoldItalic"),
-    ("classic-mini-light",       "DSEG14ClassicMini-Light"),
-    ("classic-mini-light-italic","DSEG14ClassicMini-LightItalic"),
+    ("classic-mini-light", "DSEG14ClassicMini-Light"),
+    ("classic-mini-light-italic", "DSEG14ClassicMini-LightItalic"),
     // Modern
-    ("modern-regular",           "DSEG14Modern-Regular"),
-    ("modern-bold",              "DSEG14Modern-Bold"),
-    ("modern-italic",            "DSEG14Modern-Italic"),
-    ("modern-bold-italic",       "DSEG14Modern-BoldItalic"),
-    ("modern-light",             "DSEG14Modern-Light"),
-    ("modern-light-italic",      "DSEG14Modern-LightItalic"),
+    ("modern-regular", "DSEG14Modern-Regular"),
+    ("modern-bold", "DSEG14Modern-Bold"),
+    ("modern-italic", "DSEG14Modern-Italic"),
+    ("modern-bold-italic", "DSEG14Modern-BoldItalic"),
+    ("modern-light", "DSEG14Modern-Light"),
+    ("modern-light-italic", "DSEG14Modern-LightItalic"),
     // Modern Mini
-    ("modern-mini-regular",      "DSEG14ModernMini-Regular"),
-    ("modern-mini-bold",         "DSEG14ModernMini-Bold"),
-    ("modern-mini-italic",       "DSEG14ModernMini-Italic"),
-    ("modern-mini-bold-italic",  "DSEG14ModernMini-BoldItalic"),
-    ("modern-mini-light",        "DSEG14ModernMini-Light"),
+    ("modern-mini-regular", "DSEG14ModernMini-Regular"),
+    ("modern-mini-bold", "DSEG14ModernMini-Bold"),
+    ("modern-mini-italic", "DSEG14ModernMini-Italic"),
+    ("modern-mini-bold-italic", "DSEG14ModernMini-BoldItalic"),
+    ("modern-mini-light", "DSEG14ModernMini-Light"),
     ("modern-mini-light-italic", "DSEG14ModernMini-LightItalic"),
 ];
 
@@ -74,8 +74,7 @@ fn main() -> miette::Result<()> {
     eprintln!("build.rs: active variant: {feature} -> {font_path}");
 
     // Set env var with absolute path so include_bytes! in fonts.rs can find it.
-    let crate_dir = std::env::var("CARGO_MANIFEST_DIR")
-        .unwrap_or_else(|_| std::env::current_dir().unwrap().to_string_lossy().to_string());
+    let crate_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap_or_else(|_| std::env::current_dir().unwrap().to_string_lossy().to_string());
     let absolute_font_path = Path::new(&crate_dir).join(&font_path);
     println!("cargo:rustc-env=DSEG14_FONT_PATH={}", absolute_font_path.display());
 
@@ -93,9 +92,7 @@ fn main() -> miette::Result<()> {
     };
 
     FontBuild::new(&font_path)
-        .run(|font_path, resources_dir| {
-            export_glyphs_with_config(font_path, resources_dir, &config)
-        })
+        .run(|font_path, resources_dir| export_glyphs_with_config(font_path, resources_dir, &config))
         .map_err(|e| miette::miette!("{e}"))?;
 
     // Generate variant info (GRESOURCE_PREFIX, glyph prefix) for runtime use.

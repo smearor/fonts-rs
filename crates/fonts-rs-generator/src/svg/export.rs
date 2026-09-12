@@ -29,9 +29,7 @@ impl<'a> Font<'a> {
         let mut builder = SvgPathBuilder::new();
         let outlines = self.outline_glyphs();
         let outline = outlines.get(glyph_id)?;
-        outline
-            .draw(DrawSettings::unhinted(Size::unscaled(), location), &mut builder)
-            .ok()?;
+        outline.draw(DrawSettings::unhinted(Size::unscaled(), location), &mut builder).ok()?;
 
         let bbox = builder.bounds()?;
         let width = bbox.x_max - bbox.x_min;
@@ -85,9 +83,7 @@ impl<'a> Font<'a> {
         let mut builder = SvgPathBuilder::new();
         let outlines = self.outline_glyphs();
         let outline = outlines.get(glyph_id)?;
-        outline
-            .draw(DrawSettings::unhinted(Size::unscaled(), location), &mut builder)
-            .ok()?;
+        outline.draw(DrawSettings::unhinted(Size::unscaled(), location), &mut builder).ok()?;
 
         let bbox = builder.bounds()?;
         let glyph_width = bbox.x_max - bbox.x_min;

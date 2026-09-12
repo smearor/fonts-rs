@@ -3,7 +3,8 @@
 use super::error::GenerateError;
 use super::generate::GlyphGenerator;
 use fonts_rs_model::GlyphEntry;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use std::collections::HashSet;
 use std::path::PathBuf;
 

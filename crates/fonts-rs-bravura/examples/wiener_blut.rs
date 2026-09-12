@@ -18,10 +18,16 @@ use ab_glyph::OutlineCurve;
 use fonts_rs_bravura::fonts;
 use fonts_rs_bravura::register_glyphs;
 
+use gtk4::Application;
+use gtk4::ApplicationWindow;
+use gtk4::Box as GtkBox;
+use gtk4::DrawingArea;
+use gtk4::Label;
+use gtk4::Orientation;
+use gtk4::Scale;
 use gtk4::cairo;
 use gtk4::glib;
 use gtk4::prelude::*;
-use gtk4::{Application, ApplicationWindow, Box as GtkBox, DrawingArea, Label, Orientation, Scale};
 
 use miette::Result;
 
@@ -56,14 +62,8 @@ enum Duration {
 /// A note or rest in the score.
 #[derive(Clone, Debug, PartialEq)]
 enum Event {
-    Note {
-        pitch: i32,
-        duration: Duration,
-        dotted: bool,
-    },
-    Rest {
-        duration: Duration,
-    },
+    Note { pitch: i32, duration: Duration, dotted: bool },
+    Rest { duration: Duration },
     Barline,
     DoubleBar,
     FinalBar,
@@ -78,9 +78,21 @@ type Page = Vec<System>;
 /// Helper to build a measure of 3 quarter notes.
 fn m3(a: i32, b: i32, c: i32) -> Vec<Event> {
     vec![
-        Event::Note { pitch: a, duration: Duration::Quarter, dotted: false },
-        Event::Note { pitch: b, duration: Duration::Quarter, dotted: false },
-        Event::Note { pitch: c, duration: Duration::Quarter, dotted: false },
+        Event::Note {
+            pitch: a,
+            duration: Duration::Quarter,
+            dotted: false,
+        },
+        Event::Note {
+            pitch: b,
+            duration: Duration::Quarter,
+            dotted: false,
+        },
+        Event::Note {
+            pitch: c,
+            duration: Duration::Quarter,
+            dotted: false,
+        },
         Event::Barline,
     ]
 }
@@ -88,8 +100,16 @@ fn m3(a: i32, b: i32, c: i32) -> Vec<Event> {
 /// Helper: half note + quarter note.
 fn hq(a: i32, b: i32) -> Vec<Event> {
     vec![
-        Event::Note { pitch: a, duration: Duration::Half, dotted: false },
-        Event::Note { pitch: b, duration: Duration::Quarter, dotted: false },
+        Event::Note {
+            pitch: a,
+            duration: Duration::Half,
+            dotted: false,
+        },
+        Event::Note {
+            pitch: b,
+            duration: Duration::Quarter,
+            dotted: false,
+        },
         Event::Barline,
     ]
 }
@@ -97,8 +117,16 @@ fn hq(a: i32, b: i32) -> Vec<Event> {
 /// Helper: dotted half + quarter.
 fn dhq(a: i32, b: i32) -> Vec<Event> {
     vec![
-        Event::Note { pitch: a, duration: Duration::Half, dotted: true },
-        Event::Note { pitch: b, duration: Duration::Quarter, dotted: false },
+        Event::Note {
+            pitch: a,
+            duration: Duration::Half,
+            dotted: true,
+        },
+        Event::Note {
+            pitch: b,
+            duration: Duration::Quarter,
+            dotted: false,
+        },
         Event::Barline,
     ]
 }
@@ -107,8 +135,16 @@ fn dhq(a: i32, b: i32) -> Vec<Event> {
 fn rqq(a: i32, b: i32) -> Vec<Event> {
     vec![
         Event::Rest { duration: Duration::Quarter },
-        Event::Note { pitch: a, duration: Duration::Quarter, dotted: false },
-        Event::Note { pitch: b, duration: Duration::Quarter, dotted: false },
+        Event::Note {
+            pitch: a,
+            duration: Duration::Quarter,
+            dotted: false,
+        },
+        Event::Note {
+            pitch: b,
+            duration: Duration::Quarter,
+            dotted: false,
+        },
         Event::Barline,
     ]
 }
@@ -131,159 +167,144 @@ fn sys(measures: &[&[Event]]) -> System {
 fn wiener_blut_score() -> Vec<Page> {
     // Section 1: Introduction (4 measures)
     let intro = vec![
-        sys(&[
-            &rqq(2, 4),
-            &hq(6, 4),
-        ]),
+        sys(&[&rqq(2, 4), &hq(6, 4)]),
         sys(&[
             &m3(2, 4, 6),
-            &[Event::Note { pitch: 7, duration: Duration::Half, dotted: false }, Event::Rest { duration: Duration::Quarter }, Event::DoubleBar],
+            &[
+                Event::Note {
+                    pitch: 7,
+                    duration: Duration::Half,
+                    dotted: false,
+                },
+                Event::Rest { duration: Duration::Quarter },
+                Event::DoubleBar,
+            ],
         ]),
     ];
 
     // Waltz 1: Theme A (8 measures) + Theme A' (8 measures)
     let waltz1 = vec![
-        sys(&[
-            &m3(2, 4, 6),
-            &hq(7, 6),
-            &m3(4, 6, 7),
-            &hq(9, 7),
-        ]),
-        sys(&[
-            &m3(6, 4, 2),
-            &hq(0, 2),
-            &m3(4, 6, 7),
-            &dhq(9, 7),
-        ]),
+        sys(&[&m3(2, 4, 6), &hq(7, 6), &m3(4, 6, 7), &hq(9, 7)]),
+        sys(&[&m3(6, 4, 2), &hq(0, 2), &m3(4, 6, 7), &dhq(9, 7)]),
         sys(&[
             &hq(11, 9),
             &m3(7, 6, 4),
             &hq(2, 4),
-            &[Event::Rest { duration: Duration::Quarter }, Event::Note { pitch: 2, duration: Duration::Quarter, dotted: false }, Event::Note { pitch: 4, duration: Duration::Quarter, dotted: false }, Event::Barline],
+            &[
+                Event::Rest { duration: Duration::Quarter },
+                Event::Note {
+                    pitch: 2,
+                    duration: Duration::Quarter,
+                    dotted: false,
+                },
+                Event::Note {
+                    pitch: 4,
+                    duration: Duration::Quarter,
+                    dotted: false,
+                },
+                Event::Barline,
+            ],
         ]),
         sys(&[
             &m3(6, 7, 9),
             &dhq(11, 9),
             &m3(7, 6, 4),
-            &[Event::Note { pitch: 2, duration: Duration::Whole, dotted: false }, Event::DoubleBar],
+            &[
+                Event::Note {
+                    pitch: 2,
+                    duration: Duration::Whole,
+                    dotted: false,
+                },
+                Event::DoubleBar,
+            ],
         ]),
     ];
 
     // Waltz 2: Theme B (8 measures) + Theme B' (8 measures)
     let waltz2 = vec![
-        sys(&[
-            &m3(7, 9, 11),
-            &hq(12, 11),
-            &m3(9, 7, 6),
-            &hq(4, 6),
-        ]),
-        sys(&[
-            &m3(7, 9, 11),
-            &dhq(12, 11),
-            &m3(9, 7, 6),
-            &hq(4, 2),
-        ]),
-        sys(&[
-            &m3(4, 6, 7),
-            &dhq(9, 7),
-            &m3(6, 4, 2),
-            &hq(0, 2),
-        ]),
+        sys(&[&m3(7, 9, 11), &hq(12, 11), &m3(9, 7, 6), &hq(4, 6)]),
+        sys(&[&m3(7, 9, 11), &dhq(12, 11), &m3(9, 7, 6), &hq(4, 2)]),
+        sys(&[&m3(4, 6, 7), &dhq(9, 7), &m3(6, 4, 2), &hq(0, 2)]),
         sys(&[
             &m3(4, 6, 7),
             &dhq(9, 11),
             &m3(12, 11, 9),
-            &[Event::Note { pitch: 7, duration: Duration::Whole, dotted: false }, Event::DoubleBar],
+            &[
+                Event::Note {
+                    pitch: 7,
+                    duration: Duration::Whole,
+                    dotted: false,
+                },
+                Event::DoubleBar,
+            ],
         ]),
     ];
 
     // Waltz 3: Theme C (8 measures) + Theme C' (8 measures)
     let waltz3 = vec![
-        sys(&[
-            &m3(9, 11, 12),
-            &hq(14, 12),
-            &m3(11, 9, 7),
-            &hq(6, 9),
-        ]),
-        sys(&[
-            &m3(11, 12, 14),
-            &dhq(16, 14),
-            &m3(12, 11, 9),
-            &hq(7, 6),
-        ]),
-        sys(&[
-            &m3(4, 6, 7),
-            &dhq(9, 11),
-            &m3(12, 14, 16),
-            &hq(14, 12),
-        ]),
+        sys(&[&m3(9, 11, 12), &hq(14, 12), &m3(11, 9, 7), &hq(6, 9)]),
+        sys(&[&m3(11, 12, 14), &dhq(16, 14), &m3(12, 11, 9), &hq(7, 6)]),
+        sys(&[&m3(4, 6, 7), &dhq(9, 11), &m3(12, 14, 16), &hq(14, 12)]),
         sys(&[
             &m3(11, 9, 7),
             &dhq(6, 4),
             &m3(2, 4, 6),
-            &[Event::Note { pitch: 7, duration: Duration::Whole, dotted: false }, Event::DoubleBar],
+            &[
+                Event::Note {
+                    pitch: 7,
+                    duration: Duration::Whole,
+                    dotted: false,
+                },
+                Event::DoubleBar,
+            ],
         ]),
     ];
 
     // Waltz 4: Theme D (8 measures) + Theme D' (8 measures)
     let waltz4 = vec![
-        sys(&[
-            &m3(6, 7, 9),
-            &dhq(11, 9),
-            &m3(7, 6, 4),
-            &hq(2, 4),
-        ]),
-        sys(&[
-            &m3(6, 7, 9),
-            &dhq(11, 14),
-            &m3(12, 11, 9),
-            &hq(7, 6),
-        ]),
-        sys(&[
-            &m3(4, 6, 7),
-            &dhq(9, 11),
-            &m3(12, 14, 16),
-            &dhq(14, 12),
-        ]),
+        sys(&[&m3(6, 7, 9), &dhq(11, 9), &m3(7, 6, 4), &hq(2, 4)]),
+        sys(&[&m3(6, 7, 9), &dhq(11, 14), &m3(12, 11, 9), &hq(7, 6)]),
+        sys(&[&m3(4, 6, 7), &dhq(9, 11), &m3(12, 14, 16), &dhq(14, 12)]),
         sys(&[
             &m3(11, 9, 7),
             &dhq(6, 4),
             &m3(2, 4, 6),
-            &[Event::Note { pitch: 7, duration: Duration::Whole, dotted: false }, Event::DoubleBar],
+            &[
+                Event::Note {
+                    pitch: 7,
+                    duration: Duration::Whole,
+                    dotted: false,
+                },
+                Event::DoubleBar,
+            ],
         ]),
     ];
 
     // Coda (8 measures)
     let coda = vec![
-        sys(&[
-            &m3(2, 4, 6),
-            &hq(7, 6),
-            &m3(4, 6, 7),
-            &dhq(9, 7),
-        ]),
+        sys(&[&m3(2, 4, 6), &hq(7, 6), &m3(4, 6, 7), &dhq(9, 7)]),
         sys(&[
             &m3(6, 4, 2),
             &hq(0, 2),
             &m3(4, 6, 7),
-            &[Event::Note { pitch: 2, duration: Duration::Whole, dotted: false }, Event::Barline, Event::Rest { duration: Duration::Whole }, Event::FinalBar],
+            &[
+                Event::Note {
+                    pitch: 2,
+                    duration: Duration::Whole,
+                    dotted: false,
+                },
+                Event::Barline,
+                Event::Rest { duration: Duration::Whole },
+                Event::FinalBar,
+            ],
         ]),
     ];
 
     // Combine into pages (4 systems per page)
-    let all_systems: Vec<System> = intro
-        .into_iter()
-        .chain(waltz1)
-        .chain(waltz2)
-        .chain(waltz3)
-        .chain(waltz4)
-        .chain(coda)
-        .collect();
+    let all_systems: Vec<System> = intro.into_iter().chain(waltz1).chain(waltz2).chain(waltz3).chain(waltz4).chain(coda).collect();
 
     let systems_per_page = 4;
-    all_systems
-        .chunks(systems_per_page)
-        .map(|chunk| chunk.to_vec())
-        .collect()
+    all_systems.chunks(systems_per_page).map(|chunk| chunk.to_vec()).collect()
 }
 
 struct AppState {
@@ -347,10 +368,7 @@ fn build_ui(app: &Application) {
         tempo_bpm: 180.0,
     }));
 
-    let drawing_area = DrawingArea::builder()
-        .width_request(900)
-        .height_request(500)
-        .build();
+    let drawing_area = DrawingArea::builder().width_request(900).height_request(500).build();
 
     let state_for_draw = state.clone();
     drawing_area.set_draw_func(move |_area, cr, width, height| {
@@ -370,11 +388,7 @@ fn build_ui(app: &Application) {
         let label = page_label.clone();
         move || {
             let s = state.borrow();
-            label.set_label(&format!(
-                "Seite {} von {}",
-                s.current_page + 1,
-                s.pages.len()
-            ));
+            label.set_label(&format!("Seite {} von {}", s.current_page + 1, s.pages.len()));
         }
     };
     update_page_label();
@@ -442,10 +456,7 @@ fn build_ui(app: &Application) {
 
     // Tempo slider: 174–186 BPM (58–62 bars/min in 3/4)
     // Upper marks: Takte/Min, lower marks: BPM
-    let tempo_label = Label::builder()
-        .label("Tempo: 180 BPM (60 Takte/Min)")
-        .halign(gtk4::Align::Center)
-        .build();
+    let tempo_label = Label::builder().label("Tempo: 180 BPM (60 Takte/Min)").halign(gtk4::Align::Center).build();
     let tempo_label = Rc::new(tempo_label);
 
     let tempo_marks_top = GtkBox::builder()
@@ -597,15 +608,7 @@ fn play_tone(freq: f32, duration_ms: u32) {
     wav.extend_from_slice(&data_size.to_le_bytes());
 
     // Violin-like harmonic amplitudes (odd + even harmonics, decreasing)
-    let harmonics: [(f32, f32); 7] = [
-        (1.0, 1.0),
-        (2.0, 0.45),
-        (3.0, 0.28),
-        (4.0, 0.18),
-        (5.0, 0.12),
-        (6.0, 0.08),
-        (7.0, 0.05),
-    ];
+    let harmonics: [(f32, f32); 7] = [(1.0, 1.0), (2.0, 0.45), (3.0, 0.28), (4.0, 0.18), (5.0, 0.12), (6.0, 0.08), (7.0, 0.05)];
 
     // Bowing envelope: slow attack, gentle sustain, soft release
     let attack = (0.04_f32).min(duration_s * 0.3);
@@ -643,7 +646,8 @@ fn play_tone(freq: f32, duration_ms: u32) {
 
     std::thread::spawn(move || {
         use std::io::Write;
-        use std::process::{Command, Stdio};
+        use std::process::Command;
+        use std::process::Stdio;
         let result = Command::new("aplay")
             .arg("-q")
             .stdin(Stdio::piped())
@@ -669,12 +673,7 @@ fn play_event_sound(event: &Event, bpm: f64) {
 }
 
 /// Schedule the next note advance based on the current event's duration.
-fn schedule_next_note(
-    state: Rc<RefCell<AppState>>,
-    da: DrawingArea,
-    update: Rc<dyn Fn()>,
-    btn: Rc<gtk4::Button>,
-) {
+fn schedule_next_note(state: Rc<RefCell<AppState>>, da: DrawingArea, update: Rc<dyn Fn()>, btn: Rc<gtk4::Button>) {
     // Get the current event and its duration
     let (duration_ms, at_end, current_event, tempo) = {
         let s = state.borrow();
@@ -803,11 +802,7 @@ fn draw_score(state: &Rc<RefCell<AppState>>, cr: &cairo::Context, width: i32, he
 
         for event in system {
             let is_current = global_event_idx == s.current_note;
-            let color = if is_current {
-                (0.8, 0.2, 0.2)
-            } else {
-                (0.0, 0.0, 0.0)
-            };
+            let color = if is_current { (0.8, 0.2, 0.2) } else { (0.0, 0.0, 0.0) };
 
             match event {
                 Event::Barline => {
@@ -843,8 +838,7 @@ fn draw_score(state: &Rc<RefCell<AppState>>, cr: &cairo::Context, width: i32, he
                 }
                 Event::Note { pitch, duration, dotted } => {
                     cr.set_source_rgb(color.0, color.1, color.2);
-                    let note_y = staff_y + staff_line_height
-                        - (*pitch as f64) * 0.5 * staff_space;
+                    let note_y = staff_y + staff_line_height - (*pitch as f64) * 0.5 * staff_space;
                     let glyph = match duration {
                         Duration::Whole => cp::NOTEHEAD_WHOLE,
                         Duration::Half => cp::NOTEHEAD_HALF,
@@ -909,15 +903,7 @@ fn draw_glyph(cr: &cairo::Context, font: &FontVec, ch: char, x: f64, y: f64, em_
     draw_glyph_colored(cr, font, ch, x, y, em_size, (0.0, 0.0, 0.0));
 }
 
-fn draw_glyph_colored(
-    cr: &cairo::Context,
-    font: &FontVec,
-    ch: char,
-    x: f64,
-    y: f64,
-    em_size: f64,
-    color: (f64, f64, f64),
-) {
+fn draw_glyph_colored(cr: &cairo::Context, font: &FontVec, ch: char, x: f64, y: f64, em_size: f64, color: (f64, f64, f64)) {
     let glyph_id = font.glyph_id(ch);
 
     let outline = match font.outline(glyph_id) {

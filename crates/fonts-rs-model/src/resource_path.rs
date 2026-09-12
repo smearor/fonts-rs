@@ -1,6 +1,9 @@
 //! GResource path newtype for type-safe resource path handling.
 
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::Deserialize;
+use serde::Deserializer;
+use serde::Serialize;
+use serde::Serializer;
 use std::fmt;
 
 /// A GResource path for a font glyph.
