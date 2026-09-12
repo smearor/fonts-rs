@@ -18,19 +18,19 @@ use fonts_rs_model::GlyphEntry;
 fn main() -> std::io::Result<()> {
     println!("cargo:rustc-cfg=is_lib");
 
-    let font_path = "resources/LibreBarcode39-Regular.ttf";
+    let font_path = format!("{}/{}", build_constants::RESOURCES_DIR, definition::FONT_FILE);
     println!("cargo:rerun-if-changed={font_path}");
 
     let metadata_path = Path::new(build_constants::METADATA_PATH);
     let hash_path = Path::new(build_constants::HASH_PATH);
-    let current_hash = hash_font_file(font_path);
+    let current_hash = hash_font_file(&font_path);
 
     let needs_export = !metadata_path.exists()
         || fs::read_to_string(hash_path).ok().as_deref() != Some(current_hash.as_str());
 
     if needs_export {
         eprintln!("build.rs: exporting glyphs from {font_path}...");
-        let count = Code39Definition::export_glyphs(Path::new(font_path), Path::new(build_constants::RESOURCES_DIR))?;
+        let count = Code39Definition::export_glyphs(Path::new(&font_path), Path::new(build_constants::RESOURCES_DIR))?;
         eprintln!("build.rs: exported {count} glyphs");
         fs::write(hash_path, &current_hash)?;
     }

@@ -11,6 +11,9 @@ use fonts_rs_model::GRESOURCE_BASE_PREFIX;
 use fonts_rs_model::GlyphName;
 use fonts_rs_model::sealed;
 
+/// TTF font file name (relative to `resources/`).
+pub const FONT_FILE: &str = "LibreBarcode39-Regular.ttf";
+
 /// Marker type identifying Libre Barcode Code 39 in `GlyphName<Code39>`.
 ///
 /// Zero-sized enum used as the phantom type parameter to ensure type

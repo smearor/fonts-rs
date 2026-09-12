@@ -76,7 +76,7 @@ fn main() -> miette::Result<()> {
     } else {
         *active[0]
     };
-    let font_path = format!("resources/{font_base}.ttf", font_base = font_base);
+    let font_path = format!("{}/{font_base}.ttf", build_constants::RESOURCES_DIR, font_base = font_base);
     println!("cargo:rerun-if-changed={font_path}");
 
     eprintln!("build.rs: active variant: {feature} -> {font_path}");
