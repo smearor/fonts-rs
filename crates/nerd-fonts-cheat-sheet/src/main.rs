@@ -135,7 +135,7 @@ fn build_ui(app: &Application) {
         .copyable { -gtk-user-select: text; }
     "#;
     let provider = gtk4::CssProvider::new();
-    provider.load_from_data(css);
+    provider.load_from_string(css);
     if let Some(display) = gtk4::gdk::Display::default() {
         gtk4::style_context_add_provider_for_display(&display, &provider, gtk4::STYLE_PROVIDER_PRIORITY_USER);
     }
@@ -384,7 +384,7 @@ fn build_ui(app: &Application) {
             }
             let size_css = format!(".cheat-icon-label {{ font-size: {:.0}px; }}", icon_size);
             let size_provider = gtk4::CssProvider::new();
-            size_provider.load_from_data(&size_css);
+            size_provider.load_from_string(&size_css);
             if let Some(display) = gtk4::gdk::Display::default() {
                 gtk4::style_context_add_provider_for_display(&display, &size_provider, gtk4::STYLE_PROVIDER_PRIORITY_USER + 1);
             }
@@ -558,7 +558,6 @@ fn build_ui(app: &Application) {
 
             grid_clone.insert(&vbox, -1);
         }
-        grid_clone.show();
     };
 
     // refresh_grid: resets (clear + first batch) or loads more.
@@ -946,5 +945,4 @@ fn show_detail(content: &Box, name: &IconName, codepoint: CodePoint, search_entr
         content.append(&svg_copy);
     }
 
-    content.show();
 }
