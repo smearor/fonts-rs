@@ -36,6 +36,7 @@ fn main() -> miette::Result<()> {
         glyph_name_prefix: glyph_prefix.to_string(),
         codepoint_ranges: &[(0xF000, 0xFFFF)],
         axes: vec![],
+        name_filter: None,
     };
 
     let icons_dir = Path::new(build_constants::RESOURCES_DIR)

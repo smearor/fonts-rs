@@ -10,6 +10,7 @@ members = [
     "crates/fonts-rs-doto",
     "crates/fonts-rs-redacted",
     "crates/fonts-rs-dicefont",
+    "crates/fonts-rs-bravura",
     "crates/nerd-fonts-model",
     "crates/nerd-fonts-generator",
     "crates/nerd-fonts-rs",
@@ -43,6 +44,7 @@ fonts-rs-barcode-ean13 = { version = "0.1.0", path = "crates/fonts-rs-barcode-ea
 fonts-rs-doto = { version = "0.1.0", path = "crates/fonts-rs-doto" }
 fonts-rs-redacted = { version = "0.1.0", path = "crates/fonts-rs-redacted" }
 fonts-rs-dicefont = { version = "0.1.0", path = "crates/fonts-rs-dicefont" }
+fonts-rs-bravura = { version = "0.1.0", path = "crates/fonts-rs-bravura" }
 nerd-fonts-model = { version = "0.1.0", path = "crates/nerd-fonts-model" }
 nerd-fonts-generator = { version = "0.1.0", path = "crates/nerd-fonts-generator" }
 nerd-fonts-rs = { version = "0.1.0", path = "crates/nerd-fonts-rs" }

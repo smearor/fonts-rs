@@ -64,6 +64,7 @@ fn main() -> miette::Result<()> {
         glyph_name_prefix: glyph_prefix.clone(),
         codepoint_ranges: &[(0x20, 0x7E)],
         axes: vec![],
+        name_filter: None,
     };
 
     FontBuild::new(&font_path)
