@@ -15,7 +15,9 @@
 //!
 //! # #[cfg(feature = "gtk")]
 //! // Call once at startup before using any glyphs
-//! register_glyphs().unwrap();
+//! if let Err(e) = fonts_rs_seven_segment::register_glyphs() {
+//!     eprintln!("Failed to register glyphs: {e}");
+//! }
 //! ```
 //!
 //! Then resolve glyph names to Unicode codepoints:

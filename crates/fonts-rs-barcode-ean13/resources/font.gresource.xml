@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+    <gresource prefix="/io/smearor/fonts/barcode_ean13">
+        <file alias="LibreBarcodeEAN13Text-Regular.ttf">LibreBarcodeEAN13Text-Regular.ttf</file>
+    </gresource>
+</gresources>

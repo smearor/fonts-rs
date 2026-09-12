@@ -1,60 +1,48 @@
-//! DSEG14 fourteen-segment display font integration for GTK 4.
+//! Libre Barcode EAN13 font integration for GTK 4.
 //!
 //! Provides glyph name resolution, GResource registration, and codepoint
-//! lookup for the DSEG14 font family — a fourteen-segment display font
-//! suitable for retro-style digital readouts.
-//!
-//! The active variant (style + weight) is selected at build time via
-//! Cargo features (e.g. `classic-regular`, `modern-mini-bold`).
+//! lookup for the Libre Barcode EAN13 font family.
 //!
 //! ## Quick Start
 //!
 //! ```no_run
 //! # #[cfg(feature = "gtk")]
-//! use fonts_rs_fourteen_segment::register_glyphs;
+//! use fonts_rs_barcode_ean13::register_glyphs;
 //!
 //! # #[cfg(feature = "gtk")]
 //! // Call once at startup before using any glyphs
-//! if let Err(e) = fonts_rs_fourteen_segment::register_glyphs() {
-//!     eprintln!("Failed to register glyphs: {e}");
-//! }
+//! register_glyphs().unwrap();
 //! ```
 //!
 //! Then resolve glyph names to Unicode codepoints:
 //!
 //! ```no_run
-//! use fonts_rs_fourteen_segment::naming::FourteenSegmentName;
-//! use fonts_rs_fourteen_segment::GlyphNameExt;
+//! use fonts_rs_barcode_ean13::Ean13Name;
+//! use fonts_rs_barcode_ean13::GlyphNameExt;
 //!
-//! let name = FourteenSegmentName::new("zero".to_string());
+//! let name = Ean13Name::new("zero-compatibility".to_string());
 //! let codepoint = name.codepoint();
 //! ```
 
 pub mod codepoint_map;
 pub mod constants;
-pub mod naming;
-pub mod variant;
+pub mod definition;
 
 #[cfg(feature = "render")]
 pub mod fonts;
 
+use fonts_rs_generator::FontDefinition;
 use fonts_rs_model::CodePoint;
 
 // Re-export key types
-pub use naming::FourteenSegmentName;
+pub use definition::Ean13;
+pub use definition::Ean13Definition;
+pub use definition::Ean13Name;
 
-/// Type alias for this font family's glyph name type.
-///
-/// Prefer [`FourteenSegmentName`] from the [`naming`] module — this alias
-/// is provided for consistency with the template structure.
-pub type FamilyName = FourteenSegmentName;
+/// GResource prefix for this font family.
+pub const GRESOURCE_PREFIX: &str = Ean13Definition::GRESOURCE_PREFIX;
 
-/// Extension trait adding codepoint lookup to `GlyphName<FourteenSegment>`.
-///
-/// Accepts either a base glyph name (e.g. `"zero"`) or a fully-qualified
-/// variant name (e.g. `"dseg14-classic-regular-zero"`). When a base name
-/// is given, the active variant's [`GLYPH_PREFIX`](variant::GLYPH_PREFIX)
-/// is prepended automatically.
+/// Extension trait adding codepoint lookup to `GlyphName<Ean13>`.
 pub trait GlyphNameExt {
     /// Resolves this glyph name to its Unicode [`CodePoint`].
     ///
@@ -62,21 +50,14 @@ pub trait GlyphNameExt {
     fn codepoint(&self) -> Option<CodePoint>;
 }
 
-impl GlyphNameExt for FourteenSegmentName {
+impl GlyphNameExt for Ean13Name {
     fn codepoint(&self) -> Option<CodePoint> {
         let key = self.as_ref();
-        if let Some(ch) = codepoint_map::REVERSE_GLYPHS.get(key).copied() {
-            return Some(CodePoint::from(ch));
-        }
-        let full = format!("{}-{}", variant::GLYPH_PREFIX, key);
-        codepoint_map::REVERSE_GLYPHS
-            .get(&full)
-            .copied()
-            .map(CodePoint::from)
+        codepoint_map::REVERSE_GLYPHS.get(key).copied().map(CodePoint::from)
     }
 }
 
-/// Registers embedded DSEG14 glyphs as a GResource.
+/// Registers embedded EAN13 glyphs as a GResource.
 ///
 /// Must be called once before using any glyphs through GTK/GIO APIs.
 /// After registration, glyphs are loadable via `Gtk::Image::from_resource`
@@ -88,6 +69,20 @@ impl GlyphNameExt for FourteenSegmentName {
 #[cfg(feature = "gtk")]
 pub fn register_glyphs() -> Result<(), gio::glib::Error> {
     gio::resources_register_include!("icons.gresource")?;
+    Ok(())
+}
+
+/// Registers the EAN13 TTF font as a GResource.
+///
+/// Must be called once before using the font via CSS `@font-face` with
+/// `resource://` URLs.
+///
+/// # Errors
+///
+/// Returns a [`gio::glib::Error`] if resource registration fails.
+#[cfg(feature = "gtk")]
+pub fn register_font() -> Result<(), gio::glib::Error> {
+    gio::resources_register_include!("font.gresource")?;
     Ok(())
 }
 
@@ -104,17 +99,7 @@ mod tests {
     #[test]
     fn all_glyphs_is_not_empty() {
         let count = all_glyphs().count();
-        assert!(count > 0, "DSEG14 should export at least one glyph");
-    }
-
-    #[test]
-    fn all_glyphs_names_start_with_dseg14() {
-        for (_, name) in all_glyphs() {
-            assert!(
-                name.starts_with("dseg14-"),
-                "glyph name '{name}' should start with 'dseg14-'"
-            );
-        }
+        assert!(count > 0, "EAN13 should export at least one glyph");
     }
 
     #[test]

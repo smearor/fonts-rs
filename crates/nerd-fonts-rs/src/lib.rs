@@ -7,6 +7,9 @@ pub mod css;
 pub mod icons;
 pub mod init;
 
+#[cfg(feature = "pango")]
+pub mod font_loader;
+
 #[cfg(feature = "gtk")]
 pub mod gtk;
 
@@ -38,6 +41,8 @@ pub use init::InitError;
 pub use init::InitOptions;
 pub use init::init;
 
+#[cfg(feature = "pango")]
+pub use font_loader::load_fonts;
+
 // Re-export CSS
-pub use css::GtkVersion;
-pub use css::font_face_css;
+pub use css::icon_css;
