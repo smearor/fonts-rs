@@ -7,11 +7,11 @@
 //! cargo run --example interactive_demo --features gtk,embed-fonts
 //! ```
 
-use fonts_rs_generator::FontDefinition;
 use fonts_rs_seven_segment::GlyphNameExt;
 use fonts_rs_seven_segment::SevenSegmentName;
 use fonts_rs_seven_segment::all_glyphs;
 use fonts_rs_seven_segment::register_glyphs;
+use fonts_rs_seven_segment::variant;
 
 use gtk4::Align;
 use gtk4::Application;
@@ -31,17 +31,17 @@ use miette::Result;
 
 const APP_ID: &str = "io.smearor.fonts_rs.seven_segment_demo";
 
-/// All DSEG7 glyphs exported by the build pipeline.
-const GALLERY_GLYPHS: &[&str] = &[
-    "dseg7-zero", "dseg7-one", "dseg7-two", "dseg7-three", "dseg7-four",
-    "dseg7-five", "dseg7-six", "dseg7-seven", "dseg7-eight", "dseg7-nine",
-    "dseg7-a", "dseg7-b", "dseg7-c", "dseg7-d", "dseg7-e", "dseg7-f",
-    "dseg7-g", "dseg7-h", "dseg7-i", "dseg7-j", "dseg7-k", "dseg7-l",
-    "dseg7-m", "dseg7-n", "dseg7-o", "dseg7-p", "dseg7-q", "dseg7-r",
-    "dseg7-s", "dseg7-t", "dseg7-u", "dseg7-v", "dseg7-w", "dseg7-x",
-    "dseg7-y", "dseg7-z",
-    "dseg7-colon", "dseg7-hyphen", "dseg7-period", "dseg7-degree",
-    "dseg7-exclam", "dseg7-space", "dseg7-nonmarkingreturn",
+/// Base glyph names (without variant prefix) exported by the build pipeline.
+const GALLERY_GLYPH_BASES: &[&str] = &[
+    "zero", "one", "two", "three", "four",
+    "five", "six", "seven", "eight", "nine",
+    "a", "b", "c", "d", "e", "f",
+    "g", "h", "i", "j", "k", "l",
+    "m", "n", "o", "p", "q", "r",
+    "s", "t", "u", "v", "w", "x",
+    "y", "z",
+    "colon", "hyphen", "period", "degree",
+    "exclam", "space", "nonmarkingreturn",
 ];
 
 fn main() -> Result<glib::ExitCode> {
@@ -89,14 +89,14 @@ fn build_ui(app: &Application) {
         .build();
 
     let title = Label::builder()
-        .label("DSEG7 Classic — Seven-Segment Display")
+        .label(&format!("DSEG7 — Seven-Segment Display ({})", variant::GLYPH_PREFIX))
         .css_classes(["title-1"])
         .halign(Align::Center)
         .build();
     main_box.append(&title);
 
     let hint = Label::builder()
-        .label("Browse seven-segment display glyphs exported from the DSEG7 Classic font.")
+        .label("Browse seven-segment display glyphs exported from the DSEG7 font.")
         .halign(Align::Center)
         .css_classes(["dim-label"])
         .build();
@@ -133,7 +133,7 @@ fn build_resolution_section() -> Frame {
     section.append(&header);
 
     let desc = Label::builder()
-        .label("Enter a DSEG7 glyph name (e.g. dseg7-zero) to resolve its Unicode codepoint.")
+        .label("Enter a glyph name (e.g. zero) to resolve its Unicode codepoint.")
         .halign(Align::Start)
         .wrap(true)
         .build();
@@ -141,7 +141,7 @@ fn build_resolution_section() -> Frame {
 
     let input_row = Box::builder().orientation(Orientation::Horizontal).spacing(8).build();
 
-    let entry = Entry::builder().placeholder_text("dseg7-zero").text("dseg7-zero").hexpand(true).build();
+    let entry = Entry::builder().placeholder_text("zero").text("zero").hexpand(true).build();
     input_row.append(&entry);
 
     let resolve_button = Button::with_label("Resolve");
@@ -159,10 +159,15 @@ fn build_resolution_section() -> Frame {
     let quick_label = Label::builder().label("Or pick from common glyphs:").halign(Align::Start).build();
     section.append(&quick_label);
 
-    let dropdown = DropDown::from_strings(GALLERY_GLYPHS);
+    let dropdown_names: Vec<String> = GALLERY_GLYPH_BASES
+        .iter()
+        .map(|base| format!("{}-{}", variant::GLYPH_PREFIX, base))
+        .collect();
+    let dropdown_refs: Vec<&str> = dropdown_names.iter().map(|s| s.as_str()).collect();
+    let dropdown = DropDown::from_strings(&dropdown_refs);
     section.append(&dropdown);
 
-    do_resolve(&result_label, "dseg7-zero");
+    do_resolve(&result_label, "zero");
 
     resolve_button.connect_clicked(glib::clone!(
         #[weak]
@@ -230,7 +235,7 @@ fn build_gallery_section() -> Frame {
     section.append(&header);
 
     let desc = Label::builder()
-        .label("DSEG7 glyphs rendered as GTK icons via GResource registration.")
+        .label(&format!("DSEG7 glyphs ({}) rendered as GTK icons via GResource registration.", variant::GLYPH_PREFIX))
         .halign(Align::Start)
         .wrap(true)
         .build();
@@ -246,17 +251,18 @@ fn build_gallery_section() -> Frame {
 
     let cols = 6u32;
 
-    for (i, glyph_name) in GALLERY_GLYPHS.iter().enumerate() {
+    for (i, base_name) in GALLERY_GLYPH_BASES.iter().enumerate() {
+        let full_name = format!("{}-{}", variant::GLYPH_PREFIX, base_name);
         let resource_path = format!(
             "{}/scalable/glyphs/{}.svg",
-            fonts_rs_seven_segment::naming::SevenSegmentDefinition::GRESOURCE_PREFIX,
-            glyph_name,
+            variant::GRESOURCE_PREFIX,
+            full_name,
         );
         let icon = gtk4::Image::from_resource(&resource_path);
         icon.add_css_class("dseg7-glyph");
 
         let label = Label::builder()
-            .label(*glyph_name)
+            .label(&full_name)
             .css_classes(["caption", "dim-label"])
             .wrap(true)
             .max_width_chars(18)
