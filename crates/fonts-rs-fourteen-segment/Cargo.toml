@@ -86,3 +86,7 @@ miette.workspace = true
 [[example]]
 name = "interactive_demo"
 required-features = ["gtk", "embed-fonts"]
+
+[[example]]
+name = "segment_marquee"
+required-features = ["gtk", "embed-fonts"]

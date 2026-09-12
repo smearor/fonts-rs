@@ -1,0 +1,6 @@
+# Generated icon resources (regenerated from font by build.rs)
+scalable/
+metadata.json
+icons.gresource.xml
+icons.gresource
+.font-hash
