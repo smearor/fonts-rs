@@ -47,5 +47,15 @@ miette.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 
+[[example]]
+name = "wiener_blut"
+required-features = ["gtk", "render", "embed-fonts"]
+
+[dev-dependencies]
+gtk4 = { workspace = true }
+glib.workspace = true
+miette.workspace = true
+ab_glyph.workspace = true
+
 [lints]
 workspace = true
