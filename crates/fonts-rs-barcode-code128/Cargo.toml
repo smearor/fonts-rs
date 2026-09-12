@@ -1,0 +1,61 @@
+[package]
+name = "fonts-rs-barcode-code128"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "Libre Barcode Code 128 font integration for GTK 4 and pixel-drawing"
+publish = true
+
+# Libre Barcode fonts are licensed under the SIL Open Font License (OFL-1.1).
+# The crate code itself is MIT (inherited from the workspace).
+license-file = "resources/LICENSE.txt"
+
+include = [
+    "src/**/*.rs",
+    "build.rs",
+    "examples/*.rs",
+    "resources/*.ttf",
+    "resources/LICENSE.txt",
+    "resources/icons.gresource.xml",
+    "Cargo.toml",
+]
+
+[features]
+default = ["gtk"]
+
+gtk = ["dep:gtk4", "dep:gio"]
+render = ["dep:ab_glyph"]
+embed-fonts = []
+
+[dependencies]
+fonts-rs-generator.workspace = true
+fonts-rs-model.workspace = true
+const_format.workspace = true
+gio = { workspace = true, optional = true }
+gtk4 = { workspace = true, optional = true }
+ab_glyph = { workspace = true, optional = true }
+phf.workspace = true
+tracing.workspace = true
+
+[build-dependencies]
+fonts-rs-generator.workspace = true
+fonts-rs-model.workspace = true
+const_format.workspace = true
+glib-build-tools.workspace = true
+serde_json.workspace = true
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+gtk4 = { workspace = true, features = ["v4_12"] }
+glib.workspace = true
+miette.workspace = true
+pango.workspace = true
+
+[[example]]
+name = "interactive_demo"
+required-features = ["gtk"]

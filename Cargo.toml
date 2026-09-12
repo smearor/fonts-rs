@@ -4,6 +4,9 @@ members = [
     "crates/fonts-rs-generator",
     "crates/fonts-rs-seven-segment",
     "crates/fonts-rs-fourteen-segment",
+    "crates/fonts-rs-barcode-code39",
+    "crates/fonts-rs-barcode-code128",
+    "crates/fonts-rs-barcode-ean13",
     "crates/nerd-fonts-model",
     "crates/nerd-fonts-generator",
     "crates/nerd-fonts-rs",
@@ -31,6 +34,9 @@ fonts-rs-model = { version = "0.1.0", path = "crates/fonts-rs-model" }
 fonts-rs-generator = { version = "0.1.0", path = "crates/fonts-rs-generator" }
 fonts-rs-seven-segment = { version = "0.1.0", path = "crates/fonts-rs-seven-segment" }
 fonts-rs-fourteen-segment = { version = "0.1.0", path = "crates/fonts-rs-fourteen-segment" }
+fonts-rs-barcode-code39 = { version = "0.1.0", path = "crates/fonts-rs-barcode-code39" }
+fonts-rs-barcode-code128 = { version = "0.1.0", path = "crates/fonts-rs-barcode-code128" }
+fonts-rs-barcode-ean13 = { version = "0.1.0", path = "crates/fonts-rs-barcode-ean13" }
 nerd-fonts-model = { version = "0.1.0", path = "crates/nerd-fonts-model" }
 nerd-fonts-generator = { version = "0.1.0", path = "crates/nerd-fonts-generator" }
 nerd-fonts-rs = { version = "0.1.0", path = "crates/nerd-fonts-rs" }
@@ -60,6 +66,9 @@ gtk4 = "0.11"
 gio = "0.22"
 glib = "0.22"
 glib-build-tools = "0.22"
+pango = { version = "0.22", features = ["v1_56"] }
+pangocairo = "0.22"
+tempfile = "3"
 
 # CLI
 clap = { version = "4.6", features = ["derive"] }

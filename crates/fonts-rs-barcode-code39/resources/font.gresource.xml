@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+    <gresource prefix="/io/smearor/fonts/barcode_code39">
+        <file alias="LibreBarcode39-Regular.ttf">LibreBarcode39-Regular.ttf</file>
+    </gresource>
+</gresources>

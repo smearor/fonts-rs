@@ -246,7 +246,7 @@ fn build_gallery_section() -> Frame {
 
     let gallery_css = ".nerd-icon-large { font-size: 32px; } .nerd-icon-clickable { padding: 6px; border-radius: 6px; } .nerd-icon-clickable:hover { background-color: rgba(100, 180, 255, 0.15); }";
     let gallery_provider = gtk4::CssProvider::new();
-    gallery_provider.load_from_data(gallery_css);
+    gallery_provider.load_from_string(gallery_css);
     if let Some(display) = gtk4::gdk::Display::default() {
         gtk4::style_context_add_provider_for_display(&display, &gallery_provider, gtk4::STYLE_PROVIDER_PRIORITY_USER);
     }
