@@ -37,8 +37,16 @@ use crate::build_constants::hash_font_file;
 ///     })?;
 /// ```
 pub struct FontBuild {
+    /// Path to the TTF/OTF font file (relative to crate root).
     font_path: String,
+    /// Whether to also compile `font.gresource` in addition to `icons.gresource`.
     compile_font_gresource: bool,
+    /// Optional extra hash component for change detection.
+    ///
+    /// When set, the stored hash is `"{font_hash}-{extra_hash}"` instead of just
+    /// `"{font_hash}"`. This forces a re-export when the extra value changes
+    /// (e.g. a variant name), even if the font file itself is unchanged.
+    extra_hash: Option<String>,
 }
 
 impl FontBuild {
@@ -47,7 +55,18 @@ impl FontBuild {
         Self {
             font_path: font_path.into(),
             compile_font_gresource: false,
+            extra_hash: None,
         }
+    }
+
+    /// Add an extra hash component to change detection.
+    ///
+    /// When the extra hash changes (e.g. a variant name), glyphs are re-exported
+    /// even if the font file itself hasn't changed. Useful for variable fonts
+    /// where the same TTF is rendered at different axis locations.
+    pub fn extra_hash(mut self, hash: impl Into<String>) -> Self {
+        self.extra_hash = Some(hash.into());
+        self
     }
 
     /// Enable compilation of `font.gresource` in addition to `icons.gresource`.
@@ -78,6 +97,10 @@ impl FontBuild {
         let metadata_path = Path::new(METADATA_PATH);
         let hash_path = Path::new(HASH_PATH);
         let current_hash = hash_font_file(&self.font_path);
+        let current_hash = match &self.extra_hash {
+            Some(extra) => format!("{current_hash}-{extra}"),
+            None => current_hash,
+        };
 
         let needs_export = !metadata_path.exists()
             || fs::read_to_string(hash_path).ok().as_deref() != Some(current_hash.as_str());

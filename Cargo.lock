@@ -353,6 +353,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "fonts-rs-doto"
+version = "0.1.0"
+dependencies = [
+ "ab_glyph",
+ "fonts-rs-generator",
+ "fonts-rs-model",
+ "gio",
+ "glib",
+ "gtk4",
+ "miette",
+ "phf",
+ "tracing",
+]
+
+[[package]]
 name = "fonts-rs-fourteen-segment"
 version = "0.1.0"
 dependencies = [
