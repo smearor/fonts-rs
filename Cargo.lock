@@ -353,6 +353,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "fonts-rs-bravura"
+version = "0.1.0"
+dependencies = [
+ "ab_glyph",
+ "fonts-rs-generator",
+ "fonts-rs-model",
+ "gio",
+ "gtk4",
+ "miette",
+ "phf",
+ "serde",
+ "serde_json",
+ "tracing",
+]
+
+[[package]]
 name = "fonts-rs-dicefont"
 version = "0.1.0"
 dependencies = [

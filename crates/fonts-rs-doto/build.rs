@@ -98,6 +98,7 @@ fn main() -> miette::Result<()> {
         glyph_name_prefix: glyph_prefix.clone(),
         codepoint_ranges: &[(0x20, 0x7E)],
         axes,
+        name_filter: None,
     };
 
     let icons_dir = Path::new(build_constants::RESOURCES_DIR)

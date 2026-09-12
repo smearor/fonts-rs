@@ -9,6 +9,8 @@ use std::fs;
 use std::io::Write;
 use std::path::Path;
 
+use std::collections::HashMap;
+
 use fonts_rs_model::GlyphEntry;
 use fonts_rs_model::ResourcePath;
 use quick_xml::se::Serializer;
@@ -42,6 +44,21 @@ pub struct ExportConfig {
     ///
     /// Empty for non-variable fonts (renders at default location).
     pub axes: Vec<(&'static str, f32)>,
+    /// Custom glyph name filter, returning `true` if the glyph should be exported.
+    ///
+    /// If `None`, uses [`default_name_filter`] which skips names starting with
+    /// `.`, `uni`, or `u` (auto-generated PostScript names).
+    ///
+    /// Fonts with legitimate glyph names starting with `u` (e.g. SMuFL's
+    /// `unison`, `upBow`) should provide a custom filter.
+    pub name_filter: Option<fn(&str) -> bool>,
+}
+
+/// Default glyph name filter: skips auto-generated PostScript names.
+///
+/// Returns `false` for names starting with `.`, `uni`, or `u`.
+pub fn default_name_filter(name: &str) -> bool {
+    !(name.starts_with('.') || name.starts_with("uni") || name.starts_with("u"))
 }
 
 /// Export all glyphs from a TTF/OTF font file using runtime [`ExportConfig`].
@@ -93,7 +110,8 @@ pub fn export_glyphs_with_config(
             _ => continue,
         };
 
-        if name.starts_with('.') || name.starts_with("uni") || name.starts_with("u") {
+        let should_export = config.name_filter.unwrap_or(default_name_filter);
+        if !should_export(&name) {
             continue;
         }
 
@@ -173,4 +191,97 @@ fn generate_gresource_xml_with_prefix(
     let xml = format!("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n{buffer}");
     fs::write(output_path, xml)?;
     Ok(())
+}
+
+/// Export glyphs from a font using an external name→codepoint map.
+///
+/// For fonts that lack PostScript glyph names (e.g. SMuFL fonts with
+/// `post` table version 3.0), this function uses an externally provided
+/// mapping of glyph names to Unicode codepoints (e.g. from SMuFL's
+/// `glyphnames.json`) to drive the export.
+///
+/// For each entry in `name_map`, the function:
+/// 1. Looks up the glyph ID via the font's `cmap` table
+/// 2. Renders the glyph to SVG
+/// 3. Names the file using the kebab-cased glyph name prefixed with `glyph_name_prefix`
+///
+/// Generates the same outputs as [`export_glyphs_with_config`]:
+/// - `<output_dir>/scalable/{context}/*.svg`
+/// - `<output_dir>/metadata.json`
+/// - `<output_dir>/icons.gresource.xml`
+///
+/// # Arguments
+///
+/// - `font_path` — Path to the TTF/OTF font file
+/// - `output_dir` — Root output directory (typically `resources/`)
+/// - `config` — Export configuration (uses `gresource_prefix`, `icons_context`,
+///   `glyph_name_prefix`, `axes`; ignores `codepoint_ranges` and `name_filter`)
+/// - `name_map` — Mapping of SMuFL glyph names to Unicode codepoints
+///
+/// # Returns
+///
+/// The number of exported glyphs on success, or an `io::Error` on failure.
+pub fn export_glyphs_by_name_map(
+    font_path: &Path,
+    output_dir: &Path,
+    config: &ExportConfig,
+    name_map: &HashMap<String, u32>,
+) -> std::io::Result<usize> {
+    let font_data = fs::read(font_path)?;
+    let font = Font::from_data(&font_data)
+        .map_err(|e| std::io::Error::other(format!("Failed to parse font: {e}")))?;
+
+    let location = font.location(&config.axes);
+    let location_ref = LocationRef::from(&location);
+
+    let icons_dir = output_dir.join("scalable").join(&config.icons_context);
+    fs::create_dir_all(&icons_dir)?;
+
+    let charmap = font.as_ref().charmap();
+
+    let mut entries: Vec<GlyphEntry<String>> = Vec::new();
+    let mut seen_names: HashSet<String> = HashSet::new();
+
+    for (smufl_name, codepoint) in name_map {
+        let Some(ch) = char::from_u32(*codepoint) else { continue };
+        let Some(glyph_id) = charmap.map(ch) else { continue };
+
+        let Some(kebab) = normalize_to_kebab(smufl_name) else { continue };
+        let glyph_name = format!("{}-{}", config.glyph_name_prefix, kebab);
+
+        if seen_names.contains(&glyph_name) {
+            continue;
+        }
+        seen_names.insert(glyph_name.clone());
+
+        let svg = match font.glyph_to_svg_full_height_at(glyph_id, location_ref) {
+            Some(svg) => svg,
+            None => EMPTY_SVG.to_string(),
+        };
+
+        let filename = icons_dir.join(format!("{}.svg", glyph_name));
+        let mut file = fs::File::create(&filename)?;
+        file.write_all(svg.as_bytes())?;
+
+        let resource_prefix = format!("{}/scalable/{}", config.gresource_prefix, config.icons_context);
+        let resource_path = ResourcePath::from_name(&resource_prefix, &glyph_name);
+
+        entries.push(GlyphEntry {
+            code: Some(fonts_rs_model::CodePoint::from(ch)),
+            name: glyph_name.clone(),
+            file: Path::new(&format!("resources/scalable/{}/{}.svg", config.icons_context, glyph_name)).to_path_buf(),
+            resource_path,
+        });
+    }
+
+    entries.sort_by(|a, b| a.name.cmp(&b.name));
+
+    let json_path = output_dir.join("metadata.json");
+    let json = serde_json::to_string_pretty(&entries).map_err(std::io::Error::other)?;
+    fs::write(&json_path, json)?;
+
+    let xml_path = output_dir.join("icons.gresource.xml");
+    generate_gresource_xml_with_prefix(&entries, &xml_path, &config.gresource_prefix, &config.icons_context)?;
+
+    Ok(entries.len())
 }
