@@ -3,6 +3,7 @@ members = [
     "crates/fonts-rs-model",
     "crates/fonts-rs-generator",
     "crates/fonts-rs-seven-segment",
+    "crates/fonts-rs-fourteen-segment",
     "crates/nerd-fonts-model",
     "crates/nerd-fonts-generator",
     "crates/nerd-fonts-rs",
@@ -29,6 +30,7 @@ unexpected_cfgs = { level = "warn", check-cfg = ['cfg(is_lib)'] }
 fonts-rs-model = { version = "0.1.0", path = "crates/fonts-rs-model" }
 fonts-rs-generator = { version = "0.1.0", path = "crates/fonts-rs-generator" }
 fonts-rs-seven-segment = { version = "0.1.0", path = "crates/fonts-rs-seven-segment" }
+fonts-rs-fourteen-segment = { version = "0.1.0", path = "crates/fonts-rs-fourteen-segment" }
 nerd-fonts-model = { version = "0.1.0", path = "crates/nerd-fonts-model" }
 nerd-fonts-generator = { version = "0.1.0", path = "crates/nerd-fonts-generator" }
 nerd-fonts-rs = { version = "0.1.0", path = "crates/nerd-fonts-rs" }
