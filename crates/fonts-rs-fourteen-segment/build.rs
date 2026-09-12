@@ -4,14 +4,15 @@
 // and exports glyphs from the corresponding DSEG14 TTF variant.
 
 use std::fs;
-use std::io::Read;
 use std::path::Path;
 
 use fonts_rs_generator::CodemapGenerator;
 use fonts_rs_generator::ExportConfig;
 use fonts_rs_generator::GlyphGenerator;
 use fonts_rs_generator::RustConstantsGenerator;
+use fonts_rs_generator::build_constants;
 use fonts_rs_generator::export_glyphs_with_config;
+use fonts_rs_generator::hash_font_file;
 use fonts_rs_model::GRESOURCE_BASE_PREFIX;
 use fonts_rs_model::GlyphEntry;
 use miette::IntoDiagnostic;
@@ -97,8 +98,8 @@ fn main() -> miette::Result<()> {
         codepoint_ranges: &[(0x20, 0x7E)],
     };
 
-    let metadata_path = Path::new("resources/metadata.json");
-    let hash_path = Path::new("resources/.font-hash");
+    let metadata_path = Path::new(build_constants::METADATA_PATH);
+    let hash_path = Path::new(build_constants::HASH_PATH);
     let current_hash = hash_font_file(&font_path);
 
     let needs_export = !metadata_path.exists()
@@ -106,19 +107,19 @@ fn main() -> miette::Result<()> {
 
     if needs_export {
         eprintln!("build.rs: exporting glyphs from {font_path}...");
-        let count = export_glyphs_with_config(Path::new(&font_path), Path::new("resources"), &config)
+        let count = export_glyphs_with_config(Path::new(&font_path), Path::new(build_constants::RESOURCES_DIR), &config)
             .into_diagnostic()?;
         eprintln!("build.rs: exported {count} glyphs");
         fs::write(hash_path, &current_hash).into_diagnostic()?;
     }
 
     glib_build_tools::compile_resources(
-        &["resources"],
-        "resources/icons.gresource.xml",
-        "icons.gresource",
+        &[build_constants::RESOURCES_DIR],
+        build_constants::ICONS_GRESOURCE_XML,
+        build_constants::ICONS_GRESOURCE,
     );
 
-    let json = fs::read_to_string("resources/metadata.json").into_diagnostic()?;
+    let json = fs::read_to_string(build_constants::METADATA_PATH).into_diagnostic()?;
     let entries: Vec<GlyphEntry<String>> = serde_json::from_str(&json).into_diagnostic()?;
     CodemapGenerator::run(&entries).into_diagnostic()?;
     RustConstantsGenerator::run(&entries).into_diagnostic()?;
@@ -135,20 +136,4 @@ fn main() -> miette::Result<()> {
     fs::write(Path::new(&out_dir).join("variant.rs"), variant_info).into_diagnostic()?;
 
     Ok(())
-}
-
-fn hash_font_file(path: &str) -> String {
-    let mut file = fs::File::open(path).expect("Failed to open font file");
-    let mut buffer = [0u8; 8192];
-    let mut hash: u64 = 0xcbf29ce484222325;
-    while let Ok(n) = file.read(&mut buffer) {
-        if n == 0 {
-            break;
-        }
-        for &byte in &buffer[..n] {
-            hash ^= byte as u64;
-            hash = hash.wrapping_mul(0x100000001b3);
-        }
-    }
-    format!("{hash:016x}")
 }
