@@ -44,8 +44,6 @@ tracing.workspace = true
 fonts-rs-generator.workspace = true
 fonts-rs-model.workspace = true
 const_format.workspace = true
-glib-build-tools.workspace = true
-serde_json.workspace = true
 
 [lints]
 workspace = true
