@@ -96,6 +96,16 @@ pub trait FontDefinition {
     /// - Barcode: `"code128_start_a"` -> `"barcode-code128-start-a"`
     fn normalize_name(raw_glyph_name: &str) -> Option<Self::Name>;
 
+    /// Whether to skip a raw glyph name during export.
+    ///
+    /// Returns `true` for names that should not be exported. The default
+    /// implementation skips names starting with `.`, `uni`, or `u` (Nerd
+    /// Fonts convention). Font families with different naming conventions
+    /// should override this.
+    fn should_skip(raw_glyph_name: &str) -> bool {
+        raw_glyph_name.starts_with('.') || raw_glyph_name.starts_with("uni") || raw_glyph_name.starts_with("u")
+    }
+
     /// Generate the GResource XML manifest file for this font family.
     ///
     /// Creates an `icons.gresource.xml` listing all glyph SVG files under
@@ -179,8 +189,8 @@ pub trait FontDefinition {
                 _ => continue,
             };
 
-            // Skip invalid glyph names (same filters as Nerd Fonts)
-            if name.starts_with('.') || name.starts_with("uni") || name.starts_with("u") {
+            // Skip invalid glyph names (configurable per font family)
+            if Self::should_skip(&name) {
                 continue;
             }
 
