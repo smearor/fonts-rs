@@ -1,0 +1,57 @@
+[package]
+name = "fonts-rs-dicefont"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "Dicefont dice face font integration for GTK 4 and pixel-drawing"
+publish = true
+
+# Dicefont font is licensed under the SIL Open Font License (OFL-1.1).
+# The crate code itself is MIT (inherited from the workspace).
+# license-file bundles the OFL text required for font redistribution.
+license-file = "resources/dicefont-OFL.txt"
+
+include = [
+    "src/**/*.rs",
+    "build.rs",
+    "resources/*.ttf",
+    "resources/dicefont-OFL.txt",
+    "resources/icons.gresource.xml",
+    "Cargo.toml",
+]
+
+[features]
+default = ["gtk"]
+
+gtk = ["dep:gtk4", "dep:gio"]
+render = ["dep:ab_glyph"]
+embed-fonts = []
+
+[dependencies]
+fonts-rs-generator.workspace = true
+fonts-rs-model.workspace = true
+gio = { workspace = true, optional = true }
+gtk4 = { workspace = true, optional = true }
+ab_glyph = { workspace = true, optional = true }
+phf.workspace = true
+tracing.workspace = true
+
+[build-dependencies]
+fonts-rs-generator.workspace = true
+fonts-rs-model.workspace = true
+miette.workspace = true
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+gtk4 = { workspace = true, features = ["v4_12"] }
+glib.workspace = true
+miette.workspace = true
+
+[[example]]
+name = "dice_roller"
+required-features = ["gtk", "embed-fonts"]
