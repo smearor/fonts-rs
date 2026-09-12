@@ -22,7 +22,7 @@ metadata = ["nerd-fonts-rs/metadata"]
 [dependencies]
 nerd-fonts-model.workspace = true
 nerd-fonts-rs.workspace = true
-gtk4.workspace = true
+gtk4 = { workspace = true, features = ["v4_12"] }
 miette.workspace = true
 
 [lints]
