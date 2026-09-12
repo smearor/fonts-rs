@@ -11,6 +11,7 @@
 pub mod export_config;
 pub mod font;
 pub mod font_definition;
+pub mod font_loader;
 pub mod generator;
 pub mod gresource;
 pub mod svg;
