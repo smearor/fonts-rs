@@ -11,6 +11,8 @@ members = [
     "crates/fonts-rs-redacted",
     "crates/fonts-rs-dicefont",
     "crates/fonts-rs-bravura",
+    "crates/fonts-rs-noto-emoji",
+    "crates/fonts-rs-noto-emoji-cheat-sheet",
     "crates/nerd-fonts-model",
     "crates/nerd-fonts-generator",
     "crates/nerd-fonts-rs",
@@ -45,6 +47,7 @@ fonts-rs-doto = { version = "0.1.0", path = "crates/fonts-rs-doto" }
 fonts-rs-redacted = { version = "0.1.0", path = "crates/fonts-rs-redacted" }
 fonts-rs-dicefont = { version = "0.1.0", path = "crates/fonts-rs-dicefont" }
 fonts-rs-bravura = { version = "0.1.0", path = "crates/fonts-rs-bravura" }
+fonts-rs-noto-emoji = { version = "0.1.0", path = "crates/fonts-rs-noto-emoji" }
 nerd-fonts-model = { version = "0.1.0", path = "crates/nerd-fonts-model" }
 nerd-fonts-generator = { version = "0.1.0", path = "crates/nerd-fonts-generator" }
 nerd-fonts-rs = { version = "0.1.0", path = "crates/nerd-fonts-rs" }

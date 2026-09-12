@@ -1,0 +1,28 @@
+[package]
+name = "fonts-rs-noto-emoji-cheat-sheet"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+description = "Noto Emoji cheat sheet application"
+publish = true
+
+[features]
+default = ["gtk", "metadata"]
+
+gtk = ["fonts-rs-noto-emoji/gtk"]
+metadata = ["fonts-rs-noto-emoji/metadata"]
+
+[dependencies]
+fonts-rs-model.workspace = true
+fonts-rs-noto-emoji.workspace = true
+gtk4 = { workspace = true, features = ["v4_12"] }
+miette.workspace = true
+
+[lints]
+workspace = true

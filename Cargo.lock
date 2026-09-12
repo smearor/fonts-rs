@@ -438,6 +438,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "fonts-rs-noto-emoji"
+version = "0.1.0"
+dependencies = [
+ "ab_glyph",
+ "fonts-rs-generator",
+ "fonts-rs-model",
+ "gio",
+ "gtk4",
+ "miette",
+ "phf",
+ "serde",
+ "serde_json",
+ "tracing",
+]
+
+[[package]]
+name = "fonts-rs-noto-emoji-cheat-sheet"
+version = "0.1.0"
+dependencies = [
+ "fonts-rs-model",
+ "fonts-rs-noto-emoji",
+ "gtk4",
+ "miette",
+]
+
+[[package]]
 name = "fonts-rs-redacted"
 version = "0.1.0"
 dependencies = [
