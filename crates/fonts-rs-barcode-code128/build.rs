@@ -1,7 +1,6 @@
 // build.rs: export Libre Barcode Code 128 glyphs and generate codepoint maps + constants.
 
 use std::fs;
-use std::io::Read;
 use std::path::Path;
 
 #[path = "src/definition.rs"]
@@ -12,6 +11,8 @@ use fonts_rs_generator::CodemapGenerator;
 use fonts_rs_generator::FontDefinition;
 use fonts_rs_generator::GlyphGenerator;
 use fonts_rs_generator::RustConstantsGenerator;
+use fonts_rs_generator::build_constants;
+use fonts_rs_generator::hash_font_file;
 use fonts_rs_model::GlyphEntry;
 
 fn main() -> std::io::Result<()> {
@@ -20,8 +21,8 @@ fn main() -> std::io::Result<()> {
     let font_path = "resources/LibreBarcode128-Regular.ttf";
     println!("cargo:rerun-if-changed={font_path}");
 
-    let metadata_path = Path::new("resources/metadata.json");
-    let hash_path = Path::new("resources/.font-hash");
+    let metadata_path = Path::new(build_constants::METADATA_PATH);
+    let hash_path = Path::new(build_constants::HASH_PATH);
     let current_hash = hash_font_file(font_path);
 
     let needs_export = !metadata_path.exists()
@@ -29,43 +30,27 @@ fn main() -> std::io::Result<()> {
 
     if needs_export {
         eprintln!("build.rs: exporting glyphs from {font_path}...");
-        let count = Code128Definition::export_glyphs(Path::new(font_path), Path::new("resources"))?;
+        let count = Code128Definition::export_glyphs(Path::new(font_path), Path::new(build_constants::RESOURCES_DIR))?;
         eprintln!("build.rs: exported {count} glyphs");
         fs::write(hash_path, &current_hash)?;
     }
 
     glib_build_tools::compile_resources(
-        &["resources"],
-        "resources/icons.gresource.xml",
-        "icons.gresource",
+        &[build_constants::RESOURCES_DIR],
+        build_constants::ICONS_GRESOURCE_XML,
+        build_constants::ICONS_GRESOURCE,
     );
 
     glib_build_tools::compile_resources(
-        &["resources"],
-        "resources/font.gresource.xml",
-        "font.gresource",
+        &[build_constants::RESOURCES_DIR],
+        build_constants::FONT_GRESOURCE_XML,
+        build_constants::FONT_GRESOURCE,
     );
 
-    let json = fs::read_to_string("resources/metadata.json")?;
+    let json = fs::read_to_string(build_constants::METADATA_PATH)?;
     let entries: Vec<GlyphEntry<String>> = serde_json::from_str(&json)?;
     CodemapGenerator::run(&entries).map_err(|e| std::io::Error::other(e.to_string()))?;
     RustConstantsGenerator::run(&entries).map_err(|e| std::io::Error::other(e.to_string()))?;
 
     Ok(())
-}
-
-fn hash_font_file(path: &str) -> String {
-    let mut file = fs::File::open(path).expect("Failed to open font file");
-    let mut buffer = [0u8; 8192];
-    let mut hash: u64 = 0xcbf29ce484222325;
-    while let Ok(n) = file.read(&mut buffer) {
-        if n == 0 {
-            break;
-        }
-        for &byte in &buffer[..n] {
-            hash ^= byte as u64;
-            hash = hash.wrapping_mul(0x100000001b3);
-        }
-    }
-    format!("{hash:016x}")
 }
