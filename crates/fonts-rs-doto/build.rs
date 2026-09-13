@@ -7,10 +7,10 @@
 use std::fs;
 use std::path::Path;
 
+use fonts_rs_generator::ExportConfig;
 use fonts_rs_generator::FontBuild;
 use fonts_rs_generator::FontFamilyConfig;
 use fonts_rs_generator::VariantList;
-use fonts_rs_generator::build_config;
 use fonts_rs_generator::build_constants;
 use fonts_rs_generator::set_font_path_env;
 use fonts_rs_model::AxisValue;
@@ -66,7 +66,7 @@ fn main() -> miette::Result<()> {
 
     set_font_path_env("DOTO_FONT_PATH", &font_path)?;
 
-    let config = build_config::<DotoConfig>(Some(*entry));
+    let config = ExportConfig::<DotoConfig>::with_variant(*entry);
 
     let icons_dir = DotoConfig::icons_dir(Path::new(build_constants::RESOURCES_DIR));
 

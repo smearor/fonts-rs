@@ -27,13 +27,13 @@ pub trait FontFamilyConfig {
     /// e.g. `"dseg7"` or `"doto"`. Combined with
     /// [`GRESOURCE_BASE_PREFIX`](fonts_rs_model::GRESOURCE_BASE_PREFIX) to
     /// produce the full `GRESOURCE_PREFIX`, and used directly as the
-    /// `glyph_name_prefix` base in [`build_config`](crate::build_config).
+    /// `glyph_name_prefix` base in [`ExportConfig::new`](crate::ExportConfig::new).
     const FONT_FAMILY_NAME: &'static str;
 
     /// Human-readable display name for the font family.
     ///
     /// e.g. `"DSEG7"` or `"Doto"`. Used in build log messages and
-    /// [`build_config`](crate::build_config) for the `family_display_name` field.
+    /// [`ExportConfig::new`](crate::ExportConfig::new) for the `family_display_name` field.
     const FAMILY_DISPLAY_NAME: &'static str;
 
     /// GResource prefix for this font family.
