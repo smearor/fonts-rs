@@ -9,6 +9,7 @@
 //! generic [`FontDefinition::export_glyphs`] pipeline.
 
 pub mod build_constants;
+pub mod build_helpers;
 pub mod build_runner;
 pub mod export_config;
 pub mod font;
@@ -19,10 +20,11 @@ pub mod gresource;
 pub mod svg;
 
 pub use build_constants::hash_font_file;
+pub use build_helpers::build_config;
+pub use build_helpers::detect_active_variant_index;
+pub use build_helpers::set_font_path_env;
 pub use build_runner::FontBuild;
 pub use export_config::ExportConfig;
-pub use export_config::export_glyphs_by_name_map;
-pub use export_config::export_glyphs_with_config;
 pub use font::Font;
 pub use font_definition::FontDefinition;
 pub use font_definition::normalize_to_kebab;

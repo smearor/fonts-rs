@@ -7,118 +7,76 @@
 use std::fs;
 use std::path::Path;
 
-use fonts_rs_generator::ExportConfig;
 use fonts_rs_generator::FontBuild;
+use fonts_rs_generator::build_config;
 use fonts_rs_generator::build_constants;
-use fonts_rs_generator::export_glyphs_with_config;
+use fonts_rs_generator::detect_active_variant_index;
+use fonts_rs_generator::set_font_path_env;
 use fonts_rs_model::ASCII_PRINTABLE_RANGE;
-use fonts_rs_model::GRESOURCE_BASE_PREFIX;
-use miette::IntoDiagnostic;
+use fonts_rs_model::AxisValue;
+use fonts_rs_model::FontVariant;
 
 /// TTF font file name (relative to `resources/`).
 pub const FONT_FILE: &str = "Doto.ttf";
 
 /// All Doto variants in the 5x5 matrix: wght x rond.
-const VARIANTS: &[(&str, f32, f32)] = &[
+const VARIANTS: &[FontVariant] = &[
     // wght=100 (ultra-light)
-    ("ultra-light-square", 100.0, 0.0),
-    ("ultra-light-soft-square", 100.0, 25.0),
-    ("ultra-light-medium", 100.0, 50.0),
-    ("ultra-light-soft-dot", 100.0, 75.0),
-    ("ultra-light-dot", 100.0, 100.0),
+    FontVariant::axes("ultra-light-square", &[AxisValue::new("wght", 100.0), AxisValue::new("ROND", 0.0)]),
+    FontVariant::axes("ultra-light-soft-square", &[AxisValue::new("wght", 100.0), AxisValue::new("ROND", 25.0)]),
+    FontVariant::axes("ultra-light-medium", &[AxisValue::new("wght", 100.0), AxisValue::new("ROND", 50.0)]),
+    FontVariant::axes("ultra-light-soft-dot", &[AxisValue::new("wght", 100.0), AxisValue::new("ROND", 75.0)]),
+    FontVariant::axes("ultra-light-dot", &[AxisValue::new("wght", 100.0), AxisValue::new("ROND", 100.0)]),
     // wght=300 (light)
-    ("light-square", 300.0, 0.0),
-    ("light-soft-square", 300.0, 25.0),
-    ("light-medium", 300.0, 50.0),
-    ("light-soft-dot", 300.0, 75.0),
-    ("light-dot", 300.0, 100.0),
+    FontVariant::axes("light-square", &[AxisValue::new("wght", 300.0), AxisValue::new("ROND", 0.0)]),
+    FontVariant::axes("light-soft-square", &[AxisValue::new("wght", 300.0), AxisValue::new("ROND", 25.0)]),
+    FontVariant::axes("light-medium", &[AxisValue::new("wght", 300.0), AxisValue::new("ROND", 50.0)]),
+    FontVariant::axes("light-soft-dot", &[AxisValue::new("wght", 300.0), AxisValue::new("ROND", 75.0)]),
+    FontVariant::axes("light-dot", &[AxisValue::new("wght", 300.0), AxisValue::new("ROND", 100.0)]),
     // wght=500 (regular)
-    ("regular-square", 500.0, 0.0),
-    ("regular-soft-square", 500.0, 25.0),
-    ("regular-medium", 500.0, 50.0),
-    ("regular-soft-dot", 500.0, 75.0),
-    ("regular-dot", 500.0, 100.0),
+    FontVariant::axes("regular-square", &[AxisValue::new("wght", 500.0), AxisValue::new("ROND", 0.0)]),
+    FontVariant::axes("regular-soft-square", &[AxisValue::new("wght", 500.0), AxisValue::new("ROND", 25.0)]),
+    FontVariant::axes("regular-medium", &[AxisValue::new("wght", 500.0), AxisValue::new("ROND", 50.0)]),
+    FontVariant::axes("regular-soft-dot", &[AxisValue::new("wght", 500.0), AxisValue::new("ROND", 75.0)]),
+    FontVariant::axes("regular-dot", &[AxisValue::new("wght", 500.0), AxisValue::new("ROND", 100.0)]),
     // wght=700 (bold)
-    ("bold-square", 700.0, 0.0),
-    ("bold-soft-square", 700.0, 25.0),
-    ("bold-medium", 700.0, 50.0),
-    ("bold-soft-dot", 700.0, 75.0),
-    ("bold-dot", 700.0, 100.0),
+    FontVariant::axes("bold-square", &[AxisValue::new("wght", 700.0), AxisValue::new("ROND", 0.0)]),
+    FontVariant::axes("bold-soft-square", &[AxisValue::new("wght", 700.0), AxisValue::new("ROND", 25.0)]),
+    FontVariant::axes("bold-medium", &[AxisValue::new("wght", 700.0), AxisValue::new("ROND", 50.0)]),
+    FontVariant::axes("bold-soft-dot", &[AxisValue::new("wght", 700.0), AxisValue::new("ROND", 75.0)]),
+    FontVariant::axes("bold-dot", &[AxisValue::new("wght", 700.0), AxisValue::new("ROND", 100.0)]),
     // wght=900 (extra-bold)
-    ("extra-bold-square", 900.0, 0.0),
-    ("extra-bold-soft-square", 900.0, 25.0),
-    ("extra-bold-medium", 900.0, 50.0),
-    ("extra-bold-soft-dot", 900.0, 75.0),
-    ("extra-bold-dot", 900.0, 100.0),
+    FontVariant::axes("extra-bold-square", &[AxisValue::new("wght", 900.0), AxisValue::new("ROND", 0.0)]),
+    FontVariant::axes("extra-bold-soft-square", &[AxisValue::new("wght", 900.0), AxisValue::new("ROND", 25.0)]),
+    FontVariant::axes("extra-bold-medium", &[AxisValue::new("wght", 900.0), AxisValue::new("ROND", 50.0)]),
+    FontVariant::axes("extra-bold-soft-dot", &[AxisValue::new("wght", 900.0), AxisValue::new("ROND", 75.0)]),
+    FontVariant::axes("extra-bold-dot", &[AxisValue::new("wght", 900.0), AxisValue::new("ROND", 100.0)]),
 ];
 
 fn main() -> miette::Result<()> {
-    let active = VARIANTS
-        .iter()
-        .filter(|(feat, _, _)| std::env::var(format!("CARGO_FEATURE_{}", feat.replace('-', "_").to_uppercase())).is_ok())
-        .collect::<Vec<_>>();
-
-    if active.is_empty() {
-        eprintln!("build.rs: no Doto variant feature active, defaulting to regular-medium");
-    } else if active.len() > 1 {
-        eprintln!("build.rs: expected at most one Doto variant feature, found {active_len}", active_len = active.len());
-        for (feat, _, _) in &active {
-            eprintln!("  active: {feat}");
-        }
-        eprintln!("build.rs: available variants:");
-        for (feat, _, _) in VARIANTS {
-            eprintln!("  {feat}");
-        }
-        return Err(miette::miette!("expected at most one Doto variant feature, found {}", active.len()));
-    }
-
-    let (feature, wght, rond) = if active.is_empty() { ("regular-medium", 500.0, 50.0) } else { *active[0] };
+    let idx = detect_active_variant_index(VARIANTS, 12, "Doto")?;
+    let entry = &VARIANTS[idx];
     let font_path = format!("{}/{}", build_constants::RESOURCES_DIR, FONT_FILE);
 
-    eprintln!("build.rs: active variant: {feature} (wght={wght}, rond={rond}) -> {font_path}");
+    eprintln!("build.rs: active variant: {} -> {font_path}", entry);
 
-    // Set env var with absolute path so include_bytes! in fonts.rs can find it.
-    let crate_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap_or_else(|_| std::env::current_dir().unwrap().to_string_lossy().to_string());
-    let absolute_font_path = Path::new(&crate_dir).join(&font_path);
-    println!("cargo:rustc-env=DOTO_FONT_PATH={}", absolute_font_path.display());
+    set_font_path_env("DOTO_FONT_PATH", &font_path);
 
-    let variant_slug = feature.replace('-', "_");
-    let glyph_prefix = format!("doto-{feature}");
-    let gresource_prefix = format!("{}/doto/{}", GRESOURCE_BASE_PREFIX, variant_slug);
-
-    let axes: Vec<(&str, f32)> = vec![("wght", wght), ("ROND", rond)];
-
-    let config = ExportConfig {
-        gresource_prefix: gresource_prefix.clone(),
-        icons_context: "glyphs".to_string(),
-        glyph_name_prefix: glyph_prefix.clone(),
-        codepoint_ranges: ASCII_PRINTABLE_RANGE,
-        axes,
-        name_filter: None,
-    };
+    let config = build_config("doto", "Doto", "doto", Some(*entry), ASCII_PRINTABLE_RANGE);
 
     let icons_dir = Path::new(build_constants::RESOURCES_DIR).join("scalable").join("glyphs");
 
     FontBuild::new(&font_path)
-        .extra_hash(feature)
+        .extra_hash(entry.as_str())
         .run(|font_path, resources_dir| {
             if icons_dir.exists() {
                 fs::remove_dir_all(&icons_dir)?;
             }
-            export_glyphs_with_config(font_path, resources_dir, &config)
+            config.export_glyphs(font_path, resources_dir)
         })
         .map_err(|e| miette::miette!("{e}"))?;
 
-    // Generate variant info (GRESOURCE_PREFIX, glyph prefix) for runtime use.
-    let out_dir = std::env::var("OUT_DIR").into_diagnostic()?;
-    let variant_info = format!(
-        "// @generated by build.rs — do not edit\n\n\
-         /// GResource prefix for the active Doto variant.\n\
-         pub const GRESOURCE_PREFIX: &str = \"{gresource_prefix}\";\n\n\
-         /// Glyph name prefix for the active Doto variant.\n\
-         pub const GLYPH_PREFIX: &str = \"{glyph_prefix}\";\n"
-    );
-    std::fs::write(Path::new(&out_dir).join("variant.rs"), variant_info).into_diagnostic()?;
+    config.write_variant_info()?;
 
     Ok(())
 }

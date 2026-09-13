@@ -436,6 +436,7 @@ dependencies = [
  "font-types",
  "fonts-rs-model",
  "glib-build-tools",
+ "miette",
  "quick-xml",
  "read-fonts",
  "serde",
