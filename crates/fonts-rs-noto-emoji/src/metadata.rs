@@ -34,28 +34,19 @@ impl GlyphMetadata for NotoEmojiMetadata {
     }
 }
 
-/// Search emoji by keyword, category, or name.
-///
-/// Performs a case-insensitive substring match against glyph names,
-/// keywords, and categories. Returns matching glyph names sorted
-/// alphabetically.
-pub fn search_emoji(query: &str) -> Vec<&'static str> {
-    NotoEmojiMetadata.search(query)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn search_emoji_non_empty() {
-        let results = search_emoji("face");
+        let results = NotoEmojiMetadata.search("face");
         assert!(!results.is_empty(), "search for 'face' should find emoji");
     }
 
     #[test]
     fn search_emoji_empty_query() {
-        let results = search_emoji("");
+        let results = NotoEmojiMetadata.search("");
         assert!(results.is_empty(), "empty query should return no results");
     }
 

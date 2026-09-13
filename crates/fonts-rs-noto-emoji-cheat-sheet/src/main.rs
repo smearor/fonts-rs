@@ -41,8 +41,6 @@ use miette::Result;
 #[cfg(feature = "metadata")]
 use fonts_rs_noto_emoji::metadata::NotoEmojiMetadata;
 #[cfg(feature = "metadata")]
-use fonts_rs_noto_emoji::metadata::search_emoji;
-#[cfg(feature = "metadata")]
 use fonts_rs_model::GlyphMetadata;
 
 const APP_ID: &str = "io.smearor.fonts_rs.noto_emoji_cheat_sheet";
@@ -330,7 +328,7 @@ fn build_ui(app: &Application) {
 
         #[cfg(feature = "metadata")]
         {
-            let search_results = search_emoji(filter);
+            let search_results = NotoEmojiMetadata.search(filter);
             let mut filtered: Vec<(CodePoint, String)> = search_results
                 .iter()
                 .filter_map(|name| {
