@@ -4,9 +4,9 @@
 // and exports glyphs from the corresponding DSEG7 TTF variant.
 
 use fonts_rs_generator::FontBuild;
+use fonts_rs_generator::VariantList;
 use fonts_rs_generator::build_config;
 use fonts_rs_generator::build_constants;
-use fonts_rs_generator::detect_active_variant_index;
 use fonts_rs_generator::set_font_path_env;
 use fonts_rs_model::FontVariant;
 
@@ -16,7 +16,7 @@ mod definition;
 use definition::SevenSegmentConfig;
 
 /// All DSEG7 variants and their mapping to TTF filenames.
-const VARIANTS: &[FontVariant] = &[
+const VARIANTS: VariantList<SevenSegmentConfig> = VariantList::new(&[
     // Classic
     FontVariant::file("classic-regular", "DSEG7Classic-Regular"),
     FontVariant::file("classic-bold", "DSEG7Classic-Bold"),
@@ -45,11 +45,10 @@ const VARIANTS: &[FontVariant] = &[
     FontVariant::file("modern-mini-bold-italic", "DSEG7ModernMini-BoldItalic"),
     FontVariant::file("modern-mini-light", "DSEG7ModernMini-Light"),
     FontVariant::file("modern-mini-light-italic", "DSEG7ModernMini-LightItalic"),
-];
+]);
 
 fn main() -> miette::Result<()> {
-    let idx = detect_active_variant_index(VARIANTS, 0, "DSEG7")?;
-    let entry = &VARIANTS[idx];
+    let entry = VARIANTS.detect_and_get_active_variant(0)?;
     let font_path = format!("{}/{}.ttf", build_constants::RESOURCES_DIR, entry.font_file().unwrap().as_str());
 
     eprintln!("build.rs: active variant: {} -> {font_path}", entry);

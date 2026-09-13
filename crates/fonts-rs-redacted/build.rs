@@ -8,9 +8,9 @@
 // and exports glyphs from the corresponding TTF file.
 
 use fonts_rs_generator::FontBuild;
+use fonts_rs_generator::VariantList;
 use fonts_rs_generator::build_config;
 use fonts_rs_generator::build_constants;
-use fonts_rs_generator::detect_active_variant_index;
 use fonts_rs_generator::set_font_path_env;
 use fonts_rs_model::FontVariant;
 
@@ -20,16 +20,15 @@ mod definition;
 use definition::RedactedConfig;
 
 /// All Redacted variants and their mapping to TTF filenames.
-const VARIANTS: &[FontVariant] = &[
+const VARIANTS: VariantList<RedactedConfig> = VariantList::new(&[
     FontVariant::file("redacted", "Redacted-Regular"),
     FontVariant::file("script-light", "RedactedScript-Light"),
     FontVariant::file("script-regular", "RedactedScript-Regular"),
     FontVariant::file("script-bold", "RedactedScript-Bold"),
-];
+]);
 
 fn main() -> miette::Result<()> {
-    let idx = detect_active_variant_index(VARIANTS, 0, "Redacted")?;
-    let entry = &VARIANTS[idx];
+    let entry = VARIANTS.detect_and_get_active_variant(0)?;
     let font_path = format!("{}/{}.ttf", build_constants::RESOURCES_DIR, entry.font_file().unwrap().as_str());
 
     eprintln!("build.rs: active variant: {} -> {font_path}", entry);

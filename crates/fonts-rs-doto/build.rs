@@ -9,9 +9,9 @@ use std::path::Path;
 
 use fonts_rs_generator::FontBuild;
 use fonts_rs_generator::FontFamilyConfig;
+use fonts_rs_generator::VariantList;
 use fonts_rs_generator::build_config;
 use fonts_rs_generator::build_constants;
-use fonts_rs_generator::detect_active_variant_index;
 use fonts_rs_generator::set_font_path_env;
 use fonts_rs_model::AxisValue;
 use fonts_rs_model::FontVariant;
@@ -25,7 +25,7 @@ use definition::DotoConfig;
 pub const FONT_FILE: &str = "Doto.ttf";
 
 /// All Doto variants in the 5x5 matrix: wght x rond.
-const VARIANTS: &[FontVariant] = &[
+const VARIANTS: VariantList<DotoConfig> = VariantList::new(&[
     // wght=100 (ultra-light)
     FontVariant::axes("ultra-light-square", &[AxisValue::new("wght", 100.0), AxisValue::new("ROND", 0.0)]),
     FontVariant::axes("ultra-light-soft-square", &[AxisValue::new("wght", 100.0), AxisValue::new("ROND", 25.0)]),
@@ -56,11 +56,10 @@ const VARIANTS: &[FontVariant] = &[
     FontVariant::axes("extra-bold-medium", &[AxisValue::new("wght", 900.0), AxisValue::new("ROND", 50.0)]),
     FontVariant::axes("extra-bold-soft-dot", &[AxisValue::new("wght", 900.0), AxisValue::new("ROND", 75.0)]),
     FontVariant::axes("extra-bold-dot", &[AxisValue::new("wght", 900.0), AxisValue::new("ROND", 100.0)]),
-];
+]);
 
 fn main() -> miette::Result<()> {
-    let idx = detect_active_variant_index(VARIANTS, 12, "Doto")?;
-    let entry = &VARIANTS[idx];
+    let entry = VARIANTS.detect_and_get_active_variant(12)?;
     let font_path = format!("{}/{}", build_constants::RESOURCES_DIR, FONT_FILE);
 
     eprintln!("build.rs: active variant: {} -> {font_path}", entry);
