@@ -22,7 +22,9 @@ pub trait FontVariantExt {
 
 impl FontVariantExt for FontVariant {
     fn font_path(&self) -> miette::Result<PathBuf> {
-        let font_file = self.font_file().ok_or_else(|| miette::miette!("variant '{}' has no font file", self.as_str()))?;
+        let font_file = self
+            .font_file()
+            .ok_or_else(|| miette::miette!("variant '{}' has no font file", self.as_str()))?;
         Ok(PathBuf::from(RESOURCES_DIR).join(format!("{}.ttf", font_file.as_str())))
     }
 }
