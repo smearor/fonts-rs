@@ -4,12 +4,12 @@
 //!   cargo run -p fonts-rs-noto-emoji-generator --example generate -- --json <metadata.json> --annotations <annotations.json> --emoji-test <emoji-test.txt> keywords
 //!   cargo run -p fonts-rs-noto-emoji-generator --example generate -- --json <metadata.json> --annotations <annotations.json> --emoji-test <emoji-test.txt> categories
 
-use std::collections::HashMap;
 use std::path::PathBuf;
 
 use clap::Parser;
 use clap::Subcommand;
 use fonts_rs_model::GlyphEntry;
+use fonts_rs_noto_emoji_generator::MetadataGenerator;
 use fonts_rs_noto_emoji_generator::NotoEmojiMetadataGenerator;
 use fonts_rs_noto_emoji_generator::parse_cldr_annotations;
 use fonts_rs_noto_emoji_generator::parse_emoji_test;
@@ -63,15 +63,17 @@ fn main() -> miette::Result<()> {
     let emoji_test = std::fs::read_to_string(&cli.emoji_test)
         .into_diagnostic()
         .with_context(|| format!("Failed to read {}", cli.emoji_test.display()))?;
-    let category_map: HashMap<u32, String> = parse_emoji_test(&emoji_test);
+    let category_map = parse_emoji_test(&emoji_test);
+
+    let generator = NotoEmojiMetadataGenerator::new(keyword_map, category_map);
 
     match cli.command {
         Command::Keywords => {
-            let output = NotoEmojiMetadataGenerator::generate_keywords(&entries, &keyword_map);
+            let output = generator.generate_keywords(&entries);
             println!("{output}");
         }
         Command::Categories => {
-            let output = NotoEmojiMetadataGenerator::generate_categories(&entries, &category_map);
+            let output = generator.generate_categories(&entries);
             println!("{output}");
         }
     }

@@ -15,7 +15,9 @@ use fonts_rs_generator::ExportConfig;
 use fonts_rs_generator::FontBuild;
 use fonts_rs_generator::build_constants;
 use fonts_rs_generator::export_glyphs_by_name_map;
+use fonts_rs_model::CodePoint;
 use fonts_rs_model::GRESOURCE_BASE_PREFIX;
+use fonts_rs_model::GlyphNameMap;
 use miette::IntoDiagnostic;
 use serde::Deserialize;
 
@@ -37,17 +39,18 @@ struct GlyphNameEntry {
 /// Parse SMuFL glyphnames.json into a HashMap of glyph name -> codepoint.
 ///
 /// The JSON format is: `{ "glyphName": { "codepoint": "U+E050", "description": "..." } }`
-fn parse_glyphnames(json: &str) -> miette::Result<HashMap<String, u32>> {
+fn parse_glyphnames(json: &str) -> miette::Result<GlyphNameMap> {
     let entries: HashMap<String, GlyphNameEntry> = serde_json::from_str(json).map_err(|e| miette::miette!("Failed to parse glyphnames.json: {e}"))?;
 
-    let mut map = HashMap::new();
+    let mut map = GlyphNameMap::new();
     for (name, entry) in entries {
         let codepoint = entry
             .codepoint
             .strip_prefix("U+")
             .ok_or_else(|| miette::miette!("Invalid codepoint format: {}", entry.codepoint))?;
         let cp = u32::from_str_radix(codepoint, 16).map_err(|e| miette::miette!("Failed to parse codepoint {}: {e}", entry.codepoint))?;
-        map.insert(name, cp);
+        let ch = char::from_u32(cp).ok_or_else(|| miette::miette!("Invalid Unicode scalar value: U+{cp:04X}"))?;
+        map.insert(name, CodePoint::from(ch));
     }
     Ok(map)
 }

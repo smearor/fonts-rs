@@ -8,6 +8,7 @@ use nerd_fonts_generator::FontDefinition;
 use nerd_fonts_generator::IconsCodemapGenerator;
 use nerd_fonts_generator::IconsMetadataGenerator;
 use nerd_fonts_generator::IconsRustGenerator;
+use nerd_fonts_generator::MetadataGenerator;
 use nerd_fonts_generator::NerdFontsDefinition;
 use nerd_fonts_generator::NerdFontsGenerator;
 use nerd_fonts_generator::WebCssGenerator;
@@ -90,7 +91,7 @@ fn main() {
             .register::<OcticonsMetadata>(Path::new("resources/metadata/octicons-keywords.json"), "Octicons")
             .expect("Failed to register Octicons metadata");
 
-        IconsMetadataGenerator::run_with_registry(&icons, &registry).expect("Failed to generate icon metadata");
+        IconsMetadataGenerator::new(&registry).run(&icons).expect("Failed to generate icon metadata");
     }
 }
 

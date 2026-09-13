@@ -29,6 +29,8 @@ pub use font_definition::normalize_to_kebab;
 pub use generator::codemap::CodemapGenerator;
 pub use generator::error::GenerateError;
 pub use generator::generate::GlyphGenerator;
+pub use generator::metadata_generator::MetadataGenerator;
+pub use generator::metadata_generator::escape_str;
 pub use generator::rust_constants::RustConstantsGenerator;
 pub use svg::EMPTY_SVG;
 pub use svg::SvgPathBuilder;
