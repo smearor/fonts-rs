@@ -1,6 +1,7 @@
 //! Generic metadata entry for a single exported glyph.
 
 use crate::codepoint::CodePoint;
+use crate::paths::SCALABLE_DIR;
 use crate::resource_path::ResourcePath;
 use serde::Deserialize;
 use serde::Serialize;
@@ -23,4 +24,22 @@ pub struct GlyphEntry<N: AsRef<str>> {
     pub file: PathBuf,
     /// Full GResource path.
     pub resource_path: ResourcePath,
+}
+
+impl<N: AsRef<str>> GlyphEntry<N> {
+    /// Create a new `GlyphEntry`, deriving `file` and `resource_path` from
+    /// the GResource prefix, icons context, and glyph name.
+    ///
+    /// The `file` path is constructed as `resources/{scalable}/{context}/{name}.svg`
+    /// and the `resource_path` as `{gresource_prefix}/{scalable}/{context}/{name}`.
+    ///
+    /// This avoids manual `format!` calls and ensures consistency between
+    /// the two paths.
+    pub fn new(code: Option<CodePoint>, name: N, gresource_prefix: &str, icons_context: &str) -> Self {
+        let name_ref = name.as_ref();
+        let file = PathBuf::from(format!("resources/{SCALABLE_DIR}/{icons_context}/{name_ref}.svg"));
+        let resource_prefix = format!("{gresource_prefix}/{SCALABLE_DIR}/{icons_context}");
+        let resource_path = ResourcePath::from_name(&resource_prefix, name_ref);
+        Self { code, name, file, resource_path }
+    }
 }
