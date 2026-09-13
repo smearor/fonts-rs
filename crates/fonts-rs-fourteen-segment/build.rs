@@ -4,9 +4,9 @@
 // and exports glyphs from the corresponding DSEG14 TTF variant.
 
 use fonts_rs_generator::FontBuild;
+use fonts_rs_generator::FontVariantExt;
 use fonts_rs_generator::VariantList;
 use fonts_rs_generator::build_config;
-use fonts_rs_generator::build_constants;
 use fonts_rs_generator::set_font_path_env;
 use fonts_rs_model::FontVariant;
 
@@ -49,7 +49,7 @@ const VARIANTS: VariantList<FourteenSegmentConfig> = VariantList::new(&[
 
 fn main() -> miette::Result<()> {
     let entry = VARIANTS.detect_and_get_active_variant(0)?;
-    let font_path = format!("{}/{}.ttf", build_constants::RESOURCES_DIR, entry.font_file().unwrap().as_str());
+    let font_path = entry.font_path()?;
 
     eprintln!("build.rs: active variant: {} -> {font_path}", entry);
 
