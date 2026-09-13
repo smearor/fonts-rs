@@ -6,7 +6,6 @@
 
 use std::collections::HashSet;
 use std::fs;
-use std::io::Write;
 use std::path::Path;
 
 use fonts_rs_model::FontFamily;
@@ -23,7 +22,6 @@ use crate::font_family_config::FontFamilyConfig;
 use crate::gresource::model::GResource;
 use crate::gresource::model::GResourceFile;
 use crate::gresource::model::GResources;
-use crate::svg::EMPTY_SVG;
 
 /// Defines a font family's build-time configuration for the generic
 /// export pipeline with type-safe glyph names.
@@ -176,11 +174,10 @@ pub trait FontDefinition: FontFamilyConfig {
 
             let codepoint = reverse_cmap.get(&glyph_id).copied();
 
-            let svg = font.glyph_to_svg(glyph_id).unwrap_or_else(|| EMPTY_SVG.to_string());
+            let svg = font.glyph_to_svg(glyph_id).unwrap_or_default();
 
             let filename = icons_dir.join(format!("{}.svg", glyph_name.as_ref()));
-            let mut file = fs::File::create(&filename)?;
-            file.write_all(svg.as_bytes())?;
+            svg.write_to(&filename)?;
 
             entries.push(GlyphEntry::new(codepoint, glyph_name, Self::GRESOURCE_PREFIX, Self::ICONS_CONTEXT));
         }

@@ -6,7 +6,6 @@
 
 use std::collections::HashSet;
 use std::fs;
-use std::io::Write;
 use std::marker::PhantomData;
 use std::path::Path;
 
@@ -29,7 +28,6 @@ use crate::font_family_config::FontFamilyConfig;
 use crate::gresource::model::GResource;
 use crate::gresource::model::GResourceFile;
 use crate::gresource::model::GResources;
-use crate::svg::EMPTY_SVG;
 
 /// Runtime configuration for glyph export, parameterized by a [`FontFamilyConfig`].
 ///
@@ -163,13 +161,10 @@ impl<X: FontFamilyConfig> ExportConfig<X> {
 
             let codepoint = reverse_cmap.get(&glyph_id).copied();
 
-            let svg = font
-                .glyph_to_svg_full_height_at(glyph_id, location_ref)
-                .unwrap_or_else(|| EMPTY_SVG.to_string());
+            let svg = font.glyph_to_svg_full_height_at(glyph_id, location_ref).unwrap_or_default();
 
             let filename = icons_dir.join(format!("{}.svg", glyph_name));
-            let mut file = fs::File::create(&filename)?;
-            file.write_all(svg.as_bytes())?;
+            svg.write_to(&filename)?;
 
             entries.push(GlyphEntry::new(codepoint, glyph_name, &self.gresource_prefix, icons_context));
         }
@@ -239,13 +234,10 @@ impl<X: FontFamilyConfig> ExportConfig<X> {
             }
             seen_names.insert(glyph_name.clone());
 
-            let svg = font
-                .glyph_to_svg_full_height_at(glyph_id, location_ref)
-                .unwrap_or_else(|| EMPTY_SVG.to_string());
+            let svg = font.glyph_to_svg_full_height_at(glyph_id, location_ref).unwrap_or_default();
 
             let filename = icons_dir.join(format!("{}.svg", glyph_name));
-            let mut file = fs::File::create(&filename)?;
-            file.write_all(svg.as_bytes())?;
+            svg.write_to(&filename)?;
 
             entries.push(GlyphEntry::new(Some(CodePoint::from(ch)), glyph_name, &self.gresource_prefix, icons_context));
         }

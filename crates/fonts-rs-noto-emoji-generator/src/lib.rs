@@ -28,5 +28,6 @@ pub use fonts_rs_generator::FontBuild;
 pub use fonts_rs_generator::FontDefinition;
 pub use fonts_rs_generator::GlyphGenerator;
 pub use fonts_rs_generator::MetadataGenerator;
+pub use fonts_rs_generator::Svg;
 pub use fonts_rs_generator::SvgPathBuilder;
 pub use fonts_rs_generator::normalize_to_kebab;

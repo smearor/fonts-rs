@@ -40,5 +40,6 @@ pub use generator::metadata_generator::MetadataGenerator;
 pub use generator::metadata_generator::escape_str;
 pub use generator::rust_constants::RustConstantsGenerator;
 pub use svg::EMPTY_SVG;
+pub use svg::Svg;
 pub use svg::SvgPathBuilder;
 pub use variant_list::VariantList;
