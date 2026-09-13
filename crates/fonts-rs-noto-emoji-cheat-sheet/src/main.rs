@@ -39,7 +39,11 @@ use miette::IntoDiagnostic;
 use miette::Result;
 
 #[cfg(feature = "metadata")]
-use fonts_rs_noto_emoji::metadata;
+use fonts_rs_noto_emoji::metadata::NotoEmojiMetadata;
+#[cfg(feature = "metadata")]
+use fonts_rs_noto_emoji::metadata::search_emoji;
+#[cfg(feature = "metadata")]
+use fonts_rs_model::GlyphMetadata;
 
 const APP_ID: &str = "io.smearor.fonts_rs.noto_emoji_cheat_sheet";
 
@@ -326,7 +330,7 @@ fn build_ui(app: &Application) {
 
         #[cfg(feature = "metadata")]
         {
-            let search_results = metadata::search_emoji(filter);
+            let search_results = search_emoji(filter);
             let mut filtered: Vec<(CodePoint, String)> = search_results
                 .iter()
                 .filter_map(|name| {
@@ -422,10 +426,10 @@ fn build_ui(app: &Application) {
 
             #[cfg(feature = "metadata")]
             {
-                let keywords = metadata::emoji_keywords(name);
-                let category = metadata::emoji_category(name);
+                let keywords = NotoEmojiMetadata.keywords(name);
+                let categories = NotoEmojiMetadata.categories(name);
 
-                if let Some(cat) = category {
+                if !categories.is_empty() {
                     let cat_flow = FlowBox::builder()
                         .orientation(Orientation::Horizontal)
                         .selection_mode(gtk4::SelectionMode::None)
@@ -435,13 +439,15 @@ fn build_ui(app: &Application) {
                         .max_children_per_line(4)
                         .css_classes(["cheat-meta-flow"])
                         .build();
-                    let cat_label = cat.to_string();
-                    let btn = Button::builder().label(&cat_label).css_classes(["cat-btn"]).build();
-                    let search_entry_ref = search_entry_clone.clone();
-                    btn.connect_clicked(move |_| {
-                        search_entry_ref.set_text(&cat_label);
-                    });
-                    cat_flow.insert(&btn, -1);
+                    for cat in categories.iter() {
+                        let cat_label = cat.to_string();
+                        let btn = Button::builder().label(&cat_label).css_classes(["cat-btn"]).build();
+                        let search_entry_ref = search_entry_clone.clone();
+                        btn.connect_clicked(move |_| {
+                            search_entry_ref.set_text(&cat_label);
+                        });
+                        cat_flow.insert(&btn, -1);
+                    }
                     meta_box.append(&cat_flow);
                 }
 
@@ -487,9 +493,9 @@ fn build_ui(app: &Application) {
 
             #[cfg(feature = "metadata")]
             {
-                let keywords = metadata::emoji_keywords(name);
-                let category = metadata::emoji_category(name);
-                if category.is_some() || !keywords.is_empty() {
+                let keywords = NotoEmojiMetadata.keywords(name);
+                let categories = NotoEmojiMetadata.categories(name);
+                if !categories.is_empty() || !keywords.is_empty() {
                     vbox.append(&meta_box);
                 }
             }
@@ -819,10 +825,10 @@ fn show_detail(content: &Box, name: &str, codepoint: CodePoint, search_entry: &E
 
     #[cfg(feature = "metadata")]
     {
-        let keywords = metadata::emoji_keywords(name);
-        let category = metadata::emoji_category(name);
+        let keywords = NotoEmojiMetadata.keywords(name);
+        let categories = NotoEmojiMetadata.categories(name);
 
-        if let Some(cat) = category {
+        if !categories.is_empty() {
             let cat_heading = Label::builder()
                 .label("Category")
                 .css_classes(["heading"])
@@ -837,13 +843,15 @@ fn show_detail(content: &Box, name: &str, codepoint: CodePoint, search_entry: &E
                 .halign(Align::Start)
                 .selection_mode(gtk4::SelectionMode::None)
                 .build();
-            let cat_label = cat.to_string();
-            let btn = Button::builder().label(&cat_label).css_classes(["cat-btn"]).build();
-            let search_entry_ref = search_entry.clone();
-            btn.connect_clicked(move |_| {
-                search_entry_ref.set_text(&cat_label);
-            });
-            cat_box.insert(&btn, -1);
+            for cat in categories.iter() {
+                let cat_label = cat.to_string();
+                let btn = Button::builder().label(&cat_label).css_classes(["cat-btn"]).build();
+                let search_entry_ref = search_entry.clone();
+                btn.connect_clicked(move |_| {
+                    search_entry_ref.set_text(&cat_label);
+                });
+                cat_box.insert(&btn, -1);
+            }
             content.append(&cat_box);
         }
 

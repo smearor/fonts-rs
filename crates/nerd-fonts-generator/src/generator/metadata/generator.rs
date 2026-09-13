@@ -55,11 +55,11 @@ impl IconsMetadataGenerator {
             kw_idx += 1;
         }
 
-        output.push_str("\npub static KEYWORDS: phf::Map<&'static str, &'static [GlyphKeyword]> = phf_map! {\n");
+        output.push_str("\npub static KEYWORDS: GlyphKeywordMap = GlyphKeywordMap(phf_map! {\n");
         for (name, static_name) in &kw_entries {
             output.push_str(&format!("    \"{}\" => {},\n", escape_str(name), static_name));
         }
-        output.push_str("};\n\n");
+        output.push_str("});\n\n");
 
         // --- Categories ---
         // Group identical category lists to share static slices.
@@ -94,20 +94,20 @@ impl IconsMetadataGenerator {
             cat_entries.push((icon.name.as_ref().to_string(), static_name));
         }
 
-        output.push_str("\npub static CATEGORIES: phf::Map<&'static str, &'static [GlyphCategory]> = phf_map! {\n");
+        output.push_str("\npub static CATEGORIES: GlyphCategoryMap = GlyphCategoryMap(phf_map! {\n");
         for (name, static_name) in &cat_entries {
             output.push_str(&format!("    \"{}\" => {},\n", escape_str(name), static_name));
         }
-        output.push_str("};\n");
+        output.push_str("});\n");
 
         // --- Aliases ---
         let alias_entries = registry.all_aliases();
 
-        output.push_str("\npub static ALIASES: phf::Map<&'static str, &'static str> = phf_map! {\n");
+        output.push_str("\npub static ALIASES: GlyphAliasMap = GlyphAliasMap(phf_map! {\n");
         for (alias, canonical) in &alias_entries {
             output.push_str(&format!("    \"{}\" => \"{}\",\n", escape_str(alias.as_ref()), escape_str(canonical.as_ref())));
         }
-        output.push_str("};\n");
+        output.push_str("});\n");
 
         Ok(output)
     }

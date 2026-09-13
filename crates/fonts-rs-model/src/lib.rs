@@ -13,6 +13,7 @@ pub mod font_family;
 pub mod glyph_entry;
 pub mod glyph_name;
 pub mod keyword;
+pub mod metadata;
 pub mod paths;
 pub mod resource_path;
 
@@ -24,5 +25,9 @@ pub use font_family::sealed;
 pub use glyph_entry::GlyphEntry;
 pub use glyph_name::GlyphName;
 pub use keyword::GlyphKeyword;
+pub use metadata::GlyphAliasMap;
+pub use metadata::GlyphCategoryMap;
+pub use metadata::GlyphKeywordMap;
+pub use metadata::GlyphMetadata;
 pub use paths::GRESOURCE_BASE_PREFIX;
 pub use resource_path::ResourcePath;

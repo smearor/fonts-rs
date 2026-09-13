@@ -37,7 +37,8 @@ use nerd_fonts_model::ICONS_RESOURCE_PATH;
 use nerd_fonts_model::IconName;
 use nerd_fonts_rs::icons::IconNameExt;
 use nerd_fonts_rs::icons::all_icons_typed;
-use nerd_fonts_rs::metadata;
+use nerd_fonts_rs::metadata::NerdFontsMetadata;
+use fonts_rs_model::GlyphMetadata;
 
 const APP_ID: &str = "io.smearor.fonts_rs.cheat_sheet";
 
@@ -338,7 +339,7 @@ fn build_ui(app: &Application) {
             return icons_for_filter.to_vec();
         }
 
-        let search_results = metadata::search_icons(filter);
+        let search_results = NerdFontsMetadata.search(filter);
         let mut filtered: Vec<(CodePoint, IconName)> = search_results
             .iter()
             .filter_map(|name| {
@@ -419,8 +420,8 @@ fn build_ui(app: &Application) {
             // Metadata buttons: keywords (orange) and categories (green).
             let meta_box = Box::builder().orientation(Orientation::Vertical).spacing(2).halign(Align::Fill).build();
 
-            let keywords = metadata::icon_keywords(name);
-            let categories = metadata::icon_categories(name);
+            let keywords = NerdFontsMetadata.keywords(name);
+            let categories = NerdFontsMetadata.categories(name);
 
             // Category buttons (green) — wrapped via FlowBox.
             if !categories.is_empty() {
@@ -743,8 +744,8 @@ fn show_detail(content: &Box, name: &IconName, codepoint: CodePoint, search_entr
 
     let css_name = name.css_class_name().to_string();
     let source = name.icon_set().label();
-    let keywords = metadata::icon_keywords(name);
-    let categories = metadata::icon_categories(name);
+    let keywords = NerdFontsMetadata.keywords(name);
+    let categories = NerdFontsMetadata.categories(name);
 
     // Canonical name as title.
     let title_label = Label::builder()
@@ -834,7 +835,7 @@ fn show_detail(content: &Box, name: &IconName, codepoint: CodePoint, search_entr
     content.append(&cp_copy);
 
     // Alias info.
-    if let Some(canonical) = metadata::resolve_alias(name.as_ref()) {
+    if let Some(canonical) = NerdFontsMetadata.resolve_alias(name.as_ref()) {
         let canonical_css = IconName::parse(canonical)
             .map(|n| n.css_class_name().to_string())
             .unwrap_or_else(|| canonical.to_string());
