@@ -1,7 +1,7 @@
 //! Example: using `nerd-fonts-generator` as a library.
 //!
 //! Demonstrates how to construct [`GlyphEntry<IconName>`] data and use the
-//! [`NerdFontsGenerator`] trait to generate Rust constants, phf codepoint
+//! [`GlyphGenerator`] trait to generate Rust constants, phf codepoint
 //! maps, and web CSS — all in-memory, without writing files.
 //!
 //! Run with:
@@ -17,9 +17,9 @@ use clap::Parser;
 use clap::Subcommand;
 use miette::Context;
 use miette::IntoDiagnostic;
+use nerd_fonts_generator::GlyphGenerator;
 use nerd_fonts_generator::IconsCodemapGenerator;
 use nerd_fonts_generator::IconsRustGenerator;
-use nerd_fonts_generator::NerdFontsGenerator;
 use nerd_fonts_generator::WebCssGenerator;
 use nerd_fonts_model::CodePoint;
 use nerd_fonts_model::GlyphEntry;

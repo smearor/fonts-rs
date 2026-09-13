@@ -19,6 +19,7 @@ pub use definition::NerdFontsDefinition;
 pub use fonts_rs_generator::EMPTY_SVG;
 pub use fonts_rs_generator::Font;
 pub use fonts_rs_generator::FontDefinition;
+pub use fonts_rs_generator::GenerateError;
 pub use fonts_rs_generator::GlyphGenerator;
 pub use fonts_rs_generator::MetadataGenerator;
 pub use fonts_rs_generator::Svg;
@@ -27,7 +28,5 @@ pub use fonts_rs_generator::normalize_to_kebab;
 
 pub use generator::codemap::IconsCodemapGenerator;
 pub use generator::css::WebCssGenerator;
-pub use generator::error::GenerateError;
-pub use generator::generate::NerdFontsGenerator;
 pub use generator::icons::IconsRustGenerator;
 pub use generator::metadata::IconsMetadataGenerator;

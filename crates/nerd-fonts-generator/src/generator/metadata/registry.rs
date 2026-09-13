@@ -5,10 +5,10 @@
 
 use std::path::Path;
 
-use super::super::error::GenerateError;
 use super::mapping::RawCategory;
 use super::mapping::RawKeyword;
 use super::source::IconMetadataSource;
+use fonts_rs_generator::GenerateError;
 use nerd_fonts_model::IconName;
 
 /// Aggregates multiple [`IconMetadataSource`] implementations.
