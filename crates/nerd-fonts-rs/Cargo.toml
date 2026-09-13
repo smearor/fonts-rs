@@ -81,6 +81,7 @@ required-features = ["gtk"]
 [build-dependencies]
 nerd-fonts-generator.workspace = true
 nerd-fonts-model.workspace = true
+fonts-rs-generator.workspace = true
 glib-build-tools.workspace = true
 serde_json.workspace = true
 
