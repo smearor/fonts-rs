@@ -460,6 +460,7 @@ dependencies = [
  "ab_glyph",
  "fonts-rs-generator",
  "fonts-rs-model",
+ "fonts-rs-noto-emoji-generator",
  "gio",
  "gtk4",
  "miette",
@@ -477,6 +478,20 @@ dependencies = [
  "fonts-rs-noto-emoji",
  "gtk4",
  "miette",
+]
+
+[[package]]
+name = "fonts-rs-noto-emoji-generator"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "fonts-rs-generator",
+ "fonts-rs-model",
+ "miette",
+ "serde",
+ "serde_json",
+ "skrifa",
+ "thiserror 2.0.20",
 ]
 
 [[package]]

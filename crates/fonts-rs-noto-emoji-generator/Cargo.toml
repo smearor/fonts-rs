@@ -1,0 +1,28 @@
+[package]
+name = "fonts-rs-noto-emoji-generator"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+description = "Build-time code generation and glyph export for Noto Emoji"
+publish = true
+
+[dependencies]
+fonts-rs-generator.workspace = true
+fonts-rs-model.workspace = true
+skrifa.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+miette.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+clap.workspace = true
+
+[lints]
+workspace = true
