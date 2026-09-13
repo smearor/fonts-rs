@@ -13,7 +13,7 @@ use fonts_rs_model::AxisValues;
 use fonts_rs_model::CodePoint;
 use fonts_rs_model::CodePointRange;
 
-use crate::font_definition::FontDefinition;
+use crate::font_family_config::FontFamilyConfig;
 
 /// A newtype wrapper around `skrifa::FontRef` providing font utility methods.
 ///
@@ -42,23 +42,21 @@ impl<'a> Font<'a> {
     ///
     /// For non-variable fonts, returns the default location.
     pub fn location(&self, settings: &AxisValues) -> Location {
-        self.inner
-            .axes()
-            .location(settings.iter().map(|av| (av.axis.as_str(), av.value)))
+        self.inner.axes().location(settings.iter().map(|av| (av.axis.as_str(), av.value)))
     }
 
     /// Build a reverse cmap (GlyphId -> CodePoint) by probing Unicode codepoints.
     ///
-    /// Probes the codepoint ranges defined by [`FontDefinition::CODEPOINT_RANGES`]
+    /// Probes the codepoint ranges defined by [`FontFamilyConfig::CODEPOINT_RANGES`]
     /// to map each glyph in the font to its Unicode codepoint.
-    pub fn build_reverse_cmap<F: FontDefinition>(&self) -> HashMap<GlyphId, CodePoint> {
+    pub fn build_reverse_cmap<F: FontFamilyConfig>(&self) -> HashMap<GlyphId, CodePoint> {
         self.build_reverse_cmap_with_ranges(F::CODEPOINT_RANGES)
     }
 
     /// Build a reverse cmap (GlyphId -> CodePoint) using explicit codepoint ranges.
     ///
     /// Like [`build_reverse_cmap`](Self::build_reverse_cmap) but takes ranges
-    /// directly instead of requiring a `FontDefinition` impl.
+    /// directly instead of requiring a `FontFamilyConfig` impl.
     pub fn build_reverse_cmap_with_ranges(&self, ranges: &[CodePointRange]) -> HashMap<GlyphId, CodePoint> {
         let mut map = HashMap::new();
         for range in ranges {

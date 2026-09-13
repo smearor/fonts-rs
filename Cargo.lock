@@ -357,6 +357,7 @@ name = "fonts-rs-bravura"
 version = "0.1.0"
 dependencies = [
  "ab_glyph",
+ "const_format",
  "fonts-rs-generator",
  "fonts-rs-model",
  "gio",
@@ -374,6 +375,7 @@ name = "fonts-rs-cuernavaca"
 version = "0.1.0"
 dependencies = [
  "ab_glyph",
+ "const_format",
  "fonts-rs-generator",
  "fonts-rs-model",
  "gio",
@@ -389,6 +391,7 @@ name = "fonts-rs-dicefont"
 version = "0.1.0"
 dependencies = [
  "ab_glyph",
+ "const_format",
  "fonts-rs-generator",
  "fonts-rs-model",
  "gio",
@@ -404,6 +407,7 @@ name = "fonts-rs-doto"
 version = "0.1.0"
 dependencies = [
  "ab_glyph",
+ "const_format",
  "fonts-rs-generator",
  "fonts-rs-model",
  "gio",
@@ -419,6 +423,7 @@ name = "fonts-rs-fourteen-segment"
 version = "0.1.0"
 dependencies = [
  "ab_glyph",
+ "const_format",
  "fonts-rs-generator",
  "fonts-rs-model",
  "gio",
@@ -500,6 +505,7 @@ name = "fonts-rs-redacted"
 version = "0.1.0"
 dependencies = [
  "ab_glyph",
+ "const_format",
  "fonts-rs-generator",
  "fonts-rs-model",
  "gio",
@@ -515,6 +521,7 @@ name = "fonts-rs-seven-segment"
 version = "0.1.0"
 dependencies = [
  "ab_glyph",
+ "const_format",
  "fonts-rs-generator",
  "fonts-rs-model",
  "gio",

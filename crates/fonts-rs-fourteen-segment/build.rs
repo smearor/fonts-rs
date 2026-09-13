@@ -8,8 +8,12 @@ use fonts_rs_generator::build_config;
 use fonts_rs_generator::build_constants;
 use fonts_rs_generator::detect_active_variant_index;
 use fonts_rs_generator::set_font_path_env;
-use fonts_rs_model::ASCII_PRINTABLE_RANGE;
 use fonts_rs_model::FontVariant;
+
+#[path = "src/definition.rs"]
+mod definition;
+
+use definition::FourteenSegmentConfig;
 
 /// All DSEG14 variants and their mapping to TTF filenames.
 const VARIANTS: &[FontVariant] = &[
@@ -52,7 +56,7 @@ fn main() -> miette::Result<()> {
 
     set_font_path_env("DSEG14_FONT_PATH", &font_path);
 
-    let config = build_config("dseg14", "DSEG14", "fourteen_segment", Some(*entry), ASCII_PRINTABLE_RANGE);
+    let config = build_config::<FourteenSegmentConfig>("dseg14", "DSEG14", Some(*entry));
 
     FontBuild::new(&font_path)
         .run(|font_path, resources_dir| config.export_glyphs(font_path, resources_dir))

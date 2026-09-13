@@ -9,8 +9,6 @@ use std::fs;
 use std::io::Write;
 use std::path::Path;
 
-use fonts_rs_model::BMP_RANGE;
-use fonts_rs_model::CodePointRange;
 use fonts_rs_model::FontFamily;
 use fonts_rs_model::GlyphEntry;
 use fonts_rs_model::ResourcePath;
@@ -21,50 +19,20 @@ use skrifa::GlyphId;
 use skrifa::MetadataProvider;
 
 use crate::font::Font;
+use crate::font_family_config::FontFamilyConfig;
 use crate::gresource::model::GResource;
 use crate::gresource::model::GResourceFile;
 use crate::gresource::model::GResources;
 use crate::svg::EMPTY_SVG;
 
 /// Defines a font family's build-time configuration for the generic
-/// export pipeline.
+/// export pipeline with type-safe glyph names.
 ///
-/// Each font family crate implements this trait to specify its GResource
-/// prefix, naming convention, and glyph name normalization logic. The
-/// default [`FontDefinition::export_glyphs`] method uses this
-/// configuration to produce SVG icons, metadata, and GResource XML for
-/// any TTF/OTF font.
-pub trait FontDefinition {
-    /// GResource prefix for this font family.
-    ///
-    /// e.g. `/io/smearor/fonts/seven_segment` or `/io/smearor/fonts/nerd_fonts`.
-    const GRESOURCE_PREFIX: &'static str;
-
-    /// Icon context subdirectory within the GResource prefix.
-    ///
-    /// Follows the Freedesktop Icon Theme Specification used by GTK 4's
-    /// `GtkIconTheme`: `{prefix}/scalable/{context}/{name}.svg`.
-    ///
-    /// The `scalable` directory signals that icons are vector (SVG) and
-    /// can be rendered at any size. The `context` subdirectory groups
-    /// icons by semantic category (e.g. `glyphs`, `status`, `actions`).
-    ///
-    /// For font glyph icons, `"glyphs"` is the default context.
-    /// Font families can override this to use a different context if
-    /// needed (e.g. `"emoji"` for Noto Emoji).
-    const ICONS_CONTEXT: &'static str = "glyphs";
-
-    /// Unicode codepoint ranges to probe when building the reverse cmap.
-    ///
-    /// Each tuple is `(start, end)` inclusive. The generic pipeline probes
-    /// these ranges to map `GlyphId` -> `CodePoint` for each glyph in the
-    /// font.
-    ///
-    /// Defaults to the BMP (`U+0000`–`U+FFFF`), which covers most fonts.
-    /// Font families with glyphs in supplementary planes (e.g. Nerd Fonts
-    /// PUA at `U+F0001`–`U+10FFFF`) should override this.
-    const CODEPOINT_RANGES: &[CodePointRange] = &[BMP_RANGE];
-
+/// Extends [`FontFamilyConfig`] with glyph name normalization and a
+/// type-safe `Name` type. The default [`FontDefinition::export_glyphs`]
+/// method uses this configuration to produce SVG icons, metadata, and
+/// GResource XML for any TTF/OTF font.
+pub trait FontDefinition: FontFamilyConfig {
     /// The glyph name type used by this font family.
     ///
     /// For simple font families, this is `GlyphName<Self::Family>` — the

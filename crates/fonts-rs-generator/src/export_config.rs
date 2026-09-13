@@ -7,10 +7,10 @@
 use std::collections::HashSet;
 use std::fs;
 use std::io::Write;
+use std::marker::PhantomData;
 use std::path::Path;
 
 use fonts_rs_model::AxisValues;
-use fonts_rs_model::CodePointRange;
 use fonts_rs_model::GlyphEntry;
 use fonts_rs_model::GlyphNameMap;
 use fonts_rs_model::ResourcePath;
@@ -22,25 +22,30 @@ use skrifa::instance::LocationRef;
 
 use crate::font::Font;
 use crate::font_definition::normalize_to_kebab;
+use crate::font_family_config::FontFamilyConfig;
 use crate::gresource::model::GResource;
 use crate::gresource::model::GResourceFile;
 use crate::gresource::model::GResources;
 use crate::svg::EMPTY_SVG;
 
-/// Runtime configuration for glyph export, decoupled from `FontDefinition`.
+/// Runtime configuration for glyph export, parameterized by a [`FontFamilyConfig`].
 ///
 /// Allows build scripts to export glyphs with variant-specific parameters
 /// determined at runtime (e.g. from Cargo features) without needing a
 /// separate `FontDefinition` impl per variant.
-pub struct ExportConfig {
+///
+/// The `X` type parameter provides compile-time constants (`GRESOURCE_PREFIX`,
+/// `ICONS_CONTEXT`, `CODEPOINT_RANGES`) while the struct fields hold
+/// runtime-determined values (variant prefix, axis settings, etc.).
+pub struct ExportConfig<X: FontFamilyConfig> {
     /// GResource prefix, e.g. `/io/smearor/fonts/seven_segment/classic_regular`.
+    ///
+    /// This is the full prefix including any variant slug, constructed by
+    /// [`build_config`](crate::build_helpers::build_config) from
+    /// `X::GRESOURCE_PREFIX`.
     pub gresource_prefix: String,
-    /// Icon context subdirectory, e.g. `glyphs`.
-    pub icons_context: String,
     /// Glyph name prefix, e.g. `dseg7-classic-regular`.
     pub glyph_name_prefix: String,
-    /// Unicode codepoint ranges to probe.
-    pub codepoint_ranges: &'static [CodePointRange],
     /// Variable font axis settings in user space (e.g. `wght=700.0, ROND=50.0`).
     ///
     /// Empty for non-variable fonts (renders at default location).
@@ -56,6 +61,8 @@ pub struct ExportConfig {
     /// Human-readable font family name for diagnostics and generated code comments,
     /// e.g. `"DSEG7"`, `"Doto"`, `"Bravura"`.
     pub family_display_name: String,
+    /// Marker for the [`FontFamilyConfig`] type parameter.
+    pub(crate) _marker: PhantomData<X>,
 }
 
 /// Default glyph name filter: skips auto-generated PostScript names.
@@ -96,7 +103,7 @@ fn generate_gresource_xml_with_prefix(entries: &[GlyphEntry<String>], output_pat
     Ok(())
 }
 
-impl ExportConfig {
+impl<X: FontFamilyConfig> ExportConfig<X> {
     /// Export all glyphs from a TTF/OTF font file.
     ///
     /// Generates:
@@ -119,10 +126,11 @@ impl ExportConfig {
         let location = font.location(&self.axes);
         let location_ref = LocationRef::from(&location);
 
-        let icons_dir = output_dir.join("scalable").join(&self.icons_context);
+        let icons_context = X::ICONS_CONTEXT;
+        let icons_dir = output_dir.join("scalable").join(icons_context);
         fs::create_dir_all(&icons_dir)?;
 
-        let reverse_cmap = font.build_reverse_cmap_with_ranges(self.codepoint_ranges);
+        let reverse_cmap = font.build_reverse_cmap_with_ranges(X::CODEPOINT_RANGES);
 
         let mut entries: Vec<GlyphEntry<String>> = Vec::new();
         let mut seen_names: HashSet<String> = HashSet::new();
@@ -161,13 +169,13 @@ impl ExportConfig {
             let mut file = fs::File::create(&filename)?;
             file.write_all(svg.as_bytes())?;
 
-            let resource_prefix = format!("{}/scalable/{}", self.gresource_prefix, self.icons_context);
+            let resource_prefix = format!("{}/scalable/{}", self.gresource_prefix, icons_context);
             let resource_path = ResourcePath::from_name(&resource_prefix, &glyph_name);
 
             entries.push(GlyphEntry {
                 code: codepoint,
                 name: glyph_name.clone(),
-                file: Path::new(&format!("resources/scalable/{}/{}.svg", self.icons_context, glyph_name)).to_path_buf(),
+                file: Path::new(&format!("resources/scalable/{}/{}.svg", icons_context, glyph_name)).to_path_buf(),
                 resource_path,
             });
         }
@@ -179,7 +187,7 @@ impl ExportConfig {
         fs::write(&json_path, json)?;
 
         let xml_path = output_dir.join("icons.gresource.xml");
-        generate_gresource_xml_with_prefix(&entries, &xml_path, &self.gresource_prefix, &self.icons_context)?;
+        generate_gresource_xml_with_prefix(&entries, &xml_path, &self.gresource_prefix, icons_context)?;
 
         Ok(entries.len())
     }
@@ -217,7 +225,8 @@ impl ExportConfig {
         let location = font.location(&self.axes);
         let location_ref = LocationRef::from(&location);
 
-        let icons_dir = output_dir.join("scalable").join(&self.icons_context);
+        let icons_context = X::ICONS_CONTEXT;
+        let icons_dir = output_dir.join("scalable").join(icons_context);
         fs::create_dir_all(&icons_dir)?;
 
         let charmap = font.charmap();
@@ -246,13 +255,13 @@ impl ExportConfig {
             let mut file = fs::File::create(&filename)?;
             file.write_all(svg.as_bytes())?;
 
-            let resource_prefix = format!("{}/scalable/{}", self.gresource_prefix, self.icons_context);
+            let resource_prefix = format!("{}/scalable/{}", self.gresource_prefix, icons_context);
             let resource_path = ResourcePath::from_name(&resource_prefix, &glyph_name);
 
             entries.push(GlyphEntry {
                 code: Some(fonts_rs_model::CodePoint::from(ch)),
                 name: glyph_name.clone(),
-                file: Path::new(&format!("resources/scalable/{}/{}.svg", self.icons_context, glyph_name)).to_path_buf(),
+                file: Path::new(&format!("resources/scalable/{}/{}.svg", icons_context, glyph_name)).to_path_buf(),
                 resource_path,
             });
         }
@@ -264,7 +273,7 @@ impl ExportConfig {
         fs::write(&json_path, json)?;
 
         let xml_path = output_dir.join("icons.gresource.xml");
-        generate_gresource_xml_with_prefix(&entries, &xml_path, &self.gresource_prefix, &self.icons_context)?;
+        generate_gresource_xml_with_prefix(&entries, &xml_path, &self.gresource_prefix, icons_context)?;
 
         Ok(entries.len())
     }
@@ -275,21 +284,16 @@ impl ExportConfig {
     /// GResource prefix and glyph name prefix as `pub const` strings, for use
     /// by the crate's `lib.rs` at compile time.
     pub fn write_variant_info(&self) -> miette::Result<()> {
-        let out_dir = std::env::var("OUT_DIR")
-            .map_err(|e| miette::miette!("OUT_DIR not set: {e}"))?;
+        let out_dir = std::env::var("OUT_DIR").map_err(|e| miette::miette!("OUT_DIR not set: {e}"))?;
         let variant_info = format!(
             "// @generated by build.rs — do not edit\n\n\
              /// GResource prefix for {}.\n\
              pub const GRESOURCE_PREFIX: &str = \"{}\";\n\n\
              /// Glyph name prefix for {}.\n\
              pub const GLYPH_PREFIX: &str = \"{}\";\n",
-            self.family_display_name,
-            self.gresource_prefix,
-            self.family_display_name,
-            self.glyph_name_prefix,
+            self.family_display_name, self.gresource_prefix, self.family_display_name, self.glyph_name_prefix,
         );
-        std::fs::write(std::path::Path::new(&out_dir).join("variant.rs"), variant_info)
-            .map_err(|e| miette::miette!("Failed to write variant.rs: {e}"))?;
+        std::fs::write(std::path::Path::new(&out_dir).join("variant.rs"), variant_info).map_err(|e| miette::miette!("Failed to write variant.rs: {e}"))?;
         Ok(())
     }
 }

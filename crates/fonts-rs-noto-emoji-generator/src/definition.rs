@@ -9,6 +9,7 @@
 //! This definition provides the constants and type information for the family.
 
 use fonts_rs_generator::FontDefinition;
+use fonts_rs_generator::FontFamilyConfig;
 use fonts_rs_model::CodePointRange;
 use fonts_rs_model::FontFamily;
 use fonts_rs_model::sealed;
@@ -64,13 +65,15 @@ pub const GLYPH_PREFIX: &str = "noto-emoji";
 /// This definition still provides the constants and type information.
 pub struct NotoEmojiDefinition;
 
-impl FontDefinition for NotoEmojiDefinition {
+impl FontFamilyConfig for NotoEmojiDefinition {
     const GRESOURCE_PREFIX: &'static str = GRESOURCE_PREFIX;
 
     const ICONS_CONTEXT: &'static str = "emoji";
 
     const CODEPOINT_RANGES: &[CodePointRange] = EMOJI_RANGES;
+}
 
+impl FontDefinition for NotoEmojiDefinition {
     type Name = String;
 
     type Family = NotoEmoji;

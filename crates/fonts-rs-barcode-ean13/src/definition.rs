@@ -5,6 +5,7 @@
 
 use const_format::concatcp;
 use fonts_rs_generator::FontDefinition;
+use fonts_rs_generator::FontFamilyConfig;
 use fonts_rs_generator::normalize_to_kebab;
 use fonts_rs_model::ASCII_PRINTABLE_RANGE;
 use fonts_rs_model::CodePointRange;
@@ -37,14 +38,16 @@ pub type Ean13Name = GlyphName<Ean13>;
 /// [`FontDefinition::export_glyphs`] pipeline.
 pub struct Ean13Definition;
 
-impl FontDefinition for Ean13Definition {
+impl FontFamilyConfig for Ean13Definition {
     const GRESOURCE_PREFIX: &'static str = concatcp!(GRESOURCE_BASE_PREFIX, "/barcode_ean13");
 
     const ICONS_CONTEXT: &'static str = "glyphs";
 
     /// ASCII printable range (U+0020–U+007E) covers all EAN13 glyphs.
     const CODEPOINT_RANGES: &[CodePointRange] = ASCII_PRINTABLE_RANGE;
+}
 
+impl FontDefinition for Ean13Definition {
     type Name = Ean13Name;
 
     type Family = Ean13;
