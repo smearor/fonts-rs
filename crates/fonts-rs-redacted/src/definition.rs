@@ -13,7 +13,11 @@ use fonts_rs_model::GRESOURCE_BASE_PREFIX;
 pub struct RedactedConfig;
 
 impl FontFamilyConfig for RedactedConfig {
-    const GRESOURCE_PREFIX: &'static str = concatcp!(GRESOURCE_BASE_PREFIX, "/redacted");
+    const FONT_FAMILY_NAME: &'static str = "redacted";
+
+    const FAMILY_DISPLAY_NAME: &'static str = "Redacted";
+
+    const GRESOURCE_PREFIX: &'static str = concatcp!(GRESOURCE_BASE_PREFIX, "/", RedactedConfig::FONT_FAMILY_NAME);
 
     const CODEPOINT_RANGES: &[CodePointRange] = ASCII_PRINTABLE_RANGE;
 }

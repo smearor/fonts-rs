@@ -11,6 +11,7 @@
 use std::path::Path;
 
 use fonts_rs_generator::FontBuild;
+use fonts_rs_generator::FontFamilyConfig;
 use fonts_rs_generator::build_config;
 use fonts_rs_generator::build_constants;
 use fonts_rs_generator::set_font_path_env;
@@ -48,9 +49,9 @@ fn main() -> miette::Result<()> {
     let name_map = parse_glyphnames(&glyphnames_json)?;
     eprintln!("build.rs: parsed {} SMuFL glyph names", name_map.len());
 
-    let config = build_config::<BravuraConfig>("bravura", "Bravura", None);
+    let config = build_config::<BravuraConfig>(None);
 
-    let icons_dir = Path::new(build_constants::RESOURCES_DIR).join("scalable").join("glyphs");
+    let icons_dir = BravuraConfig::icons_dir(Path::new(build_constants::RESOURCES_DIR));
 
     FontBuild::new(&font_path)
         .run(|font_path, resources_dir| {

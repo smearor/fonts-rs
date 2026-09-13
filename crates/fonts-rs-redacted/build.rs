@@ -36,7 +36,7 @@ fn main() -> miette::Result<()> {
 
     set_font_path_env("REDACTED_FONT_PATH", &font_path);
 
-    let config = build_config::<RedactedConfig>("redacted", "Redacted", Some(*entry));
+    let config = build_config::<RedactedConfig>(Some(*entry));
 
     FontBuild::new(&font_path)
         .extra_hash(entry.as_str())

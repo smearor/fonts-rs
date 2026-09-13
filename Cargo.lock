@@ -491,6 +491,7 @@ name = "fonts-rs-noto-emoji-generator"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "const_format",
  "fonts-rs-generator",
  "fonts-rs-model",
  "miette",

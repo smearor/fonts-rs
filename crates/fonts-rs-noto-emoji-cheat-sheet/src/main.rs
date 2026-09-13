@@ -881,7 +881,7 @@ fn show_detail(content: &Box, name: &str, codepoint: CodePoint, search_entry: &E
         }
     }
 
-    let resource_path = format!("{}/scalable/emoji/{}.svg", GRESOURCE_PREFIX, name);
+    let resource_path = format!("{}/{}/{}/{}.svg", GRESOURCE_PREFIX, fonts_rs_model::SCALABLE_DIR, fonts_rs_model::ICONS_CONTEXT_EMOJI, name);
     if let Ok(bytes) = gio::resources_lookup_data(&resource_path, gio::ResourceLookupFlags::NONE) {
         let svg_xml = String::from_utf8_lossy(bytes.as_ref()).into_owned();
 

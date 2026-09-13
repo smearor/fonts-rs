@@ -39,7 +39,11 @@ pub type Code128Name = GlyphName<Code128>;
 pub struct Code128Definition;
 
 impl FontFamilyConfig for Code128Definition {
-    const GRESOURCE_PREFIX: &'static str = concatcp!(GRESOURCE_BASE_PREFIX, "/barcode_code128");
+    const FONT_FAMILY_NAME: &'static str = "barcode_code128";
+
+    const FAMILY_DISPLAY_NAME: &'static str = "Libre Barcode Code 128";
+
+    const GRESOURCE_PREFIX: &'static str = concatcp!(GRESOURCE_BASE_PREFIX, "/", Code128Definition::FONT_FAMILY_NAME);
 
     const ICONS_CONTEXT: &'static str = "glyphs";
 

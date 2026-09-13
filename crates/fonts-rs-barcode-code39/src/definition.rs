@@ -39,7 +39,11 @@ pub type Code39Name = GlyphName<Code39>;
 pub struct Code39Definition;
 
 impl FontFamilyConfig for Code39Definition {
-    const GRESOURCE_PREFIX: &'static str = concatcp!(GRESOURCE_BASE_PREFIX, "/barcode_code39");
+    const FONT_FAMILY_NAME: &'static str = "barcode_code39";
+
+    const FAMILY_DISPLAY_NAME: &'static str = "Libre Barcode Code 39";
+
+    const GRESOURCE_PREFIX: &'static str = concatcp!(GRESOURCE_BASE_PREFIX, "/", Code39Definition::FONT_FAMILY_NAME);
 
     const ICONS_CONTEXT: &'static str = "glyphs";
 

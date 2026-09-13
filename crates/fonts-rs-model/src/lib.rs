@@ -55,4 +55,7 @@ pub use metadata::GlyphCategoryMap;
 pub use metadata::GlyphKeywordMap;
 pub use metadata::GlyphMetadata;
 pub use paths::GRESOURCE_BASE_PREFIX;
+pub use paths::ICONS_CONTEXT_EMOJI;
+pub use paths::ICONS_CONTEXT_GLYPHS;
+pub use paths::SCALABLE_DIR;
 pub use resource_path::ResourcePath;

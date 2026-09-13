@@ -8,6 +8,7 @@ use std::fs;
 use std::path::Path;
 
 use fonts_rs_generator::FontBuild;
+use fonts_rs_generator::FontFamilyConfig;
 use fonts_rs_generator::build_config;
 use fonts_rs_generator::build_constants;
 use fonts_rs_generator::detect_active_variant_index;
@@ -66,9 +67,9 @@ fn main() -> miette::Result<()> {
 
     set_font_path_env("DOTO_FONT_PATH", &font_path);
 
-    let config = build_config::<DotoConfig>("doto", "Doto", Some(*entry));
+    let config = build_config::<DotoConfig>(Some(*entry));
 
-    let icons_dir = Path::new(build_constants::RESOURCES_DIR).join("scalable").join("glyphs");
+    let icons_dir = DotoConfig::icons_dir(Path::new(build_constants::RESOURCES_DIR));
 
     FontBuild::new(&font_path)
         .extra_hash(entry.as_str())

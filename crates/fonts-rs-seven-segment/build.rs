@@ -56,7 +56,7 @@ fn main() -> miette::Result<()> {
 
     set_font_path_env("DSEG7_FONT_PATH", &font_path);
 
-    let config = build_config::<SevenSegmentConfig>("dseg7", "DSEG7", Some(*entry));
+    let config = build_config::<SevenSegmentConfig>(Some(*entry));
 
     FontBuild::new(&font_path)
         .run(|font_path, resources_dir| config.export_glyphs(font_path, resources_dir))

@@ -15,7 +15,11 @@ const CODEPOINT_RANGES: &[CodePointRange] = &[CodePointRange::from_char('\u{F000
 pub struct DicefontConfig;
 
 impl FontFamilyConfig for DicefontConfig {
-    const GRESOURCE_PREFIX: &'static str = concatcp!(GRESOURCE_BASE_PREFIX, "/dicefont");
+    const FONT_FAMILY_NAME: &'static str = "dicefont";
+
+    const FAMILY_DISPLAY_NAME: &'static str = "Dicefont";
+
+    const GRESOURCE_PREFIX: &'static str = concatcp!(GRESOURCE_BASE_PREFIX, "/", DicefontConfig::FONT_FAMILY_NAME);
 
     const CODEPOINT_RANGES: &[CodePointRange] = CODEPOINT_RANGES;
 }

@@ -4,8 +4,13 @@
 //! (type-safe glyph name pipeline) and [`ExportConfig`](crate::ExportConfig)
 //! (runtime variant pipeline).
 
+use std::path::Path;
+use std::path::PathBuf;
+
 use fonts_rs_model::BMP_RANGE;
 use fonts_rs_model::CodePointRange;
+use fonts_rs_model::ICONS_CONTEXT_GLYPHS;
+use fonts_rs_model::SCALABLE_DIR;
 
 /// Base configuration for font families.
 ///
@@ -17,9 +22,23 @@ use fonts_rs_model::CodePointRange;
 /// type-safe glyph name handling. [`ExportConfig`](crate::ExportConfig)
 /// is generic over any type implementing this trait.
 pub trait FontFamilyConfig {
+    /// Font family slug used in the GResource prefix and glyph names.
+    ///
+    /// e.g. `"dseg7"` or `"doto"`. Combined with
+    /// [`GRESOURCE_BASE_PREFIX`](fonts_rs_model::GRESOURCE_BASE_PREFIX) to
+    /// produce the full `GRESOURCE_PREFIX`, and used directly as the
+    /// `glyph_name_prefix` base in [`build_config`](crate::build_config).
+    const FONT_FAMILY_NAME: &'static str;
+
+    /// Human-readable display name for the font family.
+    ///
+    /// e.g. `"DSEG7"` or `"Doto"`. Used in build log messages and
+    /// [`build_config`](crate::build_config) for the `family_display_name` field.
+    const FAMILY_DISPLAY_NAME: &'static str;
+
     /// GResource prefix for this font family.
     ///
-    /// e.g. `/io/smearor/fonts/seven_segment` or `/io/smearor/fonts/nerd_fonts`.
+    /// e.g. `/io/smearor/fonts/dseg7` or `/io/smearor/fonts/nerd_fonts`.
     const GRESOURCE_PREFIX: &'static str;
 
     /// Icon context subdirectory within the GResource prefix.
@@ -31,10 +50,25 @@ pub trait FontFamilyConfig {
     /// can be rendered at any size. The `context` subdirectory groups
     /// icons by semantic category (e.g. `glyphs`, `status`, `actions`).
     ///
-    /// For font glyph icons, `"glyphs"` is the default context.
+    /// For font glyph icons, [`ICONS_CONTEXT_GLYPHS`] is the default context.
     /// Font families can override this to use a different context if
-    /// needed (e.g. `"emoji"` for Noto Emoji).
-    const ICONS_CONTEXT: &'static str = "glyphs";
+    /// needed (e.g. [`ICONS_CONTEXT_EMOJI`](fonts_rs_model::ICONS_CONTEXT_EMOJI) for Noto Emoji).
+    const ICONS_CONTEXT: &'static str = ICONS_CONTEXT_GLYPHS;
+
+    /// Build the icons output directory: `{output_dir}/{SCALABLE_DIR}/{ICONS_CONTEXT}`.
+    ///
+    /// Follows the Freedesktop Icon Theme Specification used by GTK 4's
+    /// `GtkIconTheme`.
+    fn icons_dir(output_dir: &Path) -> PathBuf {
+        output_dir.join(SCALABLE_DIR).join(Self::ICONS_CONTEXT)
+    }
+
+    /// Build the GResource sub-prefix for icons: `{GRESOURCE_PREFIX}/{SCALABLE_DIR}/{ICONS_CONTEXT}`.
+    ///
+    /// Used in `icons.gresource.xml` and resource paths.
+    fn icons_resource_prefix() -> String {
+        format!("{}/{}/{}", Self::GRESOURCE_PREFIX, SCALABLE_DIR, Self::ICONS_CONTEXT)
+    }
 
     /// Unicode codepoint ranges to probe when building the reverse cmap.
     ///

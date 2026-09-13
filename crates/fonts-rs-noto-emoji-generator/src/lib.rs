@@ -16,8 +16,6 @@ pub use definition::ANNOTATIONS_FILE;
 pub use definition::EMOJI_RANGES;
 pub use definition::EMOJI_TEST_FILE;
 pub use definition::FONT_FILE;
-pub use definition::GLYPH_PREFIX;
-pub use definition::GRESOURCE_PREFIX;
 pub use definition::NotoEmoji;
 pub use definition::NotoEmojiDefinition;
 pub use emoji_test::parse_emoji_test;

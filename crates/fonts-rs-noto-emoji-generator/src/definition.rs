@@ -8,10 +8,13 @@
 //! CLDR annotation data for semantic names instead of the generic pipeline.
 //! This definition provides the constants and type information for the family.
 
+use const_format::concatcp;
 use fonts_rs_generator::FontDefinition;
 use fonts_rs_generator::FontFamilyConfig;
 use fonts_rs_model::CodePointRange;
 use fonts_rs_model::FontFamily;
+use fonts_rs_model::GRESOURCE_BASE_PREFIX;
+use fonts_rs_model::ICONS_CONTEXT_EMOJI;
 use fonts_rs_model::sealed;
 
 /// Marker enum for the Noto Emoji font family.
@@ -48,12 +51,6 @@ pub const EMOJI_RANGES: &[CodePointRange] = &[
     CodePointRange::from_char('\u{1FA70}', '\u{1FAFF}'),
 ];
 
-/// GResource prefix for Noto Emoji.
-pub const GRESOURCE_PREFIX: &str = "/io/smearor/fonts/noto_emoji";
-
-/// Glyph name prefix for Noto Emoji.
-pub const GLYPH_PREFIX: &str = "noto-emoji";
-
 /// Build-time configuration for the Noto Emoji font family.
 ///
 /// Implements [`FontDefinition`] to plug into the generic
@@ -66,9 +63,13 @@ pub const GLYPH_PREFIX: &str = "noto-emoji";
 pub struct NotoEmojiDefinition;
 
 impl FontFamilyConfig for NotoEmojiDefinition {
-    const GRESOURCE_PREFIX: &'static str = GRESOURCE_PREFIX;
+    const FONT_FAMILY_NAME: &'static str = "noto-emoji";
 
-    const ICONS_CONTEXT: &'static str = "emoji";
+    const FAMILY_DISPLAY_NAME: &'static str = "Noto Emoji";
+
+    const GRESOURCE_PREFIX: &'static str = concatcp!(GRESOURCE_BASE_PREFIX, "/", NotoEmojiDefinition::FONT_FAMILY_NAME);
+
+    const ICONS_CONTEXT: &'static str = ICONS_CONTEXT_EMOJI;
 
     const CODEPOINT_RANGES: &[CodePointRange] = EMOJI_RANGES;
 }
