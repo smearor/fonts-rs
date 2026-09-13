@@ -4,6 +4,7 @@
 //! font family, allowing the `FontDefinition::export_glyphs` pipeline to be used.
 
 use fonts_rs_generator::FontDefinition;
+use fonts_rs_generator::FontFamilyConfig;
 use fonts_rs_model::BMP_RANGE;
 use fonts_rs_model::CodePointRange;
 use fonts_rs_model::FontFamily;
@@ -28,7 +29,7 @@ impl FontFamily for NerdFonts {}
 /// [`FontDefinition::export_glyphs`] pipeline.
 pub struct NerdFontsDefinition;
 
-impl FontDefinition for NerdFontsDefinition {
+impl FontFamilyConfig for NerdFontsDefinition {
     const GRESOURCE_PREFIX: &'static str = GRESOURCE_PREFIX;
 
     const ICONS_CONTEXT: &'static str = "glyphs";
@@ -46,7 +47,9 @@ impl FontDefinition for NerdFontsDefinition {
     ///
     /// At ~16ns per `glyph_index` lookup, probing both ranges takes ~17ms.
     const CODEPOINT_RANGES: &[CodePointRange] = &[BMP_RANGE, SUPPLEMENTARY_PUA_RANGE];
+}
 
+impl FontDefinition for NerdFontsDefinition {
     type Name = IconName;
 
     type Family = NerdFonts;

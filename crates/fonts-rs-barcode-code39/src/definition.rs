@@ -5,6 +5,7 @@
 
 use const_format::concatcp;
 use fonts_rs_generator::FontDefinition;
+use fonts_rs_generator::FontFamilyConfig;
 use fonts_rs_generator::normalize_to_kebab;
 use fonts_rs_model::ASCII_PRINTABLE_RANGE;
 use fonts_rs_model::CodePointRange;
@@ -37,14 +38,16 @@ pub type Code39Name = GlyphName<Code39>;
 /// [`FontDefinition::export_glyphs`] pipeline.
 pub struct Code39Definition;
 
-impl FontDefinition for Code39Definition {
+impl FontFamilyConfig for Code39Definition {
     const GRESOURCE_PREFIX: &'static str = concatcp!(GRESOURCE_BASE_PREFIX, "/barcode_code39");
 
     const ICONS_CONTEXT: &'static str = "glyphs";
 
     /// ASCII printable range (U+0020–U+007E) covers all Code 39 glyphs.
     const CODEPOINT_RANGES: &[CodePointRange] = ASCII_PRINTABLE_RANGE;
+}
 
+impl FontDefinition for Code39Definition {
     type Name = Code39Name;
 
     type Family = Code39;

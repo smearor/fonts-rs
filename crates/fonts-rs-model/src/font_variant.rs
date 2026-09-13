@@ -55,11 +55,7 @@ impl FontVariant {
     }
 
     /// Creates a [`FontVariant`] from a separate font file with additional axes.
-    pub const fn file_with_axes(
-        name: &'static str,
-        font_file: &'static str,
-        axis_values: &'static [AxisValue],
-    ) -> Self {
+    pub const fn file_with_axes(name: &'static str, font_file: &'static str, axis_values: &'static [AxisValue]) -> Self {
         Self {
             name,
             variant_type: FontVariantType::file_with_axes(font_file, axis_values),

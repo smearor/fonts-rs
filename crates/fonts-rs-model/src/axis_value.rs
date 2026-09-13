@@ -19,10 +19,7 @@ pub struct AxisValue {
 impl AxisValue {
     /// Creates a new [`AxisValue`] from an axis name and a value.
     pub const fn new(axis: &'static str, value: f32) -> Self {
-        Self {
-            axis: Axis::new(axis),
-            value,
-        }
+        Self { axis: Axis::new(axis), value }
     }
 }
 

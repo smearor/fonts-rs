@@ -11,10 +11,11 @@ use fonts_rs_generator::FontBuild;
 use fonts_rs_generator::build_config;
 use fonts_rs_generator::build_constants;
 use fonts_rs_generator::set_font_path_env;
-use fonts_rs_model::CodePointRange;
 
-/// PUA range (U+F000–U+FFFF) covering all dicefont glyphs.
-const CODEPOINT_RANGES: &[CodePointRange] = &[CodePointRange::from_char('\u{F000}', '\u{FFFF}')];
+#[path = "src/definition.rs"]
+mod definition;
+
+use definition::DicefontConfig;
 
 /// TTF font file name (relative to `resources/`).
 pub const FONT_FILE: &str = "dicefont.ttf";
@@ -26,7 +27,7 @@ fn main() -> miette::Result<()> {
 
     set_font_path_env("DICEFONT_FONT_PATH", &font_path);
 
-    let config = build_config("dicefont", "Dicefont", "dicefont", None, CODEPOINT_RANGES);
+    let config = build_config::<DicefontConfig>("dicefont", "Dicefont", None);
 
     let icons_dir = Path::new(build_constants::RESOURCES_DIR).join("scalable").join("glyphs");
 

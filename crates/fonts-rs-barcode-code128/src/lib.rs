@@ -31,7 +31,7 @@ pub mod definition;
 #[cfg(feature = "render")]
 pub mod fonts;
 
-use fonts_rs_generator::FontDefinition;
+use fonts_rs_generator::FontFamilyConfig;
 use fonts_rs_model::CodePoint;
 
 // Re-export key types

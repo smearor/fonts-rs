@@ -8,7 +8,11 @@ use fonts_rs_generator::FontBuild;
 use fonts_rs_generator::build_config;
 use fonts_rs_generator::build_constants;
 use fonts_rs_generator::set_font_path_env;
-use fonts_rs_model::ASCII_PRINTABLE_RANGE;
+
+#[path = "src/definition.rs"]
+mod definition;
+
+use definition::CuernavacaConfig;
 
 fn main() -> miette::Result<()> {
     let font_path = format!("{}/ChessCuernavaca.ttf", build_constants::RESOURCES_DIR);
@@ -17,7 +21,7 @@ fn main() -> miette::Result<()> {
 
     set_font_path_env("CUERNAVACA_FONT_PATH", &font_path);
 
-    let config = build_config("cuernavaca", "Cuernavaca", "cuernavaca", None, ASCII_PRINTABLE_RANGE);
+    let config = build_config::<CuernavacaConfig>("cuernavaca", "Cuernavaca", None);
 
     FontBuild::new(&font_path)
         .run(|font_path, resources_dir| config.export_glyphs(font_path, resources_dir))

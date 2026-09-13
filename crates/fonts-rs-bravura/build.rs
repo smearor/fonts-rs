@@ -15,7 +15,11 @@ use fonts_rs_generator::build_config;
 use fonts_rs_generator::build_constants;
 use fonts_rs_generator::set_font_path_env;
 use fonts_rs_model::GlyphNameMap;
-use fonts_rs_model::PUA_RANGE;
+
+#[path = "src/definition.rs"]
+mod definition;
+
+use definition::BravuraConfig;
 
 /// OTF font file name (relative to `resources/`).
 pub const FONT_FILE: &str = "Bravura.otf";
@@ -44,7 +48,7 @@ fn main() -> miette::Result<()> {
     let name_map = parse_glyphnames(&glyphnames_json)?;
     eprintln!("build.rs: parsed {} SMuFL glyph names", name_map.len());
 
-    let config = build_config("bravura", "Bravura", "bravura", None, &[PUA_RANGE]);
+    let config = build_config::<BravuraConfig>("bravura", "Bravura", None);
 
     let icons_dir = Path::new(build_constants::RESOURCES_DIR).join("scalable").join("glyphs");
 

@@ -12,9 +12,13 @@ use fonts_rs_generator::build_config;
 use fonts_rs_generator::build_constants;
 use fonts_rs_generator::detect_active_variant_index;
 use fonts_rs_generator::set_font_path_env;
-use fonts_rs_model::ASCII_PRINTABLE_RANGE;
 use fonts_rs_model::AxisValue;
 use fonts_rs_model::FontVariant;
+
+#[path = "src/definition.rs"]
+mod definition;
+
+use definition::DotoConfig;
 
 /// TTF font file name (relative to `resources/`).
 pub const FONT_FILE: &str = "Doto.ttf";
@@ -62,7 +66,7 @@ fn main() -> miette::Result<()> {
 
     set_font_path_env("DOTO_FONT_PATH", &font_path);
 
-    let config = build_config("doto", "Doto", "doto", Some(*entry), ASCII_PRINTABLE_RANGE);
+    let config = build_config::<DotoConfig>("doto", "Doto", Some(*entry));
 
     let icons_dir = Path::new(build_constants::RESOURCES_DIR).join("scalable").join("glyphs");
 

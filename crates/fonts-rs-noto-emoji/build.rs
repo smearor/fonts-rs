@@ -11,12 +11,10 @@
 
 use std::path::Path;
 
-use fonts_rs_generator::ExportConfig;
 use fonts_rs_generator::FontBuild;
-use fonts_rs_generator::FontDefinition;
 use fonts_rs_generator::MetadataGenerator;
+use fonts_rs_generator::build_config;
 use fonts_rs_generator::build_constants;
-use fonts_rs_model::GRESOURCE_BASE_PREFIX;
 use fonts_rs_noto_emoji_generator::ANNOTATIONS_FILE;
 use fonts_rs_noto_emoji_generator::EMOJI_TEST_FILE;
 use fonts_rs_noto_emoji_generator::FONT_FILE;
@@ -48,15 +46,7 @@ fn main() -> miette::Result<()> {
     let category_map = parse_emoji_test(&emoji_test_content);
     eprintln!("build.rs: parsed {} emoji categories", category_map.len());
 
-    let config = ExportConfig {
-        gresource_prefix: format!("{}/noto_emoji", GRESOURCE_BASE_PREFIX),
-        icons_context: NotoEmojiDefinition::ICONS_CONTEXT.to_string(),
-        glyph_name_prefix: GLYPH_PREFIX.to_string(),
-        codepoint_ranges: NotoEmojiDefinition::CODEPOINT_RANGES,
-        axes: fonts_rs_model::AxisValues::EMPTY,
-        name_filter: None,
-        family_display_name: "Noto Emoji".to_string(),
-    };
+    let config = build_config::<NotoEmojiDefinition>(GLYPH_PREFIX, "Noto Emoji", None);
 
     let icons_dir = Path::new(build_constants::RESOURCES_DIR).join("scalable").join("emoji");
 

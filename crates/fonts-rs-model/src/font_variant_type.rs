@@ -68,10 +68,7 @@ impl FontVariantType {
     }
 
     /// Creates a [`FontVariantType`] for a separate file with additional axes.
-    pub const fn file_with_axes(
-        font_file: &'static str,
-        axis_values: &'static [crate::axis_value::AxisValue],
-    ) -> Self {
+    pub const fn file_with_axes(font_file: &'static str, axis_values: &'static [crate::axis_value::AxisValue]) -> Self {
         Self {
             font_file: Some(FontFile::new(font_file)),
             axis_values: AxisValues::new(axis_values),
