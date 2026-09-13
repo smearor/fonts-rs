@@ -40,6 +40,11 @@ impl<N: AsRef<str>> GlyphEntry<N> {
         let file = PathBuf::from(format!("resources/{SCALABLE_DIR}/{icons_context}/{name_ref}.svg"));
         let resource_prefix = format!("{gresource_prefix}/{SCALABLE_DIR}/{icons_context}");
         let resource_path = ResourcePath::from_name(&resource_prefix, name_ref);
-        Self { code, name, file, resource_path }
+        Self {
+            code,
+            name,
+            file,
+            resource_path,
+        }
     }
 }

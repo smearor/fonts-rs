@@ -10,7 +10,8 @@ use std::io::Write;
 use std::marker::PhantomData;
 use std::path::Path;
 
-use fonts_rs_model::{AxisValues, CodePoint};
+use fonts_rs_model::AxisValues;
+use fonts_rs_model::CodePoint;
 use fonts_rs_model::GlyphEntry;
 use fonts_rs_model::GlyphNameMap;
 use fonts_rs_model::SCALABLE_DIR;
@@ -130,7 +131,9 @@ impl<X: FontFamilyConfig> ExportConfig<X> {
 
             let codepoint = reverse_cmap.get(&glyph_id).copied();
 
-            let svg = font.glyph_to_svg_full_height_at(glyph_id, location_ref).unwrap_or_else(|| EMPTY_SVG.to_string());
+            let svg = font
+                .glyph_to_svg_full_height_at(glyph_id, location_ref)
+                .unwrap_or_else(|| EMPTY_SVG.to_string());
 
             let filename = icons_dir.join(format!("{}.svg", glyph_name));
             let mut file = fs::File::create(&filename)?;
@@ -205,10 +208,9 @@ impl<X: FontFamilyConfig> ExportConfig<X> {
             }
             seen_names.insert(glyph_name.clone());
 
-            let svg = match font.glyph_to_svg_full_height_at(glyph_id, location_ref) {
-                Some(svg) => svg,
-                None => EMPTY_SVG.to_string(),
-            };
+            let svg = font
+                .glyph_to_svg_full_height_at(glyph_id, location_ref)
+                .unwrap_or_else(|| EMPTY_SVG.to_string());
 
             let filename = icons_dir.join(format!("{}.svg", glyph_name));
             let mut file = fs::File::create(&filename)?;
