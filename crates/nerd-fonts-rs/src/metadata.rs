@@ -18,7 +18,9 @@ use fonts_rs_model::GlyphMetadata;
 
 // Include the build-time generated phf::Map constants.
 // The generated code references GlyphKeyword, GlyphCategory, and the Map newtypes.
-include!(concat!(env!("OUT_DIR"), "/metadata.rs"));
+include!(concat!(env!("OUT_DIR"), "/keywords.rs"));
+include!(concat!(env!("OUT_DIR"), "/categories.rs"));
+include!(concat!(env!("OUT_DIR"), "/aliases.rs"));
 
 /// Metadata registry for the Nerd Fonts icon collection.
 ///
