@@ -34,6 +34,8 @@ pub use font_definition::normalize_to_kebab;
 pub use font_family_config::FontFamilyConfig;
 pub use font_variant_ext::FontVariantExt;
 pub use generator::codemap::CodemapGenerator;
+pub use generator::codemap::CodemapNaming;
+pub use generator::codemap::DefaultNaming;
 pub use generator::error::GenerateError;
 pub use generator::generate::GlyphGenerator;
 pub use generator::metadata_generator::MetadataGenerator;

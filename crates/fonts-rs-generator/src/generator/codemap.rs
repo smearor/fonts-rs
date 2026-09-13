@@ -1,18 +1,37 @@
 //! Generator for phf::Map codepoint lookup tables.
 
+use std::marker::PhantomData;
+use std::path::PathBuf;
+
 use super::error::GenerateError;
 use super::generate::GlyphGenerator;
 use fonts_rs_model::GlyphEntry;
 use serde::Deserialize;
 use serde::Serialize;
-use std::path::PathBuf;
 
-/// Generates phf::Map constants for both codepoint-to-name and name-to-codepoint lookups.
-pub struct CodemapGenerator;
+/// Controls the static variable names in generated codemap output.
+pub trait CodemapNaming {
+    /// Name of the forward (codepoint → name) map.
+    const FORWARD: &'static str;
+    /// Name of the reverse (name → codepoint) map.
+    const REVERSE: &'static str;
+}
 
-impl<N> GlyphGenerator<N> for CodemapGenerator
+/// Default naming: `GLYPHS` / `REVERSE_GLYPHS`.
+pub struct DefaultNaming;
+
+impl CodemapNaming for DefaultNaming {
+    const FORWARD: &'static str = "GLYPHS";
+    const REVERSE: &'static str = "REVERSE_GLYPHS";
+}
+
+/// Generates phf::Map constants for codepoint-to-name and name-to-codepoint lookups.
+pub struct CodemapGenerator<Naming: CodemapNaming = DefaultNaming>(PhantomData<Naming>);
+
+impl<N, Naming> GlyphGenerator<N> for CodemapGenerator<Naming>
 where
     N: AsRef<str> + Clone + Ord + Serialize + for<'a> Deserialize<'a>,
+    Naming: CodemapNaming,
 {
     fn generate(entries: &[GlyphEntry<N>]) -> Result<String, GenerateError> {
         let mut output = String::new();
@@ -20,7 +39,7 @@ where
         output.push_str("use phf::phf_map;\n\n");
 
         // Codepoint -> name map
-        output.push_str("pub static GLYPHS: phf::Map<char, &'static str> = phf_map! {\n");
+        output.push_str(&format!("pub static {}: phf::Map<char, &'static str> = phf_map! {{\n", Naming::FORWARD));
         for entry in entries {
             let Some(code) = &entry.code else { continue };
             let ch = code.as_char();
@@ -29,7 +48,7 @@ where
         output.push_str("};\n\n");
 
         // Name -> codepoint map (reverse lookup)
-        output.push_str("pub static REVERSE_GLYPHS: phf::Map<&'static str, char> = phf_map! {\n");
+        output.push_str(&format!("pub static {}: phf::Map<&'static str, char> = phf_map! {{\n", Naming::REVERSE));
         for entry in entries {
             let Some(code) = &entry.code else { continue };
             let ch = code.as_char();

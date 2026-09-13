@@ -11,6 +11,7 @@ use std::path::PathBuf;
 use fonts_rs_model::GlyphEntry;
 
 use crate::CodemapGenerator;
+use crate::DefaultNaming;
 use crate::GlyphGenerator;
 use crate::RustConstantsGenerator;
 use crate::build_constants::FONT_GRESOURCE;
@@ -121,7 +122,7 @@ impl FontBuild {
 
         let json = fs::read_to_string(METADATA_PATH)?;
         let entries: Vec<GlyphEntry<String>> = serde_json::from_str(&json).map_err(std::io::Error::other)?;
-        CodemapGenerator::run(&entries).map_err(|e| std::io::Error::other(e.to_string()))?;
+        CodemapGenerator::<DefaultNaming>::run(&entries).map_err(|e| std::io::Error::other(e.to_string()))?;
         RustConstantsGenerator::run(&entries).map_err(|e| std::io::Error::other(e.to_string()))?;
 
         Ok(())

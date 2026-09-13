@@ -2,8 +2,8 @@
 
 use std::path::PathBuf;
 
-use super::error::GenerateError;
-use super::generate::NerdFontsGenerator;
+use fonts_rs_generator::GlyphGenerator;
+use fonts_rs_generator::GenerateError;
 use nerd_fonts_model::GlyphEntry;
 use nerd_fonts_model::IconName;
 
@@ -11,7 +11,7 @@ use nerd_fonts_model::IconName;
 /// `content: "\XXXX"` mappings from metadata.json.
 pub struct WebCssGenerator;
 
-impl NerdFontsGenerator for WebCssGenerator {
+impl GlyphGenerator<IconName> for WebCssGenerator {
     fn generate(icons: &[GlyphEntry<IconName>]) -> Result<String, GenerateError> {
         let mut output = String::new();
         output.push_str("/* Nerd Font icon mappings for web instances.\n");

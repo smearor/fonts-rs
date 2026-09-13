@@ -11,6 +11,8 @@ pub mod metadata_generator;
 pub mod rust_constants;
 
 pub use codemap::CodemapGenerator;
+pub use codemap::CodemapNaming;
+pub use codemap::DefaultNaming;
 pub use error::GenerateError;
 pub use generate::GlyphGenerator;
 pub use metadata_generator::MetadataGenerator;
