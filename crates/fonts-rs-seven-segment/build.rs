@@ -3,109 +3,62 @@
 // Detects the active Cargo feature (e.g. `classic-regular`, `modern-mini-bold`)
 // and exports glyphs from the corresponding DSEG7 TTF variant.
 
-use std::path::Path;
-
-use fonts_rs_generator::ExportConfig;
 use fonts_rs_generator::FontBuild;
+use fonts_rs_generator::build_config;
 use fonts_rs_generator::build_constants;
-use fonts_rs_generator::export_glyphs_with_config;
+use fonts_rs_generator::detect_active_variant_index;
+use fonts_rs_generator::set_font_path_env;
 use fonts_rs_model::ASCII_PRINTABLE_RANGE;
-use fonts_rs_model::GRESOURCE_BASE_PREFIX;
-use miette::IntoDiagnostic;
+use fonts_rs_model::FontVariant;
 
 /// All DSEG7 variants and their mapping to TTF filenames.
-const VARIANTS: &[(&str, &str)] = &[
+const VARIANTS: &[FontVariant] = &[
     // Classic
-    ("classic-regular", "DSEG7Classic-Regular"),
-    ("classic-bold", "DSEG7Classic-Bold"),
-    ("classic-italic", "DSEG7Classic-Italic"),
-    ("classic-bold-italic", "DSEG7Classic-BoldItalic"),
-    ("classic-light", "DSEG7Classic-Light"),
-    ("classic-light-italic", "DSEG7Classic-LightItalic"),
+    FontVariant::file("classic-regular", "DSEG7Classic-Regular"),
+    FontVariant::file("classic-bold", "DSEG7Classic-Bold"),
+    FontVariant::file("classic-italic", "DSEG7Classic-Italic"),
+    FontVariant::file("classic-bold-italic", "DSEG7Classic-BoldItalic"),
+    FontVariant::file("classic-light", "DSEG7Classic-Light"),
+    FontVariant::file("classic-light-italic", "DSEG7Classic-LightItalic"),
     // Classic Mini
-    ("classic-mini-regular", "DSEG7ClassicMini-Regular"),
-    ("classic-mini-bold", "DSEG7ClassicMini-Bold"),
-    ("classic-mini-italic", "DSEG7ClassicMini-Italic"),
-    ("classic-mini-bold-italic", "DSEG7ClassicMini-BoldItalic"),
-    ("classic-mini-light", "DSEG7ClassicMini-Light"),
-    ("classic-mini-light-italic", "DSEG7ClassicMini-LightItalic"),
+    FontVariant::file("classic-mini-regular", "DSEG7ClassicMini-Regular"),
+    FontVariant::file("classic-mini-bold", "DSEG7ClassicMini-Bold"),
+    FontVariant::file("classic-mini-italic", "DSEG7ClassicMini-Italic"),
+    FontVariant::file("classic-mini-bold-italic", "DSEG7ClassicMini-BoldItalic"),
+    FontVariant::file("classic-mini-light", "DSEG7ClassicMini-Light"),
+    FontVariant::file("classic-mini-light-italic", "DSEG7ClassicMini-LightItalic"),
     // Modern
-    ("modern-regular", "DSEG7Modern-Regular"),
-    ("modern-bold", "DSEG7Modern-Bold"),
-    ("modern-italic", "DSEG7Modern-Italic"),
-    ("modern-bold-italic", "DSEG7Modern-BoldItalic"),
-    ("modern-light", "DSEG7Modern-Light"),
-    ("modern-light-italic", "DSEG7Modern-LightItalic"),
+    FontVariant::file("modern-regular", "DSEG7Modern-Regular"),
+    FontVariant::file("modern-bold", "DSEG7Modern-Bold"),
+    FontVariant::file("modern-italic", "DSEG7Modern-Italic"),
+    FontVariant::file("modern-bold-italic", "DSEG7Modern-BoldItalic"),
+    FontVariant::file("modern-light", "DSEG7Modern-Light"),
+    FontVariant::file("modern-light-italic", "DSEG7Modern-LightItalic"),
     // Modern Mini
-    ("modern-mini-regular", "DSEG7ModernMini-Regular"),
-    ("modern-mini-bold", "DSEG7ModernMini-Bold"),
-    ("modern-mini-italic", "DSEG7ModernMini-Italic"),
-    ("modern-mini-bold-italic", "DSEG7ModernMini-BoldItalic"),
-    ("modern-mini-light", "DSEG7ModernMini-Light"),
-    ("modern-mini-light-italic", "DSEG7ModernMini-LightItalic"),
+    FontVariant::file("modern-mini-regular", "DSEG7ModernMini-Regular"),
+    FontVariant::file("modern-mini-bold", "DSEG7ModernMini-Bold"),
+    FontVariant::file("modern-mini-italic", "DSEG7ModernMini-Italic"),
+    FontVariant::file("modern-mini-bold-italic", "DSEG7ModernMini-BoldItalic"),
+    FontVariant::file("modern-mini-light", "DSEG7ModernMini-Light"),
+    FontVariant::file("modern-mini-light-italic", "DSEG7ModernMini-LightItalic"),
 ];
 
 fn main() -> miette::Result<()> {
-    let active = VARIANTS
-        .iter()
-        .filter(|(feat, _)| std::env::var(format!("CARGO_FEATURE_{}", feat.replace('-', "_").to_uppercase())).is_ok())
-        .collect::<Vec<_>>();
+    let idx = detect_active_variant_index(VARIANTS, 0, "DSEG7")?;
+    let entry = &VARIANTS[idx];
+    let font_path = format!("{}/{}.ttf", build_constants::RESOURCES_DIR, entry.font_file().unwrap().as_str());
 
-    if active.is_empty() {
-        eprintln!("build.rs: no DSEG7 variant feature active, defaulting to classic-regular");
-    } else if active.len() > 1 {
-        eprintln!("build.rs: expected at most one DSEG7 variant feature, found {active_len}", active_len = active.len());
-        for (feat, _) in &active {
-            eprintln!("  active: {feat}");
-        }
-        eprintln!("build.rs: available variants:");
-        for (feat, _) in VARIANTS {
-            eprintln!("  {feat}");
-        }
-        return Err(miette::miette!("expected at most one DSEG7 variant feature, found {}", active.len()));
-    }
+    eprintln!("build.rs: active variant: {} -> {font_path}", entry);
 
-    let (feature, font_base) = if active.is_empty() {
-        ("classic-regular", "DSEG7Classic-Regular")
-    } else {
-        *active[0]
-    };
-    let font_path = format!("{}/{font_base}.ttf", build_constants::RESOURCES_DIR);
+    set_font_path_env("DSEG7_FONT_PATH", &font_path);
 
-    eprintln!("build.rs: active variant: {feature} -> {font_path}");
-
-    // Set env var with absolute path so include_bytes! in fonts.rs can find it.
-    let crate_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap_or_else(|_| std::env::current_dir().unwrap().to_string_lossy().to_string());
-    let absolute_font_path = Path::new(&crate_dir).join(&font_path);
-    println!("cargo:rustc-env=DSEG7_FONT_PATH={}", absolute_font_path.display());
-
-    let variant_slug = feature.replace('-', "_");
-    let glyph_prefix = format!("dseg7-{feature}");
-    let gresource_prefix = format!("{}/seven_segment/{}", GRESOURCE_BASE_PREFIX, variant_slug);
-
-    let config = ExportConfig {
-        gresource_prefix: gresource_prefix.clone(),
-        icons_context: "glyphs".to_string(),
-        glyph_name_prefix: glyph_prefix.clone(),
-        codepoint_ranges: ASCII_PRINTABLE_RANGE,
-        axes: vec![],
-        name_filter: None,
-    };
+    let config = build_config("dseg7", "DSEG7", "seven_segment", Some(*entry), ASCII_PRINTABLE_RANGE);
 
     FontBuild::new(&font_path)
-        .run(|font_path, resources_dir| export_glyphs_with_config(font_path, resources_dir, &config))
+        .run(|font_path, resources_dir| config.export_glyphs(font_path, resources_dir))
         .map_err(|e| miette::miette!("{e}"))?;
 
-    // Generate variant info (GRESOURCE_PREFIX, glyph prefix) for runtime use.
-    let out_dir = std::env::var("OUT_DIR").into_diagnostic()?;
-    let variant_info = format!(
-        "// @generated by build.rs — do not edit\n\n\
-         /// GResource prefix for the active DSEG7 variant.\n\
-         pub const GRESOURCE_PREFIX: &str = \"{gresource_prefix}\";\n\n\
-         /// Glyph name prefix for the active DSEG7 variant.\n\
-         pub const GLYPH_PREFIX: &str = \"{glyph_prefix}\";\n"
-    );
-    std::fs::write(Path::new(&out_dir).join("variant.rs"), variant_info).into_diagnostic()?;
+    config.write_variant_info()?;
 
     Ok(())
 }

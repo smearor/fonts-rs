@@ -2,12 +2,15 @@
 
 use std::collections::HashMap;
 
+use serde::Deserialize;
+use serde::Deserializer;
+
 use crate::CodePoint;
 
 /// A mapping from glyph names to Unicode codepoints.
 ///
 /// Used by build scripts to drive glyph export via
-/// [`export_glyphs_by_name_map`](crate::GlyphNameMap) when font-internal
+/// [`ExportConfig::export_glyphs_by_name_map`](fonts_rs_generator::ExportConfig) when font-internal
 /// glyph names are not semantically meaningful (e.g. `uniXXXX` PostScript
 /// names) and must be replaced with names from external metadata
 /// (CLDR annotations, SMuFL glyphnames.json).
@@ -69,5 +72,24 @@ impl<'a> IntoIterator for &'a GlyphNameMap {
 impl FromIterator<(String, CodePoint)> for GlyphNameMap {
     fn from_iter<I: IntoIterator<Item = (String, CodePoint)>>(iter: I) -> Self {
         Self(iter.into_iter().collect())
+    }
+}
+
+impl<'de> Deserialize<'de> for GlyphNameMap {
+    /// Deserializes a SMuFL glyphnames.json map into a [`GlyphNameMap`].
+    ///
+    /// The JSON format is: `{ "glyphName": { "codepoint": "U+E050", ... } }`.
+    /// Only the `codepoint` field is extracted; other fields are ignored.
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        #[derive(Deserialize)]
+        struct Entry {
+            codepoint: CodePoint,
+        }
+
+        let map: HashMap<String, Entry> = HashMap::deserialize(deserializer)?;
+        Ok(map.into_iter().map(|(name, e)| (name, e.codepoint)).collect())
     }
 }

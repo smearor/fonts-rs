@@ -4,7 +4,7 @@
 //! font family, allowing the `FontDefinition::export_glyphs` pipeline to be used.
 //!
 //! Note: Noto Emoji glyph names in the font are `uniXXXX` format (PostScript
-//! auto-generated), so the build script uses [`export_glyphs_by_name_map`] with
+//! auto-generated), so the build script uses [`ExportConfig::export_glyphs_by_name_map`] with
 //! CLDR annotation data for semantic names instead of the generic pipeline.
 //! This definition provides the constants and type information for the family.
 
@@ -58,7 +58,7 @@ pub const GLYPH_PREFIX: &str = "noto-emoji";
 /// Implements [`FontDefinition`] to plug into the generic
 /// [`FontDefinition::export_glyphs`] pipeline.
 ///
-/// Note: The build script typically uses [`export_glyphs_by_name_map`] with
+/// Note: The build script typically uses [`ExportConfig::export_glyphs_by_name_map`] with
 /// CLDR annotation data instead of the generic pipeline, because Noto Emoji
 /// glyph names are `uniXXXX` format and require CLDR lookup for semantic names.
 /// This definition still provides the constants and type information.
@@ -78,7 +78,7 @@ impl FontDefinition for NotoEmojiDefinition {
     fn normalize_name(raw_glyph_name: &str) -> Option<Self::Name> {
         // Noto Emoji glyph names are `uniXXXX` format and require CLDR
         // annotation data for semantic names. The build script uses
-        // `export_glyphs_by_name_map` with a pre-built name map instead.
+        // `ExportConfig::export_glyphs_by_name_map` with a pre-built name map instead.
         // This implementation is provided for completeness but returns
         // `None` for `uni`-prefixed names.
         if raw_glyph_name.starts_with("uni") || raw_glyph_name.starts_with("u") || raw_glyph_name.starts_with('.') {
@@ -89,7 +89,7 @@ impl FontDefinition for NotoEmojiDefinition {
 
     fn should_skip(raw_glyph_name: &str) -> bool {
         // Skip auto-generated PostScript names; the build script uses
-        // `export_glyphs_by_name_map` which bypasses this filter.
+        // `ExportConfig::export_glyphs_by_name_map` which bypasses this filter.
         raw_glyph_name.starts_with('.') || raw_glyph_name.starts_with("uni") || raw_glyph_name.starts_with("u")
     }
 }
