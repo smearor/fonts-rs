@@ -23,35 +23,6 @@ pub fn set_font_path_env(env_var: &str, font_path: &str) {
     println!("cargo:rustc-env={env_var}={}", absolute_font_path.display());
 }
 
-/// Detect the active variant from Cargo features.
-///
-/// Scans `CARGO_FEATURE_{NAME}` environment variables for each variant and
-/// returns the index of the active one. If no variant is active, returns
-/// `default_index`. If more than one is active, returns an error.
-pub fn detect_active_variant_index(variants: &[FontVariant], default_index: usize, family_display_name: &str) -> miette::Result<usize> {
-    let active: Vec<usize> = variants.iter().enumerate().filter(|(_, v)| v.is_active()).map(|(i, _)| i).collect();
-
-    if active.is_empty() {
-        eprintln!(
-            "build.rs: no {family_display_name} variant feature active, defaulting to {}",
-            variants[default_index].as_str()
-        );
-        Ok(default_index)
-    } else if active.len() > 1 {
-        eprintln!("build.rs: expected at most one {family_display_name} variant feature, found {}", active.len());
-        for &i in &active {
-            eprintln!("  active: {}", variants[i].as_str());
-        }
-        eprintln!("build.rs: available variants:");
-        for v in variants {
-            eprintln!("  {}", v.as_str());
-        }
-        Err(miette::miette!("expected at most one {family_display_name} variant feature, found {}", active.len()))
-    } else {
-        Ok(active[0])
-    }
-}
-
 /// Build an [`ExportConfig`] from family info and optional variant.
 ///
 /// Constructs `glyph_name_prefix` from `X::GLYPH_NAME_PREFIX` and the optional

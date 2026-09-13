@@ -19,11 +19,12 @@ pub mod font_loader;
 pub mod generator;
 pub mod gresource;
 pub mod svg;
+pub mod variant_list;
 
 pub use build_constants::hash_font_file;
 pub use build_helpers::build_config;
-pub use build_helpers::detect_active_variant_index;
 pub use build_helpers::set_font_path_env;
+pub use variant_list::VariantList;
 pub use build_runner::FontBuild;
 pub use export_config::ExportConfig;
 pub use font::Font;
