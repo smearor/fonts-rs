@@ -11,7 +11,6 @@ use std::path::Path;
 
 use fonts_rs_model::FontFamily;
 use fonts_rs_model::GlyphEntry;
-use fonts_rs_model::ResourcePath;
 use fonts_rs_model::SCALABLE_DIR;
 use quick_xml::se::Serializer;
 use serde::Deserialize;
@@ -187,17 +186,7 @@ pub trait FontDefinition: FontFamilyConfig {
             let mut file = fs::File::create(&filename)?;
             file.write_all(svg.as_bytes())?;
 
-            // GResource path follows Freedesktop Icon Theme convention:
-            // {prefix}/scalable/{context}/{name}.svg
-            let resource_prefix = Self::icons_resource_prefix();
-            let resource_path = ResourcePath::from_name(&resource_prefix, glyph_name.as_ref());
-
-            entries.push(GlyphEntry {
-                code: codepoint,
-                name: glyph_name.clone(),
-                file: Path::new(&format!("resources/{}/{}/{}.svg", SCALABLE_DIR, Self::ICONS_CONTEXT, glyph_name.as_ref())).to_path_buf(),
-                resource_path,
-            });
+            entries.push(GlyphEntry::new(codepoint, glyph_name, Self::GRESOURCE_PREFIX, Self::ICONS_CONTEXT));
         }
 
         entries.sort_by(|a, b| a.name.cmp(&b.name));

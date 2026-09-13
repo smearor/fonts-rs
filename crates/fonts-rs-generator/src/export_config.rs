@@ -10,10 +10,9 @@ use std::io::Write;
 use std::marker::PhantomData;
 use std::path::Path;
 
-use fonts_rs_model::AxisValues;
+use fonts_rs_model::{AxisValues, CodePoint};
 use fonts_rs_model::GlyphEntry;
 use fonts_rs_model::GlyphNameMap;
-use fonts_rs_model::ResourcePath;
 use fonts_rs_model::SCALABLE_DIR;
 use quick_xml::se::Serializer;
 use serde::Serialize;
@@ -21,6 +20,7 @@ use skrifa::GlyphId;
 use skrifa::MetadataProvider;
 use skrifa::instance::LocationRef;
 
+use crate::export_error::ExportError;
 use crate::font::Font;
 use crate::font_definition::normalize_to_kebab;
 use crate::font_family_config::FontFamilyConfig;
@@ -73,37 +73,6 @@ pub fn default_name_filter(name: &str) -> bool {
     !(name.starts_with('.') || name.starts_with("uni") || name.starts_with("u"))
 }
 
-/// Generate GResource XML with an explicit prefix (runtime version).
-fn generate_gresource_xml_with_prefix(entries: &[GlyphEntry<String>], output_path: &Path, prefix: &str, context: &str) -> std::io::Result<()> {
-    let mut sorted: Vec<&GlyphEntry<String>> = entries.iter().collect();
-    sorted.sort_by(|a, b| a.name.cmp(&b.name));
-
-    let files: Vec<GResourceFile> = sorted
-        .iter()
-        .map(|entry| GResourceFile {
-            path: format!("{}/{}/{}.svg", SCALABLE_DIR, context, entry.name),
-        })
-        .collect();
-
-    let manifest = GResources {
-        gresource: GResource {
-            prefix: prefix.to_string(),
-            files,
-        },
-    };
-
-    let mut buffer = String::new();
-    let mut serializer = Serializer::new(&mut buffer);
-    serializer.indent(' ', 2);
-    manifest
-        .serialize(serializer)
-        .map_err(|e| std::io::Error::other(format!("XML serialization failed: {e}")))?;
-
-    let xml = format!("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n{buffer}");
-    fs::write(output_path, xml)?;
-    Ok(())
-}
-
 impl<X: FontFamilyConfig> ExportConfig<X> {
     /// Export all glyphs from a TTF/OTF font file.
     ///
@@ -119,10 +88,10 @@ impl<X: FontFamilyConfig> ExportConfig<X> {
     ///
     /// # Returns
     ///
-    /// The number of exported glyphs on success, or an `io::Error` on failure.
-    pub fn export_glyphs(&self, font_path: &Path, output_dir: &Path) -> std::io::Result<usize> {
+    /// The number of exported glyphs on success, or an [`ExportError`] on failure.
+    pub fn export_glyphs(&self, font_path: &Path, output_dir: &Path) -> Result<usize, ExportError> {
         let font_data = fs::read(font_path)?;
-        let font = Font::from_data(&font_data).map_err(|e| std::io::Error::other(format!("Failed to parse font: {e}")))?;
+        let font = Font::from_data(&font_data)?;
 
         let location = font.location(&self.axes);
         let location_ref = LocationRef::from(&location);
@@ -161,34 +130,23 @@ impl<X: FontFamilyConfig> ExportConfig<X> {
 
             let codepoint = reverse_cmap.get(&glyph_id).copied();
 
-            let svg = match font.glyph_to_svg_full_height_at(glyph_id, location_ref) {
-                Some(svg) => svg,
-                None => EMPTY_SVG.to_string(),
-            };
+            let svg = font.glyph_to_svg_full_height_at(glyph_id, location_ref).unwrap_or_else(|| EMPTY_SVG.to_string());
 
             let filename = icons_dir.join(format!("{}.svg", glyph_name));
             let mut file = fs::File::create(&filename)?;
             file.write_all(svg.as_bytes())?;
 
-            let resource_prefix = format!("{}/{}/{}", self.gresource_prefix, SCALABLE_DIR, icons_context);
-            let resource_path = ResourcePath::from_name(&resource_prefix, &glyph_name);
-
-            entries.push(GlyphEntry {
-                code: codepoint,
-                name: glyph_name.clone(),
-                file: Path::new(&format!("resources/{}/{}/{}.svg", SCALABLE_DIR, icons_context, glyph_name)).to_path_buf(),
-                resource_path,
-            });
+            entries.push(GlyphEntry::new(codepoint, glyph_name, &self.gresource_prefix, icons_context));
         }
 
         entries.sort_by(|a, b| a.name.cmp(&b.name));
 
         let json_path = output_dir.join("metadata.json");
-        let json = serde_json::to_string_pretty(&entries).map_err(std::io::Error::other)?;
+        let json = serde_json::to_string_pretty(&entries)?;
         fs::write(&json_path, json)?;
 
         let xml_path = output_dir.join("icons.gresource.xml");
-        generate_gresource_xml_with_prefix(&entries, &xml_path, &self.gresource_prefix, icons_context)?;
+        self.generate_gresource_xml(&entries, &xml_path)?;
 
         Ok(entries.len())
     }
@@ -218,10 +176,10 @@ impl<X: FontFamilyConfig> ExportConfig<X> {
     ///
     /// # Returns
     ///
-    /// The number of exported glyphs on success, or an `io::Error` on failure.
-    pub fn export_glyphs_by_name_map(&self, font_path: &Path, output_dir: &Path, name_map: &GlyphNameMap) -> std::io::Result<usize> {
+    /// The number of exported glyphs on success, or an [`ExportError`] on failure.
+    pub fn export_glyphs_by_name_map(&self, font_path: &Path, output_dir: &Path, name_map: &GlyphNameMap) -> Result<usize, ExportError> {
         let font_data = fs::read(font_path)?;
-        let font = Font::from_data(&font_data).map_err(|e| std::io::Error::other(format!("Failed to parse font: {e}")))?;
+        let font = Font::from_data(&font_data)?;
 
         let location = font.location(&self.axes);
         let location_ref = LocationRef::from(&location);
@@ -256,27 +214,51 @@ impl<X: FontFamilyConfig> ExportConfig<X> {
             let mut file = fs::File::create(&filename)?;
             file.write_all(svg.as_bytes())?;
 
-            let resource_prefix = format!("{}/{}/{}", self.gresource_prefix, SCALABLE_DIR, icons_context);
-            let resource_path = ResourcePath::from_name(&resource_prefix, &glyph_name);
-
-            entries.push(GlyphEntry {
-                code: Some(fonts_rs_model::CodePoint::from(ch)),
-                name: glyph_name.clone(),
-                file: Path::new(&format!("resources/{}/{}/{}.svg", SCALABLE_DIR, icons_context, glyph_name)).to_path_buf(),
-                resource_path,
-            });
+            entries.push(GlyphEntry::new(Some(CodePoint::from(ch)), glyph_name, &self.gresource_prefix, icons_context));
         }
 
         entries.sort_by(|a, b| a.name.cmp(&b.name));
 
         let json_path = output_dir.join("metadata.json");
-        let json = serde_json::to_string_pretty(&entries).map_err(std::io::Error::other)?;
+        let json = serde_json::to_string_pretty(&entries)?;
         fs::write(&json_path, json)?;
 
         let xml_path = output_dir.join("icons.gresource.xml");
-        generate_gresource_xml_with_prefix(&entries, &xml_path, &self.gresource_prefix, icons_context)?;
+        self.generate_gresource_xml(&entries, &xml_path)?;
 
         Ok(entries.len())
+    }
+
+    /// Generate GResource XML with an explicit prefix.
+    ///
+    /// Creates an `icons.gresource.xml` listing all glyph SVG files under
+    /// the export config's GResource prefix and icons context.
+    fn generate_gresource_xml(&self, entries: &[GlyphEntry<String>], output_path: &Path) -> Result<(), ExportError> {
+        let mut sorted: Vec<&GlyphEntry<String>> = entries.iter().collect();
+        sorted.sort_by(|a, b| a.name.cmp(&b.name));
+
+        let files: Vec<GResourceFile> = sorted
+            .iter()
+            .map(|entry| GResourceFile {
+                path: format!("{}/{}/{}.svg", SCALABLE_DIR, X::ICONS_CONTEXT, entry.name),
+            })
+            .collect();
+
+        let manifest = GResources {
+            gresource: GResource {
+                prefix: self.gresource_prefix.clone(),
+                files,
+            },
+        };
+
+        let mut buffer = String::new();
+        let mut serializer = Serializer::new(&mut buffer);
+        serializer.indent(' ', 2);
+        manifest.serialize(serializer)?;
+
+        let xml = format!("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n{buffer}");
+        fs::write(output_path, xml)?;
+        Ok(())
     }
 
     /// Write `variant.rs` with `GRESOURCE_PREFIX` and `GLYPH_PREFIX` constants.
@@ -294,7 +276,7 @@ impl<X: FontFamilyConfig> ExportConfig<X> {
              pub const GLYPH_PREFIX: &str = \"{}\";\n",
             self.family_display_name, self.gresource_prefix, self.family_display_name, self.glyph_name_prefix,
         );
-        std::fs::write(std::path::Path::new(&out_dir).join("variant.rs"), variant_info).map_err(|e| miette::miette!("Failed to write variant.rs: {e}"))?;
+        fs::write(Path::new(&out_dir).join("variant.rs"), variant_info).map_err(|e| miette::miette!("Failed to write variant.rs: {e}"))?;
         Ok(())
     }
 }

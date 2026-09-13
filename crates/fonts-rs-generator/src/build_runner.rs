@@ -87,10 +87,11 @@ impl FontBuild {
     ///
     /// # Errors
     ///
-    /// Returns `std::io::Error` if any file operation or code generation fails.
-    pub fn run<F>(self, export: F) -> std::io::Result<()>
+    /// Returns an error if any file operation or code generation fails.
+    pub fn run<F, E>(self, export: F) -> Result<(), E>
     where
-        F: FnOnce(&Path, &Path) -> std::io::Result<usize>,
+        F: FnOnce(&Path, &Path) -> Result<usize, E>,
+        E: From<std::io::Error>,
     {
         println!("cargo:rustc-cfg=is_lib");
         println!("cargo:rerun-if-changed={}", self.font_path.display());
@@ -119,7 +120,7 @@ impl FontBuild {
         }
 
         let json = fs::read_to_string(METADATA_PATH)?;
-        let entries: Vec<GlyphEntry<String>> = serde_json::from_str(&json)?;
+        let entries: Vec<GlyphEntry<String>> = serde_json::from_str(&json).map_err(std::io::Error::other)?;
         CodemapGenerator::run(&entries).map_err(|e| std::io::Error::other(e.to_string()))?;
         RustConstantsGenerator::run(&entries).map_err(|e| std::io::Error::other(e.to_string()))?;
 
