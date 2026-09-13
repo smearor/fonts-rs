@@ -5,6 +5,8 @@
 
 mod export;
 mod path_builder;
+mod svg;
 
 pub use export::EMPTY_SVG;
 pub use path_builder::SvgPathBuilder;
+pub use svg::Svg;

@@ -8,6 +8,7 @@ use skrifa::instance::Size;
 use skrifa::outline::DrawSettings;
 
 use super::path_builder::SvgPathBuilder;
+use super::svg::Svg;
 use crate::font::Font;
 
 /// Minimal empty SVG placeholder for glyphs without outlines.
@@ -17,7 +18,7 @@ impl<'a> Font<'a> {
     /// Generate the SVG content for a single glyph.
     ///
     /// Returns `None` if the glyph has no outline or a zero-sized bounding box.
-    pub fn glyph_to_svg(&self, glyph_id: GlyphId) -> Option<String> {
+    pub fn glyph_to_svg(&self, glyph_id: GlyphId) -> Option<Svg> {
         self.glyph_to_svg_at(glyph_id, LocationRef::default())
     }
 
@@ -25,7 +26,7 @@ impl<'a> Font<'a> {
     /// location.
     ///
     /// Returns `None` if the glyph has no outline or a zero-sized bounding box.
-    pub fn glyph_to_svg_at(&self, glyph_id: GlyphId, location: LocationRef<'_>) -> Option<String> {
+    pub fn glyph_to_svg_at(&self, glyph_id: GlyphId, location: LocationRef<'_>) -> Option<Svg> {
         let mut builder = SvgPathBuilder::new();
         let outlines = self.outline_glyphs();
         let outline = outlines.get(glyph_id)?;
@@ -42,7 +43,7 @@ impl<'a> Font<'a> {
         // Flip Y axis (font coords are bottom-up, SVG is top-down)
         let transform = Matrix::from_elements([1.0, 0.0, 0.0, -1.0, 0.0, bbox.y_max]);
 
-        Some(format!(
+        Some(Svg::new(format!(
             r#"<svg xmlns="http://www.w3.org/2000/svg" width="{}" height="{}" viewBox="{} {} {} {}"><g transform="matrix({} {} {} {} {} {})"><path fill="currentColor" d="{}"/></g></svg>"#,
             width,
             height,
@@ -57,7 +58,7 @@ impl<'a> Font<'a> {
             transform.dx,
             transform.dy,
             builder.path.trim()
-        ))
+        )))
     }
 
     /// Generate SVG content for a glyph using the font's full height for the viewBox.
@@ -70,7 +71,7 @@ impl<'a> Font<'a> {
     ///
     /// The glyph is horizontally positioned at its natural x offset within the
     /// font's coordinate space.
-    pub fn glyph_to_svg_full_height(&self, glyph_id: GlyphId) -> Option<String> {
+    pub fn glyph_to_svg_full_height(&self, glyph_id: GlyphId) -> Option<Svg> {
         self.glyph_to_svg_full_height_at(glyph_id, LocationRef::default())
     }
 
@@ -79,7 +80,7 @@ impl<'a> Font<'a> {
     ///
     /// Like [`glyph_to_svg_full_height`](Self::glyph_to_svg_full_height) but
     /// renders the glyph at the specified variation axis location.
-    pub fn glyph_to_svg_full_height_at(&self, glyph_id: GlyphId, location: LocationRef<'_>) -> Option<String> {
+    pub fn glyph_to_svg_full_height_at(&self, glyph_id: GlyphId, location: LocationRef<'_>) -> Option<Svg> {
         let mut builder = SvgPathBuilder::new();
         let outlines = self.outline_glyphs();
         let outline = outlines.get(glyph_id)?;
@@ -103,7 +104,7 @@ impl<'a> Font<'a> {
         // is at ascent from the top of the viewBox.
         let transform = Matrix::from_elements([1.0, 0.0, 0.0, -1.0, -bbox.x_min, metrics.ascent]);
 
-        Some(format!(
+        Some(Svg::new(format!(
             r#"<svg xmlns="http://www.w3.org/2000/svg" width="{}" height="{}" viewBox="0 0 {} {}"><g transform="matrix({} {} {} {} {} {})"><path fill="currentColor" d="{}"/></g></svg>"#,
             glyph_width,
             font_height,
@@ -116,6 +117,6 @@ impl<'a> Font<'a> {
             transform.dx,
             transform.dy,
             builder.path.trim()
-        ))
+        )))
     }
 }
