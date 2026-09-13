@@ -9,9 +9,8 @@ use std::fs;
 use std::io::Write;
 use std::path::Path;
 
-use std::collections::HashMap;
-
 use fonts_rs_model::GlyphEntry;
+use fonts_rs_model::GlyphNameMap;
 use fonts_rs_model::ResourcePath;
 use quick_xml::se::Serializer;
 use serde::Serialize;
@@ -211,7 +210,7 @@ fn generate_gresource_xml_with_prefix(entries: &[GlyphEntry<String>], output_pat
 /// # Returns
 ///
 /// The number of exported glyphs on success, or an `io::Error` on failure.
-pub fn export_glyphs_by_name_map(font_path: &Path, output_dir: &Path, config: &ExportConfig, name_map: &HashMap<String, u32>) -> std::io::Result<usize> {
+pub fn export_glyphs_by_name_map(font_path: &Path, output_dir: &Path, config: &ExportConfig, name_map: &GlyphNameMap) -> std::io::Result<usize> {
     let font_data = fs::read(font_path)?;
     let font = Font::from_data(&font_data).map_err(|e| std::io::Error::other(format!("Failed to parse font: {e}")))?;
 
@@ -226,8 +225,8 @@ pub fn export_glyphs_by_name_map(font_path: &Path, output_dir: &Path, config: &E
     let mut entries: Vec<GlyphEntry<String>> = Vec::new();
     let mut seen_names: HashSet<String> = HashSet::new();
 
-    for (smufl_name, codepoint) in name_map {
-        let Some(ch) = char::from_u32(*codepoint) else { continue };
+    for (smufl_name, codepoint) in name_map.iter() {
+        let ch = codepoint.as_char();
         let Some(glyph_id) = charmap.map(ch) else { continue };
 
         let Some(kebab) = normalize_to_kebab(smufl_name) else { continue };

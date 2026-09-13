@@ -6,6 +6,10 @@
 
 use std::collections::HashMap;
 
+use fonts_rs_model::CodePoint;
+use fonts_rs_model::CodePointKeywordMap;
+use fonts_rs_model::CodePointNameMap;
+use fonts_rs_model::GlyphNameMap;
 use serde::Deserialize;
 
 /// CLDR annotation entry: `tts` (name) and `default` (keywords).
@@ -53,12 +57,12 @@ fn name_to_kebab(name: &str) -> String {
 /// The CLDR JSON uses the actual emoji character as the key.
 /// The `tts` field contains the canonical name (e.g. "grinning face").
 /// The `default` field contains search keywords (e.g. ["face", "grin"]).
-pub fn parse_cldr_annotations(json: &str) -> miette::Result<(HashMap<String, u32>, HashMap<u32, Vec<String>>, HashMap<u32, String>)> {
+pub fn parse_cldr_annotations(json: &str) -> miette::Result<(GlyphNameMap, CodePointKeywordMap, CodePointNameMap)> {
     let data: CldrAnnotations = serde_json::from_str(json).map_err(|e| miette::miette!("Failed to parse CLDR annotations: {e}"))?;
 
-    let mut name_map = HashMap::new();
-    let mut keyword_map = HashMap::new();
-    let mut name_by_codepoint = HashMap::new();
+    let mut name_map = GlyphNameMap::new();
+    let mut keyword_map = CodePointKeywordMap::new();
+    let mut name_by_codepoint = CodePointNameMap::new();
 
     for (char_str, annotation) in &data.annotations.annotations {
         // The key is the actual emoji character(s). For single-codepoint emoji,
@@ -68,7 +72,7 @@ pub fn parse_cldr_annotations(json: &str) -> miette::Result<(HashMap<String, u32
         if char_str.chars().count() > 1 {
             continue;
         }
-        let codepoint = ch as u32;
+        let codepoint = CodePoint::from(ch);
 
         // Skip entries without a tts name (e.g. the identity entry)
         if annotation.tts.is_empty() {

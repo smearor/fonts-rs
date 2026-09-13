@@ -14,6 +14,7 @@ use std::path::Path;
 use fonts_rs_generator::ExportConfig;
 use fonts_rs_generator::FontBuild;
 use fonts_rs_generator::FontDefinition;
+use fonts_rs_generator::MetadataGenerator;
 use fonts_rs_generator::build_constants;
 use fonts_rs_generator::export_glyphs_by_name_map;
 use fonts_rs_model::GRESOURCE_BASE_PREFIX;
@@ -92,7 +93,7 @@ fn main() -> miette::Result<()> {
         let entries: Vec<fonts_rs_model::GlyphEntry<String>> =
             serde_json::from_str(&metadata_json).map_err(|e| miette::miette!("Failed to parse metadata.json: {e}"))?;
 
-        NotoEmojiMetadataGenerator::run(&entries, &keyword_map, &category_map).map_err(|e| miette::miette!("Failed to generate metadata: {e}"))?;
+        NotoEmojiMetadataGenerator::new(keyword_map, category_map).run(&entries).map_err(|e| miette::miette!("Failed to generate metadata: {e}"))?;
     }
 
     Ok(())

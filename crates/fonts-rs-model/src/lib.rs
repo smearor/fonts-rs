@@ -9,9 +9,13 @@
 
 pub mod category;
 pub mod codepoint;
+pub mod codepoint_category_map;
+pub mod codepoint_keyword_map;
+pub mod codepoint_name_map;
 pub mod font_family;
 pub mod glyph_entry;
 pub mod glyph_name;
+pub mod glyph_name_map;
 pub mod keyword;
 pub mod metadata;
 pub mod paths;
@@ -20,10 +24,14 @@ pub mod resource_path;
 pub use category::GlyphCategory;
 pub use codepoint::CodePoint;
 pub use codepoint::CodePointParseError;
+pub use codepoint_category_map::CodePointCategoryMap;
+pub use codepoint_keyword_map::CodePointKeywordMap;
+pub use codepoint_name_map::CodePointNameMap;
 pub use font_family::FontFamily;
 pub use font_family::sealed;
 pub use glyph_entry::GlyphEntry;
 pub use glyph_name::GlyphName;
+pub use glyph_name_map::GlyphNameMap;
 pub use keyword::GlyphKeyword;
 pub use metadata::GlyphAliasMap;
 pub use metadata::GlyphCategoryMap;
