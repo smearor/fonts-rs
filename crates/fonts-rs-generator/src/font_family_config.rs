@@ -4,6 +4,7 @@
 //! (type-safe glyph name pipeline) and [`ExportConfig`](crate::ExportConfig)
 //! (runtime variant pipeline).
 
+use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
 
@@ -72,6 +73,19 @@ pub trait FontFamilyConfig {
     /// `GtkIconTheme`.
     fn icons_dir(output_dir: &Path) -> PathBuf {
         output_dir.join(SCALABLE_DIR).join(Self::ICONS_CONTEXT)
+    }
+
+    /// Prepare the icons output directory for a fresh glyph export.
+    ///
+    /// Removes any existing icons directory (including stale SVGs from
+    /// previous builds) and recreates it. Returns the cleaned directory path.
+    fn prepare_icons_dir(output_dir: &Path) -> std::io::Result<PathBuf> {
+        let icons_dir = Self::icons_dir(output_dir);
+        if icons_dir.exists() {
+            fs::remove_dir_all(&icons_dir)?;
+        }
+        fs::create_dir_all(&icons_dir)?;
+        Ok(icons_dir)
     }
 
     /// Build the GResource sub-prefix for icons: `{GRESOURCE_PREFIX}/{SCALABLE_DIR}/{ICONS_CONTEXT}`.
