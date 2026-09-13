@@ -13,6 +13,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
+use fonts_rs_model::GlyphMetadata;
 use gtk4::Align;
 use gtk4::Application;
 use gtk4::ApplicationWindow;
@@ -38,7 +39,6 @@ use nerd_fonts_model::IconName;
 use nerd_fonts_rs::icons::IconNameExt;
 use nerd_fonts_rs::icons::all_icons_typed;
 use nerd_fonts_rs::metadata::NerdFontsMetadata;
-use fonts_rs_model::GlyphMetadata;
 
 const APP_ID: &str = "io.smearor.fonts_rs.cheat_sheet";
 

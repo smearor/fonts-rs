@@ -10,6 +10,7 @@
 
 use std::collections::HashMap;
 use std::path::Path;
+use std::str::FromStr;
 
 use fonts_rs_generator::ExportConfig;
 use fonts_rs_generator::FontBuild;
@@ -18,6 +19,7 @@ use fonts_rs_generator::export_glyphs_by_name_map;
 use fonts_rs_model::CodePoint;
 use fonts_rs_model::GRESOURCE_BASE_PREFIX;
 use fonts_rs_model::GlyphNameMap;
+use fonts_rs_model::PUA_RANGE;
 use miette::IntoDiagnostic;
 use serde::Deserialize;
 
@@ -26,9 +28,6 @@ pub const FONT_FILE: &str = "Bravura.otf";
 
 /// SMuFL glyphnames.json file name (relative to `resources/`).
 pub const GLYPHNAMES_FILE: &str = "glyphnames.json";
-
-/// SMuFL codepoint range: Unicode Private Use Area (U+E000–U+F8FF).
-const SMUFL_RANGES: &[(u32, u32)] = &[(0xE000, 0xF8FF)];
 
 /// Deserialization struct for a glyphnames.json entry.
 #[derive(Deserialize)]
@@ -44,13 +43,8 @@ fn parse_glyphnames(json: &str) -> miette::Result<GlyphNameMap> {
 
     let mut map = GlyphNameMap::new();
     for (name, entry) in entries {
-        let codepoint = entry
-            .codepoint
-            .strip_prefix("U+")
-            .ok_or_else(|| miette::miette!("Invalid codepoint format: {}", entry.codepoint))?;
-        let cp = u32::from_str_radix(codepoint, 16).map_err(|e| miette::miette!("Failed to parse codepoint {}: {e}", entry.codepoint))?;
-        let ch = char::from_u32(cp).ok_or_else(|| miette::miette!("Invalid Unicode scalar value: U+{cp:04X}"))?;
-        map.insert(name, CodePoint::from(ch));
+        let cp = CodePoint::from_str(&entry.codepoint).map_err(|e| miette::miette!("Failed to parse codepoint {}: {e}", entry.codepoint))?;
+        map.insert(name, cp);
     }
     Ok(map)
 }
@@ -78,7 +72,7 @@ fn main() -> miette::Result<()> {
         gresource_prefix: gresource_prefix.clone(),
         icons_context: "glyphs".to_string(),
         glyph_name_prefix: glyph_prefix.to_string(),
-        codepoint_ranges: SMUFL_RANGES,
+        codepoint_ranges: &[PUA_RANGE],
         axes: vec![],
         name_filter: None,
     };

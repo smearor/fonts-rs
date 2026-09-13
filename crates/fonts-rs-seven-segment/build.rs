@@ -9,6 +9,7 @@ use fonts_rs_generator::ExportConfig;
 use fonts_rs_generator::FontBuild;
 use fonts_rs_generator::build_constants;
 use fonts_rs_generator::export_glyphs_with_config;
+use fonts_rs_model::ASCII_PRINTABLE_RANGE;
 use fonts_rs_model::GRESOURCE_BASE_PREFIX;
 use miette::IntoDiagnostic;
 
@@ -86,7 +87,7 @@ fn main() -> miette::Result<()> {
         gresource_prefix: gresource_prefix.clone(),
         icons_context: "glyphs".to_string(),
         glyph_name_prefix: glyph_prefix.clone(),
-        codepoint_ranges: &[(0x20, 0x7E)],
+        codepoint_ranges: ASCII_PRINTABLE_RANGE,
         axes: vec![],
         name_filter: None,
     };

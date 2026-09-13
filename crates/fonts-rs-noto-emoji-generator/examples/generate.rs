@@ -51,9 +51,7 @@ fn main() -> miette::Result<()> {
     let json = std::fs::read_to_string(&cli.json)
         .into_diagnostic()
         .with_context(|| format!("Failed to read {}", cli.json.display()))?;
-    let entries: Vec<GlyphEntry<String>> = serde_json::from_str(&json)
-        .into_diagnostic()
-        .context("Failed to parse metadata JSON")?;
+    let entries: Vec<GlyphEntry<String>> = serde_json::from_str(&json).into_diagnostic().context("Failed to parse metadata JSON")?;
 
     let annotations = std::fs::read_to_string(&cli.annotations)
         .into_diagnostic()

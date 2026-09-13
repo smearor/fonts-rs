@@ -188,8 +188,7 @@ pub trait MetadataGenerator {
     ///
     /// Produces `keywords.rs`, `categories.rs`, and `aliases.rs`.
     fn run(&self, entries: &[GlyphEntry<Self::Name>]) -> Result<(), std::io::Error> {
-        let out_dir = std::env::var("OUT_DIR")
-            .map_err(|e| std::io::Error::other(format!("OUT_DIR not set: {e}")))?;
+        let out_dir = std::env::var("OUT_DIR").map_err(|e| std::io::Error::other(format!("OUT_DIR not set: {e}")))?;
         let out_dir = PathBuf::from(out_dir);
         std::fs::create_dir_all(&out_dir)?;
 

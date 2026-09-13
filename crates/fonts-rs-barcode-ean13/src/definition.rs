@@ -6,6 +6,8 @@
 use const_format::concatcp;
 use fonts_rs_generator::FontDefinition;
 use fonts_rs_generator::normalize_to_kebab;
+use fonts_rs_model::ASCII_PRINTABLE_RANGE;
+use fonts_rs_model::CodePointRange;
 use fonts_rs_model::FontFamily;
 use fonts_rs_model::GRESOURCE_BASE_PREFIX;
 use fonts_rs_model::GlyphName;
@@ -41,7 +43,7 @@ impl FontDefinition for Ean13Definition {
     const ICONS_CONTEXT: &'static str = "glyphs";
 
     /// ASCII printable range (U+0020–U+007E) covers all EAN13 glyphs.
-    const CODEPOINT_RANGES: &[(u32, u32)] = &[(0x20, 0x7E)];
+    const CODEPOINT_RANGES: &[CodePointRange] = ASCII_PRINTABLE_RANGE;
 
     type Name = Ean13Name;
 

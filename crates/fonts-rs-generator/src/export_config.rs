@@ -9,6 +9,7 @@ use std::fs;
 use std::io::Write;
 use std::path::Path;
 
+use fonts_rs_model::CodePointRange;
 use fonts_rs_model::GlyphEntry;
 use fonts_rs_model::GlyphNameMap;
 use fonts_rs_model::ResourcePath;
@@ -38,7 +39,7 @@ pub struct ExportConfig {
     /// Glyph name prefix, e.g. `dseg7-classic-regular`.
     pub glyph_name_prefix: String,
     /// Unicode codepoint ranges to probe.
-    pub codepoint_ranges: &'static [(u32, u32)],
+    pub codepoint_ranges: &'static [CodePointRange],
     /// Variable font axis settings in user space (e.g. `vec![("wght", 700.0), ("rond", 50.0)]`).
     ///
     /// Empty for non-variable fonts (renders at default location).

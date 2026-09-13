@@ -93,7 +93,9 @@ fn main() -> miette::Result<()> {
         let entries: Vec<fonts_rs_model::GlyphEntry<String>> =
             serde_json::from_str(&metadata_json).map_err(|e| miette::miette!("Failed to parse metadata.json: {e}"))?;
 
-        NotoEmojiMetadataGenerator::new(keyword_map, category_map).run(&entries).map_err(|e| miette::miette!("Failed to generate metadata: {e}"))?;
+        NotoEmojiMetadataGenerator::new(keyword_map, category_map)
+            .run(&entries)
+            .map_err(|e| miette::miette!("Failed to generate metadata: {e}"))?;
     }
 
     Ok(())

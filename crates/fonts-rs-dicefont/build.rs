@@ -10,8 +10,12 @@ use fonts_rs_generator::ExportConfig;
 use fonts_rs_generator::FontBuild;
 use fonts_rs_generator::build_constants;
 use fonts_rs_generator::export_glyphs_with_config;
+use fonts_rs_model::CodePointRange;
 use fonts_rs_model::GRESOURCE_BASE_PREFIX;
 use miette::IntoDiagnostic;
+
+/// PUA range (U+F000–U+FFFF) covering all dicefont glyphs.
+const CODEPOINT_RANGES: &[CodePointRange] = &[CodePointRange::from_char('\u{F000}', '\u{FFFF}')];
 
 /// TTF font file name (relative to `resources/`).
 pub const FONT_FILE: &str = "dicefont.ttf";
@@ -33,7 +37,7 @@ fn main() -> miette::Result<()> {
         gresource_prefix: gresource_prefix.clone(),
         icons_context: "glyphs".to_string(),
         glyph_name_prefix: glyph_prefix.to_string(),
-        codepoint_ranges: &[(0xF000, 0xFFFF)],
+        codepoint_ranges: CODEPOINT_RANGES,
         axes: vec![],
         name_filter: None,
     };

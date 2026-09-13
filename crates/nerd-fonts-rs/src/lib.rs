@@ -23,11 +23,11 @@ pub mod fonts;
 pub mod web;
 
 // Re-export model types
+pub use fonts_rs_model::GlyphCategory;
+pub use fonts_rs_model::GlyphKeyword;
 pub use nerd_fonts_model::CodePoint;
 pub use nerd_fonts_model::CodePointParseError;
 pub use nerd_fonts_model::GlyphEntry;
-pub use fonts_rs_model::GlyphCategory;
-pub use fonts_rs_model::GlyphKeyword;
 pub use nerd_fonts_model::IconName;
 pub use nerd_fonts_model::IconSet;
 pub use nerd_fonts_model::ResourcePath;
