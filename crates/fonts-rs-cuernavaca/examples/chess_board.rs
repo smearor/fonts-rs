@@ -89,11 +89,7 @@ impl Square {
         }
         let file = bytes[0].checked_sub(b'a')?;
         let rank = bytes[1].checked_sub(b'1')?;
-        if file < 8 && rank < 8 {
-            Some(Self { file, rank })
-        } else {
-            None
-        }
+        if file < 8 && rank < 8 { Some(Self { file, rank }) } else { None }
     }
 
     fn to_algebraic(self) -> String {
@@ -160,10 +156,22 @@ impl GameState {
             PieceType::Rook,
         ];
         for file in 0..8 {
-            board[0][file] = Some(Piece { piece_type: white_back[file], color: Color::White });
-            board[1][file] = Some(Piece { piece_type: PieceType::Pawn, color: Color::White });
-            board[6][file] = Some(Piece { piece_type: PieceType::Pawn, color: Color::Black });
-            board[7][file] = Some(Piece { piece_type: black_back[file], color: Color::Black });
+            board[0][file] = Some(Piece {
+                piece_type: white_back[file],
+                color: Color::White,
+            });
+            board[1][file] = Some(Piece {
+                piece_type: PieceType::Pawn,
+                color: Color::White,
+            });
+            board[6][file] = Some(Piece {
+                piece_type: PieceType::Pawn,
+                color: Color::Black,
+            });
+            board[7][file] = Some(Piece {
+                piece_type: black_back[file],
+                color: Color::Black,
+            });
         }
         Self {
             board,
@@ -190,12 +198,13 @@ impl GameState {
         for rank in 0..8 {
             for file in 0..8 {
                 if let Some(piece) = self.board[rank][file]
-                    && piece.color == by {
-                        let from = Square::new(file as u8, rank as u8);
-                        if self.can_attack(from, sq, piece) {
-                            return true;
-                        }
+                    && piece.color == by
+                {
+                    let from = Square::new(file as u8, rank as u8);
+                    if self.can_attack(from, sq, piece) {
+                        return true;
                     }
+                }
             }
         }
         false
@@ -214,14 +223,8 @@ impl GameState {
             }
             PieceType::Knight => (abs_df == 2 && abs_dr == 1) || (abs_df == 1 && abs_dr == 2),
             PieceType::Bishop => abs_df == abs_dr && abs_df > 0 && self.path_clear(from, to),
-            PieceType::Rook => {
-                (abs_df == 0 || abs_dr == 0) && (abs_df + abs_dr > 0) && self.path_clear(from, to)
-            }
-            PieceType::Queen => {
-                (abs_df == abs_dr || abs_df == 0 || abs_dr == 0)
-                    && (abs_df + abs_dr > 0)
-                    && self.path_clear(from, to)
-            }
+            PieceType::Rook => (abs_df == 0 || abs_dr == 0) && (abs_df + abs_dr > 0) && self.path_clear(from, to),
+            PieceType::Queen => (abs_df == abs_dr || abs_df == 0 || abs_dr == 0) && (abs_df + abs_dr > 0) && self.path_clear(from, to),
             PieceType::King => abs_df <= 1 && abs_dr <= 1 && (abs_df + abs_dr > 0),
         }
     }
@@ -272,9 +275,10 @@ impl GameState {
             return false;
         }
         if let Some(target) = self.piece_at(to)
-            && target.color == piece.color {
-                return false;
-            }
+            && target.color == piece.color
+        {
+            return false;
+        }
         if !self.is_pseudo_legal(from, to, piece) {
             return false;
         }
@@ -313,22 +317,17 @@ impl GameState {
                     }
                     // En passant
                     if let Some(ep) = self.en_passant_target
-                        && to == ep {
-                            return true;
-                        }
+                        && to == ep
+                    {
+                        return true;
+                    }
                 }
                 false
             }
             PieceType::Knight => (abs_df == 2 && abs_dr == 1) || (abs_df == 1 && abs_dr == 2),
             PieceType::Bishop => abs_df == abs_dr && abs_df > 0 && self.path_clear(from, to),
-            PieceType::Rook => {
-                (abs_df == 0 || abs_dr == 0) && (abs_df + abs_dr > 0) && self.path_clear(from, to)
-            }
-            PieceType::Queen => {
-                (abs_df == abs_dr || abs_df == 0 || abs_dr == 0)
-                    && (abs_df + abs_dr > 0)
-                    && self.path_clear(from, to)
-            }
+            PieceType::Rook => (abs_df == 0 || abs_dr == 0) && (abs_df + abs_dr > 0) && self.path_clear(from, to),
+            PieceType::Queen => (abs_df == abs_dr || abs_df == 0 || abs_dr == 0) && (abs_df + abs_dr > 0) && self.path_clear(from, to),
             PieceType::King => {
                 // Normal king move
                 if abs_df <= 1 && abs_dr <= 1 && (abs_df + abs_dr > 0) {
@@ -429,7 +428,10 @@ impl GameState {
         let moved_piece = if piece.piece_type == PieceType::Pawn {
             let promotion_rank = if piece.color == Color::White { 7 } else { 0 };
             if to.rank == promotion_rank {
-                Some(Piece { piece_type: PieceType::Queen, color: piece.color })
+                Some(Piece {
+                    piece_type: PieceType::Queen,
+                    color: piece.color,
+                })
             } else {
                 Some(piece)
             }
@@ -525,9 +527,11 @@ impl GameState {
         for rank in 0..8 {
             for file in 0..8 {
                 if let Some(p) = self.board[rank][file]
-                    && p.piece_type == PieceType::King && p.color == color {
-                        return Some(Square::new(file as u8, rank as u8));
-                    }
+                    && p.piece_type == PieceType::King
+                    && p.color == color
+                {
+                    return Some(Square::new(file as u8, rank as u8));
+                }
             }
         }
         None
@@ -547,16 +551,17 @@ impl GameState {
         for rank in 0..8 {
             for file in 0..8 {
                 if let Some(piece) = self.board[rank][file]
-                    && piece.color == color {
-                        let from = Square::new(file as u8, rank as u8);
-                        for tr in 0..8 {
-                            for tf in 0..8 {
-                                if self.is_legal_move(from, Square::new(tf as u8, tr as u8)) {
-                                    return true;
-                                }
+                    && piece.color == color
+                {
+                    let from = Square::new(file as u8, rank as u8);
+                    for tr in 0..8 {
+                        for tf in 0..8 {
+                            if self.is_legal_move(from, Square::new(tf as u8, tr as u8)) {
+                                return true;
                             }
                         }
                     }
+                }
             }
         }
         false
@@ -626,29 +631,25 @@ fn trace_glyph_path(cr: &cairo::Context, font: &FontVec, ch: char, x: f64, y: f6
 
     for curve in outline.curves.iter() {
         let (p1_start, end_x, end_y, draw): (ab_glyph::Point, f64, f64, &dyn Fn(&cairo::Context)) = match curve {
-            OutlineCurve::Line(p1, p2) => {
-                (*p1, sx(p2), sy(p2), &|cr: &cairo::Context| { cr.line_to(sx(p2), sy(p2)); })
-            }
-            OutlineCurve::Quad(p1, p2, p3) => {
-                (*p1, sx(p3), sy(p3), &|cr: &cairo::Context| {
-                    let x1 = sx(p1);
-                    let y1 = sy(p1);
-                    let x2 = sx(p2);
-                    let y2 = sy(p2);
-                    let x3 = sx(p3);
-                    let y3 = sy(p3);
-                    let c1x = x1 + (2.0 / 3.0) * (x2 - x1);
-                    let c1y = y1 + (2.0 / 3.0) * (y2 - y1);
-                    let c2x = x3 + (2.0 / 3.0) * (x2 - x3);
-                    let c2y = y3 + (2.0 / 3.0) * (y2 - y3);
-                    cr.curve_to(c1x, c1y, c2x, c2y, x3, y3);
-                })
-            }
-            OutlineCurve::Cubic(p1, p2, p3, p4) => {
-                (*p1, sx(p4), sy(p4), &|cr: &cairo::Context| {
-                    cr.curve_to(sx(p2), sy(p2), sx(p3), sy(p3), sx(p4), sy(p4));
-                })
-            }
+            OutlineCurve::Line(p1, p2) => (*p1, sx(p2), sy(p2), &|cr: &cairo::Context| {
+                cr.line_to(sx(p2), sy(p2));
+            }),
+            OutlineCurve::Quad(p1, p2, p3) => (*p1, sx(p3), sy(p3), &|cr: &cairo::Context| {
+                let x1 = sx(p1);
+                let y1 = sy(p1);
+                let x2 = sx(p2);
+                let y2 = sy(p2);
+                let x3 = sx(p3);
+                let y3 = sy(p3);
+                let c1x = x1 + (2.0 / 3.0) * (x2 - x1);
+                let c1y = y1 + (2.0 / 3.0) * (y2 - y1);
+                let c2x = x3 + (2.0 / 3.0) * (x2 - x3);
+                let c2y = y3 + (2.0 / 3.0) * (y2 - y3);
+                cr.curve_to(c1x, c1y, c2x, c2y, x3, y3);
+            }),
+            OutlineCurve::Cubic(p1, p2, p3, p4) => (*p1, sx(p4), sy(p4), &|cr: &cairo::Context| {
+                cr.curve_to(sx(p2), sy(p2), sx(p3), sy(p3), sx(p4), sy(p4));
+            }),
         };
 
         let start_x = sx(&p1_start);
@@ -742,10 +743,18 @@ fn build_ui(app: &Application) {
         .width_request(260)
         .build();
 
-    let title = Label::builder().label("Chess — Cuernavaca").css_classes(["chess-title"]).halign(Align::Center).build();
+    let title = Label::builder()
+        .label("Chess — Cuernavaca")
+        .css_classes(["chess-title"])
+        .halign(Align::Center)
+        .build();
     panel.append(&title);
 
-    let status_label = Label::builder().label("White to move").css_classes(["chess-status"]).halign(Align::Center).build();
+    let status_label = Label::builder()
+        .label("White to move")
+        .css_classes(["chess-status"])
+        .halign(Align::Center)
+        .build();
     panel.append(&status_label);
 
     let captured_white = Label::builder().label("").css_classes(["chess-captured"]).halign(Align::Start).build();
@@ -755,7 +764,11 @@ fn build_ui(app: &Application) {
     panel.append(&Label::builder().label("Captured by Black:").halign(Align::Start).build());
     panel.append(&captured_black);
 
-    let history_label = Label::builder().label("Move History").css_classes(["chess-title"]).halign(Align::Center).build();
+    let history_label = Label::builder()
+        .label("Move History")
+        .css_classes(["chess-title"])
+        .halign(Align::Center)
+        .build();
     panel.append(&history_label);
 
     let history_text = gtk4::TextView::builder().editable(false).css_classes(["chess-history"]).vexpand(true).build();
@@ -817,11 +830,12 @@ fn build_ui(app: &Application) {
 
                     // Highlight selected square
                     if let Some(sel) = s.selected
-                        && Square::new(file, rank) == sel {
-                            cr.set_source_rgba(HIGHLIGHT.0, HIGHLIGHT.1, HIGHLIGHT.2, HIGHLIGHT.3);
-                            cr.rectangle(x, y, cell, cell);
-                            cr.fill().unwrap_or(());
-                        }
+                        && Square::new(file, rank) == sel
+                    {
+                        cr.set_source_rgba(HIGHLIGHT.0, HIGHLIGHT.1, HIGHLIGHT.2, HIGHLIGHT.3);
+                        cr.rectangle(x, y, cell, cell);
+                        cr.fill().unwrap_or(());
+                    }
 
                     // Highlight legal moves
                     if let Some(sel) = s.selected {
@@ -847,11 +861,12 @@ fn build_ui(app: &Application) {
                     // Highlight king in check
                     if s.is_in_check(s.turn)
                         && let Some(king_sq) = s.find_king(s.turn)
-                            && Square::new(file, rank) == king_sq {
-                                cr.set_source_rgba(CHECK_COLOR.0, CHECK_COLOR.1, CHECK_COLOR.2, CHECK_COLOR.3);
-                                cr.rectangle(x, y, cell, cell);
-                                cr.fill().unwrap_or(());
-                            }
+                        && Square::new(file, rank) == king_sq
+                    {
+                        cr.set_source_rgba(CHECK_COLOR.0, CHECK_COLOR.1, CHECK_COLOR.2, CHECK_COLOR.3);
+                        cr.rectangle(x, y, cell, cell);
+                        cr.fill().unwrap_or(());
+                    }
                 }
             }
 
@@ -897,8 +912,26 @@ fn build_ui(app: &Application) {
             // Update side panel
             let status_text = s.status_message.clone();
             status_ref.set_label(&status_text);
-            let white_caps: String = s.white_captured.iter().map(|p| piece_to_char(Piece { piece_type: *p, color: Color::Black })).collect();
-            let black_caps: String = s.black_captured.iter().map(|p| piece_to_char(Piece { piece_type: *p, color: Color::White })).collect();
+            let white_caps: String = s
+                .white_captured
+                .iter()
+                .map(|p| {
+                    piece_to_char(Piece {
+                        piece_type: *p,
+                        color: Color::Black,
+                    })
+                })
+                .collect();
+            let black_caps: String = s
+                .black_captured
+                .iter()
+                .map(|p| {
+                    piece_to_char(Piece {
+                        piece_type: *p,
+                        color: Color::White,
+                    })
+                })
+                .collect();
             captured_white_ref.set_label(&white_caps);
             captured_black_ref.set_label(&black_caps);
 
@@ -913,7 +946,6 @@ fn build_ui(app: &Application) {
                 }
             }
             history_ref.buffer().set_text(&text);
-
         });
     }
 
@@ -967,9 +999,10 @@ fn build_ui(app: &Application) {
             } else {
                 // Select a piece
                 if let Some(p) = s.piece_at(clicked)
-                    && p.color == s.turn {
-                        s.selected = Some(clicked);
-                    }
+                    && p.color == s.turn
+                {
+                    s.selected = Some(clicked);
+                }
             }
             drawing_ref.queue_draw();
         });
