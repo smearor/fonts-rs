@@ -12,7 +12,6 @@ use std::path::Path;
 
 use fonts_rs_generator::ExportConfig;
 use fonts_rs_generator::FontBuild;
-use fonts_rs_generator::FontFamilyConfig;
 use fonts_rs_generator::build_constants;
 use fonts_rs_generator::set_font_path_env;
 use fonts_rs_model::GlyphNameMap;
@@ -51,15 +50,8 @@ fn main() -> miette::Result<()> {
 
     let config = ExportConfig::<BravuraConfig>::new();
 
-    let icons_dir = BravuraConfig::icons_dir(Path::new(build_constants::RESOURCES_DIR));
-
     FontBuild::new(&font_path)
-        .run(|font_path, resources_dir| {
-            if icons_dir.exists() {
-                std::fs::remove_dir_all(&icons_dir)?;
-            }
-            config.export_glyphs_by_name_map(font_path, resources_dir, &name_map)
-        })
+        .run(|font_path, resources_dir| config.export_glyphs_by_name_map(font_path, resources_dir, &name_map))
         .map_err(|e| miette::miette!("{e}"))?;
 
     config.write_variant_info()?;

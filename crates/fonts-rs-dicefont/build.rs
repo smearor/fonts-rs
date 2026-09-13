@@ -4,12 +4,10 @@
 // D10, D12, D20, and dot-d6 variants. All glyphs are in the Private Use
 // Area (U+F100–U+F19B).
 
-use std::fs;
 use std::path::Path;
 
 use fonts_rs_generator::ExportConfig;
 use fonts_rs_generator::FontBuild;
-use fonts_rs_generator::FontFamilyConfig;
 use fonts_rs_generator::build_constants;
 use fonts_rs_generator::set_font_path_env;
 
@@ -30,15 +28,8 @@ fn main() -> miette::Result<()> {
 
     let config = ExportConfig::<DicefontConfig>::new();
 
-    let icons_dir = DicefontConfig::icons_dir(Path::new(build_constants::RESOURCES_DIR));
-
     FontBuild::new(&font_path)
-        .run(|font_path, resources_dir| {
-            if icons_dir.exists() {
-                fs::remove_dir_all(&icons_dir)?;
-            }
-            config.export_glyphs(font_path, resources_dir)
-        })
+        .run(|font_path, resources_dir| config.export_glyphs(font_path, resources_dir))
         .map_err(|e| miette::miette!("{e}"))?;
 
     config.write_variant_info()?;

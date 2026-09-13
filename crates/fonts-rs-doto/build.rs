@@ -4,12 +4,10 @@
 // This build script selects one instance from a 5x5 matrix based on the
 // active Cargo feature and exports glyphs at that variation location.
 
-use std::fs;
 use std::path::Path;
 
 use fonts_rs_generator::ExportConfig;
 use fonts_rs_generator::FontBuild;
-use fonts_rs_generator::FontFamilyConfig;
 use fonts_rs_generator::VariantList;
 use fonts_rs_generator::build_constants;
 use fonts_rs_generator::set_font_path_env;
@@ -68,16 +66,9 @@ fn main() -> miette::Result<()> {
 
     let config = ExportConfig::<DotoConfig>::with_variant(*entry);
 
-    let icons_dir = DotoConfig::icons_dir(Path::new(build_constants::RESOURCES_DIR));
-
     FontBuild::new(&font_path)
         .extra_hash(entry.as_str())
-        .run(|font_path, resources_dir| {
-            if icons_dir.exists() {
-                fs::remove_dir_all(&icons_dir)?;
-            }
-            config.export_glyphs(font_path, resources_dir)
-        })
+        .run(|font_path, resources_dir| config.export_glyphs(font_path, resources_dir))
         .map_err(|e| miette::miette!("{e}"))?;
 
     config.write_variant_info()?;

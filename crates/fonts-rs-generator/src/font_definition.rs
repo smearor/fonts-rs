@@ -143,6 +143,9 @@ pub trait FontDefinition: FontFamilyConfig {
         // SVG output directory follows Freedesktop Icon Theme convention:
         // {output_dir}/scalable/{context}/
         let icons_dir = Self::icons_dir(output_dir);
+        if icons_dir.exists() {
+            fs::remove_dir_all(&icons_dir)?;
+        }
         fs::create_dir_all(&icons_dir)?;
 
         let reverse_cmap = font.build_reverse_cmap::<Self>();
