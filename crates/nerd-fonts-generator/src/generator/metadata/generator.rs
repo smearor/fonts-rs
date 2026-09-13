@@ -43,19 +43,19 @@ impl IconsMetadataGenerator {
             }
 
             let static_name = format!("KW_{}", kw_idx);
-            output.push_str(&format!("static {}: &[IconKeyword] = &[", static_name));
+            output.push_str(&format!("static {}: &[GlyphKeyword] = &[", static_name));
             for (i, kw) in keywords.iter().enumerate() {
                 if i > 0 {
                     output.push_str(", ");
                 }
-                output.push_str(&format!("IconKeyword::new(\"{}\")", escape_str(kw)));
+                output.push_str(&format!("GlyphKeyword::new(\"{}\")", escape_str(kw)));
             }
             output.push_str("];\n");
             kw_entries.push((icon.name.as_ref().to_string(), static_name));
             kw_idx += 1;
         }
 
-        output.push_str("\npub static KEYWORDS: phf::Map<&'static str, &'static [IconKeyword]> = phf_map! {\n");
+        output.push_str("\npub static KEYWORDS: phf::Map<&'static str, &'static [GlyphKeyword]> = phf_map! {\n");
         for (name, static_name) in &kw_entries {
             output.push_str(&format!("    \"{}\" => {},\n", escape_str(name), static_name));
         }
@@ -80,12 +80,12 @@ impl IconsMetadataGenerator {
                 .or_insert_with(|| {
                     let name = format!("CAT_{}", cat_idx);
                     cat_idx += 1;
-                    output.push_str(&format!("static {}: &[IconCategory] = &[", name));
+                    output.push_str(&format!("static {}: &[GlyphCategory] = &[", name));
                     for (i, cat) in categories.iter().enumerate() {
                         if i > 0 {
                             output.push_str(", ");
                         }
-                        output.push_str(&format!("IconCategory::new(\"{}\")", escape_str(cat)));
+                        output.push_str(&format!("GlyphCategory::new(\"{}\")", escape_str(cat)));
                     }
                     output.push_str("];\n");
                     name
@@ -94,7 +94,7 @@ impl IconsMetadataGenerator {
             cat_entries.push((icon.name.as_ref().to_string(), static_name));
         }
 
-        output.push_str("\npub static CATEGORIES: phf::Map<&'static str, &'static [IconCategory]> = phf_map! {\n");
+        output.push_str("\npub static CATEGORIES: phf::Map<&'static str, &'static [GlyphCategory]> = phf_map! {\n");
         for (name, static_name) in &cat_entries {
             output.push_str(&format!("    \"{}\" => {},\n", escape_str(name), static_name));
         }

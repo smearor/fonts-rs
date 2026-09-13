@@ -221,7 +221,7 @@ pub fn export_glyphs_by_name_map(font_path: &Path, output_dir: &Path, config: &E
     let icons_dir = output_dir.join("scalable").join(&config.icons_context);
     fs::create_dir_all(&icons_dir)?;
 
-    let charmap = font.as_ref().charmap();
+    let charmap = font.charmap();
 
     let mut entries: Vec<GlyphEntry<String>> = Vec::new();
     let mut seen_names: HashSet<String> = HashSet::new();

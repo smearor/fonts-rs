@@ -8,6 +8,9 @@
 //!
 //! This module is only available when the `metadata` feature is enabled.
 
+use fonts_rs_model::GlyphCategory;
+use fonts_rs_model::GlyphKeyword;
+
 // Include the build-time generated phf::Map constants.
 include!(concat!(env!("OUT_DIR"), "/keywords.rs"));
 include!(concat!(env!("OUT_DIR"), "/categories.rs"));
@@ -15,20 +18,23 @@ include!(concat!(env!("OUT_DIR"), "/categories.rs"));
 /// Returns search keywords for an emoji glyph, e.g. `["face", "grin"]` for
 /// `"noto-emoji-grinning-face"`.
 ///
+/// Accepts any type that implements `AsRef<str>` — this includes `&str`,
+/// `String`, and `GlyphName<F>` from any font family crate.
+///
 /// Returns an empty slice if no keywords are available.
-pub fn emoji_keywords(glyph_name: &str) -> &'static [&'static str] {
-    match KEYWORDS.get(glyph_name) {
-        Some(kws) => kws,
-        None => &[],
-    }
+pub fn emoji_keywords(glyph_name: impl AsRef<str>) -> &'static [GlyphKeyword] {
+    KEYWORDS.get(glyph_name.as_ref()).copied().unwrap_or(&[])
 }
 
 /// Returns the category for an emoji glyph, e.g. `"Smileys & Emotion"` for
 /// `"noto-emoji-grinning-face"`.
 ///
+/// Accepts any type that implements `AsRef<str>` — this includes `&str`,
+/// `String`, and `GlyphName<F>` from any font family crate.
+///
 /// Returns `None` if no category is available.
-pub fn emoji_category(glyph_name: &str) -> Option<&'static str> {
-    CATEGORIES.get(glyph_name).copied()
+pub fn emoji_category(glyph_name: impl AsRef<str>) -> Option<GlyphCategory> {
+    CATEGORIES.get(glyph_name.as_ref()).copied()
 }
 
 /// Search emoji by keyword, category, or name.
@@ -51,13 +57,13 @@ pub fn search_emoji(query: &str) -> Vec<&'static str> {
             continue;
         }
 
-        if keywords.iter().any(|kw| kw.to_lowercase().contains(&query)) {
+        if keywords.iter().any(|kw| kw.as_str().to_lowercase().contains(&query)) {
             results.push(*glyph_name);
             continue;
         }
 
         if let Some(cat) = CATEGORIES.get(glyph_name) {
-            if cat.to_lowercase().contains(&query) {
+            if cat.as_str().to_lowercase().contains(&query) {
                 results.push(*glyph_name);
                 continue;
             }
