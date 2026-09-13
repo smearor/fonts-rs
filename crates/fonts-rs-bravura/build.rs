@@ -42,7 +42,7 @@ fn main() -> miette::Result<()> {
 
     eprintln!("build.rs: exporting glyphs from {font_path}");
 
-    set_font_path_env("BRAVURA_FONT_PATH", &font_path);
+    set_font_path_env("BRAVURA_FONT_PATH", &font_path)?;
 
     // Parse SMuFL glyph names
     let glyphnames_json = std::fs::read_to_string(&glyphnames_path).map_err(|e| miette::miette!("Failed to read {glyphnames_path}: {e}"))?;

@@ -17,10 +17,13 @@ use crate::font_family_config::FontFamilyConfig;
 /// Constructs the absolute path from `CARGO_MANIFEST_DIR` and the given relative
 /// font path, then emits a `cargo:rustc-env` directive so that `include_bytes!`
 /// can locate the font file at compile time.
-pub fn set_font_path_env(env_var: &str, font_path: &str) {
-    let crate_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap_or_else(|_| std::env::current_dir().unwrap().to_string_lossy().to_string());
+pub fn set_font_path_env(env_var: &str, font_path: &str) -> miette::Result<()> {
+    let crate_dir = std::env::var("CARGO_MANIFEST_DIR")
+        .or_else(|_| std::env::current_dir().map(|d| d.to_string_lossy().to_string()))
+        .map_err(|e| miette::miette!("failed to determine crate directory: {e}"))?;
     let absolute_font_path = Path::new(&crate_dir).join(font_path);
     println!("cargo:rustc-env={env_var}={}", absolute_font_path.display());
+    Ok(())
 }
 
 /// Build an [`ExportConfig`] from family info and optional variant.

@@ -26,7 +26,7 @@ fn main() -> miette::Result<()> {
 
     eprintln!("build.rs: exporting glyphs from {font_path}");
 
-    set_font_path_env("DICEFONT_FONT_PATH", &font_path);
+    set_font_path_env("DICEFONT_FONT_PATH", &font_path)?;
 
     let config = build_config::<DicefontConfig>(None);
 

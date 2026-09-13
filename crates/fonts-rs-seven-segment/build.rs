@@ -53,7 +53,7 @@ fn main() -> miette::Result<()> {
 
     eprintln!("build.rs: active variant: {} -> {font_path}", entry);
 
-    set_font_path_env("DSEG7_FONT_PATH", &font_path);
+    set_font_path_env("DSEG7_FONT_PATH", &font_path)?;
 
     let config = build_config::<SevenSegmentConfig>(Some(*entry));
 
