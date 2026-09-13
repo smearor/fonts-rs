@@ -142,11 +142,7 @@ pub trait FontDefinition: FontFamilyConfig {
 
         // SVG output directory follows Freedesktop Icon Theme convention:
         // {output_dir}/scalable/{context}/
-        let icons_dir = Self::icons_dir(output_dir);
-        if icons_dir.exists() {
-            fs::remove_dir_all(&icons_dir)?;
-        }
-        fs::create_dir_all(&icons_dir)?;
+        let icons_dir = Self::prepare_icons_dir(output_dir)?;
 
         let reverse_cmap = font.build_reverse_cmap::<Self>();
 
@@ -180,10 +176,7 @@ pub trait FontDefinition: FontFamilyConfig {
 
             let codepoint = reverse_cmap.get(&glyph_id).copied();
 
-            let svg = match font.glyph_to_svg(glyph_id) {
-                Some(svg) => svg,
-                None => EMPTY_SVG.to_string(),
-            };
+            let svg = font.glyph_to_svg(glyph_id).unwrap_or_else(|| EMPTY_SVG.to_string());
 
             let filename = icons_dir.join(format!("{}.svg", glyph_name.as_ref()));
             let mut file = fs::File::create(&filename)?;

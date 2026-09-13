@@ -131,11 +131,7 @@ impl<X: FontFamilyConfig> ExportConfig<X> {
         let location_ref = LocationRef::from(&location);
 
         let icons_context = X::ICONS_CONTEXT;
-        let icons_dir = X::icons_dir(output_dir);
-        if icons_dir.exists() {
-            fs::remove_dir_all(&icons_dir)?;
-        }
-        fs::create_dir_all(&icons_dir)?;
+        let icons_dir = X::prepare_icons_dir(output_dir)?;
 
         let reverse_cmap = font.build_reverse_cmap_with_ranges(X::CODEPOINT_RANGES);
 
@@ -224,11 +220,7 @@ impl<X: FontFamilyConfig> ExportConfig<X> {
         let location_ref = LocationRef::from(&location);
 
         let icons_context = X::ICONS_CONTEXT;
-        let icons_dir = X::icons_dir(output_dir);
-        if icons_dir.exists() {
-            fs::remove_dir_all(&icons_dir)?;
-        }
-        fs::create_dir_all(&icons_dir)?;
+        let icons_dir = X::prepare_icons_dir(output_dir)?;
 
         let charmap = font.charmap();
 
