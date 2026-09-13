@@ -31,7 +31,7 @@ fn main() -> miette::Result<()> {
     let entry = VARIANTS.detect_and_get_active_variant(0)?;
     let font_path = entry.font_path()?;
 
-    eprintln!("build.rs: active variant: {} -> {font_path}", entry);
+    eprintln!("build.rs: active variant: {} -> {}", entry, font_path.display());
 
     set_font_path_env("REDACTED_FONT_PATH", &font_path)?;
 

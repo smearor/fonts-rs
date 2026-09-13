@@ -6,6 +6,7 @@
 
 use std::fs;
 use std::path::Path;
+use std::path::PathBuf;
 
 use fonts_rs_model::GlyphEntry;
 
@@ -38,7 +39,7 @@ use crate::build_constants::hash_font_file;
 /// ```
 pub struct FontBuild {
     /// Path to the TTF/OTF font file (relative to crate root).
-    font_path: String,
+    font_path: PathBuf,
     /// Whether to also compile `font.gresource` in addition to `icons.gresource`.
     compile_font_gresource: bool,
     /// Optional extra hash component for change detection.
@@ -51,7 +52,7 @@ pub struct FontBuild {
 
 impl FontBuild {
     /// Create a new builder with the given font path.
-    pub fn new(font_path: impl Into<String>) -> Self {
+    pub fn new(font_path: impl Into<PathBuf>) -> Self {
         Self {
             font_path: font_path.into(),
             compile_font_gresource: false,
@@ -92,7 +93,7 @@ impl FontBuild {
         F: FnOnce(&Path, &Path) -> std::io::Result<usize>,
     {
         println!("cargo:rustc-cfg=is_lib");
-        println!("cargo:rerun-if-changed={}", self.font_path);
+        println!("cargo:rerun-if-changed={}", self.font_path.display());
 
         let metadata_path = Path::new(METADATA_PATH);
         let hash_path = Path::new(HASH_PATH);
@@ -105,8 +106,8 @@ impl FontBuild {
         let needs_export = !metadata_path.exists() || fs::read_to_string(hash_path).ok().as_deref() != Some(current_hash.as_str());
 
         if needs_export {
-            eprintln!("build.rs: exporting glyphs from {}...", self.font_path);
-            let count = export(Path::new(&self.font_path), Path::new(RESOURCES_DIR))?;
+            eprintln!("build.rs: exporting glyphs from {}...", self.font_path.display());
+            let count = export(&self.font_path, Path::new(RESOURCES_DIR))?;
             eprintln!("build.rs: exported {count} glyphs");
             fs::write(hash_path, &current_hash)?;
         }

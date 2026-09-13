@@ -22,9 +22,9 @@ use definition::DicefontConfig;
 pub const FONT_FILE: &str = "dicefont.ttf";
 
 fn main() -> miette::Result<()> {
-    let font_path = format!("{}/{}", build_constants::RESOURCES_DIR, FONT_FILE);
+    let font_path = Path::new(build_constants::RESOURCES_DIR).join(FONT_FILE);
 
-    eprintln!("build.rs: exporting glyphs from {font_path}");
+    eprintln!("build.rs: exporting glyphs from {}", font_path.display());
 
     set_font_path_env("DICEFONT_FONT_PATH", &font_path)?;
 

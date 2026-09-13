@@ -4,6 +4,8 @@
 // white pieces and lowercase letters represent black pieces.
 // The font covers ASCII letters and a few punctuation marks.
 
+use std::path::Path;
+
 use fonts_rs_generator::FontBuild;
 use fonts_rs_generator::build_config;
 use fonts_rs_generator::build_constants;
@@ -15,9 +17,9 @@ mod definition;
 use definition::CuernavacaConfig;
 
 fn main() -> miette::Result<()> {
-    let font_path = format!("{}/ChessCuernavaca.ttf", build_constants::RESOURCES_DIR);
+    let font_path = Path::new(build_constants::RESOURCES_DIR).join("ChessCuernavaca.ttf");
 
-    eprintln!("build.rs: exporting glyphs from {font_path}");
+    eprintln!("build.rs: exporting glyphs from {}", font_path.display());
 
     set_font_path_env("CUERNAVACA_FONT_PATH", &font_path)?;
 

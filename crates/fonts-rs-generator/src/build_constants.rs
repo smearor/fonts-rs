@@ -28,7 +28,7 @@ pub const FONT_GRESOURCE: &str = "font.gresource";
 ///
 /// Used by `build.rs` to detect whether the font has changed and
 /// glyph export needs to re-run.
-pub fn hash_font_file(path: &str) -> String {
+pub fn hash_font_file(path: impl AsRef<std::path::Path>) -> String {
     use std::fs;
     use std::io::Read;
 

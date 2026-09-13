@@ -60,9 +60,9 @@ const VARIANTS: VariantList<DotoConfig> = VariantList::new(&[
 
 fn main() -> miette::Result<()> {
     let entry = VARIANTS.detect_and_get_active_variant(12)?;
-    let font_path = format!("{}/{}", build_constants::RESOURCES_DIR, FONT_FILE);
+    let font_path = Path::new(build_constants::RESOURCES_DIR).join(FONT_FILE);
 
-    eprintln!("build.rs: active variant: {} -> {font_path}", entry);
+    eprintln!("build.rs: active variant: {} -> {}", entry, font_path.display());
 
     set_font_path_env("DOTO_FONT_PATH", &font_path)?;
 

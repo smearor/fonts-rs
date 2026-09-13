@@ -37,15 +37,15 @@ fn parse_glyphnames(json: &str) -> miette::Result<GlyphNameMap> {
 }
 
 fn main() -> miette::Result<()> {
-    let font_path = format!("{}/{}", build_constants::RESOURCES_DIR, FONT_FILE);
-    let glyphnames_path = format!("{}/{}", build_constants::RESOURCES_DIR, GLYPHNAMES_FILE);
+    let font_path = Path::new(build_constants::RESOURCES_DIR).join(FONT_FILE);
+    let glyphnames_path = Path::new(build_constants::RESOURCES_DIR).join(GLYPHNAMES_FILE);
 
-    eprintln!("build.rs: exporting glyphs from {font_path}");
+    eprintln!("build.rs: exporting glyphs from {}", font_path.display());
 
     set_font_path_env("BRAVURA_FONT_PATH", &font_path)?;
 
     // Parse SMuFL glyph names
-    let glyphnames_json = std::fs::read_to_string(&glyphnames_path).map_err(|e| miette::miette!("Failed to read {glyphnames_path}: {e}"))?;
+    let glyphnames_json = std::fs::read_to_string(&glyphnames_path).map_err(|e| miette::miette!("Failed to read {}: {e}", glyphnames_path.display()))?;
     let name_map = parse_glyphnames(&glyphnames_json)?;
     eprintln!("build.rs: parsed {} SMuFL glyph names", name_map.len());
 
