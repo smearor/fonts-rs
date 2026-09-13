@@ -25,11 +25,11 @@ use fonts_rs_noto_emoji_generator::parse_cldr_annotations;
 use fonts_rs_noto_emoji_generator::parse_emoji_test;
 
 fn main() -> miette::Result<()> {
-    let font_path = format!("{}/{}", build_constants::RESOURCES_DIR, FONT_FILE);
-    let annotations_path = format!("{}/{}", build_constants::RESOURCES_DIR, ANNOTATIONS_FILE);
-    let emoji_test_path = format!("{}/{}", build_constants::RESOURCES_DIR, EMOJI_TEST_FILE);
+    let font_path = Path::new(build_constants::RESOURCES_DIR).join(FONT_FILE);
+    let annotations_path = Path::new(build_constants::RESOURCES_DIR).join(ANNOTATIONS_FILE);
+    let emoji_test_path = Path::new(build_constants::RESOURCES_DIR).join(EMOJI_TEST_FILE);
 
-    eprintln!("build.rs: exporting glyphs from {font_path}");
+    eprintln!("build.rs: exporting glyphs from {}", font_path.display());
 
     // Set env var with absolute path so include_bytes! in fonts.rs can find it.
     let crate_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap_or_else(|_| std::env::current_dir().unwrap().to_string_lossy().to_string());
@@ -37,12 +37,12 @@ fn main() -> miette::Result<()> {
     println!("cargo:rustc-env=NOTO_EMOJI_FONT_PATH={}", absolute_font_path.display());
 
     // Parse CLDR annotations
-    let annotations_json = std::fs::read_to_string(&annotations_path).map_err(|e| miette::miette!("Failed to read {annotations_path}: {e}"))?;
+    let annotations_json = std::fs::read_to_string(&annotations_path).map_err(|e| miette::miette!("Failed to read {}: {e}", annotations_path.display()))?;
     let (name_map, keyword_map, _name_by_codepoint) = parse_cldr_annotations(&annotations_json)?;
     eprintln!("build.rs: parsed {} CLDR annotations", name_map.len());
 
     // Parse emoji-test.txt for categories
-    let emoji_test_content = std::fs::read_to_string(&emoji_test_path).map_err(|e| miette::miette!("Failed to read {emoji_test_path}: {e}"))?;
+    let emoji_test_content = std::fs::read_to_string(&emoji_test_path).map_err(|e| miette::miette!("Failed to read {}: {e}", emoji_test_path.display()))?;
     let category_map = parse_emoji_test(&emoji_test_content);
     eprintln!("build.rs: parsed {} emoji categories", category_map.len());
 
