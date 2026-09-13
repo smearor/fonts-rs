@@ -22,6 +22,7 @@ use crate::build_constants::ICONS_GRESOURCE_XML;
 use crate::build_constants::METADATA_PATH;
 use crate::build_constants::RESOURCES_DIR;
 use crate::build_constants::hash_font_file;
+use crate::gresource::GResourceSpec;
 
 /// Builder for the common `build.rs` pipeline.
 ///
@@ -49,6 +50,10 @@ pub struct FontBuild {
     /// `"{font_hash}"`. This forces a re-export when the extra value changes
     /// (e.g. a variant name), even if the font file itself is unchanged.
     extra_hash: Option<String>,
+    /// Extra `cargo:rerun-if-changed` paths beyond the font file.
+    extra_rerun_if_changed: Vec<PathBuf>,
+    /// Extra GResource bundles to compile beyond `icons.gresource` (and optionally `font.gresource`).
+    additional_gresources: Vec<GResourceSpec>,
 }
 
 impl FontBuild {
@@ -58,6 +63,8 @@ impl FontBuild {
             font_path: font_path.into(),
             compile_font_gresource: false,
             extra_hash: None,
+            extra_rerun_if_changed: Vec::new(),
+            additional_gresources: Vec::new(),
         }
     }
 
@@ -77,7 +84,25 @@ impl FontBuild {
         self
     }
 
-    /// Run the build pipeline.
+    /// Add an extra `cargo:rerun-if-changed` path.
+    ///
+    /// Can be called multiple times to register multiple paths.
+    pub fn rerun_if_changed(mut self, path: impl Into<PathBuf>) -> Self {
+        self.extra_rerun_if_changed.push(path.into());
+        self
+    }
+
+    /// Add an extra GResource bundle to compile.
+    ///
+    /// Can be called multiple times to register multiple bundles.
+    /// Each bundle is compiled as
+    /// `glib_build_tools::compile_resources(&[RESOURCES_DIR], xml, output)`.
+    pub fn additional_gresource(mut self, xml: impl Into<PathBuf>, output: impl Into<PathBuf>) -> Self {
+        self.additional_gresources.push(GResourceSpec::new(xml, output));
+        self
+    }
+
+    /// Run the build pipeline with default code generation.
     ///
     /// The `export` closure is called only when the font file has changed
     /// (detected via FNV-1a hash comparison). It receives the font path
@@ -94,8 +119,36 @@ impl FontBuild {
         F: FnOnce(&Path, &Path) -> Result<usize, E>,
         E: From<std::io::Error>,
     {
+        self.run_with(export, |json| {
+            let entries: Vec<GlyphEntry<String>> = serde_json::from_str(json).map_err(std::io::Error::other)?;
+            CodemapGenerator::<DefaultNaming>::run(&entries).map_err(|e| std::io::Error::other(e.to_string()))?;
+            RustConstantsGenerator::run(&entries).map_err(|e| std::io::Error::other(e.to_string()))?;
+            Ok(())
+        })
+    }
+
+    /// Run the build pipeline with a custom code generation closure.
+    ///
+    /// Like [`run`](Self::run), but the `generate` closure replaces the default
+    /// `CodemapGenerator` + `RustConstantsGenerator` code generation. The closure
+    /// receives the raw `metadata.json` content as a string slice and can
+    /// deserialize it as any type, run arbitrary generators, etc.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if any file operation or code generation fails.
+    pub fn run_with<F, G, E>(self, export: F, generate: G) -> Result<(), E>
+    where
+        F: FnOnce(&Path, &Path) -> Result<usize, E>,
+        G: FnOnce(&str) -> Result<(), E>,
+        E: From<std::io::Error>,
+    {
         println!("cargo:rustc-cfg=is_lib");
         println!("cargo:rerun-if-changed={}", self.font_path.display());
+
+        for path in &self.extra_rerun_if_changed {
+            println!("cargo:rerun-if-changed={}", path.display());
+        }
 
         let metadata_path = Path::new(METADATA_PATH);
         let hash_path = Path::new(HASH_PATH);
@@ -120,10 +173,14 @@ impl FontBuild {
             glib_build_tools::compile_resources(&[RESOURCES_DIR], FONT_GRESOURCE_XML, FONT_GRESOURCE);
         }
 
+        for gresource in &self.additional_gresources {
+            let xml = gresource.xml.to_str().ok_or_else(|| std::io::Error::other("invalid UTF-8 in gresource xml path"))?;
+            let output = gresource.output.to_str().ok_or_else(|| std::io::Error::other("invalid UTF-8 in gresource output path"))?;
+            glib_build_tools::compile_resources(&[RESOURCES_DIR], xml, output);
+        }
+
         let json = fs::read_to_string(METADATA_PATH)?;
-        let entries: Vec<GlyphEntry<String>> = serde_json::from_str(&json).map_err(std::io::Error::other)?;
-        CodemapGenerator::<DefaultNaming>::run(&entries).map_err(|e| std::io::Error::other(e.to_string()))?;
-        RustConstantsGenerator::run(&entries).map_err(|e| std::io::Error::other(e.to_string()))?;
+        generate(&json)?;
 
         Ok(())
     }
