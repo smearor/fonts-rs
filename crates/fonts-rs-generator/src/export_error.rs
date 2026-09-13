@@ -3,6 +3,8 @@
 use read_fonts::ReadError;
 use thiserror::Error;
 
+use crate::GenerateError;
+
 /// Error returned by [`ExportConfig::export_glyphs`](crate::export_config::ExportConfig::export_glyphs)
 /// and related glyph export methods.
 #[derive(Debug, Error)]
@@ -22,4 +24,8 @@ pub enum ExportError {
     /// XML serialization failed.
     #[error("XML error: {0}")]
     Xml(#[from] quick_xml::SeError),
+
+    /// Code generation failed.
+    #[error("code generation error: {0}")]
+    Generate(#[from] GenerateError),
 }

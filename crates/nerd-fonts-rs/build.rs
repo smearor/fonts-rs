@@ -1,17 +1,17 @@
-// build.rs uses the generic export pipeline directly.
+// build.rs uses the generic export pipeline via FontBuild.
 
-use std::fs;
 use std::path::Path;
 
-use fonts_rs_generator::hash_font_file;
+use fonts_rs_generator::ExportError;
+use fonts_rs_generator::FontBuild;
 use nerd_fonts_generator::FontDefinition;
+use nerd_fonts_generator::GlyphGenerator;
 use nerd_fonts_generator::IconsCodemapGenerator;
 use nerd_fonts_generator::IconsMetadataGenerator;
 use nerd_fonts_generator::IconsRustGenerator;
 use nerd_fonts_generator::MetadataGenerator;
 use nerd_fonts_generator::NerdFontsDefinition;
 use nerd_fonts_generator::WebCssGenerator;
-use nerd_fonts_generator::GlyphGenerator;
 use nerd_fonts_generator::generator::metadata::devicon::DeviconMetadata;
 use nerd_fonts_generator::generator::metadata::fa::FaMetadata;
 use nerd_fonts_generator::generator::metadata::md::MdMetadata;
@@ -21,76 +21,47 @@ use nerd_fonts_generator::generator::metadata::registry::IconMetadataRegistry;
 use nerd_fonts_model::GlyphEntry;
 use nerd_fonts_model::IconName;
 
-fn main() {
-    // Set cfg flag to indicate lib compilation (not build script).
-    // This enables codepoint() in name.rs which needs the codepoint map.
-    println!("cargo:rustc-cfg=is_lib");
-
-    // ----------------------------
-    // 1. Rebuild triggers
-    // ----------------------------
-    println!("cargo:rerun-if-changed=resources/nerd-fonts.gresource.xml");
-    println!("cargo:rerun-if-changed=resources/icons.gresource.xml");
-    println!("cargo:rerun-if-changed=resources/metadata.json");
-    println!("cargo:rerun-if-changed=resources/metadata/fontawesome/categories.yml");
-    println!("cargo:rerun-if-changed=resources/metadata/fontawesome/icons.yml");
-    println!("cargo:rerun-if-changed=resources/metadata/fontawesome/shims.json");
-    println!("cargo:rerun-if-changed=resources/metadata/materialdesign-icons.json");
-    println!("cargo:rerun-if-changed=resources/metadata/devicon.json");
-    println!("cargo:rerun-if-changed=resources/metadata/octicons-keywords.json");
-    println!("cargo:rerun-if-changed=build.rs");
-
-    // Trigger rebuild when the source font file changes
+fn main() -> miette::Result<()> {
     let font_path = "resources/NerdFontsSymbolsOnly/SymbolsNerdFont-Regular.ttf";
-    println!("cargo:rerun-if-changed={}", font_path);
 
-    // ----------------------------
-    // 2. Export icons from font (if missing or font changed)
-    // ----------------------------
-    let metadata_path = Path::new("resources/metadata.json");
-    let hash_path = Path::new("resources/.font-hash");
-    let current_hash = hash_font_file(font_path);
+    FontBuild::new(font_path)
+        .additional_gresource("resources/nerd-fonts.gresource.xml", "compiled.gresource")
+        .rerun_if_changed("resources/nerd-fonts.gresource.xml")
+        .rerun_if_changed("resources/icons.gresource.xml")
+        .rerun_if_changed("resources/metadata.json")
+        .rerun_if_changed("resources/metadata/fontawesome/categories.yml")
+        .rerun_if_changed("resources/metadata/fontawesome/icons.yml")
+        .rerun_if_changed("resources/metadata/fontawesome/shims.json")
+        .rerun_if_changed("resources/metadata/materialdesign-icons.json")
+        .rerun_if_changed("resources/metadata/devicon.json")
+        .rerun_if_changed("resources/metadata/octicons-keywords.json")
+        .run_with(
+            |font_path, resources_dir| {
+                NerdFontsDefinition::export_glyphs(font_path, resources_dir).map_err(ExportError::from)
+            },
+            |json| {
+                let icons: Vec<GlyphEntry<IconName>> = serde_json::from_str(json)?;
 
-    let needs_export = !metadata_path.exists() || fs::read_to_string(hash_path).ok().as_deref() != Some(current_hash.as_str());
+                IconsRustGenerator::run(&icons)?;
+                IconsCodemapGenerator::run(&icons)?;
+                WebCssGenerator::run(&icons)?;
 
-    if needs_export {
-        eprintln!("build.rs: exporting icons from font...");
-        let count = NerdFontsDefinition::export_glyphs(Path::new(font_path), Path::new("resources")).expect("Failed to export icons from font");
-        eprintln!("build.rs: exported {} icons", count);
-        fs::write(hash_path, &current_hash).expect("Failed to write font hash");
-    }
+                if std::env::var("CARGO_FEATURE_METADATA").is_ok() {
+                    eprintln!("build.rs: generating icon metadata (keywords/categories)...");
 
-    // ----------------------------
-    // 3. Compile GResource bundles
-    // ----------------------------
-    glib_build_tools::compile_resources(&["resources"], "resources/nerd-fonts.gresource.xml", "compiled.gresource");
-    glib_build_tools::compile_resources(&["resources"], "resources/icons.gresource.xml", "icons.gresource");
+                    let registry = IconMetadataRegistry::new()
+                        .register::<FaMetadata>(Path::new("resources/metadata/fontawesome"), "FA")?
+                        .register::<MdMetadata>(Path::new("resources/metadata/materialdesign-icons.json"), "MD")?
+                        .register::<DeviconMetadata>(Path::new("resources/metadata/devicon.json"), "Devicon")?
+                        .register::<OcticonsMetadata>(Path::new("resources/metadata/octicons-keywords.json"), "Octicons")?;
 
-    // ----------------------------
-    // 4. Generate Rust constants and phf maps from metadata.json
-    // ----------------------------
-    let json = fs::read_to_string("resources/metadata.json").expect("Failed to read metadata.json");
-    let icons: Vec<GlyphEntry<IconName>> = serde_json::from_str(&json).expect("Invalid metadata.json");
-    IconsRustGenerator::run(&icons).expect("Failed to generate Rust icons");
-    IconsCodemapGenerator::run(&icons).expect("Failed to generate codepoint map");
-    WebCssGenerator::run(&icons).expect("Failed to generate web CSS");
+                    IconsMetadataGenerator::new(&registry).run(&icons)?;
+                }
 
-    // ----------------------------
-    // 5. Generate metadata (keywords/categories) if feature is enabled
-    // ----------------------------
-    if std::env::var("CARGO_FEATURE_METADATA").is_ok() {
-        eprintln!("build.rs: generating icon metadata (keywords/categories)...");
+                Ok(())
+            },
+        )
+        .map_err(|e| miette::miette!("{e}"))?;
 
-        let registry = IconMetadataRegistry::new()
-            .register::<FaMetadata>(Path::new("resources/metadata/fontawesome"), "FA")
-            .expect("Failed to register FA metadata")
-            .register::<MdMetadata>(Path::new("resources/metadata/materialdesign-icons.json"), "MD")
-            .expect("Failed to register MD metadata")
-            .register::<DeviconMetadata>(Path::new("resources/metadata/devicon.json"), "Devicon")
-            .expect("Failed to register Devicon metadata")
-            .register::<OcticonsMetadata>(Path::new("resources/metadata/octicons-keywords.json"), "Octicons")
-            .expect("Failed to register Octicons metadata");
-
-        IconsMetadataGenerator::new(&registry).run(&icons).expect("Failed to generate icon metadata");
-    }
+    Ok(())
 }

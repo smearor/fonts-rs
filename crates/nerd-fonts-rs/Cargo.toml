@@ -79,6 +79,7 @@ name = "interactive_demo"
 required-features = ["gtk"]
 
 [build-dependencies]
+miette.workspace = true
 nerd-fonts-generator.workspace = true
 nerd-fonts-model.workspace = true
 fonts-rs-generator.workspace = true
