@@ -9,32 +9,29 @@
 //! This module is only available when the `metadata` feature is enabled.
 
 use fonts_rs_model::GlyphCategory;
+use fonts_rs_model::GlyphCategoryMap;
 use fonts_rs_model::GlyphKeyword;
+use fonts_rs_model::GlyphKeywordMap;
+use fonts_rs_model::GlyphMetadata;
 
 // Include the build-time generated phf::Map constants.
 include!(concat!(env!("OUT_DIR"), "/keywords.rs"));
 include!(concat!(env!("OUT_DIR"), "/categories.rs"));
 
-/// Returns search keywords for an emoji glyph, e.g. `["face", "grin"]` for
-/// `"noto-emoji-grinning-face"`.
+/// Metadata registry for the Noto Emoji font family.
 ///
-/// Accepts any type that implements `AsRef<str>` — this includes `&str`,
-/// `String`, and `GlyphName<F>` from any font family crate.
-///
-/// Returns an empty slice if no keywords are available.
-pub fn emoji_keywords(glyph_name: impl AsRef<str>) -> &'static [GlyphKeyword] {
-    KEYWORDS.get(glyph_name.as_ref()).copied().unwrap_or(&[])
-}
+/// Implements [`GlyphMetadata`] using build-time generated static maps
+/// sourced from CLDR keyword annotations and Unicode emoji-test categories.
+pub struct NotoEmojiMetadata;
 
-/// Returns the category for an emoji glyph, e.g. `"Smileys & Emotion"` for
-/// `"noto-emoji-grinning-face"`.
-///
-/// Accepts any type that implements `AsRef<str>` — this includes `&str`,
-/// `String`, and `GlyphName<F>` from any font family crate.
-///
-/// Returns `None` if no category is available.
-pub fn emoji_category(glyph_name: impl AsRef<str>) -> Option<GlyphCategory> {
-    CATEGORIES.get(glyph_name.as_ref()).copied()
+impl GlyphMetadata for NotoEmojiMetadata {
+    fn keyword_map(&self) -> &GlyphKeywordMap {
+        &KEYWORDS
+    }
+
+    fn category_map(&self) -> &GlyphCategoryMap {
+        &CATEGORIES
+    }
 }
 
 /// Search emoji by keyword, category, or name.
@@ -43,46 +40,7 @@ pub fn emoji_category(glyph_name: impl AsRef<str>) -> Option<GlyphCategory> {
 /// keywords, and categories. Returns matching glyph names sorted
 /// alphabetically.
 pub fn search_emoji(query: &str) -> Vec<&'static str> {
-    if query.is_empty() {
-        return Vec::new();
-    }
-
-    let query = query.to_lowercase();
-    let mut results = Vec::new();
-
-    for (glyph_name, keywords) in KEYWORDS.entries() {
-        let name_lower = glyph_name.to_lowercase();
-        if name_lower.contains(&query) {
-            results.push(*glyph_name);
-            continue;
-        }
-
-        if keywords.iter().any(|kw| kw.as_str().to_lowercase().contains(&query)) {
-            results.push(*glyph_name);
-            continue;
-        }
-
-        if let Some(cat) = CATEGORIES.get(glyph_name) {
-            if cat.as_str().to_lowercase().contains(&query) {
-                results.push(*glyph_name);
-                continue;
-            }
-        }
-    }
-
-    // Also include glyphs that have no keywords but match by name
-    for (glyph_name, _) in CATEGORIES.entries() {
-        if !results.contains(glyph_name) {
-            let name_lower = glyph_name.to_lowercase();
-            if name_lower.contains(&query) {
-                results.push(*glyph_name);
-            }
-        }
-    }
-
-    results.sort_unstable();
-    results.dedup();
-    results
+    NotoEmojiMetadata.search(query)
 }
 
 #[cfg(test)]
@@ -99,5 +57,17 @@ mod tests {
     fn search_emoji_empty_query() {
         let results = search_emoji("");
         assert!(results.is_empty(), "empty query should return no results");
+    }
+
+    #[test]
+    fn emoji_keywords_returns_slice() {
+        let kws = NotoEmojiMetadata.keywords("noto-emoji-grinning-face");
+        assert!(!kws.is_empty(), "grinning-face should have keywords");
+    }
+
+    #[test]
+    fn emoji_categories_returns_slice() {
+        let cats = NotoEmojiMetadata.categories("noto-emoji-grinning-face");
+        assert!(!cats.is_empty(), "grinning-face should have a category");
     }
 }

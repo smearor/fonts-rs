@@ -13,6 +13,7 @@ description = "Generic model types for font glyph packaging: CodePoint, Resource
 publish = true
 
 [dependencies]
+phf.workspace = true
 serde.workspace = true
 thiserror.workspace = true
 

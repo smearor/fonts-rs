@@ -448,6 +448,7 @@ dependencies = [
 name = "fonts-rs-model"
 version = "0.1.0"
 dependencies = [
+ "phf",
  "serde",
  "thiserror 2.0.20",
 ]
@@ -946,6 +947,7 @@ dependencies = [
 name = "nerd-fonts-cheat-sheet"
 version = "0.1.0"
 dependencies = [
+ "fonts-rs-model",
  "gtk4",
  "miette",
  "nerd-fonts-model",
