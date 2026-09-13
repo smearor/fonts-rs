@@ -370,6 +370,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "fonts-rs-cuernavaca"
+version = "0.1.0"
+dependencies = [
+ "ab_glyph",
+ "fonts-rs-generator",
+ "fonts-rs-model",
+ "gio",
+ "glib",
+ "gtk4",
+ "miette",
+ "phf",
+ "tracing",
+]
+
+[[package]]
 name = "fonts-rs-dicefont"
 version = "0.1.0"
 dependencies = [
