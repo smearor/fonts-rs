@@ -55,6 +55,17 @@ pub trait FontFamilyConfig {
     /// needed (e.g. [`ICONS_CONTEXT_EMOJI`](fonts_rs_model::ICONS_CONTEXT_EMOJI) for Noto Emoji).
     const ICONS_CONTEXT: &'static str = ICONS_CONTEXT_GLYPHS;
 
+    /// Unicode codepoint ranges to probe when building the reverse cmap.
+    ///
+    /// Each tuple is `(start, end)` inclusive. The generic pipeline probes
+    /// these ranges to map `GlyphId` -> `CodePoint` for each glyph in the
+    /// font.
+    ///
+    /// Defaults to the BMP (`U+0000`–`U+FFFF`), which covers most fonts.
+    /// Font families with glyphs in supplementary planes (e.g. Nerd Fonts
+    /// PUA at `U+F0001`–`U+10FFFF`) should override this.
+    const CODEPOINT_RANGES: &[CodePointRange] = &[BMP_RANGE];
+
     /// Build the icons output directory: `{output_dir}/{SCALABLE_DIR}/{ICONS_CONTEXT}`.
     ///
     /// Follows the Freedesktop Icon Theme Specification used by GTK 4's
@@ -69,15 +80,4 @@ pub trait FontFamilyConfig {
     fn icons_resource_prefix() -> String {
         format!("{}/{}/{}", Self::GRESOURCE_PREFIX, SCALABLE_DIR, Self::ICONS_CONTEXT)
     }
-
-    /// Unicode codepoint ranges to probe when building the reverse cmap.
-    ///
-    /// Each tuple is `(start, end)` inclusive. The generic pipeline probes
-    /// these ranges to map `GlyphId` -> `CodePoint` for each glyph in the
-    /// font.
-    ///
-    /// Defaults to the BMP (`U+0000`–`U+FFFF`), which covers most fonts.
-    /// Font families with glyphs in supplementary planes (e.g. Nerd Fonts
-    /// PUA at `U+F0001`–`U+10FFFF`) should override this.
-    const CODEPOINT_RANGES: &[CodePointRange] = &[BMP_RANGE];
 }
