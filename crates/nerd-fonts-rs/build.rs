@@ -1,9 +1,9 @@
 // build.rs uses the generic export pipeline directly.
 
 use std::fs;
-use std::io::Read;
 use std::path::Path;
 
+use fonts_rs_generator::hash_font_file;
 use nerd_fonts_generator::FontDefinition;
 use nerd_fonts_generator::IconsCodemapGenerator;
 use nerd_fonts_generator::IconsMetadataGenerator;
@@ -93,23 +93,4 @@ fn main() {
 
         IconsMetadataGenerator::new(&registry).run(&icons).expect("Failed to generate icon metadata");
     }
-}
-
-// ----------------------------
-// Font file hashing (FNV-1a)
-// ----------------------------
-fn hash_font_file(path: &str) -> String {
-    let mut file = fs::File::open(path).expect("Failed to open font file");
-    let mut buffer = [0u8; 8192];
-    let mut hash: u64 = 0xcbf29ce484222325;
-    while let Ok(n) = file.read(&mut buffer) {
-        if n == 0 {
-            break;
-        }
-        for &byte in &buffer[..n] {
-            hash ^= byte as u64;
-            hash = hash.wrapping_mul(0x100000001b3);
-        }
-    }
-    format!("{:016x}", hash)
 }
