@@ -10,6 +10,7 @@ use skrifa::MetadataProvider;
 use skrifa::instance::Location;
 
 use fonts_rs_model::CodePoint;
+use fonts_rs_model::CodePointRange;
 
 use crate::font_definition::FontDefinition;
 
@@ -55,19 +56,19 @@ impl<'a> Font<'a> {
     ///
     /// Like [`build_reverse_cmap`](Self::build_reverse_cmap) but takes ranges
     /// directly instead of requiring a `FontDefinition` impl.
-    pub fn build_reverse_cmap_with_ranges(&self, ranges: &[(u32, u32)]) -> HashMap<GlyphId, CodePoint> {
+    pub fn build_reverse_cmap_with_ranges(&self, ranges: &[CodePointRange]) -> HashMap<GlyphId, CodePoint> {
         let mut map = HashMap::new();
-        for &(start, end) in ranges {
-            map.extend(self.probe_range(start, end));
+        for range in ranges {
+            map.extend(self.probe_range(*range));
         }
         map
     }
 
     /// Probe a contiguous range of Unicode codepoints and return matching glyphs.
-    fn probe_range(&self, start: u32, end: u32) -> HashMap<GlyphId, CodePoint> {
+    fn probe_range(&self, range: CodePointRange) -> HashMap<GlyphId, CodePoint> {
         let charmap = self.inner.charmap();
         let mut map = HashMap::new();
-        for codepoint in start..=end {
+        for codepoint in range.start().as_char() as u32..=range.end().as_char() as u32 {
             if let Some(ch) = char::from_u32(codepoint)
                 && let Some(glyph_id) = charmap.map(ch)
             {

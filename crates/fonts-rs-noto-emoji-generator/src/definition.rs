@@ -9,6 +9,7 @@
 //! This definition provides the constants and type information for the family.
 
 use fonts_rs_generator::FontDefinition;
+use fonts_rs_model::CodePointRange;
 use fonts_rs_model::FontFamily;
 use fonts_rs_model::sealed;
 
@@ -34,16 +35,16 @@ pub const EMOJI_TEST_FILE: &str = "metadata/emoji-test.txt";
 /// Unicode codepoint ranges for emoji:
 /// - BMP: Misc symbols (U+2600–U+26FF), Dingbats (U+2700–U+27BF)
 /// - SMP: Supplemental symbols and pictographs (U+1F300–U+1FAFF)
-pub const EMOJI_RANGES: &[(u32, u32)] = &[
-    (0x2600, 0x26FF),
-    (0x2700, 0x27BF),
-    (0x1F300, 0x1F5FF),
-    (0x1F600, 0x1F64F),
-    (0x1F680, 0x1F6FF),
-    (0x1F700, 0x1F77F),
-    (0x1F780, 0x1F7FF),
-    (0x1F900, 0x1F9FF),
-    (0x1FA70, 0x1FAFF),
+pub const EMOJI_RANGES: &[CodePointRange] = &[
+    CodePointRange::from_char('\u{2600}', '\u{26FF}'),
+    CodePointRange::from_char('\u{2700}', '\u{27BF}'),
+    CodePointRange::from_char('\u{1F300}', '\u{1F5FF}'),
+    CodePointRange::from_char('\u{1F600}', '\u{1F64F}'),
+    CodePointRange::from_char('\u{1F680}', '\u{1F6FF}'),
+    CodePointRange::from_char('\u{1F700}', '\u{1F77F}'),
+    CodePointRange::from_char('\u{1F780}', '\u{1F7FF}'),
+    CodePointRange::from_char('\u{1F900}', '\u{1F9FF}'),
+    CodePointRange::from_char('\u{1FA70}', '\u{1FAFF}'),
 ];
 
 /// GResource prefix for Noto Emoji.
@@ -68,7 +69,7 @@ impl FontDefinition for NotoEmojiDefinition {
 
     const ICONS_CONTEXT: &'static str = "emoji";
 
-    const CODEPOINT_RANGES: &[(u32, u32)] = EMOJI_RANGES;
+    const CODEPOINT_RANGES: &[CodePointRange] = EMOJI_RANGES;
 
     type Name = String;
 

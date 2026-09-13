@@ -1,9 +1,9 @@
 //! Metadata registry trait for font glyph search.
 
-use crate::GlyphCategory;
-use crate::GlyphKeyword;
 use crate::GlyphAliasMap;
+use crate::GlyphCategory;
 use crate::GlyphCategoryMap;
+use crate::GlyphKeyword;
 use crate::GlyphKeywordMap;
 
 static EMPTY_ALIASES: GlyphAliasMap = GlyphAliasMap(phf::phf_map! {});

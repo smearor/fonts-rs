@@ -32,6 +32,14 @@ pub enum CodePointParseError {
 }
 
 impl CodePoint {
+    /// Creates a `CodePoint` from a `char`.
+    ///
+    /// This is a `const`-compatible constructor for use in `const` contexts
+    /// (e.g. `CodePointRange::new(CodePoint::from_char('A'), ...)`).
+    pub const fn from_char(ch: char) -> Self {
+        Self(ch)
+    }
+
     /// Returns the underlying `char`.
     pub fn as_char(&self) -> char {
         self.0
@@ -54,6 +62,7 @@ impl FromStr for CodePoint {
     type Err = CodePointParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let s = s.strip_prefix("U+").unwrap_or(s);
         let codepoint = u32::from_str_radix(s, 16).map_err(CodePointParseError::InvalidHex)?;
         char::from_u32(codepoint).map(Self).ok_or(CodePointParseError::InvalidScalar)
     }

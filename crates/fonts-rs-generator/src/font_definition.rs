@@ -9,6 +9,8 @@ use std::fs;
 use std::io::Write;
 use std::path::Path;
 
+use fonts_rs_model::BMP_RANGE;
+use fonts_rs_model::CodePointRange;
 use fonts_rs_model::FontFamily;
 use fonts_rs_model::GlyphEntry;
 use fonts_rs_model::ResourcePath;
@@ -61,7 +63,7 @@ pub trait FontDefinition {
     /// Defaults to the BMP (`U+0000`–`U+FFFF`), which covers most fonts.
     /// Font families with glyphs in supplementary planes (e.g. Nerd Fonts
     /// PUA at `U+F0001`–`U+10FFFF`) should override this.
-    const CODEPOINT_RANGES: &[(u32, u32)] = &[(0x0000, 0xFFFF)];
+    const CODEPOINT_RANGES: &[CodePointRange] = &[BMP_RANGE];
 
     /// The glyph name type used by this font family.
     ///

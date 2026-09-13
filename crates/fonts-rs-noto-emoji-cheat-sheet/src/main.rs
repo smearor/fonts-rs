@@ -39,9 +39,9 @@ use miette::IntoDiagnostic;
 use miette::Result;
 
 #[cfg(feature = "metadata")]
-use fonts_rs_noto_emoji::metadata::NotoEmojiMetadata;
-#[cfg(feature = "metadata")]
 use fonts_rs_model::GlyphMetadata;
+#[cfg(feature = "metadata")]
+use fonts_rs_noto_emoji::metadata::NotoEmojiMetadata;
 
 const APP_ID: &str = "io.smearor.fonts_rs.noto_emoji_cheat_sheet";
 
