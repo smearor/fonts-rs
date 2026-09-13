@@ -13,7 +13,11 @@ use fonts_rs_model::GRESOURCE_BASE_PREFIX;
 pub struct CuernavacaConfig;
 
 impl FontFamilyConfig for CuernavacaConfig {
-    const GRESOURCE_PREFIX: &'static str = concatcp!(GRESOURCE_BASE_PREFIX, "/cuernavaca");
+    const FONT_FAMILY_NAME: &'static str = "cuernavaca";
+
+    const FAMILY_DISPLAY_NAME: &'static str = "Cuernavaca";
+
+    const GRESOURCE_PREFIX: &'static str = concatcp!(GRESOURCE_BASE_PREFIX, "/", CuernavacaConfig::FONT_FAMILY_NAME);
 
     const CODEPOINT_RANGES: &[CodePointRange] = ASCII_PRINTABLE_RANGE;
 }

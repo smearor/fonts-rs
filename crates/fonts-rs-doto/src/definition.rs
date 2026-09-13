@@ -13,7 +13,11 @@ use fonts_rs_model::GRESOURCE_BASE_PREFIX;
 pub struct DotoConfig;
 
 impl FontFamilyConfig for DotoConfig {
-    const GRESOURCE_PREFIX: &'static str = concatcp!(GRESOURCE_BASE_PREFIX, "/doto");
+    const FONT_FAMILY_NAME: &'static str = "doto";
+
+    const FAMILY_DISPLAY_NAME: &'static str = "Doto";
+
+    const GRESOURCE_PREFIX: &'static str = concatcp!(GRESOURCE_BASE_PREFIX, "/", DotoConfig::FONT_FAMILY_NAME);
 
     const CODEPOINT_RANGES: &[CodePointRange] = ASCII_PRINTABLE_RANGE;
 }

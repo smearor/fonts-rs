@@ -30,6 +30,10 @@ impl FontFamily for NerdFonts {}
 pub struct NerdFontsDefinition;
 
 impl FontFamilyConfig for NerdFontsDefinition {
+    const FONT_FAMILY_NAME: &'static str = "nerd_fonts";
+
+    const FAMILY_DISPLAY_NAME: &'static str = "Nerd Fonts";
+
     const GRESOURCE_PREFIX: &'static str = GRESOURCE_PREFIX;
 
     const ICONS_CONTEXT: &'static str = "glyphs";

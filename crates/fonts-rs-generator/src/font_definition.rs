@@ -12,6 +12,7 @@ use std::path::Path;
 use fonts_rs_model::FontFamily;
 use fonts_rs_model::GlyphEntry;
 use fonts_rs_model::ResourcePath;
+use fonts_rs_model::SCALABLE_DIR;
 use quick_xml::se::Serializer;
 use serde::Deserialize;
 use serde::Serialize;
@@ -91,7 +92,7 @@ pub trait FontDefinition: FontFamilyConfig {
         let files: Vec<GResourceFile> = sorted
             .iter()
             .map(|entry| GResourceFile {
-                path: format!("scalable/{}/{}.svg", Self::ICONS_CONTEXT, entry.name.as_ref()),
+                path: format!("{}/{}/{}.svg", SCALABLE_DIR, Self::ICONS_CONTEXT, entry.name.as_ref()),
             })
             .collect();
 
@@ -142,7 +143,7 @@ pub trait FontDefinition: FontFamilyConfig {
 
         // SVG output directory follows Freedesktop Icon Theme convention:
         // {output_dir}/scalable/{context}/
-        let icons_dir = output_dir.join("scalable").join(Self::ICONS_CONTEXT);
+        let icons_dir = Self::icons_dir(output_dir);
         fs::create_dir_all(&icons_dir)?;
 
         let reverse_cmap = font.build_reverse_cmap::<Self>();
@@ -188,13 +189,13 @@ pub trait FontDefinition: FontFamilyConfig {
 
             // GResource path follows Freedesktop Icon Theme convention:
             // {prefix}/scalable/{context}/{name}.svg
-            let resource_prefix = format!("{}/scalable/{}", Self::GRESOURCE_PREFIX, Self::ICONS_CONTEXT);
+            let resource_prefix = Self::icons_resource_prefix();
             let resource_path = ResourcePath::from_name(&resource_prefix, glyph_name.as_ref());
 
             entries.push(GlyphEntry {
                 code: codepoint,
                 name: glyph_name.clone(),
-                file: Path::new(&format!("resources/scalable/{}/{}.svg", Self::ICONS_CONTEXT, glyph_name.as_ref())).to_path_buf(),
+                file: Path::new(&format!("resources/{}/{}/{}.svg", SCALABLE_DIR, Self::ICONS_CONTEXT, glyph_name.as_ref())).to_path_buf(),
                 resource_path,
             });
         }

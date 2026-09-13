@@ -13,7 +13,11 @@ use fonts_rs_model::PUA_RANGE;
 pub struct BravuraConfig;
 
 impl FontFamilyConfig for BravuraConfig {
-    const GRESOURCE_PREFIX: &'static str = concatcp!(GRESOURCE_BASE_PREFIX, "/bravura");
+    const FONT_FAMILY_NAME: &'static str = "bravura";
+
+    const FAMILY_DISPLAY_NAME: &'static str = "Bravura";
+
+    const GRESOURCE_PREFIX: &'static str = concatcp!(GRESOURCE_BASE_PREFIX, "/", BravuraConfig::FONT_FAMILY_NAME);
 
     const CODEPOINT_RANGES: &[CodePointRange] = &[PUA_RANGE];
 }

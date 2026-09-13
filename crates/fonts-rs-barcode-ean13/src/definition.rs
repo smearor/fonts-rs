@@ -39,7 +39,11 @@ pub type Ean13Name = GlyphName<Ean13>;
 pub struct Ean13Definition;
 
 impl FontFamilyConfig for Ean13Definition {
-    const GRESOURCE_PREFIX: &'static str = concatcp!(GRESOURCE_BASE_PREFIX, "/barcode_ean13");
+    const FONT_FAMILY_NAME: &'static str = "barcode_ean13";
+
+    const FAMILY_DISPLAY_NAME: &'static str = "Libre Barcode EAN13";
+
+    const GRESOURCE_PREFIX: &'static str = concatcp!(GRESOURCE_BASE_PREFIX, "/", Ean13Definition::FONT_FAMILY_NAME);
 
     const ICONS_CONTEXT: &'static str = "glyphs";
 

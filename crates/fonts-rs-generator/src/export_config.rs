@@ -14,6 +14,7 @@ use fonts_rs_model::AxisValues;
 use fonts_rs_model::GlyphEntry;
 use fonts_rs_model::GlyphNameMap;
 use fonts_rs_model::ResourcePath;
+use fonts_rs_model::SCALABLE_DIR;
 use quick_xml::se::Serializer;
 use serde::Serialize;
 use skrifa::GlyphId;
@@ -38,7 +39,7 @@ use crate::svg::EMPTY_SVG;
 /// `ICONS_CONTEXT`, `CODEPOINT_RANGES`) while the struct fields hold
 /// runtime-determined values (variant prefix, axis settings, etc.).
 pub struct ExportConfig<X: FontFamilyConfig> {
-    /// GResource prefix, e.g. `/io/smearor/fonts/seven_segment/classic_regular`.
+    /// GResource prefix, e.g. `/io/smearor/fonts/dseg7/classic_regular`.
     ///
     /// This is the full prefix including any variant slug, constructed by
     /// [`build_config`](crate::build_helpers::build_config) from
@@ -80,7 +81,7 @@ fn generate_gresource_xml_with_prefix(entries: &[GlyphEntry<String>], output_pat
     let files: Vec<GResourceFile> = sorted
         .iter()
         .map(|entry| GResourceFile {
-            path: format!("scalable/{}/{}.svg", context, entry.name),
+            path: format!("{}/{}/{}.svg", SCALABLE_DIR, context, entry.name),
         })
         .collect();
 
@@ -127,7 +128,7 @@ impl<X: FontFamilyConfig> ExportConfig<X> {
         let location_ref = LocationRef::from(&location);
 
         let icons_context = X::ICONS_CONTEXT;
-        let icons_dir = output_dir.join("scalable").join(icons_context);
+        let icons_dir = X::icons_dir(output_dir);
         fs::create_dir_all(&icons_dir)?;
 
         let reverse_cmap = font.build_reverse_cmap_with_ranges(X::CODEPOINT_RANGES);
@@ -169,13 +170,13 @@ impl<X: FontFamilyConfig> ExportConfig<X> {
             let mut file = fs::File::create(&filename)?;
             file.write_all(svg.as_bytes())?;
 
-            let resource_prefix = format!("{}/scalable/{}", self.gresource_prefix, icons_context);
+            let resource_prefix = format!("{}/{}/{}", self.gresource_prefix, SCALABLE_DIR, icons_context);
             let resource_path = ResourcePath::from_name(&resource_prefix, &glyph_name);
 
             entries.push(GlyphEntry {
                 code: codepoint,
                 name: glyph_name.clone(),
-                file: Path::new(&format!("resources/scalable/{}/{}.svg", icons_context, glyph_name)).to_path_buf(),
+                file: Path::new(&format!("resources/{}/{}/{}.svg", SCALABLE_DIR, icons_context, glyph_name)).to_path_buf(),
                 resource_path,
             });
         }
@@ -226,7 +227,7 @@ impl<X: FontFamilyConfig> ExportConfig<X> {
         let location_ref = LocationRef::from(&location);
 
         let icons_context = X::ICONS_CONTEXT;
-        let icons_dir = output_dir.join("scalable").join(icons_context);
+        let icons_dir = X::icons_dir(output_dir);
         fs::create_dir_all(&icons_dir)?;
 
         let charmap = font.charmap();
@@ -255,13 +256,13 @@ impl<X: FontFamilyConfig> ExportConfig<X> {
             let mut file = fs::File::create(&filename)?;
             file.write_all(svg.as_bytes())?;
 
-            let resource_prefix = format!("{}/scalable/{}", self.gresource_prefix, icons_context);
+            let resource_prefix = format!("{}/{}/{}", self.gresource_prefix, SCALABLE_DIR, icons_context);
             let resource_path = ResourcePath::from_name(&resource_prefix, &glyph_name);
 
             entries.push(GlyphEntry {
                 code: Some(fonts_rs_model::CodePoint::from(ch)),
                 name: glyph_name.clone(),
-                file: Path::new(&format!("resources/scalable/{}/{}.svg", icons_context, glyph_name)).to_path_buf(),
+                file: Path::new(&format!("resources/{}/{}/{}.svg", SCALABLE_DIR, icons_context, glyph_name)).to_path_buf(),
                 resource_path,
             });
         }

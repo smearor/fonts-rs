@@ -13,7 +13,11 @@ use fonts_rs_model::GRESOURCE_BASE_PREFIX;
 pub struct SevenSegmentConfig;
 
 impl FontFamilyConfig for SevenSegmentConfig {
-    const GRESOURCE_PREFIX: &'static str = concatcp!(GRESOURCE_BASE_PREFIX, "/seven_segment");
+    const FONT_FAMILY_NAME: &'static str = "dseg7";
+
+    const FAMILY_DISPLAY_NAME: &'static str = "DSEG7";
+
+    const GRESOURCE_PREFIX: &'static str = concatcp!(GRESOURCE_BASE_PREFIX, "/", SevenSegmentConfig::FONT_FAMILY_NAME);
 
     const CODEPOINT_RANGES: &[CodePointRange] = ASCII_PRINTABLE_RANGE;
 }

@@ -151,7 +151,7 @@ fn compose_text_svg(text: &str, hex_color: &str) -> String {
             continue;
         };
         let full_name = format!("{prefix}-{base}");
-        let resource_path = format!("{gresource_prefix}/scalable/glyphs/{full_name}.svg");
+        let resource_path = format!("{gresource_prefix}/{}/{}/{full_name}.svg", fonts_rs_model::SCALABLE_DIR, fonts_rs_model::ICONS_CONTEXT_GLYPHS);
         let Ok(bytes) = gio::resources_lookup_data(&resource_path, gio::ResourceLookupFlags::NONE) else {
             continue;
         };

@@ -54,20 +54,24 @@ pub fn detect_active_variant_index(variants: &[FontVariant], default_index: usiz
 
 /// Build an [`ExportConfig`] from family info and optional variant.
 ///
-/// Constructs `glyph_name_prefix` from `family_name` and the optional variant,
-/// and `gresource_prefix` from `X::GRESOURCE_PREFIX` and the variant slug:
+/// Constructs `glyph_name_prefix` from `X::GLYPH_NAME_PREFIX` and the optional
+/// variant, and `gresource_prefix` from `X::GRESOURCE_PREFIX` and the variant
+/// slug:
 ///
-/// - With variant: `glyph_name_prefix = "{family}-{variant}"`,
+/// - With variant: `glyph_name_prefix = "{X::FONT_FAMILY_NAME}-{variant}"`,
 ///   `gresource_prefix = "{X::GRESOURCE_PREFIX}/{variant_slug}"`
-/// - Without variant: `glyph_name_prefix = "{family}"`,
+/// - Without variant: `glyph_name_prefix = "{X::FONT_FAMILY_NAME}"`,
 ///   `gresource_prefix = "{X::GRESOURCE_PREFIX}"`
 ///
 /// Axis values are taken from the variant's [`FontVariant::axis_values`].
 /// For variants without axes, [`AxisValues::EMPTY`] is used.
 ///
-/// The `X` type parameter provides `GRESOURCE_PREFIX`, `ICONS_CONTEXT`, and
-/// `CODEPOINT_RANGES` via the [`FontFamilyConfig`] trait.
-pub fn build_config<X: FontFamilyConfig>(family_name: &str, family_display_name: &str, variant: Option<FontVariant>) -> ExportConfig<X> {
+/// The `X` type parameter provides `GRESOURCE_PREFIX`, `FONT_FAMILY_NAME`,
+/// `FAMILY_DISPLAY_NAME`, `ICONS_CONTEXT`, and `CODEPOINT_RANGES` via the
+/// [`FontFamilyConfig`] trait.
+pub fn build_config<X: FontFamilyConfig>(variant: Option<FontVariant>) -> ExportConfig<X> {
+    let family_name = X::FONT_FAMILY_NAME;
+    let family_display_name = X::FAMILY_DISPLAY_NAME;
     let (glyph_name_prefix, gresource_prefix, axes) = match variant {
         Some(variant) => {
             let variant_slug = variant.slug();
