@@ -11,10 +11,10 @@
 
 use std::path::Path;
 
+use fonts_rs_generator::ExportConfig;
 use fonts_rs_generator::FontBuild;
 use fonts_rs_generator::FontFamilyConfig;
 use fonts_rs_generator::MetadataGenerator;
-use fonts_rs_generator::build_config;
 use fonts_rs_generator::build_constants;
 use fonts_rs_noto_emoji_generator::ANNOTATIONS_FILE;
 use fonts_rs_noto_emoji_generator::EMOJI_TEST_FILE;
@@ -46,7 +46,7 @@ fn main() -> miette::Result<()> {
     let category_map = parse_emoji_test(&emoji_test_content);
     eprintln!("build.rs: parsed {} emoji categories", category_map.len());
 
-    let config = build_config::<NotoEmojiDefinition>(None);
+    let config = ExportConfig::<NotoEmojiDefinition>::new();
 
     let icons_dir = NotoEmojiDefinition::icons_dir(Path::new(build_constants::RESOURCES_DIR));
 

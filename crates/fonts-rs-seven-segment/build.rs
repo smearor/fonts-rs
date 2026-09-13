@@ -3,10 +3,10 @@
 // Detects the active Cargo feature (e.g. `classic-regular`, `modern-mini-bold`)
 // and exports glyphs from the corresponding DSEG7 TTF variant.
 
+use fonts_rs_generator::ExportConfig;
 use fonts_rs_generator::FontBuild;
 use fonts_rs_generator::FontVariantExt;
 use fonts_rs_generator::VariantList;
-use fonts_rs_generator::build_config;
 use fonts_rs_generator::set_font_path_env;
 use fonts_rs_model::FontVariant;
 
@@ -55,7 +55,7 @@ fn main() -> miette::Result<()> {
 
     set_font_path_env("DSEG7_FONT_PATH", &font_path)?;
 
-    let config = build_config::<SevenSegmentConfig>(Some(*entry));
+    let config = ExportConfig::<SevenSegmentConfig>::with_variant(*entry);
 
     FontBuild::new(&font_path)
         .run(|font_path, resources_dir| config.export_glyphs(font_path, resources_dir))

@@ -12,6 +12,7 @@ use std::path::Path;
 
 use fonts_rs_model::AxisValues;
 use fonts_rs_model::CodePoint;
+use fonts_rs_model::FontVariant;
 use fonts_rs_model::GlyphEntry;
 use fonts_rs_model::GlyphNameMap;
 use fonts_rs_model::SCALABLE_DIR;
@@ -43,7 +44,7 @@ pub struct ExportConfig<X: FontFamilyConfig> {
     /// GResource prefix, e.g. `/io/smearor/fonts/dseg7/classic_regular`.
     ///
     /// This is the full prefix including any variant slug, constructed by
-    /// [`build_config`](crate::build_helpers::build_config) from
+    /// [`ExportConfig::new`] or [`ExportConfig::with_variant`] from
     /// `X::GRESOURCE_PREFIX`.
     pub gresource_prefix: String,
     /// Glyph name prefix, e.g. `dseg7-classic-regular`.
@@ -75,6 +76,38 @@ pub fn default_name_filter(name: &str) -> bool {
 }
 
 impl<X: FontFamilyConfig> ExportConfig<X> {
+    /// Create a new `ExportConfig` without a variant.
+    ///
+    /// Uses `X::FONT_FAMILY_NAME` as the glyph name prefix and
+    /// `X::GRESOURCE_PREFIX` as the GResource prefix, with empty axis values.
+    pub fn new() -> Self {
+        Self {
+            gresource_prefix: X::GRESOURCE_PREFIX.to_string(),
+            glyph_name_prefix: X::FONT_FAMILY_NAME.to_string(),
+            axes: AxisValues::EMPTY,
+            name_filter: None,
+            family_display_name: X::FAMILY_DISPLAY_NAME.to_string(),
+            _marker: PhantomData,
+        }
+    }
+
+    /// Create a new `ExportConfig` with a font variant.
+    ///
+    /// Constructs `glyph_name_prefix` from `X::FONT_FAMILY_NAME` and the variant,
+    /// and `gresource_prefix` from `X::GRESOURCE_PREFIX` and the variant slug.
+    /// Axis values are taken from the variant's [`FontVariant::axis_values`].
+    pub fn with_variant(variant: FontVariant) -> Self {
+        let variant_slug = variant.slug();
+        Self {
+            gresource_prefix: format!("{}/{}", X::GRESOURCE_PREFIX, variant_slug),
+            glyph_name_prefix: format!("{}-{}", X::FONT_FAMILY_NAME, variant),
+            axes: variant.axis_values(),
+            name_filter: None,
+            family_display_name: X::FAMILY_DISPLAY_NAME.to_string(),
+            _marker: PhantomData,
+        }
+    }
+
     /// Export all glyphs from a TTF/OTF font file.
     ///
     /// Generates:
