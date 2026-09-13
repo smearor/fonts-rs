@@ -33,11 +33,6 @@ impl<'a> Font<'a> {
         })
     }
 
-    /// Returns a reference to the underlying `FontRef`.
-    pub fn as_ref(&self) -> &FontRef<'a> {
-        &self.inner
-    }
-
     /// Create a `Location` from user-space variation axis settings.
     ///
     /// Converts user coordinates (e.g. `("wght", 700.0)`) to normalized

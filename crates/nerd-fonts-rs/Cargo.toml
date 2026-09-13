@@ -56,6 +56,7 @@ metadata = []
 
 [dependencies]
 nerd-fonts-model.workspace = true
+fonts-rs-model.workspace = true
 const_format.workspace = true
 gio = { workspace = true, optional = true }
 gtk4 = { workspace = true, optional = true }

@@ -9,16 +9,18 @@
 //!
 //! This module is only available when the `metadata` feature is enabled.
 
-use nerd_fonts_model::IconCategory;
-use nerd_fonts_model::IconKeyword;
-use nerd_fonts_model::IconName;
+use fonts_rs_model::GlyphCategory;
+use fonts_rs_model::GlyphKeyword;
 
 // Include the build-time generated phf::Map constants.
-// The generated code references IconKeyword and IconCategory.
+// The generated code references GlyphKeyword and GlyphCategory.
 include!(concat!(env!("OUT_DIR"), "/metadata.rs"));
 
 /// Returns search keywords for an icon, e.g. `["gamepad"]` for
 /// `"nf-fa-gamepad-symbolic"`.
+///
+/// Accepts any type that implements `AsRef<str>` — this includes `&str`,
+/// `String`, and `GlyphName<F>` from any font family crate.
 ///
 /// Returns an empty slice if no keywords are available.
 ///
@@ -32,7 +34,7 @@ include!(concat!(env!("OUT_DIR"), "/metadata.rs"));
 /// let kws = icon_keywords(&name);
 /// assert!(kws.iter().any(|kw| kw == "gamepad"));
 /// ```
-pub fn icon_keywords(icon_name: &IconName) -> &'static [IconKeyword] {
+pub fn icon_keywords(icon_name: impl AsRef<str>) -> &'static [GlyphKeyword] {
     match KEYWORDS.get(icon_name.as_ref()) {
         Some(kws) => kws,
         None => &[],
@@ -41,6 +43,9 @@ pub fn icon_keywords(icon_name: &IconName) -> &'static [IconKeyword] {
 
 /// Returns category names for an icon, e.g. `["Childhood"]` for
 /// `"nf-fa-gamepad-symbolic"`.
+///
+/// Accepts any type that implements `AsRef<str>` — this includes `&str`,
+/// `String`, and `GlyphName<F>` from any font family crate.
 ///
 /// Returns an empty slice if no categories are available.
 ///
@@ -54,7 +59,7 @@ pub fn icon_keywords(icon_name: &IconName) -> &'static [IconKeyword] {
 /// let cats = icon_categories(&name);
 /// assert!(cats.iter().any(|cat| cat == "Childhood"));
 /// ```
-pub fn icon_categories(icon_name: &IconName) -> &'static [IconCategory] {
+pub fn icon_categories(icon_name: impl AsRef<str>) -> &'static [GlyphCategory] {
     match CATEGORIES.get(icon_name.as_ref()) {
         Some(cats) => cats,
         None => &[],
@@ -139,6 +144,7 @@ pub fn search_icons(query: &str) -> Vec<&'static str> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use nerd_fonts_model::IconName;
 
     fn parse(name: &str) -> IconName {
         IconName::parse(name).unwrap_or_else(|| panic!("failed to parse icon name: {name}"))

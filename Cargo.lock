@@ -983,6 +983,7 @@ version = "0.1.0"
 dependencies = [
  "ab_glyph",
  "const_format",
+ "fonts-rs-model",
  "gio",
  "glib",
  "glib-build-tools",
