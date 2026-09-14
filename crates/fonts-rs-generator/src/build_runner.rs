@@ -171,7 +171,9 @@ impl FontBuild {
         }
 
         let out_str = out.to_str().ok_or_else(|| std::io::Error::other("invalid UTF-8 in OUT_DIR"))?;
-        let icons_xml_str = icons_xml.to_str().ok_or_else(|| std::io::Error::other("invalid UTF-8 in icons gresource xml path"))?;
+        let icons_xml_str = icons_xml
+            .to_str()
+            .ok_or_else(|| std::io::Error::other("invalid UTF-8 in icons gresource xml path"))?;
         glib_build_tools::compile_resources(&[out_str], icons_xml_str, ICONS_GRESOURCE);
 
         if self.compile_font_gresource {
