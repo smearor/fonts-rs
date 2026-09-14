@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-09-14
+
+### Changed
+
+- **Build artifacts moved to `OUT_DIR`**: all generated files (SVGs, `metadata.json`, `icons.gresource.xml`, `.font-hash`, `nerdfont.css`) are now written to Cargo's `OUT_DIR` instead of the source `resources/` directory, keeping the working tree clean during `cargo publish`
+- **`build_constants.rs`**: replaced static path constants (`METADATA_PATH`, `HASH_PATH`, `ICONS_GRESOURCE_XML`) with `OUT_DIR`-based functions (`out_dir()`, `metadata_path()`, `hash_path()`, `icons_gresource_xml()`)
+- **`nerd-fonts-rs/build.rs`**: sets `NERDFONT_CSS_PATH` environment variable for `include_str!(env!(...))` in `web.rs` instead of hardcoding `resources/nerdfont.css`
+- **`nerd-fonts-rs/src/web.rs`**: uses `include_str!(env!("NERDFONT_CSS_PATH"))` to load generated CSS from `OUT_DIR`
+- **`fonts-rs-noto-emoji/build.rs`**: uses `build_constants::metadata_path()` instead of static path constant
+- **`WebCssGenerator`**: writes `nerdfont.css` to `OUT_DIR` instead of `resources/`
+
+### Removed
+
+- **`resources/icons.gresource.xml`**: removed from all 12 crate `Cargo.toml` include lists (generated file, no longer in source tree)
+- **`.gitignore` entries**: removed obsolete ignore rules for generated artifacts that now live in `OUT_DIR`
+- **`--allow-dirty --no-verify` flags**: removed from all `cargo publish` commands in `release.yml` (no longer needed since build scripts write only to `OUT_DIR`)
+
 ## [0.2.0] - 2026-09-14
 
 ### Added
