@@ -23,7 +23,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 rust-version = "1.92"
 license = "MIT"
@@ -38,23 +38,23 @@ unexpected_cfgs = { level = "warn", check-cfg = ['cfg(is_lib)'] }
 
 [workspace.dependencies]
 # Internal crates
-fonts-rs-model = { version = "0.1.0", path = "crates/fonts-rs-model" }
-fonts-rs-generator = { version = "0.1.0", path = "crates/fonts-rs-generator" }
-fonts-rs-seven-segment = { version = "0.1.0", path = "crates/fonts-rs-seven-segment" }
-fonts-rs-fourteen-segment = { version = "0.1.0", path = "crates/fonts-rs-fourteen-segment" }
-fonts-rs-barcode-code39 = { version = "0.1.0", path = "crates/fonts-rs-barcode-code39" }
-fonts-rs-barcode-code128 = { version = "0.1.0", path = "crates/fonts-rs-barcode-code128" }
-fonts-rs-barcode-ean13 = { version = "0.1.0", path = "crates/fonts-rs-barcode-ean13" }
-fonts-rs-doto = { version = "0.1.0", path = "crates/fonts-rs-doto" }
-fonts-rs-redacted = { version = "0.1.0", path = "crates/fonts-rs-redacted" }
-fonts-rs-dicefont = { version = "0.1.0", path = "crates/fonts-rs-dicefont" }
-fonts-rs-bravura = { version = "0.1.0", path = "crates/fonts-rs-bravura" }
-fonts-rs-noto-emoji = { version = "0.1.0", path = "crates/fonts-rs-noto-emoji" }
-fonts-rs-noto-emoji-generator = { version = "0.1.0", path = "crates/fonts-rs-noto-emoji-generator" }
-fonts-rs-cuernavaca = { version = "0.1.0", path = "crates/fonts-rs-cuernavaca" }
-nerd-fonts-model = { version = "0.1.0", path = "crates/nerd-fonts-model" }
-nerd-fonts-generator = { version = "0.1.0", path = "crates/nerd-fonts-generator" }
-nerd-fonts-rs = { version = "0.1.0", path = "crates/nerd-fonts-rs" }
+fonts-rs-model = { version = "0.2.0", path = "crates/fonts-rs-model" }
+fonts-rs-generator = { version = "0.2.0", path = "crates/fonts-rs-generator" }
+fonts-rs-seven-segment = { version = "0.2.0", path = "crates/fonts-rs-seven-segment" }
+fonts-rs-fourteen-segment = { version = "0.2.0", path = "crates/fonts-rs-fourteen-segment" }
+fonts-rs-barcode-code39 = { version = "0.2.0", path = "crates/fonts-rs-barcode-code39" }
+fonts-rs-barcode-code128 = { version = "0.2.0", path = "crates/fonts-rs-barcode-code128" }
+fonts-rs-barcode-ean13 = { version = "0.2.0", path = "crates/fonts-rs-barcode-ean13" }
+fonts-rs-doto = { version = "0.2.0", path = "crates/fonts-rs-doto" }
+fonts-rs-redacted = { version = "0.2.0", path = "crates/fonts-rs-redacted" }
+fonts-rs-dicefont = { version = "0.2.0", path = "crates/fonts-rs-dicefont" }
+fonts-rs-bravura = { version = "0.2.0", path = "crates/fonts-rs-bravura" }
+fonts-rs-noto-emoji = { version = "0.2.0", path = "crates/fonts-rs-noto-emoji" }
+fonts-rs-noto-emoji-generator = { version = "0.2.0", path = "crates/fonts-rs-noto-emoji-generator" }
+fonts-rs-cuernavaca = { version = "0.2.0", path = "crates/fonts-rs-cuernavaca" }
+nerd-fonts-model = { version = "0.2.0", path = "crates/nerd-fonts-model" }
+nerd-fonts-generator = { version = "0.2.0", path = "crates/nerd-fonts-generator" }
+nerd-fonts-rs = { version = "0.2.0", path = "crates/nerd-fonts-rs" }
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
