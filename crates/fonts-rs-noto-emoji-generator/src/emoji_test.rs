@@ -23,13 +23,11 @@ pub fn parse_emoji_test(content: &str) -> CodePointCategoryMap {
             current_group = rest.trim().to_string();
         } else if !trimmed.starts_with('#') && !trimmed.is_empty() {
             // Parse codepoint: "1F600 ; fully-qualified # ..."
-            if let Some(codepoint_str) = trimmed.split_whitespace().next() {
-                if let Ok(cp) = CodePoint::from_str(codepoint_str) {
-                    if !current_group.is_empty() {
+            if let Some(codepoint_str) = trimmed.split_whitespace().next()
+                && let Ok(cp) = CodePoint::from_str(codepoint_str)
+                    && !current_group.is_empty() {
                         categories.insert(cp, current_group.clone());
                     }
-                }
-            }
         }
     }
 
