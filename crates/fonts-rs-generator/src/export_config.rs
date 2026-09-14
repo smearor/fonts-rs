@@ -305,3 +305,9 @@ impl<X: FontFamilyConfig> ExportConfig<X> {
         Ok(())
     }
 }
+
+impl<X: FontFamilyConfig> Default for ExportConfig<X> {
+    fn default() -> Self {
+        Self::new()
+    }
+}

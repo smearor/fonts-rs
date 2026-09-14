@@ -5,6 +5,7 @@
 
 mod export;
 mod path_builder;
+#[allow(clippy::module_inception)]
 mod svg;
 
 pub use export::EMPTY_SVG;

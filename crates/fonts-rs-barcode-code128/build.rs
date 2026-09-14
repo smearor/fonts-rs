@@ -15,5 +15,5 @@ fn main() -> std::io::Result<()> {
 
     FontBuild::new(&font_path)
         .compile_font_gresource()
-        .run(|font_path, resources_dir| Code128Definition::export_glyphs(font_path, resources_dir))
+        .run(Code128Definition::export_glyphs)
 }
