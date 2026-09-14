@@ -5,7 +5,7 @@ use std::path::PathBuf;
 /// Specifies a GResource bundle to compile at build time.
 ///
 /// Each spec is compiled as
-/// `glib_build_tools::compile_resources(&[RESOURCES_DIR], xml, output)`.
+/// `glib_build_tools::compile_resources(&["resources"], xml, output)`.
 pub struct GResourceSpec {
     /// GResource XML manifest path (relative to crate root).
     pub xml: PathBuf,

@@ -16,12 +16,13 @@ use crate::GlyphGenerator;
 use crate::RustConstantsGenerator;
 use crate::build_constants::FONT_GRESOURCE;
 use crate::build_constants::FONT_GRESOURCE_XML;
-use crate::build_constants::HASH_PATH;
 use crate::build_constants::ICONS_GRESOURCE;
-use crate::build_constants::ICONS_GRESOURCE_XML;
-use crate::build_constants::METADATA_PATH;
 use crate::build_constants::RESOURCES_DIR;
 use crate::build_constants::hash_font_file;
+use crate::build_constants::hash_path;
+use crate::build_constants::icons_gresource_xml;
+use crate::build_constants::metadata_path;
+use crate::build_constants::out_dir;
 use crate::gresource::GResourceSpec;
 
 /// Builder for the common `build.rs` pipeline.
@@ -96,7 +97,7 @@ impl FontBuild {
     ///
     /// Can be called multiple times to register multiple bundles.
     /// Each bundle is compiled as
-    /// `glib_build_tools::compile_resources(&[RESOURCES_DIR], xml, output)`.
+    /// `glib_build_tools::compile_resources(&["resources"], xml, output)`.
     pub fn additional_gresource(mut self, xml: impl Into<PathBuf>, output: impl Into<PathBuf>) -> Self {
         self.additional_gresources.push(GResourceSpec::new(xml, output));
         self
@@ -150,24 +151,28 @@ impl FontBuild {
             println!("cargo:rerun-if-changed={}", path.display());
         }
 
-        let metadata_path = Path::new(METADATA_PATH);
-        let hash_path = Path::new(HASH_PATH);
+        let out = out_dir();
+        let metadata_path = metadata_path();
+        let hash_path = hash_path();
+        let icons_xml = icons_gresource_xml();
         let current_hash = hash_font_file(&self.font_path);
         let current_hash = match &self.extra_hash {
             Some(extra) => format!("{current_hash}-{extra}"),
             None => current_hash,
         };
 
-        let needs_export = !metadata_path.exists() || fs::read_to_string(hash_path).ok().as_deref() != Some(current_hash.as_str());
+        let needs_export = !metadata_path.exists() || fs::read_to_string(&hash_path).ok().as_deref() != Some(current_hash.as_str());
 
         if needs_export {
             eprintln!("build.rs: exporting glyphs from {}...", self.font_path.display());
-            let count = export(&self.font_path, Path::new(RESOURCES_DIR))?;
+            let count = export(&self.font_path, &out)?;
             eprintln!("build.rs: exported {count} glyphs");
-            fs::write(hash_path, &current_hash)?;
+            fs::write(&hash_path, &current_hash)?;
         }
 
-        glib_build_tools::compile_resources(&[RESOURCES_DIR], ICONS_GRESOURCE_XML, ICONS_GRESOURCE);
+        let out_str = out.to_str().ok_or_else(|| std::io::Error::other("invalid UTF-8 in OUT_DIR"))?;
+        let icons_xml_str = icons_xml.to_str().ok_or_else(|| std::io::Error::other("invalid UTF-8 in icons gresource xml path"))?;
+        glib_build_tools::compile_resources(&[out_str], icons_xml_str, ICONS_GRESOURCE);
 
         if self.compile_font_gresource {
             glib_build_tools::compile_resources(&[RESOURCES_DIR], FONT_GRESOURCE_XML, FONT_GRESOURCE);
@@ -185,7 +190,7 @@ impl FontBuild {
             glib_build_tools::compile_resources(&[RESOURCES_DIR], xml, output);
         }
 
-        let json = fs::read_to_string(METADATA_PATH)?;
+        let json = fs::read_to_string(&metadata_path)?;
         generate(&json)?;
 
         Ok(())

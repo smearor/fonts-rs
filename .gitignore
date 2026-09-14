@@ -22,10 +22,4 @@ target
 
 book/book
 
-# Generated icon resources (regenerated from font by build.rs)
-crates/nerd-fonts-rs/resources/icons/
-crates/nerd-fonts-rs/resources/metadata.json
-crates/nerd-fonts-rs/resources/icons.gresource.xml
-crates/nerd-fonts-rs/resources/.font-hash
-crates/nerd-fonts-rs/resources/web/nerdfont.css
-crates/nerd-fonts-rs/resources/nerdfont.css
+# Generated icon resources (regenerated from font by build.rs, now in OUT_DIR)

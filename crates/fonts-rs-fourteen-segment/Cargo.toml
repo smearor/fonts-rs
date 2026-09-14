@@ -20,7 +20,6 @@ include = [
     "examples/*.rs",
     "resources/*.ttf",
     "resources/DSEG14Classic-LICENSE.txt",
-    "resources/icons.gresource.xml",
     "Cargo.toml",
 ]
 

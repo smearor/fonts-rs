@@ -7,4 +7,4 @@
 ///
 /// Generated from `SymbolsNerdFont-Regular.ttf` glyph table.
 /// Include this in web instance HTML pages.
-pub const WEB_NERDFONT_CSS: &str = include_str!("../resources/nerdfont.css");
+pub const WEB_NERDFONT_CSS: &str = include_str!(env!("NERDFONT_CSS_PATH"));
