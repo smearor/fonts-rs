@@ -13,7 +13,5 @@ use fonts_rs_generator::build_constants;
 fn main() -> std::io::Result<()> {
     let font_path = Path::new(build_constants::RESOURCES_DIR).join(definition::FONT_FILE);
 
-    FontBuild::new(&font_path)
-        .compile_font_gresource()
-        .run(Ean13Definition::export_glyphs)
+    FontBuild::new(&font_path).compile_font_gresource().run(Ean13Definition::export_glyphs)
 }
