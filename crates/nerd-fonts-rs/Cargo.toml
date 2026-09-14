@@ -75,7 +75,7 @@ glib.workspace = true
 miette.workspace = true
 
 [[example]]
-name = "interactive_demo"
+name = "nerd_fonts_demo"
 required-features = ["gtk"]
 
 [build-dependencies]

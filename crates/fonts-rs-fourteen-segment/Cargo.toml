@@ -85,7 +85,7 @@ glib.workspace = true
 miette.workspace = true
 
 [[example]]
-name = "interactive_demo"
+name = "fourteen_segment_demo"
 required-features = ["gtk", "embed-fonts"]
 
 [[example]]
