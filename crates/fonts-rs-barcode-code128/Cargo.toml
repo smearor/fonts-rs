@@ -55,5 +55,5 @@ miette.workspace = true
 pango.workspace = true
 
 [[example]]
-name = "interactive_demo"
+name = "barcode_code128_demo"
 required-features = ["gtk"]
