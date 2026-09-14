@@ -4,7 +4,7 @@
 //! a mapping from Devicon icon names to tags. Devicon does not use
 //! fixed categories; instead, the `tags` array groups icons by type
 //! (e.g. `"language"`, `"framework"`, `"database"`, `"tool"`).
-//! Implements [`IconMetadataSource`] for integration with the generator.
+//! Implements `IconMetadataSource` for integration with the generator.
 
 pub mod icon_entry;
 pub mod metadata;

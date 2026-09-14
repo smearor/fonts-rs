@@ -3,7 +3,7 @@
 //! Reads Google's Material Design icons metadata JSON (from
 //! `https://fonts.google.com/metadata/icons`) and builds a mapping
 //! from MD icon names to categories and tags.
-//! Implements [`IconMetadataSource`] for integration with the generator.
+//! Implements `IconMetadataSource` for integration with the generator.
 
 pub mod file;
 pub mod icon_entry;

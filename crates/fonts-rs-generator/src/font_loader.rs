@@ -1,6 +1,6 @@
 //! Macro for generating a cached font loader function.
 //!
-//! See [`impl_font_loader`].
+//! See `impl_font_loader` macro.
 
 /// Generates a `font() -> Option<&'static ab_glyph::FontVec>` function
 /// that loads a TTF font from embedded bytes (`embed-fonts` feature)

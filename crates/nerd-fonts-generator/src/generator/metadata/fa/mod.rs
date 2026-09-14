@@ -2,7 +2,7 @@
 //!
 //! Reads Font Awesome `categories.yml` and `icons.yml` files and builds
 //! a mapping from FA icon names to categories and search terms.
-//! Implements [`IconMetadataSource`] for integration with the generator.
+//! Implements `IconMetadataSource` for integration with the generator.
 
 pub mod categories;
 pub mod icon_entry;

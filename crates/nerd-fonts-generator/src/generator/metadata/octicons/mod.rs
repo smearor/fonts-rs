@@ -3,7 +3,7 @@
 //! Reads `keywords.json` from the primer/octicons repository and builds
 //! a mapping from Octicon icon names to keywords. Octicons does not use
 //! fixed categories; the `keywords` array is used for filtering and search.
-//! Implements [`IconMetadataSource`] for integration with the generator.
+//! Implements `IconMetadataSource` for integration with the generator.
 
 pub mod metadata;
 

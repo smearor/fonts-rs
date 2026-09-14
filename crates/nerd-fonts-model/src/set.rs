@@ -7,7 +7,7 @@
 ///
 /// Each variant corresponds to a prefix convention used in Nerd Font
 /// icon names (e.g. `nf-fa-*` for Font Awesome, `nf-md-*` for Material
-/// Design). Use [`IconName::icon_set`] to determine the
+/// Design). Use `IconName::icon_set` to determine the
 /// collection from a normalized icon name.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum IconSet {

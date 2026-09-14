@@ -1,6 +1,6 @@
 //! Code generators for build-time artifact generation.
 //!
-//! Provides implementations of the generic [`GlyphGenerator`] trait for
+//! Provides implementations of the generic `GlyphGenerator` trait for
 //! generating Rust constants, phf::Map codepoint tables, and web CSS from
 //! icon metadata.
 

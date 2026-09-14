@@ -4,7 +4,7 @@
 //! font family, allowing the `FontDefinition::export_glyphs` pipeline to be used.
 //!
 //! Note: Noto Emoji glyph names in the font are `uniXXXX` format (PostScript
-//! auto-generated), so the build script uses [`ExportConfig::export_glyphs_by_name_map`] with
+//! auto-generated), so the build script uses `ExportConfig::export_glyphs_by_name_map` with
 //! CLDR annotation data for semantic names instead of the generic pipeline.
 //! This definition provides the constants and type information for the family.
 
@@ -56,7 +56,7 @@ pub const EMOJI_RANGES: &[CodePointRange] = &[
 /// Implements [`FontDefinition`] to plug into the generic
 /// [`FontDefinition::export_glyphs`] pipeline.
 ///
-/// Note: The build script typically uses [`ExportConfig::export_glyphs_by_name_map`] with
+/// Note: The build script typically uses `ExportConfig::export_glyphs_by_name_map` with
 /// CLDR annotation data instead of the generic pipeline, because Noto Emoji
 /// glyph names are `uniXXXX` format and require CLDR lookup for semantic names.
 /// This definition still provides the constants and type information.
