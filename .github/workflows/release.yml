@@ -35,46 +35,65 @@ jobs:
       - name: Dry-run publish (fonts-rs-model)
         run: cargo publish --dry-run --locked -p fonts-rs-model --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish fonts-rs-model
+        continue-on-error: true
         run: cargo publish --locked -p fonts-rs-model --token ${{ secrets.CRATES_IO_TOKEN }}
       # Tier 2: Core framework (no build.rs, no dirty files)
       - name: Publish fonts-rs-generator
+        continue-on-error: true
         run: cargo publish --locked -p fonts-rs-generator --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish nerd-fonts-model
+        continue-on-error: true
         run: cargo publish --locked -p nerd-fonts-model --token ${{ secrets.CRATES_IO_TOKEN }}
       # Tier 3: Font families + generators (build.rs writes to OUT_DIR)
       - name: Publish fonts-rs-seven-segment
+        continue-on-error: true
         run: cargo publish --locked -p fonts-rs-seven-segment --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish fonts-rs-fourteen-segment
+        continue-on-error: true
         run: cargo publish --locked -p fonts-rs-fourteen-segment --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish fonts-rs-barcode-code39
+        continue-on-error: true
         run: cargo publish --locked -p fonts-rs-barcode-code39 --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish fonts-rs-barcode-code128
+        continue-on-error: true
         run: cargo publish --locked -p fonts-rs-barcode-code128 --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish fonts-rs-barcode-ean13
+        continue-on-error: true
         run: cargo publish --locked -p fonts-rs-barcode-ean13 --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish fonts-rs-doto
+        continue-on-error: true
         run: cargo publish --locked -p fonts-rs-doto --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish fonts-rs-redacted
+        continue-on-error: true
         run: cargo publish --locked -p fonts-rs-redacted --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish fonts-rs-dicefont
+        continue-on-error: true
         run: cargo publish --locked -p fonts-rs-dicefont --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish fonts-rs-bravura
+        continue-on-error: true
         run: cargo publish --locked -p fonts-rs-bravura --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish fonts-rs-cuernavaca
+        continue-on-error: true
         run: cargo publish --locked -p fonts-rs-cuernavaca --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish fonts-rs-noto-emoji-generator
+        continue-on-error: true
         run: cargo publish --locked -p fonts-rs-noto-emoji-generator --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish nerd-fonts-generator
+        continue-on-error: true
         run: cargo publish --locked -p nerd-fonts-generator --token ${{ secrets.CRATES_IO_TOKEN }}
       # Tier 4: Composite crates (build.rs writes to OUT_DIR)
       - name: Publish fonts-rs-noto-emoji
+        continue-on-error: true
         run: cargo publish --locked -p fonts-rs-noto-emoji --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish nerd-fonts-rs
+        continue-on-error: true
         run: cargo publish --locked -p nerd-fonts-rs --token ${{ secrets.CRATES_IO_TOKEN }}
       # Tier 5: Application crates (no build.rs, no dirty files)
       - name: Publish fonts-rs-noto-emoji-cheat-sheet
+        continue-on-error: true
         run: cargo publish --locked -p fonts-rs-noto-emoji-cheat-sheet --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish nerd-fonts-cheat-sheet
+        continue-on-error: true
         run: cargo publish --locked -p nerd-fonts-cheat-sheet --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
