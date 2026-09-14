@@ -9,6 +9,8 @@ dot-matrix font with two axes: weight (`wght`) and roundness (`ROND`). This
 crate integrates Doto into the `fonts-rs` framework, providing GResource
 registration, glyph name resolution, and software rendering.
 
+![Dot Matrix Marquee](resources/dot-matrix-marquee.png)
+
 ## Features
 
 - **`gtk`** (default) - GResource registration and GTK4 icon name resolution

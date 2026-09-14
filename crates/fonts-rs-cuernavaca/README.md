@@ -8,6 +8,8 @@ Chess Cuernavaca font integration for GTK 4 and pixel-drawing.
 containing figurine glyphs for chess pieces. This crate integrates Cuernavaca
 into the `fonts-rs` framework.
 
+![Chess Board](resources/chess-board.png)
+
 ## Features
 
 - **`gtk`** (default) - GResource registration and GTK4 icon name resolution

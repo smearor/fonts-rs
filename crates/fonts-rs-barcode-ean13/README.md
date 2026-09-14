@@ -8,6 +8,8 @@ Libre Barcode EAN13 font integration for GTK 4 and pixel-drawing.
 font for the EAN-13 symbology. This crate integrates it into the
 `fonts-rs` framework.
 
+![Barcode EAN13 Demo](resources/barcode-ean13.png)
+
 ## Features
 
 - **`gtk`** (default) - GResource registration and GTK4 icon name resolution

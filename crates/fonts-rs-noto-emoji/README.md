@@ -8,6 +8,8 @@ Noto Emoji font integration for GTK 4 and pixel-drawing.
 emoji font. This crate integrates Noto Emoji into the `fonts-rs` framework,
 with CLDR-based keyword and category metadata for search functionality.
 
+![Noto Emoji Cheat Sheet](resources/cheat-sheet.png)
+
 ## Features
 
 - **`gtk`** (default) - GResource registration and GTK4 icon name resolution
