@@ -8,6 +8,8 @@ Redacted placeholder text font integration for GTK 4 and pixel-drawing.
 designed to look like real text but remain unreadable, useful for wireframes
 and mockups. This crate integrates Redacted into the `fonts-rs` framework.
 
+![Redacted Wireframe](resources/newspaper-redacted-wireframe.png)
+
 ## Features
 
 - **`gtk`** (default) - GResource registration and GTK4 icon name resolution

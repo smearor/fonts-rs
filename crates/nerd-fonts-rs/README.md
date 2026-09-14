@@ -10,6 +10,8 @@ the `fonts-rs` framework. It bundles the Symbols Nerd Font and provides
 icon name resolution, GResource registration, CSS generation, and software
 rendering.
 
+![Nerd Fonts Cheat Sheet](resources/cheat-sheet.png)
+
 ## Features
 
 - **`gtk`** (default) - GTK4 icon name resolution, GResource registration,

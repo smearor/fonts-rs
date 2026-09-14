@@ -8,6 +8,8 @@ DiceFont is a font family containing polyhedral dice glyphs (d4, d6, d8, d10,
 d12, d20) for tabletop RPG applications. This crate integrates DiceFont into
 the `fonts-rs` framework.
 
+![Dice Roller](resources/dice-roller.png)
+
 ## Features
 
 - **`gtk`** (default) - GResource registration and GTK4 icon name resolution

@@ -9,6 +9,8 @@ font family with classic and modern styles in regular and mini variants.
 This crate integrates DSEG14 into the `fonts-rs` framework with 24 variant
 features covering all style/weight combinations.
 
+![DSEG14 Marquee](resources/dseg-14-marquee.png)
+
 ## Features
 
 - **`gtk`** (default) - GResource registration and GTK4 icon name resolution

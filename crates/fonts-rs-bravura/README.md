@@ -9,6 +9,8 @@ music notation font. This crate integrates Bravura into the `fonts-rs`
 framework, using the SMuFL `glyphnames.json` metadata for glyph name
 resolution (since Bravura lacks PostScript glyph names).
 
+![Bravura Music Sheet](resources/music-sheet.png)
+
 ## Features
 
 - **`gtk`** (default) - GResource registration and GTK4 icon name resolution
