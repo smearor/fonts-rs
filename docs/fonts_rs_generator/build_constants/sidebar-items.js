@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["FONT_GRESOURCE","FONT_GRESOURCE_XML","HASH_PATH","ICONS_GRESOURCE","ICONS_GRESOURCE_XML","METADATA_PATH","RESOURCES_DIR"],"fn":["hash_font_file"]};
+window.SIDEBAR_ITEMS = {"constant":["FONT_GRESOURCE","FONT_GRESOURCE_XML","ICONS_GRESOURCE","RESOURCES_DIR"],"fn":["hash_font_file","hash_path","icons_gresource_xml","metadata_path","out_dir"]};
