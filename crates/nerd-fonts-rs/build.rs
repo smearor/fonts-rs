@@ -24,11 +24,13 @@ use nerd_fonts_model::IconName;
 fn main() -> miette::Result<()> {
     let font_path = "resources/NerdFontsSymbolsOnly/SymbolsNerdFont-Regular.ttf";
 
+    // Export nerdfont.css path for include_str! in web.rs
+    let out_dir = std::env::var("OUT_DIR").map_err(|e| miette::miette!("OUT_DIR not set: {e}"))?;
+    println!("cargo:rustc-env=NERDFONT_CSS_PATH={out_dir}/nerdfont.css");
+
     FontBuild::new(font_path)
         .additional_gresource("resources/nerd-fonts.gresource.xml", "compiled.gresource")
         .rerun_if_changed("resources/nerd-fonts.gresource.xml")
-        .rerun_if_changed("resources/icons.gresource.xml")
-        .rerun_if_changed("resources/metadata.json")
         .rerun_if_changed("resources/metadata/fontawesome/categories.yml")
         .rerun_if_changed("resources/metadata/fontawesome/icons.yml")
         .rerun_if_changed("resources/metadata/fontawesome/shims.json")

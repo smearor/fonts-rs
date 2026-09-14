@@ -31,17 +31,17 @@ jobs:
         uses: Swatinem/rust-cache@v2
       - name: Build (Release Mode)
         run: cargo build --workspace --release --all-features --verbose
-      # Tier 1: Foundation
+      # Tier 1: Foundation (no build.rs, no dirty files)
       - name: Dry-run publish (fonts-rs-model)
         run: cargo publish --dry-run --locked -p fonts-rs-model --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish fonts-rs-model
         run: cargo publish --locked -p fonts-rs-model --token ${{ secrets.CRATES_IO_TOKEN }}
-      # Tier 2: Core framework
+      # Tier 2: Core framework (no build.rs, no dirty files)
       - name: Publish fonts-rs-generator
         run: cargo publish --locked -p fonts-rs-generator --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish nerd-fonts-model
         run: cargo publish --locked -p nerd-fonts-model --token ${{ secrets.CRATES_IO_TOKEN }}
-      # Tier 3: Font families + generators
+      # Tier 3: Font families + generators (build.rs writes to OUT_DIR)
       - name: Publish fonts-rs-seven-segment
         run: cargo publish --locked -p fonts-rs-seven-segment --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish fonts-rs-fourteen-segment
@@ -66,12 +66,12 @@ jobs:
         run: cargo publish --locked -p fonts-rs-noto-emoji-generator --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish nerd-fonts-generator
         run: cargo publish --locked -p nerd-fonts-generator --token ${{ secrets.CRATES_IO_TOKEN }}
-      # Tier 4: Composite crates
+      # Tier 4: Composite crates (build.rs writes to OUT_DIR)
       - name: Publish fonts-rs-noto-emoji
         run: cargo publish --locked -p fonts-rs-noto-emoji --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish nerd-fonts-rs
         run: cargo publish --locked -p nerd-fonts-rs --token ${{ secrets.CRATES_IO_TOKEN }}
-      # Tier 5: Application crates
+      # Tier 5: Application crates (no build.rs, no dirty files)
       - name: Publish fonts-rs-noto-emoji-cheat-sheet
         run: cargo publish --locked -p fonts-rs-noto-emoji-cheat-sheet --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish nerd-fonts-cheat-sheet

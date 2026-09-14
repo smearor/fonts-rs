@@ -59,7 +59,7 @@ fn main() -> miette::Result<()> {
         eprintln!("build.rs: generating emoji metadata (keywords/categories)...");
 
         // Read the generated metadata.json to get the full list of exported glyphs.
-        let metadata_json = std::fs::read_to_string(build_constants::METADATA_PATH).map_err(|e| miette::miette!("Failed to read metadata.json: {e}"))?;
+        let metadata_json = std::fs::read_to_string(build_constants::metadata_path()).map_err(|e| miette::miette!("Failed to read metadata.json: {e}"))?;
         let entries: Vec<fonts_rs_model::GlyphEntry<String>> =
             serde_json::from_str(&metadata_json).map_err(|e| miette::miette!("Failed to parse metadata.json: {e}"))?;
 

@@ -19,7 +19,6 @@ include = [
     "examples/*.rs",
     "resources/*.ttf",
     "resources/LICENSE.txt",
-    "resources/icons.gresource.xml",
     "Cargo.toml",
 ]
 

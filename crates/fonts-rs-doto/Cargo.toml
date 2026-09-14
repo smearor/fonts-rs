@@ -19,7 +19,6 @@ include = [
     "build.rs",
     "resources/*.ttf",
     "resources/Doto-OFL.txt",
-    "resources/icons.gresource.xml",
     "Cargo.toml",
 ]
 

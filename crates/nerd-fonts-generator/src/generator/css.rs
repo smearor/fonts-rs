@@ -7,7 +7,7 @@ use fonts_rs_generator::GlyphGenerator;
 use nerd_fonts_model::GlyphEntry;
 use nerd_fonts_model::IconName;
 
-/// Generates the web CSS file (`resources/nerdfont.css`) with per-icon
+/// Generates the web CSS file (`nerdfont.css`) with per-icon
 /// `content: "\XXXX"` mappings from metadata.json.
 pub struct WebCssGenerator;
 
@@ -49,6 +49,7 @@ impl GlyphGenerator<IconName> for WebCssGenerator {
     }
 
     fn output_path() -> Result<PathBuf, GenerateError> {
-        Ok(PathBuf::from("resources/nerdfont.css"))
+        let out_dir = std::env::var("OUT_DIR")?;
+        Ok(PathBuf::from(out_dir).join("nerdfont.css"))
     }
 }

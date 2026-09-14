@@ -24,7 +24,6 @@ include = [
     "resources/metadata/*.json",
     "resources/font-face.css",
     "resources/nerd-fonts.gresource.xml",
-    "resources/icons.gresource.xml",
     "Cargo.toml",
 ]
 
