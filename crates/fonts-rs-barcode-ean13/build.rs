@@ -15,5 +15,5 @@ fn main() -> std::io::Result<()> {
 
     FontBuild::new(&font_path)
         .compile_font_gresource()
-        .run(|font_path, resources_dir| Ean13Definition::export_glyphs(font_path, resources_dir))
+        .run(Ean13Definition::export_glyphs)
 }
