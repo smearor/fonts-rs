@@ -25,9 +25,10 @@ pub fn parse_emoji_test(content: &str) -> CodePointCategoryMap {
             // Parse codepoint: "1F600 ; fully-qualified # ..."
             if let Some(codepoint_str) = trimmed.split_whitespace().next()
                 && let Ok(cp) = CodePoint::from_str(codepoint_str)
-                    && !current_group.is_empty() {
-                        categories.insert(cp, current_group.clone());
-                    }
+                && !current_group.is_empty()
+            {
+                categories.insert(cp, current_group.clone());
+            }
         }
     }
 
