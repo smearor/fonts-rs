@@ -4,7 +4,7 @@
 //!
 //! Run with:
 //! ```sh
-//! cargo run --example interactive_demo --features gtk,embed-fonts
+//! cargo run --example fourteen_segment_demo --features gtk,embed-fonts
 //! ```
 
 use fonts_rs_fourteen_segment::FourteenSegmentName;
