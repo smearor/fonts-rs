@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`.gitignore` entries**: removed obsolete ignore rules for generated artifacts that now live in `OUT_DIR`
 - **`--allow-dirty --no-verify` flags**: removed from all `cargo publish` commands in `release.yml` (no longer needed since build scripts write only to `OUT_DIR`)
 
+### Fixed
+
+- **`resources/font.gresource.xml`**: added to `include` lists of `fonts-rs-barcode-code39`, `fonts-rs-barcode-code128`, and `fonts-rs-barcode-ean13` (static file required by `compile_font_gresource()` was missing from published tarball, causing build verification failure during `cargo publish`)
+
 ## [0.2.0] - 2026-09-14
 
 ### Added
