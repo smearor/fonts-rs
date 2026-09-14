@@ -16,8 +16,8 @@ include = [
     "src/**/*.rs",
     "build.rs",
     "resources/*.ttf",
-    "resources/*.json",
-    "resources/*.txt",
+    "resources/**/*.json",
+    "resources/**/*.txt",
     "resources/OFL.txt",
     "Cargo.toml",
 ]
@@ -25,7 +25,7 @@ include = [
 [features]
 default = ["gtk"]
 
-gtk = ["dep:gtk4", "dep:gio"]
+gtk = ["dep:gtk4", "dep:gio", "fonts-rs-generator/gtk"]
 render = ["dep:ab_glyph"]
 embed-fonts = []
 
