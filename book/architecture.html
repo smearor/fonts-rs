@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-0a1d92bd.js";
+            window.path_to_searchindex_js = "searchindex-32bca81d.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-329f0481.js"></script>
+        <script src="toc-cbc065de.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -178,99 +178,141 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="architecture"><a class="header" href="#architecture">Architecture</a></h1>
-<h2 id="module-structure"><a class="header" href="#module-structure">Module Structure</a></h2>
-<p>The crate is organized into modules gated by feature flags:</p>
+<h2 id="workspace-structure"><a class="header" href="#workspace-structure">Workspace Structure</a></h2>
+<p>The workspace is organized into 19 crates across three layers:</p>
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th>Module</th><th>Feature</th><th>Description</th></tr>
+<tr><th>Layer</th><th>Crates</th><th>Role</th></tr>
 </thead>
 <tbody>
-<tr><td><code>icons</code></td><td>always</td><td>Icon name to Unicode codepoint resolution</td></tr>
-<tr><td><code>css</code></td><td>always</td><td>CSS string constants (GResource prefix, font-face CSS)</td></tr>
-<tr><td><code>init</code></td><td>always</td><td>Builder pattern for initialization</td></tr>
-<tr><td><code>gtk</code></td><td><code>gtk</code></td><td>GTK4 icon name resolution and color application</td></tr>
-<tr><td><code>fonts</code></td><td><code>render</code></td><td>Font loading (TTF and WOFF2) with caching</td></tr>
-<tr><td><code>web</code></td><td><code>web</code></td><td>Web CSS constant for web instances</td></tr>
-<tr><td><code>metadata</code></td><td><code>metadata</code></td><td>Icon keywords and categories for search</td></tr>
+<tr><td>Generic framework</td><td><code>fonts-rs-model</code>, <code>fonts-rs-generator</code></td><td>Shared types and build pipeline</td></tr>
+<tr><td>Font families</td><td><code>fonts-rs-doto</code>, <code>fonts-rs-bravura</code>, … (10 crates)</td><td>One crate per font family</td></tr>
+<tr><td>Nerd Fonts</td><td><code>nerd-fonts-model</code>, <code>nerd-fonts-generator</code>, <code>nerd-fonts-rs</code></td><td>Nerd Fonts-specific integration</td></tr>
+<tr><td>Applications</td><td><code>nerd-fonts-cheat-sheet</code>, <code>fonts-rs-noto-emoji-cheat-sheet</code></td><td>Demo / cheat sheet apps</td></tr>
 </tbody>
 </table>
 </div>
+<h2 id="crate-dependencies"><a class="header" href="#crate-dependencies">Crate Dependencies</a></h2>
+<pre class="mermaid">graph TD
+    Model["fonts-rs-model"] --&gt; Gen["fonts-rs-generator"]
+    Model --&gt; NFModel["nerd-fonts-model"]
+    Gen --&gt; NFGen["nerd-fonts-generator"]
+    NFModel --&gt; NFGen
+    Gen --&gt; NotoGen["fonts-rs-noto-emoji-generator"]
+
+    Model --&gt; Doto["fonts-rs-doto"]
+    Gen --&gt; Doto
+    Model --&gt; Bravura["fonts-rs-bravura"]
+    Gen --&gt; Bravura
+    Model --&gt; Seven["fonts-rs-seven-segment"]
+    Gen --&gt; Seven
+
+    NotoGen --&gt; NotoEmoji["fonts-rs-noto-emoji"]
+    NFGen --&gt; NFRs["nerd-fonts-rs"]
+    Model --&gt; NFRs
+
+    NotoEmoji --&gt; NotoCS["fonts-rs-noto-emoji-cheat-sheet"]
+    NFRs --&gt; NFCS["nerd-fonts-cheat-sheet"]
+</pre>
+
+<h2 id="build-pipeline"><a class="header" href="#build-pipeline">Build Pipeline</a></h2>
+<p>Each font family crate follows the same build pipeline via <code>FontBuild</code>:</p>
+<pre class="mermaid">flowchart TD
+    Font["Font file (TTF/OTF)"] --&gt; Hash["FNV-1a hash"]
+    Hash --&gt; Check{"Hash changed?"}
+    Check --&gt;|Yes| Export["Export glyphs to SVG"]
+    Check --&gt;|No| Skip["Skip export"]
+    Export --&gt; Meta["metadata.json"]
+    Export --&gt; SVGs["scalable/glyphs/*.svg"]
+    Export --&gt; XML["icons.gresource.xml"]
+    Meta --&gt; Codegen["Code generation"]
+    XML --&gt; GResource["GResource compilation"]
+    Codegen --&gt; Codemap["$OUT_DIR/codemap.rs (phf::Map)"]
+    Codegen --&gt; Icons["$OUT_DIR/icons.rs (constants)"]
+    Codegen --&gt; Variant["$OUT_DIR/variant.rs (variant info)"]
+    GResource --&gt; Compiled["icons.gresource (binary)"]
+    Skip --&gt; Codegen
+</pre>
+
+<h3 id="hash-based-change-detection"><a class="header" href="#hash-based-change-detection">Hash-Based Change Detection</a></h3>
+<p><code>FontBuild</code> computes an FNV-1a hash of the font file and stores it in
+<code>resources/.hash</code>. On subsequent builds, the hash is compared to determine
+whether re-export is needed. For variable font variants, <code>extra_hash()</code>
+adds the variant name to the hash, forcing re-export when the active
+variant changes even if the font file is unchanged.</p>
+<h3 id="code-generation"><a class="header" href="#code-generation">Code Generation</a></h3>
+<p>The default code generation produces three files in <code>OUT_DIR</code>:</p>
+<ul>
+<li><strong><code>codemap.rs</code></strong> - <code>phf::Map&lt;char, &amp;str&gt;</code> (codepoint → glyph name) and
+<code>phf::Map&lt;&amp;str, char&gt;</code> (glyph name → codepoint)</li>
+<li><strong><code>icons.rs</code></strong> - <code>pub const</code> strings for each glyph name</li>
+<li><strong><code>variant.rs</code></strong> - <code>GRESOURCE_PREFIX</code> and <code>GLYPH_PREFIX</code> constants</li>
+</ul>
+<p>Custom code generation is available via <code>FontBuild::run_with()</code>.</p>
+<h2 id="font-family-crate-anatomy"><a class="header" href="#font-family-crate-anatomy">Font Family Crate Anatomy</a></h2>
+<p>Each font family crate has the following structure:</p>
+<pre><code>crates/fonts-rs-{name}/
+├── Cargo.toml          # Features, dependencies, license-file
+├── build.rs            # Build pipeline (FontBuild + ExportConfig)
+├── resources/
+│   ├── {font}.ttf      # Bundled font file
+│   ├── {license}.txt   # Font license
+│   └── icons.gresource.xml  # Generated by build.rs
+└── src/
+    ├── lib.rs          # Runtime API (register_glyphs, all_glyphs, GlyphNameExt)
+    ├── definition.rs   # FontFamilyConfig implementation
+    ├── naming.rs       # FontFamily marker enum + GlyphName&lt;F&gt; type alias
+    ├── variant.rs      # include!(OUT_DIR/variant.rs)
+    ├── codepoint_map.rs # include!(OUT_DIR/codemap.rs)
+    ├── constants.rs    # include!(OUT_DIR/icons.rs)
+    └── fonts.rs        # impl_font_loader! (optional, render feature)
+</code></pre>
+<h2 id="feature-gates"><a class="header" href="#feature-gates">Feature Gates</a></h2>
+<p>Each font family crate uses feature gates for optional functionality:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Feature</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>gtk</code> (default)</td><td>GResource registration, GTK4 icon name resolution</td></tr>
+<tr><td><code>render</code></td><td>Font loading via <code>ab_glyph</code> for software rendering</td></tr>
+<tr><td><code>embed-fonts</code></td><td>Embed font files via <code>include_bytes!</code> instead of disk</td></tr>
+<tr><td>Variant features</td><td>One Cargo feature per font variant (e.g. <code>bold-dot</code>)</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="gresource-registration"><a class="header" href="#gresource-registration">GResource Registration</a></h2>
+<p>The <code>build.rs</code> script compiles GResource bundles via <code>glib-build-tools</code>:</p>
+<ol>
+<li><strong><code>icons.gresource</code></strong> from <code>resources/icons.gresource.xml</code> - contains
+all exported SVG glyph files</li>
+<li><strong><code>font.gresource</code></strong> (optional) from <code>resources/font.gresource.xml</code> -
+contains the font file itself for GResource-based font loading</li>
+</ol>
+<p>At runtime, <code>register_glyphs()</code> registers the GResource bundle via
+<code>gio::resources_register_include!("icons.gresource")</code>.</p>
 <h2 id="initialization-flow"><a class="header" href="#initialization-flow">Initialization Flow</a></h2>
 <pre class="mermaid">sequenceDiagram
     participant App as Application
-    participant Init as nerd_fonts_rs::init()
-    participant Fonts as fonts::init()
+    participant Crate as fonts-rs-{name}
     participant GResource as GResource
-    participant Icons as icons::register_icons()
     participant CSS as CssProvider
 
-    App-&gt;&gt;Init: init(base_dir)
-    alt render feature
-        Init-&gt;&gt;Fonts: fonts::init(base_dir)
-        Fonts-&gt;&gt;Fonts: Set font search directory
-    end
-    alt gtk feature
-        Init-&gt;&gt;GResource: resources_register_include!("compiled.gresource")
-        Init-&gt;&gt;Icons: icons::register_icons()
-        Init-&gt;&gt;CSS: Load font_face_css() into CssProvider
-        Init-&gt;&gt;CSS: Add provider to display
-    end
-    Init--&gt;&gt;App: Ready
+    App-&gt;&gt;Crate: register_glyphs()
+    Crate-&gt;&gt;GResource: resources_register_include!("icons.gresource")
+    GResource--&gt;&gt;Crate: OK
+    Crate--&gt;&gt;App: Ready
+
+    Note over App,CSS: For Nerd Fonts (nerd-fonts-rs only)
+    App-&gt;&gt;Crate: init(base_dir)
+    Crate-&gt;&gt;GResource: Register font + icon GResources
+    Crate-&gt;&gt;CSS: Load font_face_css() into CssProvider
+    Crate-&gt;&gt;CSS: Add provider to default display
+    Crate--&gt;&gt;App: Ready
 </pre>
 
-<h2 id="font-loading-strategy"><a class="header" href="#font-loading-strategy">Font Loading Strategy</a></h2>
-<p>Fonts can be loaded in two ways:</p>
-<ol>
-<li><strong>Embedded</strong> (<code>embed-fonts</code> feature) - Font files are compiled into the binary
-via <code>include_bytes!</code>. No runtime file access needed.</li>
-<li><strong>From disk</strong> (default) - Font files are read from a base directory at runtime.
-The base directory is set via <code>init(base_dir: Option&lt;&amp;str&gt;)</code>.</li>
-</ol>
-<p>The Nerd Font symbol font (<code>SymbolsNerdFont-Regular.ttf</code>) is used for icon
-rendering. The label font (<code>JetBrainsMonoNLNerdFont-Regular.woff2</code>) is used for
-text labels in rendered images.</p>
-<h2 id="gresource-registration"><a class="header" href="#gresource-registration">GResource Registration</a></h2>
-<p>The <code>build.rs</code> script compiles two GResource bundles:</p>
-<ol>
-<li><strong><code>compiled.gresource</code></strong> from <code>resources/nerd-fonts.gresource.xml</code> — contains
-the Nerd Font TTF files</li>
-<li><strong><code>icons.gresource</code></strong> from <code>resources/icons.gresource.xml</code> — contains 10.403
-SVG icon files</li>
-</ol>
-<p>At runtime, <code>init()</code> registers both bundles via
-<code>gio::resources_register_include!</code>.</p>
-<p>The font GResource contains:</p>
-<ul>
-<li><code>SymbolsNerdFont-Regular.ttf</code> - Nerd Font symbol font</li>
-<li><code>SymbolsNerdFontMono-Regular.ttf</code> - Monospace Nerd Font symbol font</li>
-</ul>
-<p>These are referenced by the <code>@font-face</code> CSS rules generated by <code>font_face_css()</code>.</p>
-<h2 id="build-pipeline"><a class="header" href="#build-pipeline">Build Pipeline</a></h2>
-<p>The build pipeline is fully automated in <code>build.rs</code>. Icons are generated from
-the bundled font file (~2 seconds) when missing or when the font file has
-changed, then phf maps and GResource bundles are compiled:</p>
-<pre class="mermaid">flowchart TD
-    subgraph Export["Icon export (if metadata.json missing or font hash changed)"]
-        A["SymbolsNerdFont-Regular.ttf"]
-    end
-    A --&gt;|ttf-parser outline extraction| B["resources/icons/*.svg\n(10.403 SVG files)"]
-    A --&gt;|FNV-1a hash| J["resources/.font-hash"]
-    subgraph Codegen["Code generation + GResource compilation"]
-        C --&gt;|phf::Map generation| E["$OUT_DIR/codemap.rs\n(phf::Map char→name + name→char)"]
-        C --&gt;|const generation| F["$OUT_DIR/icons.rs\n(icon name constants)"]
-        D --&gt;|glib-build-tools| G["icons.gresource\n(compiled GResource binary)"]
-        H["resources/nerd-fonts.gresource.xml"] --&gt;|glib-build-tools| I["compiled.gresource\n(font GResource binary)"]
-    end
-    A --&gt;|ttf-parser outline extraction| C["resources/metadata.json\n(name, codepoint, file path)"]
-    A --&gt;|ttf-parser outline extraction| D["resources/icons.gresource.xml\n(GResource manifest)"]
-</pre>
-
-<p>The generated icon files are in <code>.gitignore</code> — they are not checked in.
-<code>build.rs</code> uses <code>cargo:rerun-if-changed</code> to detect when to re-run, plus an
-FNV-1a font hash comparison to decide whether the export needs to run. No
-manual cleanup is needed when updating the font file. See
-<a href="./icon-export.html">Icon Export</a> for details.</p>
 
                     </main>
 
@@ -280,7 +322,7 @@ manual cleanup is needed when updating the font file. See
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="icon-resolution.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="fonts-rs-model.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -294,7 +336,7 @@ manual cleanup is needed when updating the font file. See
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="icon-resolution.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="fonts-rs-model.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>

@@ -3,8 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Page not found - fonts-rs Documentation</title>
-        <base href="/">
+        <title>fonts-rs-generator - fonts-rs Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -178,14 +177,205 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="document-not-found-404"><a class="header" href="#document-not-found-404">Document not found (404)</a></h1>
-<p>This URL is invalid, sorry. Please use the navigation bar or search to continue.</p>
+                        <h1 id="fonts-rs-generator---build-time-pipeline"><a class="header" href="#fonts-rs-generator---build-time-pipeline"><code>fonts-rs-generator</code> - Build-Time Pipeline</a></h1>
+<p>The <code>fonts-rs-generator</code> crate provides the build-time pipeline for exporting
+glyphs from TTF/OTF font files, generating codepoint maps, compiling
+GResource bundles, and producing Rust source constants. It is used as a
+build-dependency by every font family crate.</p>
+<h2 id="exportconfigx-fontfamilyconfig"><a class="header" href="#exportconfigx-fontfamilyconfig"><code>ExportConfig&lt;X: FontFamilyConfig&gt;</code></a></h2>
+<p>Runtime configuration for glyph export, decoupled from <code>FontDefinition</code>.
+Enables variant-specific parameters at build time without a separate
+<code>FontDefinition</code> impl per variant.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct ExportConfig&lt;X: FontFamilyConfig&gt; {
+    pub gresource_prefix: String,
+    pub glyph_name_prefix: String,
+    pub axes: AxisValues,
+    pub name_filter: Option&lt;fn(&amp;str) -&gt; bool&gt;,
+    pub family_display_name: String,
+    _marker: PhantomData&lt;X&gt;,
+}
+<span class="boring">}</span></code></pre>
+<h3 id="constructors"><a class="header" href="#constructors">Constructors</a></h3>
+<ul>
+<li><code>ExportConfig::new()</code> - without a variant, uses <code>X::GRESOURCE_PREFIX</code>
+and <code>X::FONT_FAMILY_NAME</code></li>
+<li><code>ExportConfig::with_variant(variant)</code> - with a variant, constructs
+<code>gresource_prefix</code> as <code>{X::GRESOURCE_PREFIX}/{variant_slug}</code> and
+<code>glyph_name_prefix</code> as <code>{X::FONT_FAMILY_NAME}-{variant}</code></li>
+</ul>
+<h3 id="methods"><a class="header" href="#methods">Methods</a></h3>
+<ul>
+<li><strong><code>export_glyphs(font_path, output_dir)</code></strong> - standard export:
+iterates over all glyph IDs, normalizes names to
+<code>{glyph_name_prefix}-{kebab}</code>, renders SVGs with axis location</li>
+<li><strong><code>export_glyphs_by_name_map(font_path, output_dir, name_map)</code></strong> -
+export via external name→codepoint map (e.g. SMuFL <code>glyphnames.json</code>):
+for fonts without PostScript glyph names</li>
+<li><strong><code>write_variant_info()</code></strong> - writes <code>OUT_DIR/variant.rs</code> with
+<code>GRESOURCE_PREFIX</code> and <code>GLYPH_PREFIX</code> constants</li>
+<li><strong><code>generate_gresource_xml(entries, path)</code></strong> - generates
+<code>icons.gresource.xml</code> with <code>quick-xml</code> serialization</li>
+</ul>
+<h2 id="export_glyphs-two-variants"><a class="header" href="#export_glyphs-two-variants"><code>export_glyphs()</code> (Two Variants)</a></h2>
+<p>There are two distinct <code>export_glyphs</code> methods in the framework:</p>
+<h3 id="fontdefinitionexport_glyphs-trait-default-method"><a class="header" href="#fontdefinitionexport_glyphs-trait-default-method"><code>FontDefinition::export_glyphs</code> (trait default method)</a></h3>
+<p>Uses <code>Self::normalize_name</code> for type-safe glyph names. Iterates over all
+glyph IDs, calls <code>should_skip</code> and <code>normalize_name</code>, renders SVGs without
+axis location (default location).</p>
+<h3 id="exportconfigexport_glyphs-struct-method"><a class="header" href="#exportconfigexport_glyphs-struct-method"><code>ExportConfig::export_glyphs</code> (struct method)</a></h3>
+<p>Uses <code>normalize_to_kebab</code> + <code>glyph_name_prefix</code> for string-based names.
+Renders SVGs with axis location (<code>glyph_to_svg_full_height_at</code>).
+Supports <code>name_filter</code> for custom glyph filtering.</p>
+<h3 id="output"><a class="header" href="#output">Output</a></h3>
+<p>Both produce:</p>
+<ul>
+<li><code>&lt;output_dir&gt;/scalable/{context}/*.svg</code></li>
+<li><code>&lt;output_dir&gt;/metadata.json</code></li>
+<li><code>&lt;output_dir&gt;/icons.gresource.xml</code></li>
+</ul>
+<h2 id="write_variant_info"><a class="header" href="#write_variant_info"><code>write_variant_info()</code></a></h2>
+<p>Writes <code>OUT_DIR/variant.rs</code> with two constants:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub const GRESOURCE_PREFIX: &amp;str = "/io/smearor/fonts/doto/regular_medium";
+pub const GLYPH_PREFIX: &amp;str = "doto-regular-medium";
+<span class="boring">}</span></code></pre>
+<p>Included by <code>lib.rs</code> via <code>include!(concat!(env!("OUT_DIR"), "/variant.rs"))</code>.
+Enables the runtime API to construct GResource paths and glyph names with
+the active variant prefix.</p>
+<h2 id="detect_and_get_active_variant"><a class="header" href="#detect_and_get_active_variant"><code>detect_and_get_active_variant()</code></a></h2>
+<p>On <code>VariantList&lt;X: FontFamilyConfig&gt;</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn detect_and_get_active_variant(&amp;self, default_index: usize) -&gt; miette::Result&lt;&amp;'a FontVariant&gt;
+<span class="boring">}</span></code></pre>
+<p>Scans <code>CARGO_FEATURE_{NAME}</code> environment variables for each variant.
+Returns the active variant or <code>default_index</code> if none is active. Returns
+an error if more than one variant is active. Uses <code>X::FAMILY_DISPLAY_NAME</code>
+for diagnostic messages.</p>
+<h2 id="fontbuild-builder"><a class="header" href="#fontbuild-builder"><code>FontBuild</code> (Builder)</a></h2>
+<p>Builder for the common <code>build.rs</code> pipeline. Handles hash-based change
+detection, conditional glyph export, GResource compilation, and code
+generator invocation.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>FontBuild::new(&amp;font_path)
+    .extra_hash(entry.as_str())     // for variable font variants
+    .compile_font_gresource()       // optional: font.gresource
+    .rerun_if_changed(path)         // additional cargo:rerun-if-changed
+    .additional_gresource(xml, out) // additional GResource bundles
+    .run(|font_path, resources_dir| {
+        config.export_glyphs(font_path, resources_dir)
+    })
+    .map_err(|e| miette::miette!("{e}"))?;
+<span class="boring">}</span></code></pre>
+<h3 id="builder-methods"><a class="header" href="#builder-methods">Builder Methods</a></h3>
+<ul>
+<li><strong><code>extra_hash</code></strong>: Additional hash component (e.g. variant name) - forces
+re-export on variant change even if the font file is unchanged</li>
+<li><strong><code>compile_font_gresource</code></strong>: Also compile <code>font.gresource</code> in addition to
+<code>icons.gresource</code></li>
+<li><strong><code>rerun_if_changed</code></strong>: Add extra <code>cargo:rerun-if-changed</code> paths</li>
+<li><strong><code>additional_gresource</code></strong>: Register additional GResource bundles to compile</li>
+</ul>
+<h3 id="run-methods"><a class="header" href="#run-methods">Run Methods</a></h3>
+<ul>
+<li><strong><code>run</code></strong>: Export closure + default code generation
+(<code>CodemapGenerator</code> + <code>RustConstantsGenerator</code>)</li>
+<li><strong><code>run_with</code></strong>: Export closure + custom code generation closure</li>
+<li>Hash is computed as FNV-1a of the font file and stored in <code>resources/.hash</code></li>
+</ul>
+<h2 id="impl_font_loader-macro"><a class="header" href="#impl_font_loader-macro"><code>impl_font_loader!</code> Macro</a></h2>
+<p>Generates a <code>font() -&gt; Option&lt;&amp;'static ab_glyph::FontVec&gt;</code> function that
+loads a TTF font file and caches it in a <code>OnceLock</code>.</p>
+<p>Two variants:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Literal: relative to resources/
+fonts_rs_generator::impl_font_loader!("Doto.ttf");
+
+// Env var: absolute path set by build.rs via cargo:rustc-env
+fonts_rs_generator::impl_font_loader!(env: "DOTO_FONT_PATH");
+<span class="boring">}</span></code></pre>
+<p>With the <code>embed-fonts</code> feature, <code>include_bytes!</code> is used; otherwise
+<code>std::fs::read</code>.</p>
+<h2 id="metadatagenerator-trait"><a class="header" href="#metadatagenerator-trait"><code>MetadataGenerator</code> (Trait)</a></h2>
+<p>Trait for generating <code>phf::Map</code> metadata tables (keywords, categories,
+aliases) at build time.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait MetadataGenerator {
+    type Name: AsRef&lt;str&gt;;
+
+    fn keywords_for(&amp;self, entry: &amp;GlyphEntry&lt;Self::Name&gt;) -&gt; Vec&lt;String&gt;;
+    fn categories_for(&amp;self, entry: &amp;GlyphEntry&lt;Self::Name&gt;) -&gt; Vec&lt;String&gt;;
+    fn aliases(&amp;self) -&gt; Vec&lt;(String, String)&gt; { Vec::new() }
+    fn deduplicate_statics() -&gt; bool { false }
+
+    fn generate_keywords(&amp;self, entries: &amp;[GlyphEntry&lt;Self::Name&gt;]) -&gt; String { ... }
+    fn generate_categories(&amp;self, entries: &amp;[GlyphEntry&lt;Self::Name&gt;]) -&gt; String { ... }
+    fn generate_aliases(&amp;self) -&gt; String { ... }
+    fn run(&amp;self, entries: &amp;[GlyphEntry&lt;Self::Name&gt;]) -&gt; Result&lt;(), std::io::Error&gt; { ... }
+}
+<span class="boring">}</span></code></pre>
+<ul>
+<li><code>deduplicate_statics() = true</code>: Extracts repeated value lists into
+<code>static</code> constants (e.g. <code>static KW_0: &amp;[GlyphKeyword] = &amp;[...]</code>) -
+reduces binary size for large maps with many duplicates</li>
+<li><code>run()</code>: Writes <code>keywords.rs</code>, <code>categories.rs</code>, <code>aliases.rs</code> to
+<code>OUT_DIR</code></li>
+</ul>
+<p>Example implementation: <code>NotoEmojiMetadataGenerator</code> in
+<code>fonts-rs-noto-emoji-generator</code> uses <code>CodePointKeywordMap</code> and
+<code>CodePointCategoryMap</code> as data sources.</p>
+<h2 id="variantlistx-fontfamilyconfig"><a class="header" href="#variantlistx-fontfamilyconfig"><code>VariantList&lt;X: FontFamilyConfig&gt;</code></a></h2>
+<p>A typed list of font variants, generic over the font family config.
+Provides methods to detect the active variant from Cargo features.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>const VARIANTS: VariantList&lt;DotoConfig&gt; = VariantList::new(&amp;[
+    FontVariant::axes("regular-medium", &amp;[AxisValue::new("wght", 500.0), AxisValue::new("ROND", 50.0)]),
+    FontVariant::axes("bold-dot", &amp;[AxisValue::new("wght", 700.0), AxisValue::new("ROND", 100.0)]),
+]);
+
+let entry = VARIANTS.detect_and_get_active_variant(0)?;
+<span class="boring">}</span></code></pre>
+<h2 id="fontvariantext-extension-trait"><a class="header" href="#fontvariantext-extension-trait"><code>FontVariantExt</code> (Extension Trait)</a></h2>
+<p>Extension trait providing a method to get the font file path from a
+<code>FontVariant</code>, handling errors if no font file is associated.</p>
+<h2 id="set_font_path_env-helper"><a class="header" href="#set_font_path_env-helper"><code>set_font_path_env()</code> Helper</a></h2>
+<p>Sets <code>cargo:rustc-env</code> with the absolute font path for <code>include_bytes!</code>
+in <code>lib.rs</code>. Constructs the absolute path from <code>CARGO_MANIFEST_DIR</code> and
+the given relative font path.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>set_font_path_env("DOTO_FONT_PATH", &amp;font_path)?;
+<span class="boring">}</span></code></pre>
+<h2 id="build_constants-module"><a class="header" href="#build_constants-module"><code>build_constants</code> Module</a></h2>
+<p>Provides common constants for build scripts:</p>
+<ul>
+<li><code>RESOURCES_DIR</code> - the <code>resources/</code> directory path</li>
+<li><code>METADATA_PATH</code> - path to <code>resources/metadata.json</code></li>
+<li><code>HASH_PATH</code> - path to <code>resources/.hash</code></li>
+<li><code>ICONS_GRESOURCE_XML</code> - path to <code>resources/icons.gresource.xml</code></li>
+<li><code>ICONS_GRESOURCE</code> - path to compiled <code>icons.gresource</code></li>
+<li><code>FONT_GRESOURCE_XML</code> - path to <code>resources/font.gresource.xml</code></li>
+<li><code>FONT_GRESOURCE</code> - path to compiled <code>font.gresource</code></li>
+</ul>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="fonts-rs-model.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
 
+                            <a rel="next prefetch" href="build-patterns.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -193,7 +383,13 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="fonts-rs-model.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
 
+                    <a rel="next prefetch" href="build-patterns.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
             </nav>
 
         </div>

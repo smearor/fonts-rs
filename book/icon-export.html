@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Icon Export - fonts-rs Documentation</title>
+        <title>Glyph Export - fonts-rs Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-0a1d92bd.js";
+            window.path_to_searchindex_js = "searchindex-32bca81d.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-329f0481.js"></script>
+        <script src="toc-cbc065de.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -177,99 +177,105 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="icon-export"><a class="header" href="#icon-export">Icon Export</a></h1>
-<p>Nerd Font glyphs are extracted as GTK4 symbolic SVG icons at build time
-using <a href="https://crates.io/crates/ttf-parser"><code>ttf-parser</code></a>. The export logic
-lives in <code>src/icons/export.rs</code> and is called automatically by <code>build.rs</code>.</p>
+                        <h1 id="glyph-export"><a class="header" href="#glyph-export">Glyph Export</a></h1>
+<p>Glyphs are extracted as GTK4 symbolic SVG icons at build time using
+<a href="https://crates.io/crates/skrifa"><code>skrifa</code></a> for outline parsing. The export
+logic lives in the <code>fonts-rs-generator</code> crate and is called automatically by
+each font family crate’s <code>build.rs</code>.</p>
 <h2 id="automatic-generation"><a class="header" href="#automatic-generation">Automatic Generation</a></h2>
-<p><code>build.rs</code> generates the icon resources on demand. The export is triggered
-when <code>resources/metadata.json</code> does not exist (e.g. on a fresh clone) <strong>or</strong>
-when the font file has changed since the last export:</p>
+<p><code>build.rs</code> generates the icon resources on demand via <code>FontBuild</code>. The export
+is triggered when the font file hash has changed since the last export:</p>
 <pre class="mermaid">flowchart TD
-    A["build.rs runs"] --&gt; B{"metadata.json exists?"}
-    B --&gt;|No| D["Export icons from font"]
+    A["build.rs runs"] --&gt; B{"resources/.hash exists?"}
+    B --&gt;|No| D["Export glyphs from font"]
     B --&gt;|Yes| C{"Font hash matches?"}
     C --&gt;|No| D
     C --&gt;|Yes| E["Skip export"]
     D --&gt; F["Write SVGs, metadata.json, icons.gresource.xml"]
-    F --&gt; G["Write .font-hash"]
+    F --&gt; G["Write .hash"]
     E --&gt; H["Compile GResource bundles"]
     G --&gt; H
     H --&gt; I["Generate phf::Map + icon constants"]
 </pre>
 
-<pre><code>resources/NerdFontsSymbolsOnly/SymbolsNerdFont-Regular.ttf
-  ↓  build.rs (ttf-parser outline extraction, ~2s)
-resources/icons/*.svg          (10.403 SVG files)
-resources/metadata.json        (name, codepoint, file path)
-resources/icons.gresource.xml  (GResource manifest)
-resources/.font-hash           (FNV-1a hash of font file)
-  ↓  build.rs (code generation)
-$OUT_DIR/codemap.rs            (phf::Map&lt;char, &amp;str&gt; + phf::Map&lt;&amp;str, char&gt;)
-$OUT_DIR/icons.rs              (icon name constants)
+<pre><code>resources/{font}.ttf
+  ↓  build.rs (skrifa outline extraction, via ExportConfig)
+resources/scalable/glyphs/*.svg   (SVG files)
+resources/metadata.json           (name, codepoint, file path)
+resources/icons.gresource.xml     (GResource manifest)
+resources/.hash                   (FNV-1a hash of font file)
+  ↓  build.rs (code generation via FontBuild)
+$OUT_DIR/codemap.rs               (phf::Map&lt;char, &amp;str&gt; + phf::Map&lt;&amp;str, char&gt;)
+$OUT_DIR/icons.rs                 (icon name constants)
+$OUT_DIR/variant.rs               (GRESOURCE_PREFIX + GLYPH_PREFIX)
   ↓  build.rs (glib-build-tools)
-compiled.gresource             (font GResource bundle)
-icons.gresource                (icon GResource bundle)
+icons.gresource                   (icon GResource bundle)
 </code></pre>
-<p>The generated files (<code>resources/icons/</code>, <code>resources/metadata.json</code>,
-<code>resources/icons.gresource.xml</code>, <code>resources/.font-hash</code>) are in <code>.gitignore</code>
-and not checked into the repository. They are regenerated from the font file
-as needed.</p>
+<p>The generated files (<code>scalable/</code>, <code>metadata.json</code>, <code>icons.gresource.xml</code>,
+<code>.hash</code>) are in <code>.gitignore</code> and not checked into the repository. They are
+regenerated from the font file as needed.</p>
 <h3 id="caching"><a class="header" href="#caching">Caching</a></h3>
-<p><code>build.rs</code> uses two mechanisms for caching:</p>
+<p><code>FontBuild</code> uses two mechanisms for caching:</p>
 <p><strong>Cargo rebuild triggers</strong> (<code>cargo:rerun-if-changed</code>):</p>
 <ul>
-<li><code>resources/NerdFontsSymbolsOnly/SymbolsNerdFont-Regular.ttf</code> — triggers
-<code>build.rs</code> re-execution</li>
-<li><code>resources/metadata.json</code> — triggers phf::Map regeneration</li>
-<li><code>resources/icons.gresource.xml</code> — triggers GResource recompilation</li>
-<li><code>resources/nerd-fonts.gresource.xml</code> — triggers font GResource recompilation</li>
-<li><code>build.rs</code> — triggers full rebuild</li>
+<li>The font file - triggers <code>build.rs</code> re-execution</li>
+<li><code>resources/metadata.json</code> - triggers phf::Map regeneration</li>
+<li><code>resources/icons.gresource.xml</code> - triggers GResource recompilation</li>
+<li><code>build.rs</code> - triggers full rebuild</li>
 </ul>
-<p><strong>Font hash comparison</strong> (FNV-1a):</p>
-<p>When <code>build.rs</code> runs, it computes an FNV-1a hash of the font file and compares
-it against the stored hash in <code>resources/.font-hash</code>. If the hashes differ
-(or the file is missing), the full icon export is triggered. Otherwise the
-export is skipped.</p>
+<p><strong>Font hash comparison</strong> (FNV-1a):
+When <code>build.rs</code> runs, it computes an FNV-1a hash of the font file and compares
+it against the stored hash in <code>resources/.hash</code>. If the hashes differ (or the
+file is missing), the full glyph export is triggered. Otherwise the export is
+skipped.</p>
+<p>For variable font variants, <code>extra_hash()</code> adds the variant name to the
+hash, forcing re-export when the active variant changes even if the font file
+is unchanged.</p>
 <p>This means:</p>
 <ul>
-<li><strong>Fresh clone</strong>: <code>metadata.json</code> missing → export runs (~2 seconds)</li>
+<li><strong>Fresh clone</strong>: hash missing → export runs</li>
 <li><strong>Font updated</strong>: hash differs → export runs automatically</li>
 <li><strong>No changes</strong>: hash matches → export skipped (fast incremental build)</li>
-<li><strong>Deleted generated files</strong>: <code>metadata.json</code> missing → export runs</li>
+<li><strong>Variant changed</strong>: extra hash differs → export runs</li>
 </ul>
 <p>No manual <code>rm -rf</code> or <code>cargo clean</code> is needed when updating the font file.</p>
-<h2 id="cli-binary"><a class="header" href="#cli-binary">CLI Binary</a></h2>
-<p>The <code>export_icons</code> binary provides a command-line interface to the same
-export logic. It is part of the <code>nerd-fonts-generator</code> crate:</p>
-<pre><code class="language-sh">cargo run -p nerd-fonts-generator --bin export_icons -- &lt;font.ttf&gt; -o &lt;output_dir&gt;/
-</code></pre>
-<p>For example, to export from the bundled Symbols Nerd Font to a custom
-directory:</p>
-<pre><code class="language-sh">cargo run -p nerd-fonts-generator --bin export_icons -- \
-    resources/NerdFontsSymbolsOnly/SymbolsNerdFont-Regular.ttf \
-    -o /tmp/my-icons/
-</code></pre>
-<h2 id="library-api"><a class="header" href="#library-api">Library API</a></h2>
-<p>The export functionality is available as a public API for library users
-who want to generate SVG icons programmatically:</p>
-<pre><code class="language-rust ignore">use nerd_fonts_generator::export_icons;
+<h2 id="two-export-methods"><a class="header" href="#two-export-methods">Two Export Methods</a></h2>
+<h3 id="exportconfigexport_glyphs-struct-method"><a class="header" href="#exportconfigexport_glyphs-struct-method"><code>ExportConfig::export_glyphs</code> (struct method)</a></h3>
+<p>Used by most font family crates. Normalizes glyph names to
+<code>{glyph_name_prefix}-{kebab}</code> and renders SVGs with the configured axis
+location. Supports <code>name_filter</code> for custom glyph filtering.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let config = ExportConfig::&lt;DotoConfig&gt;::with_variant(*entry);
 
-let count = export_icons(
-    std::path::Path::new("font.ttf"),
-    std::path::Path::new("output/"),
-).expect("Failed to export icons");
+FontBuild::new(&amp;font_path)
+    .extra_hash(entry.as_str())
+    .run(|font_path, resources_dir| config.export_glyphs(font_path, resources_dir))
+    .map_err(|e| miette::miette!("{e}"))?;
+<span class="boring">}</span></code></pre>
+<h3 id="exportconfigexport_glyphs_by_name_map-struct-method"><a class="header" href="#exportconfigexport_glyphs_by_name_map-struct-method"><code>ExportConfig::export_glyphs_by_name_map</code> (struct method)</a></h3>
+<p>Used by fonts without PostScript glyph names (e.g. SMuFL fonts with <code>post</code>
+table version 3.0). Glyph names come from an external metadata file parsed
+into a <code>GlyphNameMap</code>.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let name_map: GlyphNameMap = serde_json::from_str(&amp;glyphnames_json)?;
+let config = ExportConfig::&lt;BravuraConfig&gt;::new();
 
-println!("Exported {} icons", count);</code></pre>
-<p>This uses the <code>nerd-fonts-generator</code> crate:</p>
-<pre><code class="language-toml">[dependencies]
-nerd-fonts-generator = "0.1"
-</code></pre>
+FontBuild::new(&amp;font_path)
+    .run(|font_path, resources_dir| {
+        config.export_glyphs_by_name_map(font_path, resources_dir, &amp;name_map)
+    })
+    .map_err(|e| miette::miette!("{e}"))?;
+<span class="boring">}</span></code></pre>
+<h3 id="fontdefinitionexport_glyphs-trait-default-method"><a class="header" href="#fontdefinitionexport_glyphs-trait-default-method"><code>FontDefinition::export_glyphs</code> (trait default method)</a></h3>
+<p>Used by font families with semantic PostScript glyph names (e.g. Barcode,
+Seven-Segment). Uses <code>Self::normalize_name</code> for type-safe glyph names and
+renders SVGs at the default axis location.</p>
 <h2 id="how-it-works"><a class="header" href="#how-it-works">How It Works</a></h2>
 <h3 id="glyph-outline-extraction"><a class="header" href="#glyph-outline-extraction">Glyph Outline Extraction</a></h3>
-<p>The export uses <code>ttf_parser::Face::outline_glyph()</code> with a custom
-<code>OutlineBuilder</code> implementation that converts Bezier curve commands
-directly into SVG path data:</p>
+<p>The export uses <code>skrifa</code> to parse font outlines and convert Bezier curve
+commands directly into SVG path data:</p>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -285,43 +291,41 @@ directly into SVG path data:</p>
 </table>
 </div>
 <p>Both TrueType (<code>glyf</code>) and OpenType/CFF outlines are supported transparently
-by <code>ttf-parser</code>.</p>
+by <code>skrifa</code>.</p>
 <h3 id="codepoint-resolution"><a class="header" href="#codepoint-resolution">Codepoint Resolution</a></h3>
-<p>Nerd Fonts use codepoints across multiple Unicode ranges:</p>
+<p>The export builds a reverse character map (GlyphId → char) by probing
+codepoints in the ranges defined by <code>FontFamilyConfig::CODEPOINT_RANGES</code>:</p>
 <ul>
-<li><strong>BMP PUA</strong>: U+E000–U+F8FF (most icons)</li>
-<li><strong>Miscellaneous Technical</strong>: U+23FB–U+23FE (IEC power symbols)</li>
-<li><strong>Miscellaneous Symbols and Arrows</strong>: U+2B58</li>
-<li><strong>Supplementary PUA</strong>: U+F0001–U+10FFFF</li>
+<li><code>BMP_RANGE</code> - <code>U+0000</code>–<code>U+FFFF</code> (default, most fonts)</li>
+<li><code>ASCII_PRINTABLE_RANGE</code> - <code>U+0020</code>–<code>U+007E</code> (barcode, segment fonts)</li>
+<li><code>PUA_RANGE</code> - <code>U+E000</code>–<code>U+F8FF</code> (icon fonts, SMuFL)</li>
+<li><code>SUPPLEMENTARY_PUA_RANGE</code> - <code>U+F0001</code>–<code>U+10FFFF</code> (Nerd Fonts)</li>
 </ul>
-<p>The export builds a reverse character map (GlyphId → char) by probing all BMP
-codepoints (U+0000–U+FFFF) plus the supplementary PUA. This takes ~17ms total
-at ~16ns per <code>glyph_index()</code> lookup.</p>
 <h3 id="name-normalization"><a class="header" href="#name-normalization">Name Normalization</a></h3>
-<p>Glyph names from the font’s <code>post</code>/<code>CFF</code> tables are normalized to GTK-friendly
-icon names:</p>
+<p>Glyph names from the font’s <code>post</code>/<code>CFF</code> tables are normalized to
+GTK-friendly icon names:</p>
 <ol>
 <li>Lowercase</li>
 <li>Replace <code>_</code> with <code>-</code></li>
 <li>Replace non-alphanumeric characters (except <code>-</code>) with <code>-</code></li>
 <li>Collapse consecutive <code>-</code></li>
 <li>Strip leading/trailing <code>-</code></li>
-<li>Prefix with <code>nf-</code> and suffix with <code>-symbolic</code></li>
+<li>Prefix with <code>{glyph_name_prefix}-</code> (e.g. <code>doto-</code>, <code>dseg7-</code>)</li>
 </ol>
-<p>Example: <code>uniF11B</code> → <code>nf-f11b-symbolic</code></p>
+<p>For Nerd Fonts, the prefix is <code>nf-</code> and the suffix <code>-symbolic</code> is added.</p>
 <h3 id="empty-glyphs"><a class="header" href="#empty-glyphs">Empty Glyphs</a></h3>
 <p>Some glyphs (e.g. <code>nonmarkingreturn</code>, <code>blank</code>) have no outline data. These
 are exported as minimal empty SVGs so their icon names remain registered in
 <code>metadata.json</code>.</p>
 <h2 id="crate-structure"><a class="header" href="#crate-structure">Crate Structure</a></h2>
-<p>The export logic lives in the <code>nerd-fonts-generator</code> crate, which provides
-<code>ttf-parser</code>, <code>clap</code>, <code>serde</code>, and <code>serde_json</code> as dependencies for the library
-API and CLI binary. It is a build-dependency of <code>nerd-fonts-rs</code> so that
-<code>build.rs</code> can run the export automatically.</p>
-<pre><code class="language-toml"># nerd-fonts-rs/Cargo.toml (build-dependency)
+<p>The export logic lives in the <code>fonts-rs-generator</code> crate:</p>
+<pre><code class="language-toml"># Font family crate's Cargo.toml (build-dependency)
 [build-dependencies]
-nerd-fonts-generator.workspace = true
+fonts-rs-generator.workspace = true
+fonts-rs-model.workspace = true
+miette.workspace = true
 </code></pre>
+<p>See <a href="./build-patterns.html">Build Patterns</a> for complete <code>build.rs</code> examples.</p>
 
                     </main>
 

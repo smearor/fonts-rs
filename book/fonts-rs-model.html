@@ -3,8 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Page not found - fonts-rs Documentation</title>
-        <base href="/">
+        <title>Framework API - fonts-rs Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -178,14 +177,246 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="document-not-found-404"><a class="header" href="#document-not-found-404">Document not found (404)</a></h1>
-<p>This URL is invalid, sorry. Please use the navigation bar or search to continue.</p>
+                        <h1 id="fonts-rs-model---generic-model-types"><a class="header" href="#fonts-rs-model---generic-model-types"><code>fonts-rs-model</code> - Generic Model Types</a></h1>
+<p>The <code>fonts-rs-model</code> crate provides font-family-agnostic types shared across
+all <code>fonts-rs-*</code> crates. These types are the foundation of the modular fonts
+framework, enabling any font family crate to use the same build pipeline
+without Nerd Fonts dependencies.</p>
+<h2 id="fontfamily-marker-trait"><a class="header" href="#fontfamily-marker-trait"><code>FontFamily</code> (Marker Trait)</a></h2>
+<p>A sealed marker trait that identifies each font family at compile time.
+Each font family crate defines a zero-sized enum implementing <code>FontFamily</code>
+and the private <code>Sealed</code> trait. This prevents external crates from defining
+their own font family markers.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait FontFamily: sealed::Sealed {}
+<span class="boring">}</span></code></pre>
+<p>Used as the phantom type parameter in <code>GlyphName&lt;F&gt;</code>, so that
+<code>GlyphName&lt;Doto&gt;</code> and <code>GlyphName&lt;SevenSegment&gt;</code> are distinct types at
+compile time - preventing mix-ups between font families.</p>
+<h3 id="example"><a class="header" href="#example">Example</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use fonts_rs_model::FontFamily;
+use fonts_rs_model::sealed;
+
+pub enum Doto {}
+
+impl FontFamily for Doto {}
+impl sealed::Sealed for Doto {}
+<span class="boring">}</span></code></pre>
+<h2 id="fontfamilyconfig-trait"><a class="header" href="#fontfamilyconfig-trait"><code>FontFamilyConfig</code> (Trait)</a></h2>
+<p>Base configuration for all font families. Provides compile-time constants
+for GResource prefixes, icon context directories, and codepoint ranges.
+Used by both <code>FontDefinition</code> (type-safe glyph names) and <code>ExportConfig</code>
+(runtime variant pipeline).</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait FontFamilyConfig {
+    const FONT_FAMILY_NAME: &amp;'static str;
+    const FAMILY_DISPLAY_NAME: &amp;'static str;
+    const GRESOURCE_PREFIX: &amp;'static str;
+    const ICONS_CONTEXT: &amp;'static str = ICONS_CONTEXT_GLYPHS;
+    const CODEPOINT_RANGES: &amp;[CodePointRange] = &amp;[BMP_RANGE];
+
+    fn icons_dir(output_dir: &amp;Path) -&gt; PathBuf { ... }
+    fn prepare_icons_dir(output_dir: &amp;Path) -&gt; std::io::Result&lt;PathBuf&gt; { ... }
+    fn icons_resource_prefix() -&gt; String { ... }
+}
+<span class="boring">}</span></code></pre>
+<h3 id="constants"><a class="header" href="#constants">Constants</a></h3>
+<ul>
+<li><strong><code>FONT_FAMILY_NAME</code></strong>: Slug for GResource prefix and glyph names (e.g.
+<code>"doto"</code>, <code>"dseg7"</code>)</li>
+<li><strong><code>FAMILY_DISPLAY_NAME</code></strong>: Human-readable name for build logs (e.g.
+<code>"Doto"</code>, <code>"DSEG7"</code>)</li>
+<li><strong><code>GRESOURCE_PREFIX</code></strong>: Full GResource prefix (e.g.
+<code>/io/smearor/fonts/doto</code>)</li>
+<li><strong><code>ICONS_CONTEXT</code></strong>: Subdirectory after <code>scalable/</code> - default <code>"glyphs"</code>,
+override e.g. <code>"emoji"</code> for Noto Emoji</li>
+<li><strong><code>CODEPOINT_RANGES</code></strong>: Unicode ranges for reverse cmap probing -
+default BMP, override e.g. <code>ASCII_PRINTABLE_RANGE</code> for barcode fonts</li>
+</ul>
+<h3 id="methods"><a class="header" href="#methods">Methods</a></h3>
+<ul>
+<li><strong><code>prepare_icons_dir</code></strong>: Removes the <code>scalable/{context}/</code> directory and
+recreates it (avoids stale SVGs from previous builds)</li>
+<li><strong><code>icons_dir</code></strong>: Returns the path to <code>scalable/{context}/</code> within the
+output directory</li>
+</ul>
+<h2 id="fontdefinition-trait"><a class="header" href="#fontdefinition-trait"><code>FontDefinition</code> (Trait)</a></h2>
+<p>Extends <code>FontFamilyConfig</code> with type-safe glyph name processing and a
+default <code>export_glyphs</code> pipeline. Used by font families with semantic
+PostScript glyph names (e.g. Barcode, Seven-Segment).</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait FontDefinition: FontFamilyConfig {
+    type Name: AsRef&lt;str&gt; + Clone + Ord + Serialize + for&lt;'a&gt; Deserialize&lt;'a&gt;;
+    type Family: FontFamily;
+
+    fn normalize_name(raw_glyph_name: &amp;str) -&gt; Option&lt;Self::Name&gt;;
+    fn should_skip(raw_glyph_name: &amp;str) -&gt; bool { ... }
+    fn generate_gresource_xml(...) -&gt; std::io::Result&lt;()&gt; { ... }
+    fn export_glyphs(font_path: &amp;Path, output_dir: &amp;Path) -&gt; std::io::Result&lt;usize&gt; { ... }
+}
+<span class="boring">}</span></code></pre>
+<h3 id="associated-types"><a class="header" href="#associated-types">Associated Types</a></h3>
+<ul>
+<li><strong><code>Name</code></strong>: Glyph name type - <code>GlyphName&lt;Self::Family&gt;</code> for simple
+families, <code>IconName</code> for Nerd Fonts</li>
+<li><strong><code>Family</code></strong>: Font family marker (e.g. <code>Doto</code>, <code>SevenSegment</code>)</li>
+</ul>
+<h3 id="methods-1"><a class="header" href="#methods-1">Methods</a></h3>
+<ul>
+<li><strong><code>normalize_name</code></strong>: Raw glyph name → normalized name (e.g.
+<code>"zero"</code> → <code>"dseg7-0"</code>)</li>
+<li><strong><code>should_skip</code></strong>: Filter for glyph names to skip (default: <code>.</code>, <code>uni</code>,
+<code>u</code> - overridable)</li>
+<li><strong><code>export_glyphs</code></strong>: Default pipeline: SVG export, <code>metadata.json</code>,
+<code>icons.gresource.xml</code></li>
+</ul>
+<h2 id="fontvariant"><a class="header" href="#fontvariant"><code>FontVariant</code></a></h2>
+<p>Identifies a font variant (e.g. <code>"classic-regular"</code>, <code>"bold-dot"</code>) and
+describes how it is realized: separate file, variable font axes, or both.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct FontVariant {
+    name: &amp;'static str,
+    variant_type: FontVariantType,
+}
+<span class="boring">}</span></code></pre>
+<h3 id="constructors"><a class="header" href="#constructors">Constructors</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Separate file, no axes
+FontVariant::file("classic-regular", "DSEG7Classic-Regular");
+
+// Shared file, axes only (variable font)
+FontVariant::axes("bold-dot", &amp;[AxisValue::new("wght", 700.0), AxisValue::new("ROND", 100.0)]);
+
+// Separate file with additional axes
+FontVariant::file_with_axes("bold-extended", "MyFont-Bold", &amp;[AxisValue::new("wdth", 125.0)]);
+<span class="boring">}</span></code></pre>
+<h3 id="methods-2"><a class="header" href="#methods-2">Methods</a></h3>
+<ul>
+<li><strong><code>is_active()</code></strong>: Checks the <code>CARGO_FEATURE_{NAME}</code> environment variable</li>
+<li><strong><code>slug()</code></strong>: Variant name with <code>_</code> instead of <code>-</code> (for GResource paths)</li>
+<li><strong><code>axis_values()</code></strong>: Returns the axis configuration</li>
+<li><strong><code>font_file()</code></strong>: Returns the font file (if separate)</li>
+</ul>
+<h2 id="fontvarianttype"><a class="header" href="#fontvarianttype"><code>FontVariantType</code></a></h2>
+<p>Describes how a variant is realized:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct FontVariantType {
+    pub font_file: Option&lt;FontFile&gt;,
+    pub axis_values: AxisValues,
+}
+<span class="boring">}</span></code></pre>
+<ul>
+<li><strong><code>file()</code></strong>: Separate file, no axes</li>
+<li><strong><code>axes()</code></strong>: Shared file, axes only (variable font)</li>
+<li><strong><code>file_with_axes()</code></strong>: Separate file with additional axes</li>
+</ul>
+<h2 id="axes-axis-axisvalue-axisvalues"><a class="header" href="#axes-axis-axisvalue-axisvalues">Axes (<code>Axis</code>, <code>AxisValue</code>, <code>AxisValues</code>)</a></h2>
+<p>Variable font axis identification and values:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct Axis(&amp;'static str);  // e.g. "wght", "ROND"
+
+pub struct AxisValue {
+    pub axis: Axis,
+    pub value: f32,
+}
+
+pub struct AxisValues(&amp;'static [AxisValue]);
+<span class="boring">}</span></code></pre>
+<ul>
+<li><code>AxisValues::EMPTY</code> - default location (no axes)</li>
+<li><code>AxisValues</code> is <code>const</code>-compatible for <code>VARIANTS</code> arrays in <code>build.rs</code></li>
+<li><code>Deref</code> to <code>[AxisValue]</code> for iteration</li>
+</ul>
+<h2 id="codepointrange"><a class="header" href="#codepointrange"><code>CodePointRange</code></a></h2>
+<p>An inclusive Unicode range for reverse cmap probing:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct CodePointRange {
+    start: CodePoint,
+    end: CodePoint,
+}
+<span class="boring">}</span></code></pre>
+<p>Predefined constants in <code>fonts-rs-model</code>:</p>
+<ul>
+<li><code>BMP_RANGE</code> - <code>U+0000</code>–<code>U+FFFF</code> (Default)</li>
+<li><code>ASCII_PRINTABLE_RANGE</code> - <code>U+0020</code>–<code>U+007E</code></li>
+<li><code>PUA_RANGE</code> - <code>U+E000</code>–<code>U+F8FF</code></li>
+<li><code>SUPPLEMENTARY_PUA_RANGE</code> - <code>U+F0001</code>–<code>U+10FFFF</code></li>
+</ul>
+<h2 id="codepoint-map-types"><a class="header" href="#codepoint-map-types">Codepoint Map Types</a></h2>
+<p>Newtype wrappers around <code>HashMap</code> for type-safe lookups:</p>
+<ul>
+<li><strong><code>CodePointCategoryMap</code></strong> - <code>HashMap&lt;CodePoint, String&gt;</code>: codepoint →
+category (e.g. from <code>emoji-test.txt</code>)</li>
+<li><strong><code>CodePointKeywordMap</code></strong> - <code>HashMap&lt;CodePoint, Vec&lt;String&gt;&gt;</code>: codepoint →
+keyword list (e.g. from CLDR annotations)</li>
+<li><strong><code>CodePointNameMap</code></strong> - <code>HashMap&lt;CodePoint, String&gt;</code>: codepoint →
+canonical name (e.g. from CLDR <code>tts</code> fields)</li>
+<li><strong><code>GlyphNameMap</code></strong> - <code>HashMap&lt;String, CodePoint&gt;</code>: glyph name →
+codepoint (e.g. from SMuFL <code>glyphnames.json</code>). Implements <code>Deserialize</code>
+for the SMuFL JSON format <code>{ "glyphName": { "codepoint": "U+E050", ... } }</code>.</li>
+</ul>
+<h2 id="glyphentryn"><a class="header" href="#glyphentryn"><code>GlyphEntry&lt;N&gt;</code></a></h2>
+<p>Metadata for a single exported glyph:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct GlyphEntry&lt;N: AsRef&lt;str&gt;&gt; {
+    pub code: Option&lt;CodePoint&gt;,
+    pub name: N,
+    pub file: PathBuf,
+    pub resource_path: ResourcePath,
+}
+<span class="boring">}</span></code></pre>
+<ul>
+<li><code>GlyphEntry::new(code, name, gresource_prefix, icons_context)</code> -
+constructs <code>file</code> and <code>resource_path</code> automatically from prefix, context,
+and name</li>
+<li>Generic over <code>N</code>: <code>GlyphName&lt;F&gt;</code> for type-safe families, <code>String</code> for
+the <code>ExportConfig</code> pipeline, <code>IconName</code> for Nerd Fonts</li>
+</ul>
+<h2 id="glyphnamef"><a class="header" href="#glyphnamef"><code>GlyphName&lt;F&gt;</code></a></h2>
+<p>Phantom-typed glyph name newtype:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct GlyphName&lt;F: FontFamily&gt; {
+    name: String,
+    _marker: PhantomData&lt;F&gt;,
+}
+<span class="boring">}</span></code></pre>
+<p>Implements <code>AsRef&lt;str&gt;</code>, <code>Display</code>, <code>Serialize</code>, <code>Deserialize</code>, <code>Hash</code>, <code>Eq</code>,
+<code>Ord</code>. Construction via <code>GlyphName::new(String)</code> after normalization.</p>
+<p>Each font family crate defines a type alias:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub type DotoName = GlyphName&lt;Doto&gt;;
+<span class="boring">}</span></code></pre>
+<h2 id="fontfile"><a class="header" href="#fontfile"><code>FontFile</code></a></h2>
+<p>A font file name without extension, e.g. <code>"DSEG7Classic-Regular"</code>, <code>"Doto"</code>.
+Wraps a <code>&amp;'static str</code> for type-safe font file references in build scripts.</p>
+<h2 id="resourcepath"><a class="header" href="#resourcepath"><code>ResourcePath</code></a></h2>
+<p>A GResource resource path (e.g. <code>/io/smearor/fonts/doto/scalable/glyphs/doto-a.svg</code>).
+Used by <code>GlyphEntry</code> to store the GResource URI for each exported glyph.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="architecture.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
 
+                            <a rel="next prefetch" href="fonts-rs-generator.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -193,7 +424,13 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="architecture.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
 
+                    <a rel="next prefetch" href="fonts-rs-generator.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
             </nav>
 
         </div>

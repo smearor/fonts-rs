@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-0a1d92bd.js";
+            window.path_to_searchindex_js = "searchindex-32bca81d.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-329f0481.js"></script>
+        <script src="toc-cbc065de.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -202,8 +202,16 @@ verified by CI on every push and pull request.</p>
 no system libraries are required beyond a Rust toolchain.</p>
 <h2 id="installation"><a class="header" href="#installation">Installation</a></h2>
 <h3 id="from-cratesio"><a class="header" href="#from-cratesio">From crates.io</a></h3>
+<p>Each font family is a separate crate. Add the ones you need:</p>
 <pre><code class="language-toml">[dependencies]
+# Nerd Fonts (icon name resolution, GTK4 integration)
 nerd-fonts-rs = "0.1"
+
+# Specific font families
+fonts-rs-doto = "0.1"
+fonts-rs-bravura = "0.1"
+fonts-rs-seven-segment = "0.1"
+fonts-rs-noto-emoji = "0.1"
 </code></pre>
 <h3 id="from-source"><a class="header" href="#from-source">From Source</a></h3>
 <pre><code class="language-bash">git clone https://github.com/smearor/fonts-rs.git
@@ -211,11 +219,21 @@ cd fonts-rs
 cargo build --release
 </code></pre>
 <h2 id="feature-selection"><a class="header" href="#feature-selection">Feature Selection</a></h2>
-<p>Choose only the features you need:</p>
+<p>Each font family crate provides the same feature gates:</p>
 <pre><code class="language-toml"># GTK4 integration (default)
-nerd-fonts-rs = "0.1"
+fonts-rs-doto = "0.1"
 
-# GTK4 with 4.12+ APIs
+# GTK4 + software rendering + embedded fonts
+fonts-rs-doto = { version = "0.1", features = ["gtk", "render", "embed-fonts"] }
+
+# Software rendering only (no GTK)
+fonts-rs-doto = { version = "0.1", default-features = false, features = ["render"] }
+
+# Variable font variant selection (Doto example)
+fonts-rs-doto = { version = "0.1", features = ["bold-dot"] }
+</code></pre>
+<p>For Nerd Fonts specifically:</p>
+<pre><code class="language-toml"># GTK4 with 4.12+ APIs
 nerd-fonts-rs = { version = "0.1", features = ["gtk", "v4_12"] }
 
 # Font loading only (no GTK)
@@ -226,12 +244,24 @@ nerd-fonts-rs = { version = "0.1", default-features = false, features = ["web"] 
 
 # Icon metadata (keywords &amp; categories)
 nerd-fonts-rs = { version = "0.1", features = ["metadata"] }
-
-# Everything + embedded fonts
-nerd-fonts-rs = { version = "0.1", features = ["gtk", "v4_12", "render", "web", "embed-fonts", "metadata"] }
 </code></pre>
 <h2 id="quick-start"><a class="header" href="#quick-start">Quick Start</a></h2>
-<h3 id="gtk4-application"><a class="header" href="#gtk4-application">GTK4 Application</a></h3>
+<h3 id="font-family-crate-eg-doto"><a class="header" href="#font-family-crate-eg-doto">Font Family Crate (e.g. Doto)</a></h3>
+<pre class="playground"><code class="language-rust">use fonts_rs_doto::register_glyphs;
+use fonts_rs_doto::GlyphNameExt;
+use fonts_rs_doto::DotoName;
+
+fn main() {
+    // Register GResource (gtk feature)
+    register_glyphs().unwrap();
+
+    // Look up a glyph by name
+    let name = DotoName::new("doto-a".to_string());
+    if let Some(codepoint) = name.codepoint() {
+        println!("Glyph codepoint: U+{:04X}", codepoint as u32);
+    }
+}</code></pre>
+<h3 id="nerd-fonts-nerd-fonts-rs"><a class="header" href="#nerd-fonts-nerd-fonts-rs">Nerd Fonts (nerd-fonts-rs)</a></h3>
 <pre class="playground"><code class="language-rust">use nerd_fonts_rs::{init, resolve_icon_codepoint};
 
 fn main() {

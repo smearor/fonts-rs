@@ -3,8 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Page not found - fonts-rs Documentation</title>
-        <base href="/">
+        <title>Adding a Font Family - fonts-rs Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -178,14 +177,383 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="document-not-found-404"><a class="header" href="#document-not-found-404">Document not found (404)</a></h1>
-<p>This URL is invalid, sorry. Please use the navigation bar or search to continue.</p>
+                        <h1 id="adding-a-new-font-family"><a class="header" href="#adding-a-new-font-family">Adding a New Font Family</a></h1>
+<p>This guide walks through creating a new font family crate in the
+<code>fonts-rs</code> workspace. The process is designed to require minimal
+boilerplate - most of the build pipeline is handled by the generic
+framework in <code>fonts-rs-generator</code>.</p>
+<h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
+<p>A font family crate integrates a TTF/OTF font into the <code>fonts-rs</code>
+ecosystem, providing:</p>
+<ul>
+<li>Build-time glyph export to SVG files</li>
+<li>GResource bundle compilation for GTK</li>
+<li>Codepoint map generation (<code>phf::Map</code>)</li>
+<li>Runtime glyph name resolution and GResource registration</li>
+<li>Optional software rendering via <code>ab_glyph</code></li>
+</ul>
+<h2 id="step-1-create-the-crate"><a class="header" href="#step-1-create-the-crate">Step 1: Create the Crate</a></h2>
+<p>Create a new directory under <code>crates/</code>:</p>
+<pre><code>crates/fonts-rs-{name}/
+├── Cargo.toml
+├── build.rs
+├── resources/
+│   └── {font}.ttf
+└── src/
+    ├── lib.rs
+    ├── definition.rs
+    ├── naming.rs
+    ├── variant.rs
+    ├── codepoint_map.rs
+    ├── constants.rs
+    └── fonts.rs       (optional)
+</code></pre>
+<h2 id="step-2-bundle-the-font-file"><a class="header" href="#step-2-bundle-the-font-file">Step 2: Bundle the Font File</a></h2>
+<p>Place the TTF/OTF font file and its license into <code>resources/</code>:</p>
+<pre><code>resources/
+├── MyFont-Regular.ttf
+└── OFL.txt            (or appropriate license)
+</code></pre>
+<h2 id="step-3-write-definitionrs"><a class="header" href="#step-3-write-definitionrs">Step 3: Write <code>definition.rs</code></a></h2>
+<p>Implement <code>FontFamilyConfig</code> with the family’s constants:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>//! `FontFamilyConfig` for the MyFont font family.
+
+use const_format::concatcp;
+use fonts_rs_generator::FontFamilyConfig;
+use fonts_rs_model::CodePointRange;
+use fonts_rs_model::GRESOURCE_BASE_PREFIX;
+use fonts_rs_model::PUA_RANGE;
+
+pub struct MyFontConfig;
+
+impl FontFamilyConfig for MyFontConfig {
+    const FONT_FAMILY_NAME: &amp;'static str = "myfont";
+    const FAMILY_DISPLAY_NAME: &amp;'static str = "MyFont";
+    const GRESOURCE_PREFIX: &amp;'static str = concatcp!(GRESOURCE_BASE_PREFIX, "/", MyFontConfig::FONT_FAMILY_NAME);
+    const CODEPOINT_RANGES: &amp;[CodePointRange] = &amp;[PUA_RANGE];
+}
+<span class="boring">}</span></code></pre>
+<p>Choose <code>CODEPOINT_RANGES</code> based on the font’s Unicode coverage:</p>
+<ul>
+<li><code>BMP_RANGE</code> - full BMP (default, most fonts)</li>
+<li><code>ASCII_PRINTABLE_RANGE</code> - barcode fonts, seven-segment display fonts</li>
+<li><code>PUA_RANGE</code> - SMuFL music fonts, icon fonts in the Private Use Area</li>
+</ul>
+<h2 id="step-4-write-namingrs"><a class="header" href="#step-4-write-namingrs">Step 4: Write <code>naming.rs</code></a></h2>
+<p>Define the <code>FontFamily</code> marker enum and <code>GlyphName&lt;F&gt;</code> type alias:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>//! Font family marker type for MyFont.
+
+use fonts_rs_model::FontFamily;
+use fonts_rs_model::GlyphName;
+use fonts_rs_model::sealed;
+
+/// Marker type identifying MyFont in `GlyphName&lt;MyFont&gt;`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum MyFont {}
+
+impl FontFamily for MyFont {}
+impl sealed::Sealed for MyFont {}
+
+/// Convenience type alias for MyFont glyph names.
+pub type MyFontName = GlyphName&lt;MyFont&gt;;
+<span class="boring">}</span></code></pre>
+<h2 id="step-5-write-buildrs"><a class="header" href="#step-5-write-buildrs">Step 5: Write <code>build.rs</code></a></h2>
+<p>Choose the pattern that matches your font:</p>
+<h3 id="variable-font-with-variants"><a class="header" href="#variable-font-with-variants">Variable Font with Variants</a></h3>
+<p>If the font has multiple variants (e.g. weight/roundness combinations),
+use <code>VariantList</code> + <code>ExportConfig::with_variant</code>:</p>
+<pre class="playground"><code class="language-rust">use std::path::Path;
+
+use fonts_rs_generator::ExportConfig;
+use fonts_rs_generator::FontBuild;
+use fonts_rs_generator::VariantList;
+use fonts_rs_generator::build_constants;
+use fonts_rs_generator::set_font_path_env;
+use fonts_rs_model::AxisValue;
+use fonts_rs_model::FontVariant;
+
+#[path = "src/definition.rs"]
+mod definition;
+use definition::MyFontConfig;
+
+const FONT_FILE: &amp;str = "MyFont.ttf";
+
+const VARIANTS: VariantList&lt;MyFontConfig&gt; = VariantList::new(&amp;[
+    FontVariant::axes("regular", &amp;[AxisValue::new("wght", 400.0)]),
+    FontVariant::axes("bold", &amp;[AxisValue::new("wght", 700.0)]),
+]);
+
+fn main() -&gt; miette::Result&lt;()&gt; {
+    let entry = VARIANTS.detect_and_get_active_variant(0)?;
+    let font_path = Path::new(build_constants::RESOURCES_DIR).join(FONT_FILE);
+
+    set_font_path_env("MYFONT_FONT_PATH", &amp;font_path)?;
+
+    let config = ExportConfig::&lt;MyFontConfig&gt;::with_variant(*entry);
+
+    FontBuild::new(&amp;font_path)
+        .extra_hash(entry.as_str())
+        .run(|font_path, resources_dir| config.export_glyphs(font_path, resources_dir))
+        .map_err(|e| miette::miette!("{e}"))?;
+
+    config.write_variant_info()?;
+    Ok(())
+}</code></pre>
+<h3 id="static-font-no-variants"><a class="header" href="#static-font-no-variants">Static Font (No Variants)</a></h3>
+<p>If the font has a single style, use <code>ExportConfig::new()</code>:</p>
+<pre class="playground"><code class="language-rust">use std::path::Path;
+
+use fonts_rs_generator::ExportConfig;
+use fonts_rs_generator::FontBuild;
+use fonts_rs_generator::build_constants;
+use fonts_rs_generator::set_font_path_env;
+
+#[path = "src/definition.rs"]
+mod definition;
+use definition::MyFontConfig;
+
+const FONT_FILE: &amp;str = "MyFont-Regular.ttf";
+
+fn main() -&gt; miette::Result&lt;()&gt; {
+    let font_path = Path::new(build_constants::RESOURCES_DIR).join(FONT_FILE);
+
+    set_font_path_env("MYFONT_FONT_PATH", &amp;font_path)?;
+
+    let config = ExportConfig::&lt;MyFontConfig&gt;::new();
+
+    FontBuild::new(&amp;font_path)
+        .run(|font_path, resources_dir| config.export_glyphs(font_path, resources_dir))
+        .map_err(|e| miette::miette!("{e}"))?;
+
+    config.write_variant_info()?;
+    Ok(())
+}</code></pre>
+<h3 id="font-with-external-name-map"><a class="header" href="#font-with-external-name-map">Font with External Name Map</a></h3>
+<p>If the font lacks PostScript glyph names (e.g. SMuFL fonts), use
+<code>export_glyphs_by_name_map</code> with an external metadata file:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use fonts_rs_model::GlyphNameMap;
+
+// Parse external metadata (e.g. SMuFL glyphnames.json)
+let name_map: GlyphNameMap = serde_json::from_str(&amp;json)?;
+
+let config = ExportConfig::&lt;MyFontConfig&gt;::new();
+
+FontBuild::new(&amp;font_path)
+    .run(|font_path, resources_dir| {
+        config.export_glyphs_by_name_map(font_path, resources_dir, &amp;name_map)
+    })
+    .map_err(|e| miette::miette!("{e}"))?;
+<span class="boring">}</span></code></pre>
+<h2 id="step-6-write-librs"><a class="header" href="#step-6-write-librs">Step 6: Write <code>lib.rs</code></a></h2>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>//! MyFont font integration for GTK 4.
+
+pub mod codepoint_map;
+pub mod constants;
+pub mod naming;
+pub mod variant;
+
+#[cfg(feature = "render")]
+pub mod fonts;
+
+use fonts_rs_model::CodePoint;
+
+pub use naming::MyFontName;
+
+/// Type alias for this font family's glyph name type.
+pub type FamilyName = MyFontName;
+
+/// Extension trait adding codepoint lookup to `GlyphName&lt;MyFont&gt;`.
+pub trait GlyphNameExt {
+    fn codepoint(&amp;self) -&gt; Option&lt;CodePoint&gt;;
+}
+
+impl GlyphNameExt for MyFontName {
+    fn codepoint(&amp;self) -&gt; Option&lt;CodePoint&gt; {
+        let key = self.as_ref();
+        if let Some(ch) = codepoint_map::REVERSE_GLYPHS.get(key).copied() {
+            return Some(CodePoint::from(ch));
+        }
+        let full = format!("{}-{}", variant::GLYPH_PREFIX, key);
+        codepoint_map::REVERSE_GLYPHS.get(&amp;full).copied().map(CodePoint::from)
+    }
+}
+
+/// Registers embedded glyphs as a GResource.
+#[cfg(feature = "gtk")]
+pub fn register_glyphs() -&gt; Result&lt;(), gio::glib::Error&gt; {
+    gio::resources_register_include!("icons.gresource")?;
+    Ok(())
+}
+
+/// Returns an iterator over all known glyphs.
+pub fn all_glyphs() -&gt; impl Iterator&lt;Item = (char, &amp;'static str)&gt; {
+    codepoint_map::GLYPHS.entries().map(|(c, name)| (*c, *name))
+}
+<span class="boring">}</span></code></pre>
+<h3 id="generated-module-stubs"><a class="header" href="#generated-module-stubs">Generated Module Stubs</a></h3>
+<p>Create these stub files that <code>include!</code> the generated code:</p>
+<p><strong><code>src/codepoint_map.rs</code></strong>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>include!(concat!(env!("OUT_DIR"), "/codemap.rs"));
+<span class="boring">}</span></code></pre>
+<p><strong><code>src/constants.rs</code></strong>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>include!(concat!(env!("OUT_DIR"), "/icons.rs"));
+<span class="boring">}</span></code></pre>
+<p><strong><code>src/variant.rs</code></strong>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>include!(concat!(env!("OUT_DIR"), "/variant.rs"));
+<span class="boring">}</span></code></pre>
+<p><strong><code>src/fonts.rs</code></strong> (optional, for <code>render</code> feature):</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fonts_rs_generator::impl_font_loader!(env: "MYFONT_FONT_PATH");
+<span class="boring">}</span></code></pre>
+<h2 id="step-7-configure-cargotoml"><a class="header" href="#step-7-configure-cargotoml">Step 7: Configure <code>Cargo.toml</code></a></h2>
+<pre><code class="language-toml">[package]
+name = "fonts-rs-myfont"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "MyFont font integration for GTK 4 and pixel-drawing"
+publish = true
+
+# Font license
+license-file = "resources/OFL.txt"
+
+include = [
+    "src/**/*.rs",
+    "build.rs",
+    "resources/*.ttf",
+    "resources/OFL.txt",
+    "resources/icons.gresource.xml",
+    "Cargo.toml",
+]
+
+[features]
+default = ["gtk"]
+
+# Variant features (if applicable)
+regular = []
+bold = []
+
+gtk = ["dep:gtk4", "dep:gio"]
+render = ["dep:ab_glyph"]
+embed-fonts = []
+
+[dependencies]
+fonts-rs-generator.workspace = true
+fonts-rs-model.workspace = true
+gio = { workspace = true, optional = true }
+gtk4 = { workspace = true, optional = true }
+ab_glyph = { workspace = true, optional = true }
+phf.workspace = true
+tracing.workspace = true
+
+[build-dependencies]
+fonts-rs-generator.workspace = true
+fonts-rs-model.workspace = true
+const_format.workspace = true
+miette.workspace = true
+
+[lints]
+workspace = true
+</code></pre>
+<h2 id="step-8-update-workspace-cargotoml"><a class="header" href="#step-8-update-workspace-cargotoml">Step 8: Update Workspace <code>Cargo.toml</code></a></h2>
+<p>Add the new crate to the workspace members and dependencies:</p>
+<pre><code class="language-toml">[workspace]
+members = [
+    # ...
+    "crates/fonts-rs-myfont",
+]
+
+[workspace.dependencies]
+# ...
+fonts-rs-myfont = { version = "0.1.0", path = "crates/fonts-rs-myfont" }
+</code></pre>
+<h2 id="step-9-write-tests"><a class="header" href="#step-9-write-tests">Step 9: Write Tests</a></h2>
+<p>Add tests to <code>lib.rs</code> to verify the export:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn all_glyphs_is_not_empty() {
+        let count = all_glyphs().count();
+        assert!(count &gt; 0, "MyFont should export at least one glyph");
+    }
+
+    #[test]
+    fn all_glyphs_names_start_with_family_prefix() {
+        for (_, name) in all_glyphs() {
+            assert!(
+                name.starts_with("myfont-"),
+                "glyph name '{name}' should start with 'myfont-'"
+            );
+        }
+    }
+
+    #[test]
+    fn all_glyphs_names_are_lowercase() {
+        for (_, name) in all_glyphs() {
+            assert_eq!(*name, name.to_lowercase(), "glyph name '{name}' should be lowercase");
+        }
+    }
+
+    #[test]
+    fn all_glyphs_names_contain_no_underscores() {
+        for (_, name) in all_glyphs() {
+            assert!(!name.contains('_'), "glyph name '{name}' should not contain underscores");
+        }
+    }
+
+    #[test]
+    fn all_glyphs_codepoints_are_unique() {
+        let codepoints: Vec&lt;char&gt; = all_glyphs().map(|(c, _)| c).collect();
+        let unique: std::collections::HashSet&lt;char&gt; = codepoints.iter().copied().collect();
+        assert_eq!(codepoints.len(), unique.len(), "all codepoints should be unique");
+    }
+}
+<span class="boring">}</span></code></pre>
+<h2 id="verification"><a class="header" href="#verification">Verification</a></h2>
+<p>Build the crate and run tests:</p>
+<pre><code class="language-bash">cargo build -p fonts-rs-myfont
+cargo test -p fonts-rs-myfont
+cargo clippy -p fonts-rs-myfont -- -D warnings
+cargo fmt -p fonts-rs-myfont -- --check
+</code></pre>
+<p>Check the generated output:</p>
+<pre><code class="language-bash">ls resources/scalable/glyphs/*.svg | wc -l    # glyph count
+cat resources/metadata.json | head -20         # metadata preview
+</code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="build-patterns.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
 
+                            <a rel="next prefetch" href="icon-resolution.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -193,7 +561,13 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="build-patterns.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
 
+                    <a rel="next prefetch" href="icon-resolution.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
             </nav>
 
         </div>
