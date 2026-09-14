@@ -36,9 +36,7 @@ fn main() -> miette::Result<()> {
         .rerun_if_changed("resources/metadata/devicon.json")
         .rerun_if_changed("resources/metadata/octicons-keywords.json")
         .run_with(
-            |font_path, resources_dir| {
-                NerdFontsDefinition::export_glyphs(font_path, resources_dir).map_err(ExportError::from)
-            },
+            |font_path, resources_dir| NerdFontsDefinition::export_glyphs(font_path, resources_dir).map_err(ExportError::from),
             |json| {
                 let icons: Vec<GlyphEntry<IconName>> = serde_json::from_str(json)?;
 
