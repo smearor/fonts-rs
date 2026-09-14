@@ -5,7 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - 2026-09-11
+## [Unreleased]
+
+### Added
+
+- **Modular fonts framework**: generic `fonts-rs-model` and `fonts-rs-generator` crates providing a font-family-agnostic build pipeline for glyph export, SVG generation, GResource packaging, and code generation
+- **`FontFamily` sealed marker trait**: compile-time font family identity via phantom typing in `GlyphName<F>`
+- **`FontFamilyConfig` trait**: compile-time constants for GResource prefixes, icon contexts, codepoint ranges, and font family display names
+- **`FontDefinition` trait**: extends `FontFamilyConfig` with type-safe glyph name normalization (`normalize_name`), glyph filtering (`should_skip`), and default `export_glyphs` pipeline
+- **`ExportConfig<X>`**: runtime export configuration generic over `FontFamilyConfig`, decoupled from `FontDefinition`, supporting variant-specific parameters, `name_filter`, and two export methods (`export_glyphs` and `export_glyphs_by_name_map`)
+- **`FontBuild` builder**: hash-based change detection (FNV-1a), conditional export, GResource compilation, code generation (`codemap.rs`, `icons.rs`, `variant.rs`), and custom codegen via `run_with()`
+- **`VariantList<X>`**: typed list of font variants with `detect_and_get_active_variant()` for Cargo feature-based variant selection
+- **`impl_font_loader!` macro**: cached font loading from embedded bytes or disk via `OnceLock`
+- **`MetadataGenerator` trait**: build-time `phf::Map` metadata table generation for keywords, categories, and aliases with deduplication support
+- **`CodePointRange`**: inclusive Unicode range type for reverse cmap probing with predefined constants (`BMP_RANGE`, `ASCII_PRINTABLE_RANGE`, `PUA_RANGE`, `SUPPLEMENTARY_PUA_RANGE`)
+- **Typed codepoint maps**: `CodePointCategoryMap`, `CodePointKeywordMap`, `CodePointNameMap`, `GlyphNameMap` for type-safe metadata lookups
+- **`GlyphEntry<N>`**: generic struct for exported glyph metadata with automatic `file` and `resource_path` construction
+- **`GlyphName<F>`**: phantom-typed newtype preventing glyph name mix-ups between font families at compile time
+- **`FontVariant` / `FontVariantType`**: font variant identification and realization (separate file, variable font axes, or both)
+- **`Axis`, `AxisValue`, `AxisValues`**: variable font axis identification and values, `const`-compatible for `VARIANTS` arrays
+- **`FontFile` / `ResourcePath`**: font file path resolution and GResource path types
+- **11 new font family crates**: `fonts-rs-doto` (variable, 25 variants), `fonts-rs-bravura` (SMuFL music notation), `fonts-rs-seven-segment` (24 variants), `fonts-rs-fourteen-segment` (24 variants), `fonts-rs-barcode-code39`, `fonts-rs-barcode-code128`, `fonts-rs-barcode-ean13`, `fonts-rs-redacted` (4 variants), `fonts-rs-dicefont`, `fonts-rs-cuernavaca` (chess), `fonts-rs-noto-emoji` (with CLDR metadata)
+- **`fonts-rs-noto-emoji-generator`**: build-time code generation for Noto Emoji including CLDR annotation parsing
+- **`fonts-rs-noto-emoji-cheat-sheet`**: GTK4 application to browse Noto Emoji with search
+- **Per-crate README.md**: README files for all 19 workspace crates
+- **Book documentation**: new pages for `fonts-rs-model` API, `fonts-rs-generator` API, build patterns, and "Adding a Font Family" guide
+- **Book overhaul**: updated `introduction.md`, `architecture.md`, `getting-started.md`, `icon-resolution.md` (renamed to "Glyph Resolution"), `icon-export.md` (renamed to "Glyph Export"), `font-loading.md`, `gtk-integration.md`, and `SUMMARY.md` to reflect the modular framework
+- **Root README.md overhaul**: workspace overview with crate tables, architecture diagram, and dual quick start examples
+- **Examples**: `dot_matrix_marquee` (Doto), `wiener_blut` (Bravura), `interactive_demo` (Seven-Segment, Fourteen-Segment, Barcode), `dice_roller` (DiceFont), `chess_board` (Cuernavaca)
+
+### Changed
+
+- **Workspace expanded from 4 to 19 crates**: modular architecture with generic framework, font family crates, Nerd Fonts integration, and application crates
+- **`nerd-fonts-rs` refactored**: now uses `fonts-rs-model` and `fonts-rs-generator` mechanics, new `font_loader.rs` module, removed `css/version.rs`
+- **`nerd-fonts-generator` refactored**: delegates to `fonts-rs-generator` for SVG export, codepoint maps, and GResource generation; removed redundant `export.rs`, `font/reverse_codepoint_map.rs`, `generator/generate.rs`, `gresource/generate.rs`, `svg/export.rs`, `svg/path_builder.rs`
+- **`nerd-fonts-model` refactored**: uses `fonts-rs-model` types (`GlyphName`, `GlyphEntry`), removed `resource_path.rs` and `entry.rs`
+- **`ExportConfig` constructors**: replaced free function `build_config` with `ExportConfig::new()` and `ExportConfig::with_variant()`
+- **`GlyphEntry` constructor**: added `GlyphEntry::new()` for automatic `file` and `resource_path` construction
+- **Error handling**: dedicated `ExportError` type for export failures, nicer error propagation instead of build-time panics
+- **Paths instead of `&str`**: build pipeline methods now use `Path` / `PathBuf` instead of string slices
+- **Cleanup strategy**: improved cleanup for fonts with variants (hash-based change detection with `extra_hash`)
+- **Generated files split**: code generation now produces separate `codemap.rs`, `icons.rs`, and `variant.rs` files instead of a single file
+- **Abstracted font family metadata**: `FONT_FAMILY_NAME`, `GRESOURCE_PREFIX`, `ICONS_CONTEXT`, and `CODEPOINT_RANGES` as `FontFamilyConfig` associated constants
+
+### Removed
+
+- **`css/version.rs`**: removed from `nerd-fonts-rs` (GTK version targeting now handled differently)
+- **Duplicate code**: removed redundant export, font, gresource, and SVG modules from `nerd-fonts-generator` (now delegated to `fonts-rs-generator`)
+
+## [0.1.0] - 2026-09-11
 
 ### Added
 
