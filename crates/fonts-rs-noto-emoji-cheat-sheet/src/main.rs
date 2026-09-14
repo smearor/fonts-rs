@@ -514,8 +514,8 @@ fn build_ui(app: &Application) {
             let window_ref = window_for_grid.clone();
             let gesture = gtk4::GestureClick::new();
             gesture.connect_released(move |gesture, _n, x, y| {
-                if let Some(widget) = gesture.widget() {
-                    if let Some(target) = widget.pick(x, y, gtk4::PickFlags::empty()) {
+                if let Some(widget) = gesture.widget()
+                    && let Some(target) = widget.pick(x, y, gtk4::PickFlags::empty()) {
                         let mut current = Some(target);
                         while let Some(w) = current {
                             if w.is::<gtk4::Button>() {
@@ -524,7 +524,6 @@ fn build_ui(app: &Application) {
                             current = w.parent();
                         }
                     }
-                }
                 let already_selected = selected_name_ref.borrow().as_ref().map(|n| n == &name_for_click).unwrap_or(false);
                 if already_selected {
                     if let Some(old) = selected_cell_ref.borrow_mut().take() {
