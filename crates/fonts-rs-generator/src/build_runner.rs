@@ -174,8 +174,14 @@ impl FontBuild {
         }
 
         for gresource in &self.additional_gresources {
-            let xml = gresource.xml.to_str().ok_or_else(|| std::io::Error::other("invalid UTF-8 in gresource xml path"))?;
-            let output = gresource.output.to_str().ok_or_else(|| std::io::Error::other("invalid UTF-8 in gresource output path"))?;
+            let xml = gresource
+                .xml
+                .to_str()
+                .ok_or_else(|| std::io::Error::other("invalid UTF-8 in gresource xml path"))?;
+            let output = gresource
+                .output
+                .to_str()
+                .ok_or_else(|| std::io::Error::other("invalid UTF-8 in gresource output path"))?;
             glib_build_tools::compile_resources(&[RESOURCES_DIR], xml, output);
         }
 

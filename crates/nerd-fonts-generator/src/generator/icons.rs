@@ -2,8 +2,8 @@
 
 use std::path::PathBuf;
 
-use fonts_rs_generator::GlyphGenerator;
 use fonts_rs_generator::GenerateError;
+use fonts_rs_generator::GlyphGenerator;
 use nerd_fonts_model::GlyphEntry;
 use nerd_fonts_model::IconName;
 
