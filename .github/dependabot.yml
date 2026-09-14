@@ -29,6 +29,216 @@ updates:
           - "minor"
           - "patch"
   - package-ecosystem: "cargo"
+    directory: "/crates/fonts-rs-model"
+    schedule:
+      interval: "daily"
+      time: "18:00"
+      timezone: "Europe/Berlin"
+    labels:
+      - "p:dependencies"
+    open-pull-requests-limit: 10
+    groups:
+      rust-dependencies:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "cargo"
+    directory: "/crates/fonts-rs-generator"
+    schedule:
+      interval: "daily"
+      time: "18:00"
+      timezone: "Europe/Berlin"
+    labels:
+      - "p:dependencies"
+    open-pull-requests-limit: 10
+    groups:
+      rust-dependencies:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "cargo"
+    directory: "/crates/fonts-rs-seven-segment"
+    schedule:
+      interval: "daily"
+      time: "18:00"
+      timezone: "Europe/Berlin"
+    labels:
+      - "p:dependencies"
+    open-pull-requests-limit: 10
+    groups:
+      rust-dependencies:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "cargo"
+    directory: "/crates/fonts-rs-fourteen-segment"
+    schedule:
+      interval: "daily"
+      time: "18:00"
+      timezone: "Europe/Berlin"
+    labels:
+      - "p:dependencies"
+    open-pull-requests-limit: 10
+    groups:
+      rust-dependencies:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "cargo"
+    directory: "/crates/fonts-rs-barcode-code39"
+    schedule:
+      interval: "daily"
+      time: "18:00"
+      timezone: "Europe/Berlin"
+    labels:
+      - "p:dependencies"
+    open-pull-requests-limit: 10
+    groups:
+      rust-dependencies:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "cargo"
+    directory: "/crates/fonts-rs-barcode-code128"
+    schedule:
+      interval: "daily"
+      time: "18:00"
+      timezone: "Europe/Berlin"
+    labels:
+      - "p:dependencies"
+    open-pull-requests-limit: 10
+    groups:
+      rust-dependencies:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "cargo"
+    directory: "/crates/fonts-rs-barcode-ean13"
+    schedule:
+      interval: "daily"
+      time: "18:00"
+      timezone: "Europe/Berlin"
+    labels:
+      - "p:dependencies"
+    open-pull-requests-limit: 10
+    groups:
+      rust-dependencies:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "cargo"
+    directory: "/crates/fonts-rs-doto"
+    schedule:
+      interval: "daily"
+      time: "18:00"
+      timezone: "Europe/Berlin"
+    labels:
+      - "p:dependencies"
+    open-pull-requests-limit: 10
+    groups:
+      rust-dependencies:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "cargo"
+    directory: "/crates/fonts-rs-redacted"
+    schedule:
+      interval: "daily"
+      time: "18:00"
+      timezone: "Europe/Berlin"
+    labels:
+      - "p:dependencies"
+    open-pull-requests-limit: 10
+    groups:
+      rust-dependencies:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "cargo"
+    directory: "/crates/fonts-rs-dicefont"
+    schedule:
+      interval: "daily"
+      time: "18:00"
+      timezone: "Europe/Berlin"
+    labels:
+      - "p:dependencies"
+    open-pull-requests-limit: 10
+    groups:
+      rust-dependencies:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "cargo"
+    directory: "/crates/fonts-rs-bravura"
+    schedule:
+      interval: "daily"
+      time: "18:00"
+      timezone: "Europe/Berlin"
+    labels:
+      - "p:dependencies"
+    open-pull-requests-limit: 10
+    groups:
+      rust-dependencies:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "cargo"
+    directory: "/crates/fonts-rs-cuernavaca"
+    schedule:
+      interval: "daily"
+      time: "18:00"
+      timezone: "Europe/Berlin"
+    labels:
+      - "p:dependencies"
+    open-pull-requests-limit: 10
+    groups:
+      rust-dependencies:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "cargo"
+    directory: "/crates/fonts-rs-noto-emoji"
+    schedule:
+      interval: "daily"
+      time: "18:00"
+      timezone: "Europe/Berlin"
+    labels:
+      - "p:dependencies"
+    open-pull-requests-limit: 10
+    groups:
+      rust-dependencies:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "cargo"
+    directory: "/crates/fonts-rs-noto-emoji-generator"
+    schedule:
+      interval: "daily"
+      time: "18:00"
+      timezone: "Europe/Berlin"
+    labels:
+      - "p:dependencies"
+    open-pull-requests-limit: 10
+    groups:
+      rust-dependencies:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "cargo"
+    directory: "/crates/fonts-rs-noto-emoji-cheat-sheet"
+    schedule:
+      interval: "daily"
+      time: "18:00"
+      timezone: "Europe/Berlin"
+    labels:
+      - "p:dependencies"
+    open-pull-requests-limit: 10
+    groups:
+      rust-dependencies:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "cargo"
     directory: "/crates/nerd-fonts-model"
     schedule:
       interval: "daily"
