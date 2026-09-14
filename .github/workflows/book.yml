@@ -9,7 +9,8 @@ on:
       - "CODE_OF_CONDUCT.md"
       - "LICENSE"
       - "README.md"
-      - "SECURITY.md"
+      - "crates/*/README.md"
+      - "concepts/**"
       - ".github/workflows/book.yml"
   pull_request:
     branches: [ main ]
@@ -19,7 +20,8 @@ on:
       - "CODE_OF_CONDUCT.md"
       - "LICENSE"
       - "README.md"
-      - "SECURITY.md"
+      - "crates/*/README.md"
+      - "concepts/**"
       - ".github/workflows/book.yml"
 
 env:

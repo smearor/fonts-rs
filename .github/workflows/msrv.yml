@@ -6,6 +6,7 @@ on:
     branches: [ main ]
     paths:
       - "crates/**/*.rs"
+      - "crates/*/Cargo.toml"
       - "Cargo.toml"
       - "Cargo.lock"
       - ".github/workflows/msrv.yml"
@@ -13,6 +14,7 @@ on:
     branches: [ main ]
     paths:
       - "crates/**/*.rs"
+      - "crates/*/Cargo.toml"
       - "Cargo.toml"
       - "Cargo.lock"
       - ".github/workflows/msrv.yml"
@@ -41,6 +43,36 @@ jobs:
           tool: cargo-msrv@0.19.3
       - name: Version of cargo msrv
         run: cargo msrv --version
+      - name: Verify MSRV (fonts-rs-model)
+        run: cargo msrv --output-format json verify --path crates/fonts-rs-model
+      - name: Verify MSRV (fonts-rs-generator)
+        run: cargo msrv --output-format json verify --path crates/fonts-rs-generator
+      - name: Verify MSRV (fonts-rs-seven-segment)
+        run: cargo msrv --output-format json verify --path crates/fonts-rs-seven-segment
+      - name: Verify MSRV (fonts-rs-fourteen-segment)
+        run: cargo msrv --output-format json verify --path crates/fonts-rs-fourteen-segment
+      - name: Verify MSRV (fonts-rs-barcode-code39)
+        run: cargo msrv --output-format json verify --path crates/fonts-rs-barcode-code39
+      - name: Verify MSRV (fonts-rs-barcode-code128)
+        run: cargo msrv --output-format json verify --path crates/fonts-rs-barcode-code128
+      - name: Verify MSRV (fonts-rs-barcode-ean13)
+        run: cargo msrv --output-format json verify --path crates/fonts-rs-barcode-ean13
+      - name: Verify MSRV (fonts-rs-doto)
+        run: cargo msrv --output-format json verify --path crates/fonts-rs-doto
+      - name: Verify MSRV (fonts-rs-redacted)
+        run: cargo msrv --output-format json verify --path crates/fonts-rs-redacted
+      - name: Verify MSRV (fonts-rs-dicefont)
+        run: cargo msrv --output-format json verify --path crates/fonts-rs-dicefont
+      - name: Verify MSRV (fonts-rs-bravura)
+        run: cargo msrv --output-format json verify --path crates/fonts-rs-bravura
+      - name: Verify MSRV (fonts-rs-cuernavaca)
+        run: cargo msrv --output-format json verify --path crates/fonts-rs-cuernavaca
+      - name: Verify MSRV (fonts-rs-noto-emoji)
+        run: cargo msrv --output-format json verify --path crates/fonts-rs-noto-emoji
+      - name: Verify MSRV (fonts-rs-noto-emoji-generator)
+        run: cargo msrv --output-format json verify --path crates/fonts-rs-noto-emoji-generator
+      - name: Verify MSRV (fonts-rs-noto-emoji-cheat-sheet)
+        run: cargo msrv --output-format json verify --path crates/fonts-rs-noto-emoji-cheat-sheet
       - name: Verify MSRV (nerd-fonts-model)
         run: cargo msrv --output-format json verify --path crates/nerd-fonts-model
       - name: Verify MSRV (nerd-fonts-generator)
@@ -51,4 +83,4 @@ jobs:
         run: cargo msrv --output-format json verify --path crates/nerd-fonts-cheat-sheet
       - name: Find MSRV on verify failure
         if: ${{ failure() }}
-        run: cargo msrv --output-format json find --path crates/nerd-fonts-rs || true
+        run: cargo msrv --output-format json find --path crates/fonts-rs-model || true
