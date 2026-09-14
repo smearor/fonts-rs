@@ -3,7 +3,7 @@
     const <a href="#associatedconstant.FAMILY_DISPLAY_NAME" class="constant">FAMILY_DISPLAY_NAME</a>: &amp;'static <a class="primitive" href="https://doc.rust-lang.org/1.98.1/std/primitive.str.html">str</a>;
     const <a href="#associatedconstant.GRESOURCE_PREFIX" class="constant">GRESOURCE_PREFIX</a>: &amp;'static <a class="primitive" href="https://doc.rust-lang.org/1.98.1/std/primitive.str.html">str</a>;
     const <a href="#associatedconstant.ICONS_CONTEXT" class="constant">ICONS_CONTEXT</a>: &amp;'static <a class="primitive" href="https://doc.rust-lang.org/1.98.1/std/primitive.str.html">str</a> = ICONS_CONTEXT_GLYPHS;
-    const <a href="#associatedconstant.CODEPOINT_RANGES" class="constant">CODEPOINT_RANGES</a>: &amp;[CodePointRange] = _;
+    const <a href="#associatedconstant.CODEPOINT_RANGES" class="constant">CODEPOINT_RANGES</a>: &amp;[<a class="struct" href="../../fonts_rs_model/codepoint_range/struct.CodePointRange.html" title="struct fonts_rs_model::codepoint_range::CodePointRange">CodePointRange</a>] = _;
 
     // Provided methods
     fn <a href="#method.icons_dir" class="fn">icons_dir</a>(output_dir: &amp;<a class="struct" href="https://doc.rust-lang.org/1.98.1/std/path/struct.Path.html" title="struct std::path::Path">Path</a>) -&gt; <a class="struct" href="https://doc.rust-lang.org/1.98.1/std/path/struct.PathBuf.html" title="struct std::path::PathBuf">PathBuf</a> { ... }
@@ -18,7 +18,7 @@ type-safe glyph name handling. <a href="../export_config/struct.ExportConfig.htm
 is generic over any type implementing this trait.</p>
 </div></details><h2 id="required-associated-consts" class="section-header">Required Associated Constants<a href="#required-associated-consts" class="anchor">§</a></h2><div class="methods"><details class="toggle" open><summary><section id="associatedconstant.FONT_FAMILY_NAME" class="method"><a class="src rightside" href="../../src/fonts_rs_generator/font_family_config.rs.html#32">Source</a><h4 class="code-header">const <a href="#associatedconstant.FONT_FAMILY_NAME" class="constant">FONT_FAMILY_NAME</a>: &amp;'static <a class="primitive" href="https://doc.rust-lang.org/1.98.1/std/primitive.str.html">str</a></h4></section></summary><div class="docblock"><p>Font family slug used in the GResource prefix and glyph names.</p>
 <p>e.g. <code>"dseg7"</code> or <code>"doto"</code>. Combined with
-<a href="fonts_rs_model::GRESOURCE_BASE_PREFIX"><code>GRESOURCE_BASE_PREFIX</code></a> to
+<a href="../../fonts_rs_model/paths/constant.GRESOURCE_BASE_PREFIX.html" title="constant fonts_rs_model::paths::GRESOURCE_BASE_PREFIX"><code>GRESOURCE_BASE_PREFIX</code></a> to
 produce the full <code>GRESOURCE_PREFIX</code>, and used directly as the
 <code>glyph_name_prefix</code> base in <a href="../export_config/struct.ExportConfig.html#method.new" title="associated function fonts_rs_generator::export_config::ExportConfig::new"><code>ExportConfig::new</code></a>.</p>
 </div></details><details class="toggle" open><summary><section id="associatedconstant.FAMILY_DISPLAY_NAME" class="method"><a class="src rightside" href="../../src/fonts_rs_generator/font_family_config.rs.html#38">Source</a><h4 class="code-header">const <a href="#associatedconstant.FAMILY_DISPLAY_NAME" class="constant">FAMILY_DISPLAY_NAME</a>: &amp;'static <a class="primitive" href="https://doc.rust-lang.org/1.98.1/std/primitive.str.html">str</a></h4></section></summary><div class="docblock"><p>Human-readable display name for the font family.</p>
@@ -32,10 +32,10 @@ produce the full <code>GRESOURCE_PREFIX</code>, and used directly as the
 <p>The <code>scalable</code> directory signals that icons are vector (SVG) and
 can be rendered at any size. The <code>context</code> subdirectory groups
 icons by semantic category (e.g. <code>glyphs</code>, <code>status</code>, <code>actions</code>).</p>
-<p>For font glyph icons, [<code>ICONS_CONTEXT_GLYPHS</code>] is the default context.
+<p>For font glyph icons, <a href="../../fonts_rs_model/paths/constant.ICONS_CONTEXT_GLYPHS.html" title="constant fonts_rs_model::paths::ICONS_CONTEXT_GLYPHS"><code>ICONS_CONTEXT_GLYPHS</code></a> is the default context.
 Font families can override this to use a different context if
-needed (e.g. <a href="fonts_rs_model::ICONS_CONTEXT_EMOJI"><code>ICONS_CONTEXT_EMOJI</code></a> for Noto Emoji).</p>
-</div></details><details class="toggle" open><summary><section id="associatedconstant.CODEPOINT_RANGES" class="method"><a class="src rightside" href="../../src/fonts_rs_generator/font_family_config.rs.html#68">Source</a><h4 class="code-header">const <a href="#associatedconstant.CODEPOINT_RANGES" class="constant">CODEPOINT_RANGES</a>: &amp;[CodePointRange] = _</h4></section></summary><div class="docblock"><p>Unicode codepoint ranges to probe when building the reverse cmap.</p>
+needed (e.g. <a href="../../fonts_rs_model/paths/constant.ICONS_CONTEXT_EMOJI.html" title="constant fonts_rs_model::paths::ICONS_CONTEXT_EMOJI"><code>ICONS_CONTEXT_EMOJI</code></a> for Noto Emoji).</p>
+</div></details><details class="toggle" open><summary><section id="associatedconstant.CODEPOINT_RANGES" class="method"><a class="src rightside" href="../../src/fonts_rs_generator/font_family_config.rs.html#68">Source</a><h4 class="code-header">const <a href="#associatedconstant.CODEPOINT_RANGES" class="constant">CODEPOINT_RANGES</a>: &amp;[<a class="struct" href="../../fonts_rs_model/codepoint_range/struct.CodePointRange.html" title="struct fonts_rs_model::codepoint_range::CodePointRange">CodePointRange</a>] = _</h4></section></summary><div class="docblock"><p>Unicode codepoint ranges to probe when building the reverse cmap.</p>
 <p>Each tuple is <code>(start, end)</code> inclusive. The generic pipeline probes
 these ranges to map <code>GlyphId</code> -&gt; <code>CodePoint</code> for each glyph in the
 font.</p>
