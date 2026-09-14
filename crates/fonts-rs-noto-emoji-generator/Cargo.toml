@@ -25,5 +25,8 @@ thiserror.workspace = true
 [dev-dependencies]
 clap.workspace = true
 
+[[example]]
+name = "generate_noto_emoji"
+
 [lints]
 workspace = true
