@@ -47,7 +47,9 @@ impl<'a, X: FontFamilyConfig> VariantList<'a, X> {
     ///
     /// Scans `CARGO_FEATURE_{NAME}` environment variables for each variant and
     /// returns the index of the active one. If no variant is active, returns
-    /// `default_index`. If more than one is active, returns an error.
+    /// `default_index`. If more than one is active, falls back to `default_index`
+    /// with a warning — this allows `--all-features` to work in CI without
+    /// breaking on mutually exclusive variant features.
     ///
     /// Uses `X::FAMILY_DISPLAY_NAME` for diagnostic messages.
     pub fn detect_active_index(&self, default_index: usize) -> miette::Result<usize> {
@@ -62,15 +64,11 @@ impl<'a, X: FontFamilyConfig> VariantList<'a, X> {
             );
             Ok(default_index)
         } else if active.len() > 1 {
-            eprintln!("build.rs: expected at most one {family_display_name} variant feature, found {}", active.len());
+            eprintln!("build.rs: multiple {family_display_name} variant features active, falling back to default: {}", variants[default_index].as_str());
             for &i in &active {
                 eprintln!("  active: {}", variants[i].as_str());
             }
-            eprintln!("build.rs: available variants:");
-            for v in variants {
-                eprintln!("  {}", v.as_str());
-            }
-            Err(miette::miette!("expected at most one {family_display_name} variant feature, found {}", active.len()))
+            Ok(default_index)
         } else {
             Ok(active[0])
         }

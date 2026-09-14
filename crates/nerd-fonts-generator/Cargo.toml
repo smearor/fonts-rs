@@ -28,5 +28,8 @@ thiserror.workspace = true
 name = "export_icons"
 path = "src/bin/export_icons.rs"
 
+[[example]]
+name = "generate_nerd_fonts"
+
 [lints]
 workspace = true
