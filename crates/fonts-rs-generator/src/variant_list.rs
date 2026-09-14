@@ -64,7 +64,10 @@ impl<'a, X: FontFamilyConfig> VariantList<'a, X> {
             );
             Ok(default_index)
         } else if active.len() > 1 {
-            eprintln!("build.rs: multiple {family_display_name} variant features active, falling back to default: {}", variants[default_index].as_str());
+            eprintln!(
+                "build.rs: multiple {family_display_name} variant features active, falling back to default: {}",
+                variants[default_index].as_str()
+            );
             for &i in &active {
                 eprintln!("  active: {}", variants[i].as_str());
             }

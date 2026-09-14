@@ -6,7 +6,7 @@ pub mod options;
 pub use error::InitError;
 pub use options::InitOptions;
 
-/// Convenience wrapper for [`InitOptions::new().init()`] with default options.
+/// Convenience wrapper for [`InitOptions::new()`] with default options.
 ///
 /// Call once at application startup. For custom configuration, use
 /// [`InitOptions`] directly.

@@ -10,7 +10,7 @@ use crate::CodePoint;
 /// A mapping from glyph names to Unicode codepoints.
 ///
 /// Used by build scripts to drive glyph export via
-/// [`ExportConfig::export_glyphs_by_name_map`](fonts_rs_generator::ExportConfig) when font-internal
+/// `ExportConfig::export_glyphs_by_name_map` (in `fonts_rs_generator`) when font-internal
 /// glyph names are not semantically meaningful (e.g. `uniXXXX` PostScript
 /// names) and must be replaced with names from external metadata
 /// (CLDR annotations, SMuFL glyphnames.json).

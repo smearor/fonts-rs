@@ -1,7 +1,7 @@
 //! SVG generation for font glyph export.
 //!
 //! Provides [`SvgPathBuilder`] for converting font outlines to SVG path data
-//! and [`Font::glyph_to_svg`] for generating complete SVG icons from font glyphs.
+//! and `Font::glyph_to_svg` for generating complete SVG icons from font glyphs.
 
 mod export;
 mod path_builder;

@@ -1,7 +1,7 @@
 //! Font variant identifier type.
 //!
 //! Provides a [`FontVariant`] combining a variant name (e.g. `"classic-regular"`)
-//! with a [`FontVariantType`](crate::font_variant_type::FontVariantType) describing
+//! with a [`FontVariantType`] describing
 //! how the variant is realized (separate file, axes, or both).
 
 use crate::axis_value::AxisValue;
