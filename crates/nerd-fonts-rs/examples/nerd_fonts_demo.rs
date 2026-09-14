@@ -4,7 +4,7 @@
 //!
 //! Run with:
 //! ```sh
-//! cargo run --example interactive_demo --features gtk,embed-fonts
+//! cargo run --example nerd_fonts_demo --features gtk,embed-fonts
 //! ```
 
 use nerd_fonts_model::IconName;
@@ -26,7 +26,7 @@ use gtk4::prelude::*;
 use miette::IntoDiagnostic;
 use miette::Result;
 
-const APP_ID: &str = "io.smearor.fonts_rs.interactive_demo";
+const APP_ID: &str = "io.smearor.fonts_rs.nerd_fonts_demo";
 
 /// A curated selection of Nerd Font icons to display in the icon gallery.
 const GALLERY_ICONS: &[&str] = &[

@@ -4,7 +4,7 @@
 //!
 //! Run with:
 //! ```sh
-//! cargo run --example interactive_demo --features gtk
+//! cargo run --example barcode_code128_demo --features gtk
 //! ```
 
 use gtk4::Align;
