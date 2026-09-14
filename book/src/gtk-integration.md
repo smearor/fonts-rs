@@ -1,9 +1,30 @@
 # GTK Integration
 
-The `gtk` module (enabled with the `gtk` feature) provides GTK4-specific
-functionality for icon name resolution.
+## Font Family Crates
 
-## Initialization
+Each font family crate provides a `register_glyphs()` function (enabled with
+the `gtk` feature) that registers the compiled GResource bundle:
+
+```rust
+use fonts_rs_doto::register_glyphs;
+
+fn main() {
+    // Register GResource (call once at startup)
+    register_glyphs().unwrap();
+
+    // Now GTK can resolve icon names from the GResource bundle
+    let image = gtk4::Image::from_icon_name("doto-a");
+}
+```
+
+`register_glyphs()` calls `gio::resources_register_include!("icons.gresource")`
+to register the compiled GResource binary containing all SVG glyph files.
+
+## Nerd Fonts (nerd-fonts-rs)
+
+The `nerd-fonts-rs` crate provides additional GTK4 functionality:
+
+### Initialization
 
 Call `init()` once at application startup:
 
@@ -25,7 +46,7 @@ fn main() {
 4. **CSS loading** - Loads version-adapted `@font-face` CSS via
    `font_face_css()` into a `CssProvider` and adds it to the default display
 
-## GTK Icon Name Resolution
+### GTK Icon Name Resolution
 
 ```rust
 use nerd_fonts_rs::gtk::resolve_gtk_nerd_icon;

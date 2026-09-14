@@ -1,63 +1,95 @@
 # Introduction
 
-**fonts-rs** is a Rust library for integrating [Nerd Fonts](https://www.nerdfonts.com/)
-into GTK4 projects. It provides icon name resolution, font loading, software rendering,
-and CSS generation for Nerd Font symbols.
+**fonts-rs** is a Rust workspace for integrating font families into GTK4
+projects. It provides a modular framework for exporting glyphs as SVG icons,
+generating GResource bundles, resolving icon names to Unicode codepoints, and
+rendering text with software rasterization.
 
-## What Are Nerd Fonts?
+## Architecture Overview
 
-[Nerd Fonts](https://www.nerdfonts.com/) are developer-targeted fonts that patch
-popular programming fonts with thousands of iconic glyphs. They are commonly used in
-terminals, editors, and development tools to display file-type icons, Git status
-symbols, and other developer-oriented pictograms.
+The workspace is organized into three layers:
 
-## Features
-
-- **Icon Name Resolution** - Map human-readable names like `nf-fa-gamepad` to
-  Unicode codepoints via the vendored codepoint map
-- **GTK4 Integration** - Register GResource fonts, apply icon colors to
-  `gtk4::Image` and `gtk4::Label` widgets via display-scoped CSS providers
-- **Font Loading** - Load Nerd Font TTF/WOFF2 files for software rendering
-  via `ab_glyph` (no GTK required, see [`pixel-drawing`](https://github.com/smearor/pixel-drawing) for rendering)
-- **CSS Generation** - GTK `@font-face` CSS and web CSS with per-icon
-  `content: "\XXXX"` mappings
-- **Feature Gates** - Use only what you need: `gtk`, `v4_12`, `render`, `web`, `embed-fonts`, `metadata`
-
-## Module Overview
+1. **Generic framework** - `fonts-rs-model` (shared types) and
+   `fonts-rs-generator` (build-time pipeline)
+2. **Font family crates** - one crate per font family (e.g. `fonts-rs-doto`,
+   `fonts-rs-bravura`, `fonts-rs-seven-segment`)
+3. **Nerd Fonts integration** - `nerd-fonts-model`, `nerd-fonts-generator`,
+   and `nerd-fonts-rs` for the legacy Nerd Fonts-specific API
 
 ```mermaid
 graph TD
-    Lib["fonts-rs"]
-
-    subgraph "gtk feature"
-        GTK["gtk.rs<br/>Icon resolution & color"]
-        CSS["css.rs<br/>GTK @font-face CSS"]
+    subgraph "Generic Framework"
+        Model["fonts-rs-model<br/>Shared types"]
+        Gen["fonts-rs-generator<br/>Build pipeline"]
     end
 
-    subgraph "render feature"
-        Fonts["fonts.rs<br/>Font loading (TTF/WOFF2)"]
+    subgraph "Font Family Crates"
+        Doto["fonts-rs-doto"]
+        Bravura["fonts-rs-bravura"]
+        SevenSeg["fonts-rs-seven-segment"]
+        NotoEmoji["fonts-rs-noto-emoji"]
+        Other["... 10 more"]
     end
 
-    subgraph "web feature"
-        Web["web.rs<br/>Web CSS constant"]
+    subgraph "Nerd Fonts"
+        NFModel["nerd-fonts-model"]
+        NFGen["nerd-fonts-generator"]
+        NFRs["nerd-fonts-rs"]
     end
 
-    subgraph "metadata feature"
-        Metadata["metadata.rs<br/>Keywords & categories"]
-    end
-
-    Icons["icons.rs<br/>Codepoint resolution"]
-    Init["init/<br/>Builder pattern init"]
-
-    Lib --> Icons
-    Lib --> Init
-    Lib --> GTK
-    Lib --> CSS
-    Lib --> Fonts
-    Lib --> Web
-    Lib --> Metadata
+    Model --> Gen
+    Model --> Doto
+    Model --> Bravura
+    Model --> SevenSeg
+    Model --> NotoEmoji
+    Model --> Other
+    Gen --> Doto
+    Gen --> Bravura
+    Gen --> SevenSeg
+    Gen --> NotoEmoji
+    Gen --> Other
+    Model --> NFModel
+    Gen --> NFGen
+    NFModel --> NFGen
+    NFGen --> NFRs
+    Model --> NFRs
 ```
+
+## Features
+
+- **Modular font family crates** - each font family is a separate crate with
+  its own build script, GResource bundle, and runtime API
+- **Type-safe glyph names** - `GlyphName<F>` phantom typing prevents
+  mix-ups between font families at compile time
+- **Variable font support** - variants via Cargo features with axis-based
+  rendering (e.g. weight, roundness)
+- **GTK4 integration** - GResource registration, icon name resolution, CSS
+  providers
+- **Software rendering** - font loading via `ab_glyph` for headless rendering
+  (see [`pixel-drawing`](https://github.com/smearor/pixel-drawing))
+- **Build-time code generation** - `phf::Map` codepoint maps, Rust constants,
+  and GResource XML generated from font files
+- **Metadata generation** - keywords, categories, and aliases for search
+  functionality (e.g. Noto Emoji CLDR annotations)
+
+## Available Font Families
+
+| Crate | Font | License | Variants |
+|-------|------|---------|----------|
+| `fonts-rs-doto` | Doto | OFL-1.1 | Variable (wght, ROND) |
+| `fonts-rs-seven-segment` | DSEG7 | OFL-1.1 | Multiple files |
+| `fonts-rs-fourteen-segment` | DSEG14 | OFL-1.1 | Multiple files |
+| `fonts-rs-barcode-code39` | Lib Barcode 39 | OFL-1.1 | - |
+| `fonts-rs-barcode-code128` | Lib Barcode 128 | OFL-1.1 | - |
+| `fonts-rs-barcode-ean13` | Lib Barcode EAN13 | OFL-1.1 | - |
+| `fonts-rs-bravura` | Bravura | OFL-1.1 | - |
+| `fonts-rs-redacted` | Redacted | OFL-1.1 | - |
+| `fonts-rs-dicefont` | DiceFont | OFL-1.1 | - |
+| `fonts-rs-cuernavaca` | Cuernavaca | OFL-1.1 | - |
+| `fonts-rs-noto-emoji` | Noto Emoji | OFL-1.1 | - |
+| `nerd-fonts-rs` | Nerd Fonts | MIT | - |
 
 ## License
 
-MIT. See [LICENSE](https://github.com/smearor/fonts-rs/blob/main/LICENSE).
+MIT for framework code. Font files retain their original licenses (OFL-1.1
+for most fonts, MIT for Nerd Fonts). See [LICENSE](https://github.com/smearor/fonts-rs/blob/main/LICENSE).
