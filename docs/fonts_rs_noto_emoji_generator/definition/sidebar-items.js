@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["ANNOTATIONS_FILE","EMOJI_RANGES","EMOJI_TEST_FILE","FONT_FILE"],"enum":["NotoEmoji"],"struct":["NotoEmojiDefinition"]};

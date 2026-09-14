@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["FONT_FILE"],"enum":["Code39"],"struct":["Code39Definition"],"type":["Code39Name"]};

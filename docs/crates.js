@@ -1,2 +1,2 @@
-window.ALL_CRATES = ["export_icons","nerd_fonts_cheat_sheet","nerd_fonts_generator","nerd_fonts_model","nerd_fonts_rs"];
-//{"start":21,"fragment_lengths":[14,25,23,19,16]}
+window.ALL_CRATES = ["export_icons","fonts_rs_barcode_code128","fonts_rs_barcode_code39","fonts_rs_barcode_ean13","fonts_rs_bravura","fonts_rs_cuernavaca","fonts_rs_dicefont","fonts_rs_doto","fonts_rs_fourteen_segment","fonts_rs_generator","fonts_rs_model","fonts_rs_noto_emoji","fonts_rs_noto_emoji_cheat_sheet","fonts_rs_noto_emoji_generator","fonts_rs_redacted","fonts_rs_seven_segment","nerd_fonts_cheat_sheet","nerd_fonts_generator","nerd_fonts_model","nerd_fonts_rs"];
+//{"start":21,"fragment_lengths":[14,27,26,25,19,22,20,16,28,21,17,22,34,32,20,25,25,23,19,16]}

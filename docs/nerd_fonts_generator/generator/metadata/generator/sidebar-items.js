@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["derive_category","derive_keywords","escape_str","resolve_categories","resolve_keywords"],"struct":["IconsMetadataGenerator"]};
+window.SIDEBAR_ITEMS = {"fn":["derive_category","derive_keywords","resolve_categories","resolve_keywords"],"struct":["IconsMetadataGenerator"]};

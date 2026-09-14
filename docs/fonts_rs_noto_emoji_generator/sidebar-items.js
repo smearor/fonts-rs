@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["EMPTY_SVG"],"fn":["normalize_to_kebab"],"mod":["cldr","definition","emoji_test","generator"],"struct":["Font","FontBuild","Svg","SvgPathBuilder"],"trait":["FontDefinition","GlyphGenerator","MetadataGenerator"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["export","font","generator","gresource","svg"]};
+window.SIDEBAR_ITEMS = {"constant":["EMPTY_SVG"],"enum":["GenerateError"],"fn":["normalize_to_kebab"],"mod":["definition","font","generator","svg"],"struct":["Font","Svg","SvgPathBuilder"],"trait":["FontDefinition","GlyphGenerator","MetadataGenerator"]};

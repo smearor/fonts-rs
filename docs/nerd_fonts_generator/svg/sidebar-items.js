@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["EMPTY_SVG"],"fn":["glyph_to_svg"],"mod":["export","path_builder"],"struct":["SvgPathBuilder"]};
+window.SIDEBAR_ITEMS = {"constant":["EMPTY_SVG"],"struct":["Svg","SvgPathBuilder"]};

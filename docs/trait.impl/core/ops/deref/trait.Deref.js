@@ -1,0 +1,9 @@
+(function() {
+    const implementors = Object.fromEntries([["fonts_rs_generator",[["impl&lt;'a&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/1.98.1/core/ops/deref/trait.Deref.html\" title=\"trait core::ops::deref::Deref\">Deref</a> for <a class=\"struct\" href=\"fonts_rs_generator/font/struct.Font.html\" title=\"struct fonts_rs_generator::font::Font\">Font</a>&lt;'a&gt;",0]]],["fonts_rs_model",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.98.1/core/ops/deref/trait.Deref.html\" title=\"trait core::ops::deref::Deref\">Deref</a> for <a class=\"struct\" href=\"fonts_rs_model/axis_value/struct.AxisValues.html\" title=\"struct fonts_rs_model::axis_value::AxisValues\">AxisValues</a>",0],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.98.1/core/ops/deref/trait.Deref.html\" title=\"trait core::ops::deref::Deref\">Deref</a> for <a class=\"struct\" href=\"fonts_rs_model/metadata/struct.GlyphAliasMap.html\" title=\"struct fonts_rs_model::metadata::GlyphAliasMap\">GlyphAliasMap</a>",0],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.98.1/core/ops/deref/trait.Deref.html\" title=\"trait core::ops::deref::Deref\">Deref</a> for <a class=\"struct\" href=\"fonts_rs_model/metadata/struct.GlyphCategoryMap.html\" title=\"struct fonts_rs_model::metadata::GlyphCategoryMap\">GlyphCategoryMap</a>",0],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.98.1/core/ops/deref/trait.Deref.html\" title=\"trait core::ops::deref::Deref\">Deref</a> for <a class=\"struct\" href=\"fonts_rs_model/metadata/struct.GlyphKeywordMap.html\" title=\"struct fonts_rs_model::metadata::GlyphKeywordMap\">GlyphKeywordMap</a>",0]]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":59,"fragment_lengths":[329,1279]}

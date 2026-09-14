@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["alias_map","category_map","glyph_metadata","keyword_map"],"struct":["GlyphAliasMap","GlyphCategoryMap","GlyphKeywordMap"],"trait":["GlyphMetadata"]};

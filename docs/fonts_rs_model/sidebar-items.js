@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["axis","axis_value","category","codepoint","codepoint_category_map","codepoint_keyword_map","codepoint_name_map","codepoint_range","font_family","font_file","font_variant","font_variant_type","glyph_entry","glyph_name","glyph_name_map","keyword","metadata","paths","resource_path"]};

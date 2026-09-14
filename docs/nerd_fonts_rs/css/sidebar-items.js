@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["FONT_FACE_CSS","FONT_MONO_PATH","FONT_REGULAR_PATH","GRESOURCE_PREFIX"],"fn":["build_font_face_css","font_face_css"],"mod":["version"]};
+window.SIDEBAR_ITEMS = {"fn":["icon_css"]};

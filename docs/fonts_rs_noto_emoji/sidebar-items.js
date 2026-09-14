@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["all_emoji","register_glyphs"],"mod":["codepoint_map","constants","fonts","metadata","naming","variant"],"trait":["GlyphNameExt"],"type":["FamilyName"]};

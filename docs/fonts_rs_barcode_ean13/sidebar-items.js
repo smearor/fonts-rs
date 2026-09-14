@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["GRESOURCE_PREFIX"],"fn":["all_glyphs","register_font","register_glyphs"],"mod":["codepoint_map","constants","definition","fonts"],"trait":["GlyphNameExt"]};

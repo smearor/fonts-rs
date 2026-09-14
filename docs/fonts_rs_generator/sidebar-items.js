@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["impl_font_loader",1]],"mod":["build_constants","build_helpers","build_runner","export_config","export_error","font","font_definition","font_family_config","font_loader","font_variant_ext","generator","gresource","svg","variant_list"]};

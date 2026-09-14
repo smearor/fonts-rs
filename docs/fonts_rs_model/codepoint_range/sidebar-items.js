@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["ASCII_PRINTABLE_RANGE","BMP_RANGE","PUA_RANGE","SUPPLEMENTARY_PUA_RANGE"],"struct":["CodePointRange"]};

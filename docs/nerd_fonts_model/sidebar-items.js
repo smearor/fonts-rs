@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["category","codepoint","entry","keyword","name","paths","resource_path","set"]};
+window.SIDEBAR_ITEMS = {"enum":["CodePointParseError"],"mod":["name","paths","set"],"struct":["CodePoint","GlyphEntry","ResourcePath"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["EMPTY_SVG"],"mod":["export","path_builder","svg"],"struct":["Svg","SvgPathBuilder"]};

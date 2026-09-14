@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["all_glyphs","register_glyphs"],"mod":["codepoint_map","constants","fonts","naming","variant"],"trait":["GlyphNameExt"],"type":["FamilyName"]};

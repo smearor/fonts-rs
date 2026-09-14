@@ -1,1 +1,0 @@
-rd_("lexport_iconsAfnerd_fonts_cheat_sheetAdnerd_fonts_generatorA`nerd_fonts_modelmnerd_fonts_rs")

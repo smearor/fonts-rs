@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["IconsCodemapGenerator"]};
+window.SIDEBAR_ITEMS = {"struct":["IconsNaming"],"type":["IconsCodemapGenerator"]};

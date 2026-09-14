@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["name_to_kebab","parse_cldr_annotations"],"struct":["CldrAnnotation","CldrAnnotations","CldrAnnotationsInner"]};

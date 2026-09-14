@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"static":["CATEGORIES","KEYWORDS"],"struct":["NotoEmojiMetadata"]};

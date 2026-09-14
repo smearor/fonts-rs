@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["build_reverse_cmap","probe_range"]};

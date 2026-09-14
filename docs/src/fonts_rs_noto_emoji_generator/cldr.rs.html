@@ -1,0 +1,98 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/fonts-rs-noto-emoji-generator/src/cldr.rs`."><title>cldr.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-1ed95124.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fonts_rs_noto_emoji_generator" data-themes="" data-resource-suffix="" data-rustdoc-version="1.98.1 (48a229cea 2026-09-01)" data-channel="1.98.1" data-search-js="search-9944d736.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="../../static.files/src-script-813739b1.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-417ebf0a.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><h1><div class="sub-heading">fonts_rs_noto_emoji_generator/</div>cldr.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-2"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! CLDR annotation parsing for emoji keywords and semantic names.
+<a href=#2 id=2 data-nosnippet>2</a>//!
+<a href=#3 id=3 data-nosnippet>3</a>//! The CLDR JSON uses the actual emoji character as the key.
+<a href=#4 id=4 data-nosnippet>4</a>//! The `tts` field contains the canonical name (e.g. "grinning face").
+<a href=#5 id=5 data-nosnippet>5</a>//! The `default` field contains search keywords (e.g. ["face", "grin"]).
+<a href=#6 id=6 data-nosnippet>6</a>
+<a href=#7 id=7 data-nosnippet>7</a></span><span class="kw">use </span>std::collections::HashMap;
+<a href=#8 id=8 data-nosnippet>8</a>
+<a href=#9 id=9 data-nosnippet>9</a><span class="kw">use </span>fonts_rs_model::CodePoint;
+<a href=#10 id=10 data-nosnippet>10</a><span class="kw">use </span>fonts_rs_model::CodePointKeywordMap;
+<a href=#11 id=11 data-nosnippet>11</a><span class="kw">use </span>fonts_rs_model::CodePointNameMap;
+<a href=#12 id=12 data-nosnippet>12</a><span class="kw">use </span>fonts_rs_model::GlyphNameMap;
+<a href=#13 id=13 data-nosnippet>13</a><span class="kw">use </span>serde::Deserialize;
+<a href=#14 id=14 data-nosnippet>14</a>
+<a href=#15 id=15 data-nosnippet>15</a><span class="doccomment">/// CLDR annotation entry: `tts` (name) and `default` (keywords).
+<a href=#16 id=16 data-nosnippet>16</a>///
+<a href=#17 id=17 data-nosnippet>17</a>/// Fields are optional because the JSON also contains an `identity` entry
+<a href=#18 id=18 data-nosnippet>18</a>/// with `language` instead of annotation data.
+<a href=#19 id=19 data-nosnippet>19</a></span><span class="attr">#[derive(Deserialize)]
+<a href=#20 id=20 data-nosnippet>20</a></span><span class="kw">pub struct </span>CldrAnnotation {
+<a href=#21 id=21 data-nosnippet>21</a>    <span class="attr">#[serde(rename = <span class="string">"tts"</span>, default)]
+<a href=#22 id=22 data-nosnippet>22</a>    </span>tts: Vec&lt;String&gt;,
+<a href=#23 id=23 data-nosnippet>23</a>    <span class="attr">#[serde(rename = <span class="string">"default"</span>, default)]
+<a href=#24 id=24 data-nosnippet>24</a>    </span>default: Vec&lt;String&gt;,
+<a href=#25 id=25 data-nosnippet>25</a>}
+<a href=#26 id=26 data-nosnippet>26</a>
+<a href=#27 id=27 data-nosnippet>27</a><span class="doccomment">/// CLDR annotations inner structure: contains `identity` and the actual annotations map.
+<a href=#28 id=28 data-nosnippet>28</a></span><span class="attr">#[derive(Deserialize)]
+<a href=#29 id=29 data-nosnippet>29</a></span><span class="kw">struct </span>CldrAnnotationsInner {
+<a href=#30 id=30 data-nosnippet>30</a>    <span class="attr">#[serde(default)]
+<a href=#31 id=31 data-nosnippet>31</a>    </span>_identity: serde_json::Value,
+<a href=#32 id=32 data-nosnippet>32</a>    annotations: HashMap&lt;String, CldrAnnotation&gt;,
+<a href=#33 id=33 data-nosnippet>33</a>}
+<a href=#34 id=34 data-nosnippet>34</a>
+<a href=#35 id=35 data-nosnippet>35</a><span class="doccomment">/// CLDR annotations root structure.
+<a href=#36 id=36 data-nosnippet>36</a></span><span class="attr">#[derive(Deserialize)]
+<a href=#37 id=37 data-nosnippet>37</a></span><span class="kw">struct </span>CldrAnnotations {
+<a href=#38 id=38 data-nosnippet>38</a>    annotations: CldrAnnotationsInner,
+<a href=#39 id=39 data-nosnippet>39</a>}
+<a href=#40 id=40 data-nosnippet>40</a>
+<a href=#41 id=41 data-nosnippet>41</a><span class="doccomment">/// Convert a CLDR tts name to a kebab-case glyph name.
+<a href=#42 id=42 data-nosnippet>42</a>///
+<a href=#43 id=43 data-nosnippet>43</a>/// e.g. "grinning face" → "grinning-face"
+<a href=#44 id=44 data-nosnippet>44</a>///      "face with tears of joy" → "face-with-tears-of-joy"
+<a href=#45 id=45 data-nosnippet>45</a></span><span class="kw">fn </span>name_to_kebab(name: <span class="kw-2">&amp;</span>str) -&gt; String {
+<a href=#46 id=46 data-nosnippet>46</a>    <span class="kw">let </span>kebab: String = name
+<a href=#47 id=47 data-nosnippet>47</a>        .to_lowercase()
+<a href=#48 id=48 data-nosnippet>48</a>        .chars()
+<a href=#49 id=49 data-nosnippet>49</a>        .map(|c| <span class="kw">if </span>c.is_ascii_alphanumeric() || c == <span class="string">' ' </span>{ c } <span class="kw">else </span>{ <span class="string">' ' </span>})
+<a href=#50 id=50 data-nosnippet>50</a>        .collect();
+<a href=#51 id=51 data-nosnippet>51</a>    <span class="kw">let </span>kebab: String = kebab.split_whitespace().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;().join(<span class="string">"-"</span>);
+<a href=#52 id=52 data-nosnippet>52</a>    kebab
+<a href=#53 id=53 data-nosnippet>53</a>}
+<a href=#54 id=54 data-nosnippet>54</a>
+<a href=#55 id=55 data-nosnippet>55</a><span class="doccomment">/// Parse CLDR annotations JSON into (name→codepoint map, keyword map, name map).
+<a href=#56 id=56 data-nosnippet>56</a>///
+<a href=#57 id=57 data-nosnippet>57</a>/// The CLDR JSON uses the actual emoji character as the key.
+<a href=#58 id=58 data-nosnippet>58</a>/// The `tts` field contains the canonical name (e.g. "grinning face").
+<a href=#59 id=59 data-nosnippet>59</a>/// The `default` field contains search keywords (e.g. ["face", "grin"]).
+<a href=#60 id=60 data-nosnippet>60</a></span><span class="kw">pub fn </span>parse_cldr_annotations(json: <span class="kw-2">&amp;</span>str) -&gt; miette::Result&lt;(GlyphNameMap, CodePointKeywordMap, CodePointNameMap)&gt; {
+<a href=#61 id=61 data-nosnippet>61</a>    <span class="kw">let </span>data: CldrAnnotations = serde_json::from_str(json).map_err(|e| <span class="macro">miette::miette!</span>(<span class="string">"Failed to parse CLDR annotations: {e}"</span>))<span class="question-mark">?</span>;
+<a href=#62 id=62 data-nosnippet>62</a>
+<a href=#63 id=63 data-nosnippet>63</a>    <span class="kw">let </span><span class="kw-2">mut </span>name_map = GlyphNameMap::new();
+<a href=#64 id=64 data-nosnippet>64</a>    <span class="kw">let </span><span class="kw-2">mut </span>keyword_map = CodePointKeywordMap::new();
+<a href=#65 id=65 data-nosnippet>65</a>    <span class="kw">let </span><span class="kw-2">mut </span>name_by_codepoint = CodePointNameMap::new();
+<a href=#66 id=66 data-nosnippet>66</a>
+<a href=#67 id=67 data-nosnippet>67</a>    <span class="kw">for </span>(char_str, annotation) <span class="kw">in </span><span class="kw-2">&amp;</span>data.annotations.annotations {
+<a href=#68 id=68 data-nosnippet>68</a>        <span class="comment">// The key is the actual emoji character(s). For single-codepoint emoji,
+<a href=#69 id=69 data-nosnippet>69</a>        // take the first char. For sequences (e.g. skin tone modifiers), skip
+<a href=#70 id=70 data-nosnippet>70</a>        // multi-codepoint entries that aren't in the font.
+<a href=#71 id=71 data-nosnippet>71</a>        </span><span class="kw">let </span><span class="prelude-val">Some</span>(ch) = char_str.chars().next() <span class="kw">else </span>{ <span class="kw">continue </span>};
+<a href=#72 id=72 data-nosnippet>72</a>        <span class="kw">if </span>char_str.chars().count() &gt; <span class="number">1 </span>{
+<a href=#73 id=73 data-nosnippet>73</a>            <span class="kw">continue</span>;
+<a href=#74 id=74 data-nosnippet>74</a>        }
+<a href=#75 id=75 data-nosnippet>75</a>        <span class="kw">let </span>codepoint = CodePoint::from(ch);
+<a href=#76 id=76 data-nosnippet>76</a>
+<a href=#77 id=77 data-nosnippet>77</a>        <span class="comment">// Skip entries without a tts name (e.g. the identity entry)
+<a href=#78 id=78 data-nosnippet>78</a>        </span><span class="kw">if </span>annotation.tts.is_empty() {
+<a href=#79 id=79 data-nosnippet>79</a>            <span class="kw">continue</span>;
+<a href=#80 id=80 data-nosnippet>80</a>        }
+<a href=#81 id=81 data-nosnippet>81</a>
+<a href=#82 id=82 data-nosnippet>82</a>        <span class="comment">// Use the first tts entry as the canonical name
+<a href=#83 id=83 data-nosnippet>83</a>        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(name) = annotation.tts.first() {
+<a href=#84 id=84 data-nosnippet>84</a>            <span class="kw">let </span>kebab = name_to_kebab(name);
+<a href=#85 id=85 data-nosnippet>85</a>            <span class="kw">if </span>!kebab.is_empty() {
+<a href=#86 id=86 data-nosnippet>86</a>                name_map.insert(kebab.clone(), codepoint);
+<a href=#87 id=87 data-nosnippet>87</a>                name_by_codepoint.insert(codepoint, kebab);
+<a href=#88 id=88 data-nosnippet>88</a>            }
+<a href=#89 id=89 data-nosnippet>89</a>        }
+<a href=#90 id=90 data-nosnippet>90</a>
+<a href=#91 id=91 data-nosnippet>91</a>        <span class="kw">if </span>!annotation.default.is_empty() {
+<a href=#92 id=92 data-nosnippet>92</a>            keyword_map.insert(codepoint, annotation.default.clone());
+<a href=#93 id=93 data-nosnippet>93</a>        }
+<a href=#94 id=94 data-nosnippet>94</a>    }
+<a href=#95 id=95 data-nosnippet>95</a>
+<a href=#96 id=96 data-nosnippet>96</a>    <span class="prelude-val">Ok</span>((name_map, keyword_map, name_by_codepoint))
+<a href=#97 id=97 data-nosnippet>97</a>}
+</code></pre></div></section></main></body></html>
