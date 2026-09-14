@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-09-14
+
 ### Added
 
 - **Modular fonts framework**: generic `fonts-rs-model` and `fonts-rs-generator` crates providing a font-family-agnostic build pipeline for glyph export, SVG generation, GResource packaging, and code generation
@@ -47,6 +49,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Cleanup strategy**: improved cleanup for fonts with variants (hash-based change detection with `extra_hash`)
 - **Generated files split**: code generation now produces separate `codemap.rs`, `icons.rs`, and `variant.rs` files instead of a single file
 - **Abstracted font family metadata**: `FONT_FAMILY_NAME`, `GRESOURCE_PREFIX`, `ICONS_CONTEXT`, and `CODEPOINT_RANGES` as `FontFamilyConfig` associated constants
+- **Variant selection fallback**: `VariantList::detect_active_index` now falls back to the default variant when multiple variant features are active (e.g. `--all-features` in CI) instead of erroring
+- **Example binaries renamed**: all `interactive_demo.rs` examples renamed to unique per-crate names (`seven_segment_demo`, `fourteen_segment_demo`, `barcode_code39_demo`, etc.)
+- **Generator examples renamed**: `generate.rs` examples renamed to `generate_nerd_fonts.rs` and `generate_noto_emoji.rs` to avoid output filename collisions
 
 ### Removed
 
