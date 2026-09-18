@@ -7,6 +7,8 @@
 //! cargo run --example barcode_code128_demo --features gtk
 //! ```
 
+use fonts_rs_barcode_code128::Code128;
+use fonts_rs_barcode_code128::GtkFont;
 use gtk4::Align;
 use gtk4::Application;
 use gtk4::ApplicationWindow;
@@ -22,11 +24,11 @@ use miette::Result;
 const APP_ID: &str = "io.smearor.fonts_rs.barcode_code128_demo";
 
 const FONT_FAMILY: &str = "LibreBarcode128";
-const FONT_PATH: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/resources/LibreBarcode128-Regular.ttf");
 
 fn main() -> Result<glib::ExitCode> {
     gtk4::init().into_diagnostic()?;
-    fonts_rs_barcode_code128::register_glyphs().into_diagnostic()?;
+    Code128::register_glyphs().into_diagnostic()?;
+    Code128::register_font().into_diagnostic()?;
 
     let app = Application::builder().application_id(APP_ID).build();
 
@@ -52,8 +54,13 @@ fn build_ui(app: &Application) {
         .build();
 
     if let Some(font_map) = window.pango_context().font_map() {
-        if let Err(e) = font_map.add_font_file(FONT_PATH) {
-            eprintln!("Failed to load font: {e}");
+        match Code128::load_font() {
+            Ok(path) => {
+                if let Err(e) = font_map.add_font_file(path) {
+                    eprintln!("Failed to load font: {e}");
+                }
+            }
+            Err(e) => eprintln!("Failed to load font from GResource: {e}"),
         }
     } else {
         eprintln!("No Pango font map available");

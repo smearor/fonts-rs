@@ -10,7 +10,7 @@
 
 use const_format::concatcp;
 use fonts_rs_generator::FontDefinition;
-use fonts_rs_generator::FontFamilyConfig;
+use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_model::CodePointRange;
 use fonts_rs_model::FontFamily;
 use fonts_rs_model::GRESOURCE_BASE_PREFIX;

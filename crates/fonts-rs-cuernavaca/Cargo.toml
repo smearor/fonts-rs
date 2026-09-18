@@ -25,7 +25,7 @@ include = [
 [features]
 default = ["gtk"]
 
-gtk = ["dep:gtk4", "dep:gio"]
+gtk = ["dep:gtk4", "dep:gio", "fonts-rs-generator/gtk"]
 render = ["dep:ab_glyph"]
 embed-fonts = []
 
@@ -35,6 +35,7 @@ fonts-rs-model.workspace = true
 gio = { workspace = true, optional = true }
 gtk4 = { workspace = true, optional = true }
 ab_glyph = { workspace = true, optional = true }
+const_format.workspace = true
 phf.workspace = true
 tracing.workspace = true
 
@@ -48,10 +49,43 @@ miette.workspace = true
 workspace = true
 
 [dev-dependencies]
+fonts-rs-test = { workspace = true, features = ["gtk", "render"] }
 gtk4 = { workspace = true, features = ["v4_12"] }
 glib.workspace = true
 miette.workspace = true
 
 [[example]]
 name = "chess_board"
+required-features = ["gtk", "render", "embed-fonts"]
+
+[[example]]
+name = "gtk_icon_theme"
+required-features = ["gtk"]
+
+[[example]]
+name = "svg_gresource"
+required-features = ["gtk"]
+
+[[example]]
+name = "svg_html"
+required-features = ["gtk"]
+
+[[example]]
+name = "composed_svg_text"
+required-features = ["gtk"]
+
+[[example]]
+name = "css_class_html"
+required-features = ["gtk"]
+
+[[example]]
+name = "gtk_gresource"
+required-features = ["gtk"]
+
+[[example]]
+name = "system_font_fallback"
+required-features = ["gtk"]
+
+[[example]]
+name = "embed_fonts_render"
 required-features = ["gtk", "render", "embed-fonts"]

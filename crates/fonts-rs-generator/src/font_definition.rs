@@ -17,8 +17,10 @@ use serde::Serialize;
 use skrifa::GlyphId;
 use skrifa::MetadataProvider;
 
+use fonts_rs_model::FontFamilyConfig;
+
 use crate::font::Font;
-use crate::font_family_config::FontFamilyConfig;
+use crate::font_family_config::FontFamilyConfigExt;
 use crate::gresource::model::GResource;
 use crate::gresource::model::GResourceFile;
 use crate::gresource::model::GResources;

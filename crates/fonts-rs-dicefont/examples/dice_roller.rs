@@ -13,7 +13,8 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use fonts_rs_dicefont::register_glyphs;
+use fonts_rs_dicefont::GtkFont;
+use fonts_rs_dicefont::naming::Dicefont;
 use fonts_rs_dicefont::variant;
 
 use gtk4::Align;
@@ -169,7 +170,7 @@ struct DiceState {
 
 fn main() -> Result<glib::ExitCode> {
     gtk4::init().into_diagnostic()?;
-    register_glyphs().into_diagnostic()?;
+    Dicefont::register_glyphs().into_diagnostic()?;
 
     let app = Application::builder().application_id(APP_ID).build();
     app.connect_activate(build_ui);

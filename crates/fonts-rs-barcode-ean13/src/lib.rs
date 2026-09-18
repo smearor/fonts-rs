@@ -7,11 +7,13 @@
 //!
 //! ```no_run
 //! # #[cfg(feature = "gtk")]
-//! use fonts_rs_barcode_ean13::register_glyphs;
+//! use fonts_rs_barcode_ean13::Ean13;
+//! # #[cfg(feature = "gtk")]
+//! use fonts_rs_barcode_ean13::GtkFont;
 //!
 //! # #[cfg(feature = "gtk")]
 //! // Call once at startup before using any glyphs
-//! register_glyphs().unwrap();
+//! Ean13::register_glyphs().unwrap();
 //! ```
 //!
 //! Then resolve glyph names to Unicode codepoints:
@@ -28,19 +30,20 @@ pub mod codepoint_map;
 pub mod constants;
 pub mod definition;
 
+#[cfg(feature = "gtk")]
+pub mod gtk;
+
 #[cfg(feature = "render")]
 pub mod fonts;
 
-use fonts_rs_generator::FontFamilyConfig;
 use fonts_rs_model::CodePoint;
 
 // Re-export key types
 pub use definition::Ean13;
 pub use definition::Ean13Definition;
 pub use definition::Ean13Name;
-
-/// GResource prefix for this font family.
-pub const GRESOURCE_PREFIX: &str = Ean13Definition::GRESOURCE_PREFIX;
+#[cfg(feature = "gtk")]
+pub use fonts_rs_model::GtkFont;
 
 /// Extension trait adding codepoint lookup to `GlyphName<Ean13>`.
 pub trait GlyphNameExt {
@@ -55,35 +58,6 @@ impl GlyphNameExt for Ean13Name {
         let key = self.as_ref();
         codepoint_map::REVERSE_GLYPHS.get(key).copied().map(CodePoint::from)
     }
-}
-
-/// Registers embedded EAN13 glyphs as a GResource.
-///
-/// Must be called once before using any glyphs through GTK/GIO APIs.
-/// After registration, glyphs are loadable via `Gtk::Image::from_resource`
-/// using the resource path `{GRESOURCE_PREFIX}/scalable/glyphs/{name}.svg`.
-///
-/// # Errors
-///
-/// Returns a [`gio::glib::Error`] if resource registration fails.
-#[cfg(feature = "gtk")]
-pub fn register_glyphs() -> Result<(), gio::glib::Error> {
-    gio::resources_register_include!("icons.gresource")?;
-    Ok(())
-}
-
-/// Registers the EAN13 TTF font as a GResource.
-///
-/// Must be called once before using the font via CSS `@font-face` with
-/// `resource://` URLs.
-///
-/// # Errors
-///
-/// Returns a [`gio::glib::Error`] if resource registration fails.
-#[cfg(feature = "gtk")]
-pub fn register_font() -> Result<(), gio::glib::Error> {
-    gio::resources_register_include!("font.gresource")?;
-    Ok(())
 }
 
 /// Returns an iterator over all known glyphs, yielding

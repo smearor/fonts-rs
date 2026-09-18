@@ -12,8 +12,7 @@ use skrifa::instance::Location;
 use fonts_rs_model::AxisValues;
 use fonts_rs_model::CodePoint;
 use fonts_rs_model::CodePointRange;
-
-use crate::font_family_config::FontFamilyConfig;
+use fonts_rs_model::FontFamilyConfig;
 
 /// A newtype wrapper around `skrifa::FontRef` providing font utility methods.
 ///

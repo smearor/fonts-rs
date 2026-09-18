@@ -9,8 +9,9 @@
 
 use fonts_rs_fourteen_segment::FourteenSegmentName;
 use fonts_rs_fourteen_segment::GlyphNameExt;
+use fonts_rs_fourteen_segment::GtkFont;
 use fonts_rs_fourteen_segment::all_glyphs;
-use fonts_rs_fourteen_segment::register_glyphs;
+use fonts_rs_fourteen_segment::naming::FourteenSegment;
 use fonts_rs_fourteen_segment::variant;
 
 use gtk4::Align;
@@ -80,7 +81,7 @@ const GALLERY_GLYPH_BASES: &[&str] = &[
 
 fn main() -> Result<glib::ExitCode> {
     gtk4::init().into_diagnostic()?;
-    register_glyphs().into_diagnostic()?;
+    FourteenSegment::register_glyphs().into_diagnostic()?;
 
     let app = Application::builder().application_id(APP_ID).build();
 

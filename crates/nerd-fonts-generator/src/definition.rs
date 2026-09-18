@@ -4,7 +4,7 @@
 //! font family, allowing the `FontDefinition::export_glyphs` pipeline to be used.
 
 use fonts_rs_generator::FontDefinition;
-use fonts_rs_generator::FontFamilyConfig;
+use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_model::BMP_RANGE;
 use fonts_rs_model::CodePointRange;
 use fonts_rs_model::FontFamily;

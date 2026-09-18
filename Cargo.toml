@@ -19,6 +19,7 @@ members = [
     "crates/nerd-fonts-generator",
     "crates/nerd-fonts-rs",
     "crates/nerd-fonts-cheat-sheet",
+    "crates/fonts-rs-test",
 ]
 resolver = "2"
 
@@ -55,6 +56,7 @@ fonts-rs-cuernavaca = { version = "0.3.0", path = "crates/fonts-rs-cuernavaca" }
 nerd-fonts-model = { version = "0.3.0", path = "crates/nerd-fonts-model" }
 nerd-fonts-generator = { version = "0.3.0", path = "crates/nerd-fonts-generator" }
 nerd-fonts-rs = { version = "0.3.0", path = "crates/nerd-fonts-rs" }
+fonts-rs-test = { version = "0.3.0", path = "crates/fonts-rs-test" }
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
@@ -93,3 +95,6 @@ phf = { version = "0.14", features = ["macros"] }
 
 # Logging
 tracing = "0.1"
+
+# Base64 encoding
+base64 = "0.22"

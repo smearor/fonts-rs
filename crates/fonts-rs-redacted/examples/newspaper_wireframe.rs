@@ -1,6 +1,8 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
+use fonts_rs_redacted::GtkFont;
+use fonts_rs_redacted::naming::Redacted;
 use fonts_rs_redacted::variant;
 use gtk4::Align;
 use gtk4::Application;
@@ -214,7 +216,7 @@ struct WireframeState {
 
 fn main() -> Result<glib::ExitCode> {
     gtk4::init().into_diagnostic()?;
-    fonts_rs_redacted::register_glyphs().into_diagnostic()?;
+    Redacted::register_glyphs().into_diagnostic()?;
 
     let app = Application::builder().application_id(APP_ID).build();
     app.connect_activate(build_ui);

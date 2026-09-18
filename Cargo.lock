@@ -90,6 +90,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f2032f911046de80f0a198e0901378627c33f59ea0ac00e363d481118bd70a53"
 
 [[package]]
+name = "base64"
+version = "0.22.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
+
+[[package]]
 name = "bitflags"
 version = "2.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -309,6 +315,7 @@ dependencies = [
  "const_format",
  "fonts-rs-generator",
  "fonts-rs-model",
+ "fonts-rs-test",
  "gio",
  "glib",
  "gtk4",
@@ -323,9 +330,11 @@ name = "fonts-rs-barcode-code39"
 version = "0.3.0"
 dependencies = [
  "ab_glyph",
+ "base64",
  "const_format",
  "fonts-rs-generator",
  "fonts-rs-model",
+ "fonts-rs-test",
  "gio",
  "glib",
  "gtk4",
@@ -340,9 +349,11 @@ name = "fonts-rs-barcode-ean13"
 version = "0.3.0"
 dependencies = [
  "ab_glyph",
+ "base64",
  "const_format",
  "fonts-rs-generator",
  "fonts-rs-model",
+ "fonts-rs-test",
  "gio",
  "glib",
  "gtk4",
@@ -357,13 +368,16 @@ name = "fonts-rs-bravura"
 version = "0.3.0"
 dependencies = [
  "ab_glyph",
+ "base64",
  "const_format",
  "fonts-rs-generator",
  "fonts-rs-model",
+ "fonts-rs-test",
  "gio",
  "glib",
  "gtk4",
  "miette",
+ "pango",
  "phf",
  "serde",
  "serde_json",
@@ -378,6 +392,7 @@ dependencies = [
  "const_format",
  "fonts-rs-generator",
  "fonts-rs-model",
+ "fonts-rs-test",
  "gio",
  "glib",
  "gtk4",
@@ -394,6 +409,7 @@ dependencies = [
  "const_format",
  "fonts-rs-generator",
  "fonts-rs-model",
+ "fonts-rs-test",
  "gio",
  "glib",
  "gtk4",
@@ -407,13 +423,16 @@ name = "fonts-rs-doto"
 version = "0.3.0"
 dependencies = [
  "ab_glyph",
+ "base64",
  "const_format",
  "fonts-rs-generator",
  "fonts-rs-model",
+ "fonts-rs-test",
  "gio",
  "glib",
  "gtk4",
  "miette",
+ "pango",
  "phf",
  "tracing",
 ]
@@ -426,6 +445,7 @@ dependencies = [
  "const_format",
  "fonts-rs-generator",
  "fonts-rs-model",
+ "fonts-rs-test",
  "gio",
  "glib",
  "gtk4",
@@ -440,6 +460,7 @@ version = "0.3.0"
 dependencies = [
  "font-types",
  "fonts-rs-model",
+ "gio",
  "glib-build-tools",
  "miette",
  "quick-xml",
@@ -454,6 +475,7 @@ dependencies = [
 name = "fonts-rs-model"
 version = "0.3.0"
 dependencies = [
+ "gio",
  "phf",
  "serde",
  "thiserror 2.0.20",
@@ -464,10 +486,13 @@ name = "fonts-rs-noto-emoji"
 version = "0.3.0"
 dependencies = [
  "ab_glyph",
+ "const_format",
  "fonts-rs-generator",
  "fonts-rs-model",
  "fonts-rs-noto-emoji-generator",
+ "fonts-rs-test",
  "gio",
+ "glib",
  "gtk4",
  "miette",
  "phf",
@@ -509,6 +534,7 @@ dependencies = [
  "const_format",
  "fonts-rs-generator",
  "fonts-rs-model",
+ "fonts-rs-test",
  "gio",
  "glib",
  "gtk4",
@@ -525,12 +551,26 @@ dependencies = [
  "const_format",
  "fonts-rs-generator",
  "fonts-rs-model",
+ "fonts-rs-test",
  "gio",
  "glib",
  "gtk4",
  "miette",
  "phf",
  "tracing",
+]
+
+[[package]]
+name = "fonts-rs-test"
+version = "0.3.0"
+dependencies = [
+ "ab_glyph",
+ "base64",
+ "fonts-rs-model",
+ "gio",
+ "gtk4",
+ "miette",
+ "pango",
 ]
 
 [[package]]
@@ -1011,6 +1051,7 @@ dependencies = [
  "const_format",
  "fonts-rs-generator",
  "fonts-rs-model",
+ "fonts-rs-test",
  "gio",
  "glib",
  "glib-build-tools",

@@ -8,6 +8,7 @@ use std::path::Path;
 
 use fonts_rs_generator::ExportConfig;
 use fonts_rs_generator::FontBuild;
+use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_generator::build_constants;
 use fonts_rs_generator::set_font_path_env;
 
@@ -26,6 +27,8 @@ fn main() -> miette::Result<()> {
     let config = ExportConfig::<CuernavacaConfig>::new();
 
     FontBuild::new(&font_path)
+        .compile_font_gresource()
+        .gresource_prefix(CuernavacaConfig::GRESOURCE_PREFIX)
         .run(|font_path, resources_dir| config.export_glyphs(font_path, resources_dir))
         .map_err(|e| miette::miette!("{e}"))?;
 

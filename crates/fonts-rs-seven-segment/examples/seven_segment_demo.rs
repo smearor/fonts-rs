@@ -8,9 +8,10 @@
 //! ```
 
 use fonts_rs_seven_segment::GlyphNameExt;
+use fonts_rs_seven_segment::GtkFont;
 use fonts_rs_seven_segment::SevenSegmentName;
 use fonts_rs_seven_segment::all_glyphs;
-use fonts_rs_seven_segment::register_glyphs;
+use fonts_rs_seven_segment::naming::SevenSegment;
 use fonts_rs_seven_segment::variant;
 
 use gtk4::Align;
@@ -80,7 +81,7 @@ const GALLERY_GLYPH_BASES: &[&str] = &[
 
 fn main() -> Result<glib::ExitCode> {
     gtk4::init().into_diagnostic()?;
-    register_glyphs().into_diagnostic()?;
+    SevenSegment::register_glyphs().into_diagnostic()?;
 
     let app = Application::builder().application_id(APP_ID).build();
 

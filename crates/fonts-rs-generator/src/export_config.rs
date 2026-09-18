@@ -24,7 +24,9 @@ use skrifa::instance::LocationRef;
 use crate::export_error::ExportError;
 use crate::font::Font;
 use crate::font_definition::normalize_to_kebab;
-use crate::font_family_config::FontFamilyConfig;
+use fonts_rs_model::FontFamilyConfig;
+
+use crate::font_family_config::FontFamilyConfigExt;
 use crate::gresource::model::GResource;
 use crate::gresource::model::GResourceFile;
 use crate::gresource::model::GResources;

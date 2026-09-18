@@ -15,8 +15,9 @@ use ab_glyph::Font;
 use ab_glyph::FontVec;
 use ab_glyph::OutlineCurve;
 
+use fonts_rs_bravura::GtkFont;
 use fonts_rs_bravura::fonts;
-use fonts_rs_bravura::register_glyphs;
+use fonts_rs_bravura::naming::Bravura;
 
 use gtk4::Application;
 use gtk4::ApplicationWindow;
@@ -356,7 +357,7 @@ fn main() -> Result<()> {
 }
 
 fn build_ui(app: &Application) {
-    if let Err(e) = register_glyphs() {
+    if let Err(e) = Bravura::register_glyphs() {
         eprintln!("Failed to register glyphs: {e}");
     }
 

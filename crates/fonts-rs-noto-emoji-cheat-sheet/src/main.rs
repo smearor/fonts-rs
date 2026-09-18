@@ -15,8 +15,9 @@ use std::rc::Rc;
 
 use fonts_rs_model::CodePoint;
 use fonts_rs_noto_emoji::GlyphNameExt;
+use fonts_rs_noto_emoji::GtkFont;
 use fonts_rs_noto_emoji::all_emoji;
-use fonts_rs_noto_emoji::register_glyphs;
+use fonts_rs_noto_emoji::naming::NotoEmoji;
 use fonts_rs_noto_emoji::variant::GRESOURCE_PREFIX;
 use gtk4::Align;
 use gtk4::Application;
@@ -92,7 +93,7 @@ fn navigate_to(
 
 fn main() -> Result<glib::ExitCode> {
     gtk4::init().into_diagnostic()?;
-    register_glyphs().into_diagnostic()?;
+    NotoEmoji::register_glyphs().into_diagnostic()?;
 
     let app = Application::builder().application_id(APP_ID).build();
     app.connect_activate(build_ui);

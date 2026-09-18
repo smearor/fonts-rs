@@ -5,7 +5,7 @@
 
 use const_format::concatcp;
 use fonts_rs_generator::FontDefinition;
-use fonts_rs_generator::FontFamilyConfig;
+use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_generator::normalize_to_kebab;
 use fonts_rs_model::ASCII_PRINTABLE_RANGE;
 use fonts_rs_model::CodePointRange;

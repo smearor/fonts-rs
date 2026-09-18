@@ -7,6 +7,8 @@
 //! cargo run --example barcode_ean13_demo --features gtk
 //! ```
 
+use fonts_rs_barcode_ean13::Ean13;
+use fonts_rs_barcode_ean13::GtkFont;
 use gtk4::Align;
 use gtk4::Application;
 use gtk4::ApplicationWindow;
@@ -22,7 +24,6 @@ use miette::Result;
 const APP_ID: &str = "io.smearor.fonts_rs.barcode_ean13_demo";
 
 const FONT_FAMILY: &str = "LibreBarcodeEAN13Text";
-const FONT_PATH: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/resources/LibreBarcodeEAN13Text-Regular.ttf");
 
 /// EAN13 set A/B parity patterns indexed by the first digit (0-9).
 const PARITY_PATTERNS: &[[char; 6]] = &[
@@ -109,7 +110,8 @@ fn encode_ean13(input: &str) -> Result<String, String> {
 
 fn main() -> Result<glib::ExitCode> {
     gtk4::init().into_diagnostic()?;
-    fonts_rs_barcode_ean13::register_glyphs().into_diagnostic()?;
+    Ean13::register_glyphs().into_diagnostic()?;
+    Ean13::register_font().into_diagnostic()?;
 
     let app = Application::builder().application_id(APP_ID).build();
 
@@ -135,8 +137,13 @@ fn build_ui(app: &Application) {
         .build();
 
     if let Some(font_map) = window.pango_context().font_map() {
-        if let Err(e) = font_map.add_font_file(FONT_PATH) {
-            eprintln!("Failed to load font: {e}");
+        match Ean13::load_font() {
+            Ok(path) => {
+                if let Err(e) = font_map.add_font_file(path) {
+                    eprintln!("Failed to load font: {e}");
+                }
+            }
+            Err(e) => eprintln!("Failed to load font from GResource: {e}"),
         }
     } else {
         eprintln!("No Pango font map available");

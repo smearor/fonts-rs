@@ -4,8 +4,13 @@
 //! for Nerd Font symbols.
 
 pub mod css;
+pub mod definition;
 pub mod icons;
 pub mod init;
+pub mod naming;
+
+#[cfg(feature = "gtk")]
+pub mod gtk_font;
 
 #[cfg(feature = "pango")]
 pub mod font_loader;
@@ -23,8 +28,10 @@ pub mod fonts;
 pub mod web;
 
 // Re-export model types
+pub use definition::NerdFontsConfig;
 pub use fonts_rs_model::GlyphCategory;
 pub use fonts_rs_model::GlyphKeyword;
+pub use naming::NerdFonts;
 pub use nerd_fonts_model::CodePoint;
 pub use nerd_fonts_model::CodePointParseError;
 pub use nerd_fonts_model::GlyphEntry;

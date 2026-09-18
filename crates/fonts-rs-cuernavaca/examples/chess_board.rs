@@ -17,8 +17,9 @@ use ab_glyph::Font;
 use ab_glyph::FontVec;
 use ab_glyph::OutlineCurve;
 
+use fonts_rs_cuernavaca::GtkFont;
 use fonts_rs_cuernavaca::fonts;
-use fonts_rs_cuernavaca::register_glyphs;
+use fonts_rs_cuernavaca::naming::Cuernavaca;
 
 use gtk4::Align;
 use gtk4::Application;
@@ -696,7 +697,7 @@ fn draw_glyph_with_outline(
 
 fn main() -> Result<glib::ExitCode> {
     gtk4::init().into_diagnostic()?;
-    register_glyphs().into_diagnostic()?;
+    Cuernavaca::register_glyphs().into_diagnostic()?;
 
     let app = Application::builder().application_id(APP_ID).build();
     app.connect_activate(build_ui);

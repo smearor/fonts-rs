@@ -4,7 +4,7 @@ use std::marker::PhantomData;
 
 use fonts_rs_model::FontVariant;
 
-use crate::font_family_config::FontFamilyConfig;
+use fonts_rs_model::FontFamilyConfig;
 
 /// A typed list of font variants, generic over a [`FontFamilyConfig`].
 ///

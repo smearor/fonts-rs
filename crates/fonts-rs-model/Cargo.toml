@@ -12,10 +12,14 @@ categories.workspace = true
 description = "Generic model types for font glyph packaging: CodePoint, ResourcePath, GlyphName, GlyphEntry"
 publish = true
 
+[features]
+gtk = ["dep:gio"]
+
 [dependencies]
 phf.workspace = true
 serde.workspace = true
 thiserror.workspace = true
+gio = { workspace = true, optional = true }
 
 [lints]
 workspace = true

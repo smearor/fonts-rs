@@ -14,7 +14,8 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use std::time::Instant;
 
-use fonts_rs_doto::register_glyphs;
+use fonts_rs_doto::GtkFont;
+use fonts_rs_doto::naming::Doto;
 use fonts_rs_doto::variant;
 
 use gtk4::Align;
@@ -233,7 +234,7 @@ struct MarqueeState {
 
 fn main() -> Result<glib::ExitCode> {
     gtk4::init().into_diagnostic()?;
-    register_glyphs().into_diagnostic()?;
+    Doto::register_glyphs().into_diagnostic()?;
 
     let app = Application::builder().application_id(APP_ID).build();
     app.connect_activate(build_ui);

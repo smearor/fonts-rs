@@ -20,6 +20,8 @@ pub mod font_loader;
 pub mod font_variant_ext;
 pub mod generator;
 pub mod gresource;
+#[cfg(feature = "gtk")]
+pub mod gtk;
 pub mod svg;
 pub mod variant_list;
 
@@ -31,7 +33,7 @@ pub use export_error::ExportError;
 pub use font::Font;
 pub use font_definition::FontDefinition;
 pub use font_definition::normalize_to_kebab;
-pub use font_family_config::FontFamilyConfig;
+pub use font_family_config::FontFamilyConfigExt;
 pub use font_variant_ext::FontVariantExt;
 pub use generator::codemap::CodemapGenerator;
 pub use generator::codemap::CodemapNaming;

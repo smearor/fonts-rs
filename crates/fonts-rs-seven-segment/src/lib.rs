@@ -11,11 +11,13 @@
 //!
 //! ```no_run
 //! # #[cfg(feature = "gtk")]
-//! use fonts_rs_seven_segment::register_glyphs;
+//! use fonts_rs_seven_segment::GtkFont;
+//! # #[cfg(feature = "gtk")]
+//! use fonts_rs_seven_segment::naming::SevenSegment;
 //!
 //! # #[cfg(feature = "gtk")]
 //! // Call once at startup before using any glyphs
-//! if let Err(e) = fonts_rs_seven_segment::register_glyphs() {
+//! if let Err(e) = SevenSegment::register_glyphs() {
 //!     eprintln!("Failed to register glyphs: {e}");
 //! }
 //! ```
@@ -32,8 +34,12 @@
 
 pub mod codepoint_map;
 pub mod constants;
+pub mod definition;
 pub mod naming;
 pub mod variant;
+
+#[cfg(feature = "gtk")]
+pub mod gtk;
 
 #[cfg(feature = "render")]
 pub mod fonts;
@@ -41,6 +47,9 @@ pub mod fonts;
 use fonts_rs_model::CodePoint;
 
 // Re-export key types
+pub use definition::SevenSegmentConfig;
+#[cfg(feature = "gtk")]
+pub use fonts_rs_model::GtkFont;
 pub use naming::SevenSegmentName;
 
 /// Type alias for this font family's glyph name type.
@@ -71,21 +80,6 @@ impl GlyphNameExt for SevenSegmentName {
         let full = format!("{}-{}", variant::GLYPH_PREFIX, key);
         codepoint_map::REVERSE_GLYPHS.get(&full).copied().map(CodePoint::from)
     }
-}
-
-/// Registers embedded DSEG7 glyphs as a GResource.
-///
-/// Must be called once before using any glyphs through GTK/GIO APIs.
-/// After registration, glyphs are loadable via `Gtk::Image::from_resource`
-/// using the resource path `{GRESOURCE_PREFIX}/scalable/glyphs/{name}.svg`.
-///
-/// # Errors
-///
-/// Returns a [`gio::glib::Error`] if resource registration fails.
-#[cfg(feature = "gtk")]
-pub fn register_glyphs() -> Result<(), gio::glib::Error> {
-    gio::resources_register_include!("icons.gresource")?;
-    Ok(())
 }
 
 /// Returns an iterator over all known glyphs, yielding

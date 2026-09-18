@@ -13,6 +13,7 @@ use std::path::Path;
 
 use fonts_rs_generator::ExportConfig;
 use fonts_rs_generator::FontBuild;
+use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_generator::MetadataGenerator;
 use fonts_rs_generator::build_constants;
 use fonts_rs_noto_emoji_generator::ANNOTATIONS_FILE;
@@ -48,6 +49,8 @@ fn main() -> miette::Result<()> {
     let config = ExportConfig::<NotoEmojiDefinition>::new();
 
     FontBuild::new(&font_path)
+        .compile_font_gresource()
+        .gresource_prefix(NotoEmojiDefinition::GRESOURCE_PREFIX)
         .run(|font_path, resources_dir| config.export_glyphs_by_name_map(font_path, resources_dir, &name_map))
         .map_err(|e| miette::miette!("{e}"))?;
 

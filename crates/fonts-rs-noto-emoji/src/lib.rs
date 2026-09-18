@@ -9,11 +9,13 @@
 //!
 //! ```no_run
 //! # #[cfg(feature = "gtk")]
-//! use fonts_rs_noto_emoji::register_glyphs;
+//! use fonts_rs_noto_emoji::GtkFont;
+//! # #[cfg(feature = "gtk")]
+//! use fonts_rs_noto_emoji::naming::NotoEmoji;
 //!
 //! # #[cfg(feature = "gtk")]
 //! // Call once at startup before using any glyphs
-//! if let Err(e) = fonts_rs_noto_emoji::register_glyphs() {
+//! if let Err(e) = NotoEmoji::register_glyphs() {
 //!     eprintln!("Failed to register glyphs: {e}");
 //! }
 //! ```
@@ -30,8 +32,12 @@
 
 pub mod codepoint_map;
 pub mod constants;
+pub mod definition;
 pub mod naming;
 pub mod variant;
+
+#[cfg(feature = "gtk")]
+pub mod gtk;
 
 #[cfg(feature = "render")]
 pub mod fonts;
@@ -42,6 +48,9 @@ pub mod metadata;
 use fonts_rs_model::CodePoint;
 
 // Re-export key types
+pub use definition::NotoEmojiConfig;
+#[cfg(feature = "gtk")]
+pub use fonts_rs_model::GtkFont;
 pub use naming::NotoEmojiName;
 
 /// Type alias for this font family's glyph name type.
@@ -73,19 +82,10 @@ impl GlyphNameExt for NotoEmojiName {
     }
 }
 
-/// Registers embedded Noto Emoji glyphs as a GResource.
-///
-/// Must be called once before using any glyphs through GTK/GIO APIs.
-/// After registration, glyphs are loadable via `Gtk::Image::from_resource`
-/// using the resource path `{GRESOURCE_PREFIX}/scalable/emoji/{name}.svg`.
-///
-/// # Errors
-///
-/// Returns a [`gio::glib::Error`] if resource registration fails.
-#[cfg(feature = "gtk")]
-pub fn register_glyphs() -> Result<(), gio::glib::Error> {
-    gio::resources_register_include!("icons.gresource")?;
-    Ok(())
+/// Returns an iterator over all known glyphs, yielding
+/// `(char, &'static str)` pairs of codepoint and glyph name.
+pub fn all_glyphs() -> impl Iterator<Item = (char, &'static str)> {
+    codepoint_map::GLYPHS.entries().map(|(c, name)| (*c, *name))
 }
 
 /// Returns all known Noto Emoji glyphs as `(CodePoint, glyph_name)` pairs,

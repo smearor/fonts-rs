@@ -31,7 +31,7 @@ include = [
 default = ["gtk"]
 
 # GTK4 icon name resolution, color application, GResource registration
-gtk = ["dep:gtk4", "dep:gio", "pango"]
+gtk = ["dep:gtk4", "dep:gio", "pango", "fonts-rs-generator/gtk"]
 
 # Pango font loading via add_font_file (no GTK required)
 pango = ["dep:pango", "dep:pangocairo", "dep:tempfile"]
@@ -69,6 +69,7 @@ tracing.workspace = true
 thiserror.workspace = true
 
 [dev-dependencies]
+fonts-rs-test = { workspace = true, features = ["gtk", "render"] }
 gtk4 = { workspace = true, features = ["v4_12"] }
 glib.workspace = true
 miette.workspace = true
@@ -76,6 +77,38 @@ miette.workspace = true
 [[example]]
 name = "nerd_fonts_demo"
 required-features = ["gtk"]
+
+[[example]]
+name = "gtk_icon_theme"
+required-features = ["gtk"]
+
+[[example]]
+name = "svg_gresource"
+required-features = ["gtk"]
+
+[[example]]
+name = "svg_html"
+required-features = ["gtk"]
+
+[[example]]
+name = "composed_svg_text"
+required-features = ["gtk"]
+
+[[example]]
+name = "css_class_html"
+required-features = ["gtk"]
+
+[[example]]
+name = "gtk_gresource"
+required-features = ["gtk"]
+
+[[example]]
+name = "system_font_fallback"
+required-features = ["gtk"]
+
+[[example]]
+name = "embed_fonts_render"
+required-features = ["gtk", "render", "embed-fonts"]
 
 [build-dependencies]
 miette.workspace = true
