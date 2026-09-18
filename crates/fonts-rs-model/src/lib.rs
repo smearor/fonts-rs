@@ -50,6 +50,11 @@ pub mod resource_path;
 #[cfg(feature = "render")]
 pub mod software_render;
 
+#[cfg(feature = "gtk")]
+pub use gtk4;
+#[cfg(feature = "gtk")]
+pub use pango;
+
 pub use axis::Axis;
 pub use axis_value::AxisValue;
 pub use axis_value::AxisValues;

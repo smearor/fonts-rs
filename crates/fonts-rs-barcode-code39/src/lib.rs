@@ -29,6 +29,7 @@
 pub mod codepoint_map;
 pub mod constants;
 pub mod definition;
+mod family;
 
 #[cfg(feature = "gtk")]
 pub mod gtk;

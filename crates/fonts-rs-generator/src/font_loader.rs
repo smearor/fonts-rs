@@ -21,6 +21,18 @@
 /// ```ignore
 /// fonts_rs_generator::impl_font_loader!(env: "DSEG7_FONT_PATH");
 /// ```
+///
+/// ## With marker type — additionally emits `impl SoftwareRender`
+///
+/// ```ignore
+/// fonts_rs_generator::impl_font_loader!(Code39, "LibreBarcode39-Regular.ttf");
+/// fonts_rs_generator::impl_font_loader!(SevenSegment, env: "DSEG7_FONT_PATH");
+/// ```
+///
+/// Emits the `font()` function plus
+/// [`SoftwareRender`](::fonts_rs_model::SoftwareRender) with
+/// `type Variant = ()` and an inherent `font()` forwarder on the
+/// marker, so `Code39::font()` works without a trait import.
 #[macro_export]
 macro_rules! impl_font_loader {
     // Literal filename: resolved relative to `resources/` directory.
@@ -70,6 +82,48 @@ macro_rules! impl_font_loader {
                 }
             })
             .as_ref()
+        }
+    };
+    // Marker type + literal filename: font() plus `impl SoftwareRender`.
+    ($marker:ty, $font_file:literal) => {
+        $crate::impl_font_loader!($font_file);
+
+        impl ::fonts_rs_model::SoftwareRender for $marker {
+            type Variant = ();
+
+            fn ab_glyph(_variant: Self::Variant) -> Option<&'static ab_glyph::FontVec> {
+                font()
+            }
+        }
+
+        impl $marker {
+            /// Returns the cached `ab_glyph` font for the default variant.
+            ///
+            /// Forwards to [`SoftwareRender::font`](::fonts_rs_model::SoftwareRender::font).
+            pub fn font() -> Option<&'static ab_glyph::FontVec> {
+                <Self as ::fonts_rs_model::SoftwareRender>::font()
+            }
+        }
+    };
+    // Marker type + env var: font() plus `impl SoftwareRender`.
+    ($marker:ty, env: $env_var:literal) => {
+        $crate::impl_font_loader!(env: $env_var);
+
+        impl ::fonts_rs_model::SoftwareRender for $marker {
+            type Variant = ();
+
+            fn ab_glyph(_variant: Self::Variant) -> Option<&'static ab_glyph::FontVec> {
+                font()
+            }
+        }
+
+        impl $marker {
+            /// Returns the cached `ab_glyph` font for the default variant.
+            ///
+            /// Forwards to [`SoftwareRender::font`](::fonts_rs_model::SoftwareRender::font).
+            pub fn font() -> Option<&'static ab_glyph::FontVec> {
+                <Self as ::fonts_rs_model::SoftwareRender>::font()
+            }
         }
     };
 }

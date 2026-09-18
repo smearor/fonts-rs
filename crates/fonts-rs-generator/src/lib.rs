@@ -15,6 +15,7 @@ pub mod export_config;
 pub mod export_error;
 pub mod font;
 pub mod font_definition;
+pub mod font_family;
 pub mod font_family_config;
 pub mod font_loader;
 pub mod font_variant_ext;
