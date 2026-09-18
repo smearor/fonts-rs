@@ -47,6 +47,7 @@ pub use definition::Code39Name;
 pub use fonts_rs_model::GtkFont;
 
 /// Extension trait adding codepoint lookup to `GlyphName<Code39>`.
+#[deprecated(since = "0.3.0", note = "use `Code39::codepoint(name)` from the `FontFamily` trait instead")]
 pub trait GlyphNameExt {
     /// Resolves this glyph name to its Unicode [`CodePoint`].
     ///
@@ -54,6 +55,7 @@ pub trait GlyphNameExt {
     fn codepoint(&self) -> Option<CodePoint>;
 }
 
+#[allow(deprecated)]
 impl GlyphNameExt for Code39Name {
     fn codepoint(&self) -> Option<CodePoint> {
         let key = self.as_ref();
@@ -63,6 +65,7 @@ impl GlyphNameExt for Code39Name {
 
 /// Returns an iterator over all known glyphs, yielding
 /// `(char, &'static str)` pairs of codepoint and glyph name.
+#[deprecated(since = "0.3.0", note = "use `Code39::all_glyphs()` from the `FontFamily` trait instead")]
 pub fn all_glyphs() -> impl Iterator<Item = (char, &'static str)> {
     codepoint_map::GLYPHS.entries().map(|(c, name)| (*c, *name))
 }
@@ -70,30 +73,31 @@ pub fn all_glyphs() -> impl Iterator<Item = (char, &'static str)> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use fonts_rs_model::FontFamily;
 
     #[test]
     fn all_glyphs_is_not_empty() {
-        let count = all_glyphs().count();
+        let count = Code39::all_glyphs().count();
         assert!(count > 0, "Code 39 should export at least one glyph");
     }
 
     #[test]
     fn all_glyphs_names_are_lowercase() {
-        for (_, name) in all_glyphs() {
+        for (_, name) in Code39::all_glyphs() {
             assert_eq!(*name, name.to_lowercase(), "glyph name '{name}' should be lowercase");
         }
     }
 
     #[test]
     fn all_glyphs_names_contain_no_underscores() {
-        for (_, name) in all_glyphs() {
+        for (_, name) in Code39::all_glyphs() {
             assert!(!name.contains('_'), "glyph name '{name}' should not contain underscores");
         }
     }
 
     #[test]
     fn all_glyphs_codepoints_are_unique() {
-        let codepoints: Vec<char> = all_glyphs().map(|(c, _)| c).collect();
+        let codepoints: Vec<char> = Code39::all_glyphs().map(|(c, _)| c).collect();
         let unique: std::collections::HashSet<char> = codepoints.iter().copied().collect();
         assert_eq!(codepoints.len(), unique.len(), "all codepoints should be unique");
     }

@@ -8,17 +8,8 @@
 use fonts_rs_barcode_code39::Code39;
 use fonts_rs_test::run_css_class_html;
 
-const FONT_FAMILY: &str = "LibreBarcode39";
-
 const BARCODE_TEXT: &str = "*HELLO*";
 
 fn main() -> miette::Result<()> {
-    run_css_class_html::<Code39>(
-        FONT_FAMILY,
-        "barcode-code39",
-        "barcode",
-        BARCODE_TEXT,
-        "Libre Barcode Code 39 — CSS Class",
-        "barcode_code39_css_class.html",
-    )
+    run_css_class_html::<Code39>("barcode", BARCODE_TEXT, "Libre Barcode Code 39 — CSS Class", "barcode_code39_css_class.html")
 }

@@ -11,7 +11,7 @@ publish = false
 
 [features]
 gtk = ["dep:gtk4", "dep:gio", "dep:base64", "fonts-rs-model/gtk"]
-render = ["dep:ab_glyph"]
+render = ["dep:ab_glyph", "fonts-rs-model/render"]
 
 [dependencies]
 fonts-rs-model.workspace = true

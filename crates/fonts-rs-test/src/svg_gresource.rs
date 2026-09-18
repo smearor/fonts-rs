@@ -3,9 +3,7 @@
 //! Provides [`run_svg_gresource`] for loading individual SVG glyphs from
 //! GResource and displaying them as GDK textures in a GTK grid.
 
-use fonts_rs_model::FontFamilyConfig;
-use fonts_rs_model::GtkFont;
-use fonts_rs_model::SCALABLE_DIR;
+use fonts_rs_model::IconThemeFont;
 use gtk4::Align;
 use gtk4::Application;
 use gtk4::ApplicationWindow;
@@ -22,13 +20,13 @@ use crate::app::run_gtk_app;
 
 /// Runs a GTK app displaying SVG glyphs from GResource as textures.
 ///
-/// Registers the font's SVG GResource and displays the first few glyphs
-/// as `Picture` widgets loaded from GResource.
+/// Registers the font's GResource bundles via `F::ensure_registered`
+/// and displays the first few glyphs as `Picture` widgets loaded via
+/// `F::glyph_svg`.
 ///
 /// # Type Parameters
 ///
-/// - `T`: Font marker type implementing [`GtkFont`].
-/// - `C`: Font config type implementing [`FontFamilyConfig`].
+/// - `F`: Font family implementing [`IconThemeFont`].
 ///
 /// # Parameters
 ///
@@ -39,24 +37,19 @@ use crate::app::run_gtk_app;
 /// # Errors
 ///
 /// Returns an error if GTK init or GResource registration fails.
-pub fn run_svg_gresource<T, C>(app_id: &str, window_title: &str, gresource_prefix: &str, glyphs: &[(char, &str)]) -> Result<glib::ExitCode>
-where
-    T: GtkFont,
-    C: FontFamilyConfig,
-{
-    T::register_glyphs().into_diagnostic()?;
+pub fn run_svg_gresource<F: IconThemeFont>(app_id: &str, window_title: &str, glyphs: &[(char, &str)]) -> Result<glib::ExitCode> {
+    F::ensure_registered().into_diagnostic()?;
 
     let glyphs: Vec<(char, String)> = glyphs.iter().map(|(ch, name)| (*ch, name.to_string())).collect();
 
-    let gresource_prefix = gresource_prefix.to_string();
     let window_title = window_title.to_string();
 
     run_gtk_app(app_id, move |app| {
-        build_ui::<C>(app, &window_title, &gresource_prefix, &glyphs);
+        build_ui::<F>(app, &window_title, &glyphs);
     })
 }
 
-fn build_ui<C: FontFamilyConfig>(app: &Application, window_title: &str, gresource_prefix: &str, glyphs: &[(char, String)]) {
+fn build_ui<F: IconThemeFont>(app: &Application, window_title: &str, glyphs: &[(char, String)]) {
     let window = ApplicationWindow::builder()
         .application(app)
         .title(window_title)
@@ -90,13 +83,9 @@ fn build_ui<C: FontFamilyConfig>(app: &Application, window_title: &str, gresourc
 
     let grid = Box::builder().orientation(Orientation::Horizontal).spacing(12).halign(Align::Center).build();
 
-    let prefix = gresource_prefix;
-
     for (_codepoint, name) in glyphs.iter().take(4) {
-        let resource_path = format!("{}/{}/{}/{}.svg", prefix, SCALABLE_DIR, C::ICONS_CONTEXT, name);
-
-        match gio::resources_lookup_data(&resource_path, gio::ResourceLookupFlags::NONE) {
-            Ok(bytes) => match gtk4::gdk::Texture::from_bytes(&glib::Bytes::from(bytes.as_ref())) {
+        match F::glyph_svg(name) {
+            Some(svg) => match gtk4::gdk::Texture::from_bytes(&glib::Bytes::from_owned(svg.into_bytes())) {
                 Ok(texture) => {
                     let picture = Picture::for_paintable(&texture);
                     picture.set_halign(Align::Center);
@@ -120,9 +109,9 @@ fn build_ui<C: FontFamilyConfig>(app: &Application, window_title: &str, gresourc
                     grid.append(&label);
                 }
             },
-            Err(e) => {
+            None => {
                 let label = Label::builder()
-                    .label(format!("{name}\nLookup error: {e}"))
+                    .label(format!("{name}\nGlyph not found"))
                     .css_classes(["caption", "error"])
                     .halign(Align::Center)
                     .build();

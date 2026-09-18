@@ -6,9 +6,6 @@
 //! ```
 
 use fonts_rs_barcode_code39::Code39;
-use fonts_rs_barcode_code39::Code39Definition;
-use fonts_rs_barcode_code39::all_glyphs;
-use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_test::run_composed_svg_text;
 
 const APP_ID: &str = "io.smearor.fonts_rs.barcode_code39_composed_svg";
@@ -19,15 +16,5 @@ const BARCODE_TEXT: &str = "*HELLO*";
 const GLYPH_HEIGHT: f64 = 200.0;
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
-    let char_to_name: Vec<(char, &str)> = all_glyphs().collect();
-
-    run_composed_svg_text::<Code39, Code39Definition>(
-        APP_ID,
-        "Code39 — Composed SVG Text",
-        Code39Definition::GRESOURCE_PREFIX,
-        BARCODE_TEXT,
-        "barcode",
-        &char_to_name,
-        GLYPH_HEIGHT,
-    )
+    run_composed_svg_text::<Code39>(APP_ID, "Code39 — Composed SVG Text", BARCODE_TEXT, "barcode", GLYPH_HEIGHT)
 }

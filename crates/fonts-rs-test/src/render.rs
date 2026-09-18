@@ -7,6 +7,7 @@ use ab_glyph::Font;
 use ab_glyph::FontVec;
 use ab_glyph::Glyph;
 use ab_glyph::ScaleFont;
+use fonts_rs_model::SoftwareRender;
 use gtk4::Align;
 use gtk4::Application;
 use gtk4::ApplicationWindow;
@@ -22,21 +23,27 @@ use crate::app::run_gtk_app;
 
 /// Runs a GTK app rendering text with `ab_glyph` software rendering.
 ///
-/// Renders the given text into an RGBA pixel buffer using `ab_glyph`,
-/// wraps it as a GDK memory texture, and displays it in a `Picture` widget.
+/// Resolves the family's `ab_glyph` font via `F::font()`, renders the
+/// given text into an RGBA pixel buffer, wraps it as a GDK memory
+/// texture, and displays it in a `Picture` widget.
+///
+/// # Type Parameters
+///
+/// - `F`: Font family implementing [`SoftwareRender`].
 ///
 /// # Parameters
 ///
 /// - `app_id`: Unique GTK application ID.
 /// - `window_title`: Window title text.
-/// - `font`: The `ab_glyph` font to render with.
 /// - `text`: Text to render.
 /// - `font_size`: Font size in pixels.
 ///
 /// # Errors
 ///
-/// Returns an error if GTK init fails.
-pub fn run_embed_fonts_render(app_id: &str, window_title: &str, font: &'static FontVec, text: &str, font_size: f32) -> Result<glib::ExitCode> {
+/// Returns an error if GTK init fails or the font is not available.
+pub fn run_embed_fonts_render<F: SoftwareRender>(app_id: &str, window_title: &str, text: &str, font_size: f32) -> Result<glib::ExitCode> {
+    let font = F::font().ok_or_else(|| miette::miette!("{}: no ab_glyph font available", F::FAMILY_DISPLAY_NAME))?;
+
     let text = text.to_string();
     let window_title = window_title.to_string();
 

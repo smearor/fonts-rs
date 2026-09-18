@@ -15,5 +15,6 @@ fonts_rs_generator::impl_font_family!(
     glyphs = codepoint_map::GLYPHS,
     reverse = codepoint_map::REVERSE_GLYPHS,
     name = Code39Name,
+    css_font_family = "LibreBarcode39",
     capabilities = [icon_theme, pango, html],
 );

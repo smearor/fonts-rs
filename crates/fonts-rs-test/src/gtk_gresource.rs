@@ -3,7 +3,7 @@
 //! Provides [`run_gtk_gresource`] for loading a TTF font from GResource
 //! into the Pango font map and rendering text with CSS `font-family`.
 
-use fonts_rs_model::GtkFont;
+use fonts_rs_model::PangoFont;
 use gtk4::Align;
 use gtk4::Application;
 use gtk4::ApplicationWindow;
@@ -14,43 +14,41 @@ use gtk4::glib;
 use gtk4::prelude::*;
 use miette::IntoDiagnostic;
 use miette::Result;
-use pango::prelude::FontMapExt;
 
 use crate::app::run_gtk_app;
 
 /// Runs a GTK app loading a TTF font from GResource and rendering text.
 ///
-/// Registers the font's SVG and TTF GResource, loads the TTF into the
-/// Pango font map, and displays the text with a CSS `font-family` rule.
+/// Registers the font's GResource bundles via `F::ensure_registered`,
+/// loads the TTF into the Pango font map via `F::install_pango`, and
+/// displays the text with a CSS `font-family` rule using
+/// `F::CSS_FONT_FAMILY`.
 ///
 /// # Type Parameters
 ///
-/// - `T`: Font marker type implementing [`GtkFont`].
+/// - `F`: Font family implementing [`PangoFont`].
 ///
 /// # Parameters
 ///
 /// - `app_id`: Unique GTK application ID.
 /// - `window_title`: Window title text.
-/// - `font_family`: CSS `font-family` name.
 /// - `text`: Text to render.
 ///
 /// # Errors
 ///
 /// Returns an error if GTK init or GResource registration fails.
-pub fn run_gtk_gresource<T: GtkFont>(app_id: &str, window_title: &str, font_family: &str, text: &str) -> Result<glib::ExitCode> {
-    T::register_glyphs().into_diagnostic()?;
-    T::register_font().into_diagnostic()?;
+pub fn run_gtk_gresource<F: PangoFont>(app_id: &str, window_title: &str, text: &str) -> Result<glib::ExitCode> {
+    F::ensure_registered().into_diagnostic()?;
 
-    let font_family = font_family.to_string();
     let text = text.to_string();
     let window_title = window_title.to_string();
 
     run_gtk_app(app_id, move |app| {
-        build_ui::<T>(app, &window_title, &font_family, &text);
+        build_ui::<F>(app, &window_title, &text);
     })
 }
 
-fn build_ui<T: GtkFont>(app: &Application, window_title: &str, font_family: &str, text: &str) {
+fn build_ui<F: PangoFont>(app: &Application, window_title: &str, text: &str) {
     let window = ApplicationWindow::builder()
         .application(app)
         .title(window_title)
@@ -58,17 +56,13 @@ fn build_ui<T: GtkFont>(app: &Application, window_title: &str, font_family: &str
         .default_height(200)
         .build();
 
-    if let Some(font_map) = window.pango_context().font_map() {
-        match T::load_font() {
-            Ok(path) => {
-                if let Err(e) = font_map.add_font_file(path) {
-                    eprintln!("Failed to add font to Pango: {e}");
-                }
-            }
-            Err(e) => eprintln!("Failed to load font from GResource: {e}"),
-        }
+    if let Some(font_map) = window.pango_context().font_map()
+        && let Err(e) = F::install_pango(&font_map)
+    {
+        eprintln!("Failed to install {} into Pango: {e}", F::FAMILY_DISPLAY_NAME);
     }
 
+    let font_family = F::CSS_FONT_FAMILY;
     let css = format!(".font-text {{ font-family: '{font_family}'; font-size: 192px; }}");
     let provider = gtk4::CssProvider::new();
     provider.load_from_string(&css);

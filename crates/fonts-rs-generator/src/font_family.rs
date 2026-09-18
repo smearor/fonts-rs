@@ -24,9 +24,14 @@
 ///     glyphs = codepoint_map::GLYPHS,
 ///     reverse = codepoint_map::REVERSE_GLYPHS,
 ///     name = Code39Name,
+///     css_font_family = "LibreBarcode39", // optional
 ///     capabilities = [icon_theme, pango, html],
 /// );
 /// ```
+///
+/// `css_font_family` is optional: it overrides
+/// [`FontFamily::CSS_FONT_FAMILY`](::fonts_rs_model::FontFamily::CSS_FONT_FAMILY)
+/// when the TTF's family name differs from `FAMILY_DISPLAY_NAME`.
 ///
 /// # Emitted items
 ///
@@ -53,8 +58,35 @@ macro_rules! impl_font_family {
      glyphs = $glyphs:expr,
      reverse = $reverse:expr,
      name = $name:ty,
+     css_font_family = $css_font_family:expr,
      capabilities = [$($capability:ident),* $(,)?]
      $(,)?) => {
+        $crate::impl_font_family!(@impl $marker, $definition,
+            glyphs = $glyphs,
+            reverse = $reverse,
+            name = $name,
+            css_font_family = $css_font_family,
+            capabilities = [$($capability),*]);
+    };
+    ($marker:ident, $definition:ty,
+     glyphs = $glyphs:expr,
+     reverse = $reverse:expr,
+     name = $name:ty,
+     capabilities = [$($capability:ident),* $(,)?]
+     $(,)?) => {
+        $crate::impl_font_family!(@impl $marker, $definition,
+            glyphs = $glyphs,
+            reverse = $reverse,
+            name = $name,
+            css_font_family = Self::FAMILY_DISPLAY_NAME,
+            capabilities = [$($capability),*]);
+    };
+    (@impl $marker:ident, $definition:ty,
+     glyphs = $glyphs:expr,
+     reverse = $reverse:expr,
+     name = $name:ty,
+     css_font_family = $css_font_family:expr,
+     capabilities = [$($capability:ident),* $(,)?]) => {
         impl ::fonts_rs_model::FontFamilyConfig for $marker {
             const FONT_FAMILY_NAME: &'static str = <$definition as ::fonts_rs_model::FontFamilyConfig>::FONT_FAMILY_NAME;
             const FAMILY_DISPLAY_NAME: &'static str = <$definition as ::fonts_rs_model::FontFamilyConfig>::FAMILY_DISPLAY_NAME;
@@ -66,6 +98,8 @@ macro_rules! impl_font_family {
 
         impl ::fonts_rs_model::FontFamily for $marker {
             type Name = $name;
+
+            const CSS_FONT_FAMILY: &'static str = $css_font_family;
 
             fn glyph_name(ch: char) -> Option<&'static str> {
                 $glyphs.get(&ch).copied()

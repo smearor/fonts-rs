@@ -15,8 +15,6 @@ mod app;
 #[cfg(feature = "gtk")]
 mod css_html;
 #[cfg(feature = "gtk")]
-mod gresource;
-#[cfg(feature = "gtk")]
 mod gtk_gresource;
 #[cfg(feature = "gtk")]
 mod icon_theme;
@@ -35,8 +33,6 @@ mod system_font_fallback;
 pub use app::run_gtk_app;
 #[cfg(feature = "gtk")]
 pub use css_html::run_css_class_html;
-#[cfg(feature = "gtk")]
-pub use gresource::lookup_glyph_svg;
 #[cfg(feature = "gtk")]
 pub use gtk_gresource::run_gtk_gresource;
 #[cfg(feature = "gtk")]

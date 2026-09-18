@@ -3,8 +3,7 @@
 //! Provides [`run_gtk_icon_theme`] for displaying font glyphs as GTK icons
 //! resolved by `GtkIconTheme` via their kebab-case icon name constants.
 
-use fonts_rs_model::FontFamilyConfig;
-use fonts_rs_model::GtkFont;
+use fonts_rs_model::IconThemeFont;
 use gtk4::Align;
 use gtk4::Application;
 use gtk4::ApplicationWindow;
@@ -21,14 +20,14 @@ use crate::app::run_gtk_app;
 
 /// Runs a GTK app displaying font glyphs as `GtkIconTheme` icons.
 ///
-/// Registers the font's SVG GResource, adds the icons resource path to
-/// `GtkIconTheme`, and displays each glyph as a `GtkImage` resolved by
-/// its icon name.
+/// Registers the font's GResource bundles via `F::ensure_registered`,
+/// adds the family's icon resource path to `GtkIconTheme` via
+/// `F::install_icon_theme`, and displays each glyph as a `GtkImage`
+/// resolved by its icon name.
 ///
 /// # Type Parameters
 ///
-/// - `T`: Font marker type implementing [`GtkFont`].
-/// - `C`: Font config type implementing [`FontFamilyConfig`].
+/// - `F`: Font family implementing [`IconThemeFont`].
 ///
 /// # Parameters
 ///
@@ -39,24 +38,19 @@ use crate::app::run_gtk_app;
 /// # Errors
 ///
 /// Returns an error if GTK init or GResource registration fails.
-pub fn run_gtk_icon_theme<T, C>(app_id: &str, window_title: &str, gresource_prefix: &str, icons: &[(&str, &str)]) -> Result<glib::ExitCode>
-where
-    T: GtkFont,
-    C: FontFamilyConfig,
-{
-    T::register_glyphs().into_diagnostic()?;
+pub fn run_gtk_icon_theme<F: IconThemeFont>(app_id: &str, window_title: &str, icons: &[(&str, &str)]) -> Result<glib::ExitCode> {
+    F::ensure_registered().into_diagnostic()?;
 
     let icons: Vec<(String, String)> = icons.iter().map(|(name, label)| (name.to_string(), label.to_string())).collect();
 
-    let gresource_prefix = gresource_prefix.to_string();
     let window_title = window_title.to_string();
 
     run_gtk_app(app_id, move |app| {
-        build_ui::<C>(app, &window_title, &gresource_prefix, &icons);
+        build_ui::<F>(app, &window_title, &icons);
     })
 }
 
-fn build_ui<C: FontFamilyConfig>(app: &Application, window_title: &str, gresource_prefix: &str, icons: &[(String, String)]) {
+fn build_ui<F: IconThemeFont>(app: &Application, window_title: &str, icons: &[(String, String)]) {
     let window = ApplicationWindow::builder()
         .application(app)
         .title(window_title)
@@ -65,9 +59,9 @@ fn build_ui<C: FontFamilyConfig>(app: &Application, window_title: &str, gresourc
         .build();
 
     let display = gtk4::prelude::RootExt::display(&window);
-    let icon_theme = gtk4::IconTheme::for_display(&display);
-    let glyphs_resource_path = format!("{}/{}/{}", gresource_prefix, fonts_rs_model::SCALABLE_DIR, C::ICONS_CONTEXT);
-    icon_theme.add_resource_path(&glyphs_resource_path);
+    if let Err(e) = F::install_icon_theme(&display) {
+        eprintln!("Failed to install icon theme for {}: {e}", F::FAMILY_DISPLAY_NAME);
+    }
 
     let main_box = Box::builder()
         .orientation(Orientation::Vertical)

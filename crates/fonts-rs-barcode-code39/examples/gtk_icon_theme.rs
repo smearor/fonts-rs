@@ -6,9 +6,7 @@
 //! ```
 
 use fonts_rs_barcode_code39::Code39;
-use fonts_rs_barcode_code39::Code39Definition;
 use fonts_rs_barcode_code39::constants;
-use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_test::run_gtk_icon_theme;
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
@@ -19,10 +17,5 @@ fn main() -> miette::Result<gtk4::glib::ExitCode> {
         (constants::UNI004C, "uni004c"),
     ];
 
-    run_gtk_icon_theme::<Code39, Code39Definition>(
-        "io.smearor.fonts_rs.barcode_code39_icon_theme",
-        "Code39 — GtkIconTheme",
-        Code39Definition::GRESOURCE_PREFIX,
-        &icons,
-    )
+    run_gtk_icon_theme::<Code39>("io.smearor.fonts_rs.barcode_code39_icon_theme", "Code39 — GtkIconTheme", &icons)
 }
