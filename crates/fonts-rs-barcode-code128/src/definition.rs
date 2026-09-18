@@ -5,11 +5,11 @@
 
 use const_format::concatcp;
 use fonts_rs_generator::FontDefinition;
-use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_generator::normalize_to_kebab;
 use fonts_rs_model::ASCII_PRINTABLE_RANGE;
 use fonts_rs_model::CodePointRange;
-use fonts_rs_model::FontFamily;
+use fonts_rs_model::FontFamilyConfig;
+use fonts_rs_model::FontFamilyMarker;
 use fonts_rs_model::GRESOURCE_BASE_PREFIX;
 use fonts_rs_model::GlyphName;
 use fonts_rs_model::sealed;
@@ -25,7 +25,7 @@ pub const FONT_FILE: &str = "LibreBarcode128-Regular.ttf";
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Code128 {}
 
-impl FontFamily for Code128 {}
+impl FontFamilyMarker for Code128 {}
 
 impl sealed::Sealed for Code128 {}
 

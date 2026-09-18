@@ -1,9 +1,9 @@
 //! `FontFamilyConfig` for the DSEG14 fourteen-segment font family.
 
 use const_format::concatcp;
-use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_model::ASCII_PRINTABLE_RANGE;
 use fonts_rs_model::CodePointRange;
+use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_model::GRESOURCE_BASE_PREFIX;
 
 /// Build-time configuration for the DSEG14 font family.

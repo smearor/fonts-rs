@@ -13,12 +13,5 @@ const FONT_FAMILY: &str = "Doto";
 const SAMPLE_TEXT: &str = "HELLO";
 
 fn main() -> miette::Result<()> {
-    run_css_class_html::<Doto>(
-        FONT_FAMILY,
-        "doto",
-        "dot matrix text",
-        SAMPLE_TEXT,
-        "Doto — CSS Class",
-        "doto_css_class.html",
-    )
+    run_css_class_html::<Doto>(FONT_FAMILY, "doto", "dot matrix text", SAMPLE_TEXT, "Doto — CSS Class", "doto_css_class.html")
 }

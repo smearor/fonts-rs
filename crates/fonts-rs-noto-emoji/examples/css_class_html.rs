@@ -14,12 +14,5 @@ const FONT_FAMILY: &str = "Noto Emoji";
 const SAMPLE_TEXT: &str = "🎉🚀😍🔥";
 
 fn main() -> miette::Result<()> {
-    run_css_class_html::<NotoEmoji>(
-        FONT_FAMILY,
-        "noto-emoji",
-        "emoji",
-        SAMPLE_TEXT,
-        "Noto Emoji — CSS Class",
-        "noto_emoji_css_class.html",
-    )
+    run_css_class_html::<NotoEmoji>(FONT_FAMILY, "noto-emoji", "emoji", SAMPLE_TEXT, "Noto Emoji — CSS Class", "noto_emoji_css_class.html")
 }

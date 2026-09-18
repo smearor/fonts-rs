@@ -4,10 +4,10 @@
 //! font family, allowing the `FontDefinition::export_glyphs` pipeline to be used.
 
 use fonts_rs_generator::FontDefinition;
-use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_model::BMP_RANGE;
 use fonts_rs_model::CodePointRange;
-use fonts_rs_model::FontFamily;
+use fonts_rs_model::FontFamilyConfig;
+use fonts_rs_model::FontFamilyMarker;
 use fonts_rs_model::SUPPLEMENTARY_PUA_RANGE;
 use fonts_rs_model::sealed;
 use nerd_fonts_model::IconName;
@@ -15,13 +15,13 @@ use nerd_fonts_model::paths::GRESOURCE_PREFIX;
 
 /// Marker enum for the Nerd Fonts font family.
 ///
-/// Used as the `FontFamily` phantom type parameter. Zero-sized, exists
+/// Used as the `FontFamilyMarker` phantom type parameter. Zero-sized, exists
 /// only at the type level for compile-time type safety.
 pub enum NerdFonts {}
 
 impl sealed::Sealed for NerdFonts {}
 
-impl FontFamily for NerdFonts {}
+impl FontFamilyMarker for NerdFonts {}
 
 /// Build-time configuration for the Nerd Fonts font family.
 ///

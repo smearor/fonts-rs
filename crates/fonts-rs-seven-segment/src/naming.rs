@@ -3,7 +3,7 @@
 //! The `SevenSegment` marker is used as the phantom type parameter in
 //! `GlyphName<SevenSegment>`, ensuring type safety at compile time.
 
-use fonts_rs_model::FontFamily;
+use fonts_rs_model::FontFamilyMarker;
 use fonts_rs_model::GlyphName;
 use fonts_rs_model::sealed;
 
@@ -15,7 +15,7 @@ use fonts_rs_model::sealed;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum SevenSegment {}
 
-impl FontFamily for SevenSegment {}
+impl FontFamilyMarker for SevenSegment {}
 
 impl sealed::Sealed for SevenSegment {}
 

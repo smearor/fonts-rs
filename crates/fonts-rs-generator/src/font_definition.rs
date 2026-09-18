@@ -8,7 +8,7 @@ use std::collections::HashSet;
 use std::fs;
 use std::path::Path;
 
-use fonts_rs_model::FontFamily;
+use fonts_rs_model::FontFamilyMarker;
 use fonts_rs_model::GlyphEntry;
 use fonts_rs_model::SCALABLE_DIR;
 use quick_xml::se::Serializer;
@@ -44,7 +44,7 @@ pub trait FontDefinition: FontFamilyConfig {
     /// `serde::Deserialize` for metadata persistence.
     type Name: AsRef<str> + Clone + Ord + Serialize + for<'a> Deserialize<'a>;
 
-    /// The `FontFamily` marker type for this font family.
+    /// The `FontFamilyMarker` marker type for this font family.
     ///
     /// Used as the phantom type parameter for `GlyphName<Self::Family>`.
     /// For Nerd Fonts, this is `NerdFonts`. For simple families, this is
@@ -52,7 +52,7 @@ pub trait FontDefinition: FontFamilyConfig {
     ///
     /// This associated type is only used when `Self::Name` is `GlyphName<F>`.
     /// It is not used when `Self::Name` is a custom type like `IconName`.
-    type Family: FontFamily;
+    type Family: FontFamilyMarker;
 
     /// Normalize a raw TTF glyph name to this font family's naming
     /// convention.

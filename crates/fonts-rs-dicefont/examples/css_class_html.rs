@@ -14,12 +14,5 @@ const FONT_FAMILY: &str = "dicefont";
 const SAMPLE_TEXT: &str = "\u{F131}\u{F132}\u{F133}";
 
 fn main() -> miette::Result<()> {
-    run_css_class_html::<Dicefont>(
-        FONT_FAMILY,
-        "dicefont",
-        "dice glyph",
-        SAMPLE_TEXT,
-        "Dicefont — CSS Class",
-        "dicefont_css_class.html",
-    )
+    run_css_class_html::<Dicefont>(FONT_FAMILY, "dicefont", "dice glyph", SAMPLE_TEXT, "Dicefont — CSS Class", "dicefont_css_class.html")
 }

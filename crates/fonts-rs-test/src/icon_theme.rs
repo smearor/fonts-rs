@@ -39,22 +39,14 @@ use crate::app::run_gtk_app;
 /// # Errors
 ///
 /// Returns an error if GTK init or GResource registration fails.
-pub fn run_gtk_icon_theme<T, C>(
-    app_id: &str,
-    window_title: &str,
-    gresource_prefix: &str,
-    icons: &[(&str, &str)],
-) -> Result<glib::ExitCode>
+pub fn run_gtk_icon_theme<T, C>(app_id: &str, window_title: &str, gresource_prefix: &str, icons: &[(&str, &str)]) -> Result<glib::ExitCode>
 where
     T: GtkFont,
     C: FontFamilyConfig,
 {
     T::register_glyphs().into_diagnostic()?;
 
-    let icons: Vec<(String, String)> = icons
-        .iter()
-        .map(|(name, label)| (name.to_string(), label.to_string()))
-        .collect();
+    let icons: Vec<(String, String)> = icons.iter().map(|(name, label)| (name.to_string(), label.to_string())).collect();
 
     let gresource_prefix = gresource_prefix.to_string();
     let window_title = window_title.to_string();
@@ -101,11 +93,7 @@ fn build_ui<C: FontFamilyConfig>(app: &Application, window_title: &str, gresourc
         .build();
     main_box.append(&hint);
 
-    let grid = Box::builder()
-        .orientation(Orientation::Horizontal)
-        .spacing(12)
-        .halign(Align::Center)
-        .build();
+    let grid = Box::builder().orientation(Orientation::Horizontal).spacing(12).halign(Align::Center).build();
 
     for (icon_name, label) in icons {
         let image = Image::from_icon_name(icon_name);
@@ -113,11 +101,7 @@ fn build_ui<C: FontFamilyConfig>(app: &Application, window_title: &str, gresourc
         image.set_halign(Align::Center);
         image.set_valign(Align::Center);
 
-        let vbox = Box::builder()
-            .orientation(Orientation::Vertical)
-            .spacing(4)
-            .halign(Align::Center)
-            .build();
+        let vbox = Box::builder().orientation(Orientation::Vertical).spacing(4).halign(Align::Center).build();
         vbox.append(&image);
 
         let caption = Label::builder()

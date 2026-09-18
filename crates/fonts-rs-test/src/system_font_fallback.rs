@@ -31,13 +31,7 @@ use crate::app::run_gtk_app;
 /// # Errors
 ///
 /// Returns an error if GTK init fails.
-pub fn run_system_font_fallback(
-    app_id: &str,
-    window_title: &str,
-    font_family: &str,
-    text: &str,
-    hint: &str,
-) -> Result<glib::ExitCode> {
+pub fn run_system_font_fallback(app_id: &str, window_title: &str, font_family: &str, text: &str, hint: &str) -> Result<glib::ExitCode> {
     let font_family = font_family.to_string();
     let text = text.to_string();
     let hint = hint.to_string();
@@ -48,13 +42,7 @@ pub fn run_system_font_fallback(
     })
 }
 
-fn build_ui(
-    app: &Application,
-    window_title: &str,
-    font_family: &str,
-    text: &str,
-    hint: &str,
-) {
+fn build_ui(app: &Application, window_title: &str, font_family: &str, text: &str, hint: &str) {
     let window = ApplicationWindow::builder()
         .application(app)
         .title(window_title)
@@ -66,11 +54,7 @@ fn build_ui(
     let provider = gtk4::CssProvider::new();
     provider.load_from_string(&css);
     if let Some(display) = gtk4::gdk::Display::default() {
-        gtk4::style_context_add_provider_for_display(
-            &display,
-            &provider,
-            gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION,
-        );
+        gtk4::style_context_add_provider_for_display(&display, &provider, gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION);
     }
 
     let label = Label::builder()
@@ -81,11 +65,7 @@ fn build_ui(
         .vexpand(true)
         .build();
 
-    let hint_label = Label::builder()
-        .label(hint)
-        .css_classes(["dim-label"])
-        .halign(Align::Center)
-        .build();
+    let hint_label = Label::builder().label(hint).css_classes(["dim-label"]).halign(Align::Center).build();
 
     let main_box = Box::builder()
         .orientation(Orientation::Vertical)

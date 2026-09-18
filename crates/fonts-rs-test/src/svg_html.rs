@@ -28,12 +28,7 @@ use miette::Result;
 /// # Errors
 ///
 /// Returns an error if GResource registration or file writing fails.
-pub fn run_svg_html<T, C>(
-    html_title: &str,
-    gresource_prefix: &str,
-    glyphs: &[(char, &str)],
-    output_filename: &str,
-) -> Result<()>
+pub fn run_svg_html<T, C>(html_title: &str, gresource_prefix: &str, glyphs: &[(char, &str)], output_filename: &str) -> Result<()>
 where
     T: GtkFont,
     C: FontFamilyConfig,
@@ -45,13 +40,7 @@ where
     let mut svg_items = Vec::new();
 
     for (_codepoint, name) in glyphs {
-        let resource_path = format!(
-            "{}/{}/{}/{}.svg",
-            prefix,
-            SCALABLE_DIR,
-            C::ICONS_CONTEXT,
-            name
-        );
+        let resource_path = format!("{}/{}/{}/{}.svg", prefix, SCALABLE_DIR, C::ICONS_CONTEXT, name);
 
         match gio::resources_lookup_data(&resource_path, gio::ResourceLookupFlags::NONE) {
             Ok(bytes) => {

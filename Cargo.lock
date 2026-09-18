@@ -475,7 +475,11 @@ dependencies = [
 name = "fonts-rs-model"
 version = "0.3.0"
 dependencies = [
+ "ab_glyph",
+ "base64",
  "gio",
+ "gtk4",
+ "pango",
  "phf",
  "serde",
  "thiserror 2.0.20",

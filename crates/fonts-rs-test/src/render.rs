@@ -36,13 +36,7 @@ use crate::app::run_gtk_app;
 /// # Errors
 ///
 /// Returns an error if GTK init fails.
-pub fn run_embed_fonts_render(
-    app_id: &str,
-    window_title: &str,
-    font: &'static FontVec,
-    text: &str,
-    font_size: f32,
-) -> Result<glib::ExitCode> {
+pub fn run_embed_fonts_render(app_id: &str, window_title: &str, font: &'static FontVec, text: &str, font_size: f32) -> Result<glib::ExitCode> {
     let text = text.to_string();
     let window_title = window_title.to_string();
 
@@ -51,13 +45,7 @@ pub fn run_embed_fonts_render(
     })
 }
 
-fn build_ui(
-    app: &Application,
-    window_title: &str,
-    font: &'static FontVec,
-    text: &str,
-    font_size: f32,
-) {
+fn build_ui(app: &Application, window_title: &str, font: &'static FontVec, text: &str, font_size: f32) {
     let window = ApplicationWindow::builder()
         .application(app)
         .title(window_title)
@@ -84,13 +72,7 @@ fn build_ui(
     let (width, height, pixels) = render_text(font, text, font_size);
 
     let bytes = glib::Bytes::from_owned(pixels);
-    let texture = gtk4::gdk::MemoryTexture::new(
-        width,
-        height,
-        gtk4::gdk::MemoryFormat::R8g8b8a8Premultiplied,
-        &bytes,
-        (width * 4) as usize,
-    );
+    let texture = gtk4::gdk::MemoryTexture::new(width, height, gtk4::gdk::MemoryFormat::R8g8b8a8Premultiplied, &bytes, (width * 4) as usize);
 
     let picture = Picture::for_paintable(&texture);
     picture.set_halign(Align::Center);

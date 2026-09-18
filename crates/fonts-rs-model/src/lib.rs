@@ -1,8 +1,12 @@
 //! Generic model types for font glyph packaging.
 //!
 //! Provides font-family-agnostic types shared across all `fonts-rs-*` crates:
-//! [`CodePoint`], [`ResourcePath`], [`FontFamily`] marker trait,
+//! [`CodePoint`], [`ResourcePath`], [`FontFamilyMarker`] marker trait,
 //! [`GlyphName`] phantom-typed newtype, and [`GlyphEntry`] generic metadata.
+//!
+//! The high-level runtime API is the [`FontFamily`] core trait plus the
+//! capability traits [`IconThemeFont`], [`PangoFont`], [`HtmlExport`], and
+//! [`SoftwareRender`] — see [`prelude`] for a one-line import.
 //!
 //! These types are extracted from `nerd-fonts-model` and generalized so
 //! that any font family crate can use them without Nerd Font dependencies.
@@ -15,8 +19,11 @@ pub mod codepoint_category_map;
 pub mod codepoint_keyword_map;
 pub mod codepoint_name_map;
 pub mod codepoint_range;
+#[cfg(feature = "gtk")]
+pub mod font_error;
 pub mod font_family;
 pub mod font_family_config;
+pub mod font_family_marker;
 pub mod font_file;
 pub mod font_variant;
 pub mod font_variant_type;
@@ -25,10 +32,23 @@ pub mod glyph_name;
 pub mod glyph_name_map;
 #[cfg(feature = "gtk")]
 pub mod gtk;
+#[cfg(feature = "gtk")]
+pub mod html_builder;
+#[cfg(feature = "gtk")]
+pub mod html_export;
+#[cfg(feature = "gtk")]
+pub mod html_mode;
+#[cfg(feature = "gtk")]
+pub mod icon_theme_font;
 pub mod keyword;
 pub mod metadata;
+#[cfg(feature = "gtk")]
+pub mod pango_font;
 pub mod paths;
+pub mod prelude;
 pub mod resource_path;
+#[cfg(feature = "render")]
+pub mod software_render;
 
 pub use axis::Axis;
 pub use axis_value::AxisValue;
@@ -44,9 +64,12 @@ pub use codepoint_range::BMP_RANGE;
 pub use codepoint_range::CodePointRange;
 pub use codepoint_range::PUA_RANGE;
 pub use codepoint_range::SUPPLEMENTARY_PUA_RANGE;
+#[cfg(feature = "gtk")]
+pub use font_error::FontError;
 pub use font_family::FontFamily;
-pub use font_family::sealed;
 pub use font_family_config::FontFamilyConfig;
+pub use font_family_marker::FontFamilyMarker;
+pub use font_family_marker::sealed;
 pub use font_file::FontFile;
 pub use font_variant::FontVariant;
 pub use font_variant_type::FontVariantType;
@@ -61,13 +84,25 @@ pub use gtk::LoadFontError;
 pub use gtk::RegisterFontError;
 #[cfg(feature = "gtk")]
 pub use gtk::RegisterGlyphError;
+#[cfg(feature = "gtk")]
+pub use html_builder::HtmlBuilder;
+#[cfg(feature = "gtk")]
+pub use html_export::HtmlExport;
+#[cfg(feature = "gtk")]
+pub use html_mode::HtmlMode;
+#[cfg(feature = "gtk")]
+pub use icon_theme_font::IconThemeFont;
 pub use keyword::GlyphKeyword;
 pub use metadata::GlyphAliasMap;
 pub use metadata::GlyphCategoryMap;
 pub use metadata::GlyphKeywordMap;
 pub use metadata::GlyphMetadata;
+#[cfg(feature = "gtk")]
+pub use pango_font::PangoFont;
 pub use paths::GRESOURCE_BASE_PREFIX;
 pub use paths::ICONS_CONTEXT_EMOJI;
 pub use paths::ICONS_CONTEXT_GLYPHS;
 pub use paths::SCALABLE_DIR;
 pub use resource_path::ResourcePath;
+#[cfg(feature = "render")]
+pub use software_render::SoftwareRender;

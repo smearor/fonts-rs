@@ -3,7 +3,7 @@
 //! The `NerdFonts` marker is used as the phantom type parameter in
 //! `GlyphName<NerdFonts>`, ensuring type safety at compile time.
 
-use fonts_rs_model::FontFamily;
+use fonts_rs_model::FontFamilyMarker;
 use fonts_rs_model::sealed;
 
 /// Marker type identifying Nerd Fonts in `GlyphName<NerdFonts>`.
@@ -14,6 +14,6 @@ use fonts_rs_model::sealed;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum NerdFonts {}
 
-impl FontFamily for NerdFonts {}
+impl FontFamilyMarker for NerdFonts {}
 
 impl sealed::Sealed for NerdFonts {}

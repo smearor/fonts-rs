@@ -12,9 +12,9 @@ use std::path::Path;
 
 use fonts_rs_generator::ExportConfig;
 use fonts_rs_generator::FontBuild;
-use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_generator::build_constants;
 use fonts_rs_generator::set_font_path_env;
+use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_model::GlyphNameMap;
 
 #[path = "src/definition.rs"]

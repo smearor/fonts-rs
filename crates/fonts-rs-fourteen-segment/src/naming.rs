@@ -3,7 +3,7 @@
 //! The `FourteenSegment` marker is used as the phantom type parameter in
 //! `GlyphName<FourteenSegment>`, ensuring type safety at compile time.
 
-use fonts_rs_model::FontFamily;
+use fonts_rs_model::FontFamilyMarker;
 use fonts_rs_model::GlyphName;
 use fonts_rs_model::sealed;
 
@@ -15,7 +15,7 @@ use fonts_rs_model::sealed;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum FourteenSegment {}
 
-impl FontFamily for FourteenSegment {}
+impl FontFamilyMarker for FourteenSegment {}
 
 impl sealed::Sealed for FourteenSegment {}
 

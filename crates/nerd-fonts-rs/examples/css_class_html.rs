@@ -14,12 +14,5 @@ const FONT_FAMILY: &str = "Symbols Nerd Font";
 const SAMPLE_TEXT: &str = "\u{F005}\u{F004}\u{F06D}\u{F135}";
 
 fn main() -> miette::Result<()> {
-    run_css_class_html::<NerdFonts>(
-        FONT_FAMILY,
-        "nerd-fonts",
-        "icon",
-        SAMPLE_TEXT,
-        "Nerd Fonts — CSS Class",
-        "nerd_fonts_css_class.html",
-    )
+    run_css_class_html::<NerdFonts>(FONT_FAMILY, "nerd-fonts", "icon", SAMPLE_TEXT, "Nerd Fonts — CSS Class", "nerd_fonts_css_class.html")
 }

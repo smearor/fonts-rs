@@ -39,22 +39,14 @@ use crate::app::run_gtk_app;
 /// # Errors
 ///
 /// Returns an error if GTK init or GResource registration fails.
-pub fn run_svg_gresource<T, C>(
-    app_id: &str,
-    window_title: &str,
-    gresource_prefix: &str,
-    glyphs: &[(char, &str)],
-) -> Result<glib::ExitCode>
+pub fn run_svg_gresource<T, C>(app_id: &str, window_title: &str, gresource_prefix: &str, glyphs: &[(char, &str)]) -> Result<glib::ExitCode>
 where
     T: GtkFont,
     C: FontFamilyConfig,
 {
     T::register_glyphs().into_diagnostic()?;
 
-    let glyphs: Vec<(char, String)> = glyphs
-        .iter()
-        .map(|(ch, name)| (*ch, name.to_string()))
-        .collect();
+    let glyphs: Vec<(char, String)> = glyphs.iter().map(|(ch, name)| (*ch, name.to_string())).collect();
 
     let gresource_prefix = gresource_prefix.to_string();
     let window_title = window_title.to_string();
@@ -64,12 +56,7 @@ where
     })
 }
 
-fn build_ui<C: FontFamilyConfig>(
-    app: &Application,
-    window_title: &str,
-    gresource_prefix: &str,
-    glyphs: &[(char, String)],
-) {
+fn build_ui<C: FontFamilyConfig>(app: &Application, window_title: &str, gresource_prefix: &str, glyphs: &[(char, String)]) {
     let window = ApplicationWindow::builder()
         .application(app)
         .title(window_title)
@@ -101,58 +88,38 @@ fn build_ui<C: FontFamilyConfig>(
         .build();
     main_box.append(&hint);
 
-    let grid = Box::builder()
-        .orientation(Orientation::Horizontal)
-        .spacing(12)
-        .halign(Align::Center)
-        .build();
+    let grid = Box::builder().orientation(Orientation::Horizontal).spacing(12).halign(Align::Center).build();
 
     let prefix = gresource_prefix;
 
     for (_codepoint, name) in glyphs.iter().take(4) {
-        let resource_path = format!(
-            "{}/{}/{}/{}.svg",
-            prefix,
-            SCALABLE_DIR,
-            C::ICONS_CONTEXT,
-            name
-        );
+        let resource_path = format!("{}/{}/{}/{}.svg", prefix, SCALABLE_DIR, C::ICONS_CONTEXT, name);
 
         match gio::resources_lookup_data(&resource_path, gio::ResourceLookupFlags::NONE) {
-            Ok(bytes) => {
-                match gtk4::gdk::Texture::from_bytes(&glib::Bytes::from(bytes.as_ref())) {
-                    Ok(texture) => {
-                        let picture = Picture::for_paintable(&texture);
-                        picture.set_halign(Align::Center);
-                        picture.set_valign(Align::Center);
-                        picture.set_size_request(64, 64);
+            Ok(bytes) => match gtk4::gdk::Texture::from_bytes(&glib::Bytes::from(bytes.as_ref())) {
+                Ok(texture) => {
+                    let picture = Picture::for_paintable(&texture);
+                    picture.set_halign(Align::Center);
+                    picture.set_valign(Align::Center);
+                    picture.set_size_request(64, 64);
 
-                        let vbox = Box::builder()
-                            .orientation(Orientation::Vertical)
-                            .spacing(4)
-                            .halign(Align::Center)
-                            .build();
-                        vbox.append(&picture);
+                    let vbox = Box::builder().orientation(Orientation::Vertical).spacing(4).halign(Align::Center).build();
+                    vbox.append(&picture);
 
-                        let caption = Label::builder()
-                            .label(name)
-                            .css_classes(["caption", "dim-label"])
-                            .halign(Align::Center)
-                            .build();
-                        vbox.append(&caption);
+                    let caption = Label::builder().label(name).css_classes(["caption", "dim-label"]).halign(Align::Center).build();
+                    vbox.append(&caption);
 
-                        grid.append(&vbox);
-                    }
-                    Err(e) => {
-                        let label = Label::builder()
-                            .label(format!("{name}\nTexture error: {e}"))
-                            .css_classes(["caption", "error"])
-                            .halign(Align::Center)
-                            .build();
-                        grid.append(&label);
-                    }
+                    grid.append(&vbox);
                 }
-            }
+                Err(e) => {
+                    let label = Label::builder()
+                        .label(format!("{name}\nTexture error: {e}"))
+                        .css_classes(["caption", "error"])
+                        .halign(Align::Center)
+                        .build();
+                    grid.append(&label);
+                }
+            },
             Err(e) => {
                 let label = Label::builder()
                     .label(format!("{name}\nLookup error: {e}"))

@@ -5,10 +5,10 @@
 //! cargo run --example svg_gresource --features gtk
 //! ```
 
+use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_noto_emoji::NotoEmojiConfig;
 use fonts_rs_noto_emoji::all_glyphs;
 use fonts_rs_noto_emoji::naming::NotoEmoji;
-use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_test::run_svg_gresource;
 
 const APP_ID: &str = "io.smearor.fonts_rs.noto_emoji_svg_gresource";

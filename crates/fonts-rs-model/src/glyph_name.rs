@@ -1,6 +1,6 @@
 //! Phantom-typed glyph name newtype for compile-time font family safety.
 
-use crate::font_family::FontFamily;
+use crate::font_family_marker::FontFamilyMarker;
 use serde::Deserialize;
 use serde::Deserializer;
 use serde::Serialize;
@@ -19,14 +19,14 @@ use std::marker::PhantomData;
 /// type directly. Use [`GlyphName::new`] to wrap an already-normalized
 /// string.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct GlyphName<F: FontFamily> {
+pub struct GlyphName<F: FontFamilyMarker> {
     /// The normalized glyph name string.
     name: String,
     /// Phantom marker for the font family type.
     _marker: PhantomData<F>,
 }
 
-impl<F: FontFamily> GlyphName<F> {
+impl<F: FontFamilyMarker> GlyphName<F> {
     /// Creates a `GlyphName` from an already-normalized string.
     ///
     /// This constructor is called by `FontDefinition::normalize_name`
@@ -36,19 +36,19 @@ impl<F: FontFamily> GlyphName<F> {
     }
 }
 
-impl<F: FontFamily> AsRef<str> for GlyphName<F> {
+impl<F: FontFamilyMarker> AsRef<str> for GlyphName<F> {
     fn as_ref(&self) -> &str {
         &self.name
     }
 }
 
-impl<F: FontFamily> fmt::Display for GlyphName<F> {
+impl<F: FontFamilyMarker> fmt::Display for GlyphName<F> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(&self.name)
     }
 }
 
-impl<F: FontFamily> Serialize for GlyphName<F> {
+impl<F: FontFamilyMarker> Serialize for GlyphName<F> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -57,7 +57,7 @@ impl<F: FontFamily> Serialize for GlyphName<F> {
     }
 }
 
-impl<'de, F: FontFamily> Deserialize<'de> for GlyphName<F> {
+impl<'de, F: FontFamilyMarker> Deserialize<'de> for GlyphName<F> {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,

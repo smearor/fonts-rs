@@ -1,8 +1,8 @@
 //! `FontFamilyConfig` for the Dicefont font family.
 
 use const_format::concatcp;
-use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_model::CodePointRange;
+use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_model::GRESOURCE_BASE_PREFIX;
 
 /// PUA range (U+F000–U+FFFF) covering all dicefont glyphs.

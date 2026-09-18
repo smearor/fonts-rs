@@ -8,14 +8,8 @@ use fonts_rs_model::ICONS_CONTEXT_EMOJI;
 
 /// Emoji codepoint ranges (supplementary planes + selected BMP ranges).
 const EMOJI_RANGES: &[CodePointRange] = &[
-    CodePointRange::new(
-        fonts_rs_model::CodePoint::from_char('\u{1F000}'),
-        fonts_rs_model::CodePoint::from_char('\u{1FAFF}'),
-    ),
-    CodePointRange::new(
-        fonts_rs_model::CodePoint::from_char('\u{2600}'),
-        fonts_rs_model::CodePoint::from_char('\u{27BF}'),
-    ),
+    CodePointRange::new(fonts_rs_model::CodePoint::from_char('\u{1F000}'), fonts_rs_model::CodePoint::from_char('\u{1FAFF}')),
+    CodePointRange::new(fonts_rs_model::CodePoint::from_char('\u{2600}'), fonts_rs_model::CodePoint::from_char('\u{27BF}')),
 ];
 
 /// Build-time configuration for the Noto Emoji font family.

@@ -13,9 +13,9 @@ use std::path::Path;
 
 use fonts_rs_generator::ExportConfig;
 use fonts_rs_generator::FontBuild;
-use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_generator::MetadataGenerator;
 use fonts_rs_generator::build_constants;
+use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_noto_emoji_generator::ANNOTATIONS_FILE;
 use fonts_rs_noto_emoji_generator::EMOJI_TEST_FILE;
 use fonts_rs_noto_emoji_generator::FONT_FILE;

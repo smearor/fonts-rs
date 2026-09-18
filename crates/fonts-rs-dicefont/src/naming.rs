@@ -3,7 +3,7 @@
 //! The `Dicefont` marker is used as the phantom type parameter in
 //! `GlyphName<Dicefont>`, ensuring type safety at compile time.
 
-use fonts_rs_model::FontFamily;
+use fonts_rs_model::FontFamilyMarker;
 use fonts_rs_model::GlyphName;
 use fonts_rs_model::sealed;
 
@@ -15,7 +15,7 @@ use fonts_rs_model::sealed;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Dicefont {}
 
-impl FontFamily for Dicefont {}
+impl FontFamilyMarker for Dicefont {}
 
 impl sealed::Sealed for Dicefont {}
 

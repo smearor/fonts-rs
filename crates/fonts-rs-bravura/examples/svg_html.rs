@@ -14,10 +14,5 @@ use fonts_rs_test::run_svg_html;
 fn main() -> miette::Result<()> {
     let glyphs: Vec<(char, &str)> = all_glyphs().collect();
 
-    run_svg_html::<Bravura, BravuraConfig>(
-        "Bravura — SVG Glyphs",
-        BravuraConfig::GRESOURCE_PREFIX,
-        &glyphs,
-        "bravura_svg_html.html",
-    )
+    run_svg_html::<Bravura, BravuraConfig>("Bravura — SVG Glyphs", BravuraConfig::GRESOURCE_PREFIX, &glyphs, "bravura_svg_html.html")
 }

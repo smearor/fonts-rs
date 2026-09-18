@@ -5,10 +5,10 @@
 //! cargo run --example gtk_icon_theme --features gtk
 //! ```
 
+use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_noto_emoji::NotoEmojiConfig;
 use fonts_rs_noto_emoji::constants;
 use fonts_rs_noto_emoji::naming::NotoEmoji;
-use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_test::run_gtk_icon_theme;
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {

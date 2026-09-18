@@ -12,9 +12,9 @@ use gtk4::Label;
 use gtk4::Orientation;
 use gtk4::glib;
 use gtk4::prelude::*;
-use pango::prelude::FontMapExt;
 use miette::IntoDiagnostic;
 use miette::Result;
+use pango::prelude::FontMapExt;
 
 use crate::app::run_gtk_app;
 
@@ -37,12 +37,7 @@ use crate::app::run_gtk_app;
 /// # Errors
 ///
 /// Returns an error if GTK init or GResource registration fails.
-pub fn run_gtk_gresource<T: GtkFont>(
-    app_id: &str,
-    window_title: &str,
-    font_family: &str,
-    text: &str,
-) -> Result<glib::ExitCode> {
+pub fn run_gtk_gresource<T: GtkFont>(app_id: &str, window_title: &str, font_family: &str, text: &str) -> Result<glib::ExitCode> {
     T::register_glyphs().into_diagnostic()?;
     T::register_font().into_diagnostic()?;
 
@@ -55,12 +50,7 @@ pub fn run_gtk_gresource<T: GtkFont>(
     })
 }
 
-fn build_ui<T: GtkFont>(
-    app: &Application,
-    window_title: &str,
-    font_family: &str,
-    text: &str,
-) {
+fn build_ui<T: GtkFont>(app: &Application, window_title: &str, font_family: &str, text: &str) {
     let window = ApplicationWindow::builder()
         .application(app)
         .title(window_title)
@@ -83,11 +73,7 @@ fn build_ui<T: GtkFont>(
     let provider = gtk4::CssProvider::new();
     provider.load_from_string(&css);
     if let Some(display) = gtk4::gdk::Display::default() {
-        gtk4::style_context_add_provider_for_display(
-            &display,
-            &provider,
-            gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION,
-        );
+        gtk4::style_context_add_provider_for_display(&display, &provider, gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION);
     }
 
     let label = Label::builder()
@@ -98,11 +84,7 @@ fn build_ui<T: GtkFont>(
         .vexpand(true)
         .build();
 
-    let main_box = Box::builder()
-        .orientation(Orientation::Vertical)
-        .margin_top(24)
-        .margin_bottom(24)
-        .build();
+    let main_box = Box::builder().orientation(Orientation::Vertical).margin_top(24).margin_bottom(24).build();
     main_box.append(&label);
 
     window.set_child(Some(&main_box));

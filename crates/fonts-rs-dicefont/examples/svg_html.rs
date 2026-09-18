@@ -14,10 +14,5 @@ use fonts_rs_test::run_svg_html;
 fn main() -> miette::Result<()> {
     let glyphs: Vec<(char, &str)> = all_glyphs().collect();
 
-    run_svg_html::<Dicefont, DicefontConfig>(
-        "Dicefont — SVG Glyphs",
-        DicefontConfig::GRESOURCE_PREFIX,
-        &glyphs,
-        "dicefont_svg_html.html",
-    )
+    run_svg_html::<Dicefont, DicefontConfig>("Dicefont — SVG Glyphs", DicefontConfig::GRESOURCE_PREFIX, &glyphs, "dicefont_svg_html.html")
 }

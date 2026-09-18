@@ -14,10 +14,5 @@ use nerd_fonts_rs::all_icons;
 fn main() -> miette::Result<()> {
     let glyphs: Vec<(char, &str)> = all_icons().collect();
 
-    run_svg_html::<NerdFonts, NerdFontsConfig>(
-        "Nerd Fonts — SVG Glyphs",
-        NerdFontsConfig::GRESOURCE_PREFIX,
-        &glyphs,
-        "nerd_fonts_svg_html.html",
-    )
+    run_svg_html::<NerdFonts, NerdFontsConfig>("Nerd Fonts — SVG Glyphs", NerdFontsConfig::GRESOURCE_PREFIX, &glyphs, "nerd_fonts_svg_html.html")
 }

@@ -10,22 +10,22 @@
 
 use const_format::concatcp;
 use fonts_rs_generator::FontDefinition;
-use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_model::CodePointRange;
-use fonts_rs_model::FontFamily;
+use fonts_rs_model::FontFamilyConfig;
+use fonts_rs_model::FontFamilyMarker;
 use fonts_rs_model::GRESOURCE_BASE_PREFIX;
 use fonts_rs_model::ICONS_CONTEXT_EMOJI;
 use fonts_rs_model::sealed;
 
 /// Marker enum for the Noto Emoji font family.
 ///
-/// Used as the `FontFamily` phantom type parameter. Zero-sized, exists
+/// Used as the `FontFamilyMarker` phantom type parameter. Zero-sized, exists
 /// only at the type level for compile-time type safety.
 pub enum NotoEmoji {}
 
 impl sealed::Sealed for NotoEmoji {}
 
-impl FontFamily for NotoEmoji {}
+impl FontFamilyMarker for NotoEmoji {}
 
 /// TTF font file name (relative to `resources/`).
 pub const FONT_FILE: &str = "NotoEmoji-Regular.ttf";

@@ -23,10 +23,5 @@ use fonts_rs_test::run_svg_html;
 fn main() -> miette::Result<()> {
     let glyphs: Vec<(char, &str)> = all_glyphs().collect();
 
-    run_svg_html::<Ean13, Ean13Definition>(
-        "Libre Barcode EAN13 — SVG Glyphs",
-        Ean13Definition::GRESOURCE_PREFIX,
-        &glyphs,
-        "barcode_ean13_svg_html.html",
-    )
+    run_svg_html::<Ean13, Ean13Definition>("Libre Barcode EAN13 — SVG Glyphs", Ean13Definition::GRESOURCE_PREFIX, &glyphs, "barcode_ean13_svg_html.html")
 }

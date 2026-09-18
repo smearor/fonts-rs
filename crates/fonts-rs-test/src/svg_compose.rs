@@ -59,10 +59,7 @@ where
 {
     T::register_glyphs().into_diagnostic()?;
 
-    let char_to_name: std::collections::HashMap<char, String> = char_to_name
-        .iter()
-        .map(|(ch, name)| (*ch, name.to_string()))
-        .collect();
+    let char_to_name: std::collections::HashMap<char, String> = char_to_name.iter().map(|(ch, name)| (*ch, name.to_string())).collect();
 
     let gresource_prefix = gresource_prefix.to_string();
     let text = text.to_string();
@@ -150,15 +147,8 @@ fn compose_text_svg<C: FontFamilyConfig>(
             continue;
         };
 
-        let resource_path = format!(
-            "{}/{}/{}/{}.svg",
-            prefix,
-            SCALABLE_DIR,
-            C::ICONS_CONTEXT,
-            name
-        );
-        let Ok(bytes) = gio::resources_lookup_data(&resource_path, gio::ResourceLookupFlags::NONE)
-        else {
+        let resource_path = format!("{}/{}/{}/{}.svg", prefix, SCALABLE_DIR, C::ICONS_CONTEXT, name);
+        let Ok(bytes) = gio::resources_lookup_data(&resource_path, gio::ResourceLookupFlags::NONE) else {
             continue;
         };
         let Ok(svg) = std::str::from_utf8(bytes.as_ref()) else {
@@ -168,10 +158,7 @@ fn compose_text_svg<C: FontFamilyConfig>(
         let viewbox = extract_svg_viewbox(svg).to_string();
         let content = extract_svg_inner(svg).to_string();
 
-        let parts: Vec<f64> = viewbox
-            .split_whitespace()
-            .filter_map(|s| s.parse().ok())
-            .collect();
+        let parts: Vec<f64> = viewbox.split_whitespace().filter_map(|s| s.parse().ok()).collect();
         let scaled_width = if parts.len() >= 4 && parts[3] > 0.0 {
             glyph_height * parts[2] / parts[3]
         } else {
@@ -196,7 +183,9 @@ fn compose_text_svg<C: FontFamilyConfig>(
         x += scaled_width;
     }
 
-    format!("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{total_width}\" height=\"{total_height}\"><rect width=\"100%\" height=\"100%\" fill=\"#fff\"/>{inner}</svg>")
+    format!(
+        "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{total_width}\" height=\"{total_height}\"><rect width=\"100%\" height=\"100%\" fill=\"#fff\"/>{inner}</svg>"
+    )
 }
 
 /// Extracts the `viewBox` attribute value from an SVG string.

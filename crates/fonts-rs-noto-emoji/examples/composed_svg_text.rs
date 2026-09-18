@@ -5,10 +5,10 @@
 //! cargo run --example composed_svg_text --features gtk
 //! ```
 
+use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_noto_emoji::NotoEmojiConfig;
 use fonts_rs_noto_emoji::all_glyphs;
 use fonts_rs_noto_emoji::naming::NotoEmoji;
-use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_test::run_composed_svg_text;
 
 const APP_ID: &str = "io.smearor.fonts_rs.noto_emoji_composed_svg";

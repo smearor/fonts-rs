@@ -13,12 +13,5 @@ const FONT_FAMILY: &str = "Redacted";
 const SAMPLE_TEXT: &str = "HELLO";
 
 fn main() -> miette::Result<()> {
-    run_css_class_html::<Redacted>(
-        FONT_FAMILY,
-        "redacted",
-        "redacted text",
-        SAMPLE_TEXT,
-        "Redacted — CSS Class",
-        "redacted_css_class.html",
-    )
+    run_css_class_html::<Redacted>(FONT_FAMILY, "redacted", "redacted text", SAMPLE_TEXT, "Redacted — CSS Class", "redacted_css_class.html")
 }

@@ -17,10 +17,7 @@ use miette::Result;
 /// # Errors
 ///
 /// Returns an error if GTK initialization fails.
-pub fn run_gtk_app(
-    app_id: &str,
-    build_ui: impl Fn(&Application) + 'static,
-) -> Result<glib::ExitCode> {
+pub fn run_gtk_app(app_id: &str, build_ui: impl Fn(&Application) + 'static) -> Result<glib::ExitCode> {
     gtk4::init().into_diagnostic()?;
     let app = Application::builder().application_id(app_id).build();
     app.connect_activate(build_ui);
