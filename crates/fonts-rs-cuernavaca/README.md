@@ -24,10 +24,10 @@ fonts-rs-cuernavaca = "0.1"
 ```
 
 ```rust
-use fonts_rs_cuernavaca::register_glyphs;
+use fonts_rs_cuernavaca::Cuernavaca;
 
 fn main() {
-    register_glyphs().unwrap();
+    Cuernavaca::install().unwrap();
 }
 ```
 

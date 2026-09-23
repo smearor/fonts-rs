@@ -8,7 +8,7 @@
 //! ```
 
 use fonts_rs_barcode_code128::Code128;
-use fonts_rs_barcode_code128::GtkFont;
+use fonts_rs_model::FontFamily;
 use gtk4::Align;
 use gtk4::Application;
 use gtk4::ApplicationWindow;
@@ -23,12 +23,9 @@ use miette::Result;
 
 const APP_ID: &str = "io.smearor.fonts_rs.barcode_code128_demo";
 
-const FONT_FAMILY: &str = "LibreBarcode128";
-
 fn main() -> Result<glib::ExitCode> {
     gtk4::init().into_diagnostic()?;
-    Code128::register_glyphs().into_diagnostic()?;
-    Code128::register_font().into_diagnostic()?;
+    Code128::install().into_diagnostic()?;
 
     let app = Application::builder().application_id(APP_ID).build();
 
@@ -38,7 +35,8 @@ fn main() -> Result<glib::ExitCode> {
 }
 
 fn build_ui(app: &Application) {
-    let css = format!(".barcode-display {{\n    font-family: '{FONT_FAMILY}';\n    font-size: 192px;\n    font-feature-settings: \"calt\";\n}}\n");
+    let font_family = Code128::CSS_FONT_FAMILY;
+    let css = format!(".barcode-display {{\n    font-family: '{font_family}';\n    font-size: 192px;\n    font-feature-settings: \"calt\";\n}}\n");
 
     let provider = gtk4::CssProvider::new();
     provider.load_from_string(&css);
@@ -54,13 +52,8 @@ fn build_ui(app: &Application) {
         .build();
 
     if let Some(font_map) = window.pango_context().font_map() {
-        match Code128::load_font() {
-            Ok(path) => {
-                if let Err(e) = font_map.add_font_file(path) {
-                    eprintln!("Failed to load font: {e}");
-                }
-            }
-            Err(e) => eprintln!("Failed to load font from GResource: {e}"),
+        if let Err(e) = Code128::install_pango(&font_map) {
+            eprintln!("Failed to install font into Pango: {e}");
         }
     } else {
         eprintln!("No Pango font map available");

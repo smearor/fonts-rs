@@ -25,10 +25,10 @@ fonts-rs-bravura = "0.1"
 ```
 
 ```rust
-use fonts_rs_bravura::register_glyphs;
+use fonts_rs_bravura::Bravura;
 
 fn main() {
-    register_glyphs().unwrap();
+    Bravura::install().unwrap();
 }
 ```
 

@@ -24,10 +24,10 @@ fonts-rs-barcode-ean13 = "0.1"
 ```
 
 ```rust
-use fonts_rs_barcode_ean13::register_glyphs;
+use fonts_rs_barcode_ean13::Ean13;
 
 fn main() {
-    register_glyphs().unwrap();
+    Ean13::install().unwrap();
 }
 ```
 

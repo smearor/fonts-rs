@@ -7,6 +7,7 @@
 //! use fonts_rs_model::prelude::*;
 //! ```
 
+pub use crate::CodePoint;
 #[cfg(feature = "gtk")]
 pub use crate::FontError;
 pub use crate::FontFamily;

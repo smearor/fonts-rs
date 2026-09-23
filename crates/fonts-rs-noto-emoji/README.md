@@ -27,10 +27,10 @@ fonts-rs-noto-emoji = { version = "0.1", features = ["metadata"] }
 ```
 
 ```rust
-use fonts_rs_noto_emoji::register_glyphs;
+use fonts_rs_noto_emoji::NotoEmoji;
 
 fn main() {
-    register_glyphs().unwrap();
+    NotoEmoji::install().unwrap();
 }
 ```
 

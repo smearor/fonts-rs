@@ -5,10 +5,8 @@
 //! cargo run --example gtk_icon_theme --features gtk
 //! ```
 
-use fonts_rs_cuernavaca::CuernavacaConfig;
+use fonts_rs_cuernavaca::Cuernavaca;
 use fonts_rs_cuernavaca::constants;
-use fonts_rs_cuernavaca::naming::Cuernavaca;
-use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_test::run_gtk_icon_theme;
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
@@ -19,10 +17,5 @@ fn main() -> miette::Result<gtk4::glib::ExitCode> {
         (constants::CUERNAVACA_B, "Bishop"),
     ];
 
-    run_gtk_icon_theme::<Cuernavaca, CuernavacaConfig>(
-        "io.smearor.fonts_rs.cuernavaca_icon_theme",
-        "Cuernavaca — GtkIconTheme",
-        CuernavacaConfig::GRESOURCE_PREFIX,
-        &icons,
-    )
+    run_gtk_icon_theme::<Cuernavaca>("io.smearor.fonts_rs.cuernavaca_icon_theme", "Cuernavaca — GtkIconTheme", &icons)
 }

@@ -9,25 +9,6 @@
 use nerd_fonts_model::CodePoint;
 use nerd_fonts_model::IconName;
 
-/// Extension trait adding codepoint lookup to [`IconName`].
-///
-/// This trait is implemented in the `nerd-fonts-rs` crate (not in
-/// `nerd-fonts-model`) because it requires access to the generated
-/// codepoint map, which is only available at runtime after `build.rs`
-/// has generated the `phf::Map` tables.
-pub trait IconNameExt {
-    /// Resolves this icon name to its Unicode [`CodePoint`].
-    ///
-    /// Returns `None` if the icon name is not found in the codepoint map.
-    fn codepoint(&self) -> Option<CodePoint>;
-}
-
-impl IconNameExt for IconName {
-    fn codepoint(&self) -> Option<CodePoint> {
-        codepoint_map::REVERSE_ICONS.get(self.as_ref()).copied().map(CodePoint::from)
-    }
-}
-
 /// Auto-generated Nerd Font icon name constants.
 pub mod constants;
 
@@ -94,29 +75,23 @@ pub fn all_icons_typed() -> Vec<(CodePoint, IconName)> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use fonts_rs_model::CodePoint;
 
     #[test]
     fn icon_name_codepoint_known_icon() {
-        let name = IconName::from_glyph_name("fa-gamepad").unwrap();
-        let codepoint = name.codepoint();
-        assert!(codepoint.is_some());
-        assert_eq!(codepoint.unwrap().as_char(), '\u{F11B}');
+        let codepoint = crate::NerdFonts::codepoint("fa-gamepad");
+        assert_eq!(codepoint, Some(CodePoint::from_char('\u{F11B}')));
     }
 
     #[test]
     fn icon_name_codepoint_with_underscores() {
-        let name = IconName::from_glyph_name("linux_tux").unwrap();
-        let codepoint = name.codepoint();
-        assert!(codepoint.is_some());
-        assert_eq!(codepoint.unwrap().as_char(), '\u{F31A}');
+        let codepoint = crate::NerdFonts::codepoint("linux_tux");
+        assert_eq!(codepoint, Some(CodePoint::from_char('\u{F31A}')));
     }
 
     #[test]
     fn icon_name_codepoint_unknown_icon() {
-        let name = IconName::from_glyph_name("fa-nonexistent-xyz");
-        if let Some(name) = name {
-            assert_eq!(name.codepoint(), None);
-        }
+        assert_eq!(crate::NerdFonts::codepoint("fa-nonexistent-xyz"), None);
     }
 
     #[test]

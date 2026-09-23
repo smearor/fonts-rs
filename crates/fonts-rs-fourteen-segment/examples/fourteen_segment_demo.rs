@@ -7,11 +7,7 @@
 //! cargo run --example fourteen_segment_demo --features gtk,embed-fonts
 //! ```
 
-use fonts_rs_fourteen_segment::FourteenSegmentName;
-use fonts_rs_fourteen_segment::GlyphNameExt;
-use fonts_rs_fourteen_segment::GtkFont;
-use fonts_rs_fourteen_segment::all_glyphs;
-use fonts_rs_fourteen_segment::naming::FourteenSegment;
+use fonts_rs_fourteen_segment::FourteenSegment;
 use fonts_rs_fourteen_segment::variant;
 
 use gtk4::Align;
@@ -81,7 +77,7 @@ const GALLERY_GLYPH_BASES: &[&str] = &[
 
 fn main() -> Result<glib::ExitCode> {
     gtk4::init().into_diagnostic()?;
-    FourteenSegment::register_glyphs().into_diagnostic()?;
+    FourteenSegment::ensure_registered().into_diagnostic()?;
 
     let app = Application::builder().application_id(APP_ID).build();
 
@@ -122,7 +118,7 @@ fn build_ui(app: &Application) {
         .build();
 
     let title = Label::builder()
-        .label(&format!("DSEG14 — Fourteen-Segment Display ({})", variant::GLYPH_PREFIX))
+        .label(format!("DSEG14 — Fourteen-Segment Display ({})", variant::GLYPH_PREFIX))
         .css_classes(["title-1"])
         .halign(Align::Center)
         .build();
@@ -235,9 +231,7 @@ fn do_resolve(result_label: &Label, name: &str) {
         result_label.set_label("Codepoint: —");
         return;
     }
-    let glyph_name = FourteenSegmentName::new(name.to_string());
-    let cp = glyph_name.codepoint();
-    match cp {
+    match FourteenSegment::codepoint(name) {
         Some(c) => result_label.set_label(&format!("Codepoint: U+{:04X} ('{}')", c.as_char() as u32, c.as_char())),
         None => result_label.set_label("Codepoint: no Unicode mapping (font-specific glyph)"),
     }
@@ -261,7 +255,7 @@ fn build_gallery_section() -> Frame {
     section.append(&header);
 
     let desc = Label::builder()
-        .label(&format!("DSEG14 glyphs ({}) rendered as GTK icons via GResource registration.", variant::GLYPH_PREFIX))
+        .label(format!("DSEG14 glyphs ({}) rendered as GTK icons via GResource registration.", variant::GLYPH_PREFIX))
         .halign(Align::Start)
         .wrap(true)
         .build();
@@ -302,9 +296,9 @@ fn build_gallery_section() -> Frame {
     section.append(&grid);
 
     // Show total glyph count
-    let count = all_glyphs().count();
+    let count = FourteenSegment::glyph_count();
     let count_label = Label::builder()
-        .label(&format!("Total exported glyphs: {count}"))
+        .label(format!("Total exported glyphs: {count}"))
         .halign(Align::Center)
         .css_classes(["dim-label"])
         .build();

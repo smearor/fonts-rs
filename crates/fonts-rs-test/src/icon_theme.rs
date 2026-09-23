@@ -33,15 +33,17 @@ use crate::app::run_gtk_app;
 ///
 /// - `app_id`: Unique GTK application ID.
 /// - `window_title`: Window title text.
-/// - `icons`: Slice of `(icon_name, label)` pairs to display.
+/// - `icons`: Slice of `(icon_name, label)` pairs to display. Both
+///   accept `&str`, `String`, and the typed `F::Name` (`GlyphName<F>` /
+///   `IconName`) via `AsRef<str>`.
 ///
 /// # Errors
 ///
 /// Returns an error if GTK init or GResource registration fails.
-pub fn run_gtk_icon_theme<F: IconThemeFont>(app_id: &str, window_title: &str, icons: &[(&str, &str)]) -> Result<glib::ExitCode> {
+pub fn run_gtk_icon_theme<F: IconThemeFont>(app_id: &str, window_title: &str, icons: &[(impl AsRef<str>, impl AsRef<str>)]) -> Result<glib::ExitCode> {
     F::ensure_registered().into_diagnostic()?;
 
-    let icons: Vec<(String, String)> = icons.iter().map(|(name, label)| (name.to_string(), label.to_string())).collect();
+    let icons: Vec<(String, String)> = icons.iter().map(|(name, label)| (name.as_ref().to_string(), label.as_ref().to_string())).collect();
 
     let window_title = window_title.to_string();
 

@@ -8,27 +8,24 @@
 //! ```no_run
 //! # #[cfg(feature = "gtk")]
 //! use fonts_rs_barcode_code128::Code128;
-//! # #[cfg(feature = "gtk")]
-//! use fonts_rs_barcode_code128::GtkFont;
 //!
 //! # #[cfg(feature = "gtk")]
 //! // Call once at startup before using any glyphs
-//! Code128::register_glyphs().unwrap();
+//! Code128::install().unwrap();
 //! ```
 //!
 //! Then resolve glyph names to Unicode codepoints:
 //!
 //! ```no_run
-//! use fonts_rs_barcode_code128::Code128Name;
-//! use fonts_rs_barcode_code128::GlyphNameExt;
+//! use fonts_rs_barcode_code128::Code128;
 //!
-//! let name = Code128Name::new("zero".to_string());
-//! let codepoint = name.codepoint();
+//! let codepoint = Code128::codepoint("zero");
 //! ```
 
 pub mod codepoint_map;
 pub mod constants;
 pub mod definition;
+mod family;
 
 #[cfg(feature = "gtk")]
 pub mod gtk;
@@ -36,35 +33,13 @@ pub mod gtk;
 #[cfg(feature = "render")]
 pub mod fonts;
 
-use fonts_rs_model::CodePoint;
-
 // Re-export key types
 pub use definition::Code128;
 pub use definition::Code128Definition;
 pub use definition::Code128Name;
 #[cfg(feature = "gtk")]
 pub use fonts_rs_model::GtkFont;
-
-/// Extension trait adding codepoint lookup to `GlyphName<Code128>`.
-pub trait GlyphNameExt {
-    /// Resolves this glyph name to its Unicode [`CodePoint`].
-    ///
-    /// Returns `None` if the name is not found in the codepoint map.
-    fn codepoint(&self) -> Option<CodePoint>;
-}
-
-impl GlyphNameExt for Code128Name {
-    fn codepoint(&self) -> Option<CodePoint> {
-        let key = self.as_ref();
-        codepoint_map::REVERSE_GLYPHS.get(key).copied().map(CodePoint::from)
-    }
-}
-
-/// Returns an iterator over all known glyphs, yielding
-/// `(char, &'static str)` pairs of codepoint and glyph name.
-pub fn all_glyphs() -> impl Iterator<Item = (char, &'static str)> {
-    codepoint_map::GLYPHS.entries().map(|(c, name)| (*c, *name))
-}
+pub use fonts_rs_model::prelude;
 
 #[cfg(test)]
 mod tests {
@@ -72,27 +47,27 @@ mod tests {
 
     #[test]
     fn all_glyphs_is_not_empty() {
-        let count = all_glyphs().count();
+        let count = Code128::glyph_count();
         assert!(count > 0, "Code 128 should export at least one glyph");
     }
 
     #[test]
     fn all_glyphs_names_are_lowercase() {
-        for (_, name) in all_glyphs() {
-            assert_eq!(*name, name.to_lowercase(), "glyph name '{name}' should be lowercase");
+        for (_, name) in Code128::all_glyphs() {
+            assert_eq!(name.as_ref(), name.as_ref().to_lowercase(), "glyph name '{name}' should be lowercase");
         }
     }
 
     #[test]
     fn all_glyphs_names_contain_no_underscores() {
-        for (_, name) in all_glyphs() {
-            assert!(!name.contains('_'), "glyph name '{name}' should not contain underscores");
+        for (_, name) in Code128::all_glyphs() {
+            assert!(!name.as_ref().contains('_'), "glyph name '{name}' should not contain underscores");
         }
     }
 
     #[test]
     fn all_glyphs_codepoints_are_unique() {
-        let codepoints: Vec<char> = all_glyphs().map(|(c, _)| c).collect();
+        let codepoints: Vec<char> = Code128::all_glyphs().map(|(c, _)| c.as_char()).collect();
         let unique: std::collections::HashSet<char> = codepoints.iter().copied().collect();
         assert_eq!(codepoints.len(), unique.len(), "all codepoints should be unique");
     }

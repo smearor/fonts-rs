@@ -18,6 +18,7 @@ pub use fonts_rs_model::GlyphEntry;
 pub use fonts_rs_model::ResourcePath;
 
 pub use name::IconName;
+pub use name::IconNameParseError;
 pub use paths::GRESOURCE_PREFIX;
 pub use paths::ICONS_RESOURCE_PATH;
 pub use set::IconSet;

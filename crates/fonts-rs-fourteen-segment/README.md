@@ -28,10 +28,10 @@ fonts-rs-fourteen-segment = { version = "0.1", features = ["modern-bold"] }
 ```
 
 ```rust
-use fonts_rs_fourteen_segment::register_glyphs;
+use fonts_rs_fourteen_segment::FourteenSegment;
 
 fn main() {
-    register_glyphs().unwrap();
+    FourteenSegment::install().unwrap();
 }
 ```
 

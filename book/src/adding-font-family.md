@@ -76,12 +76,12 @@ Choose `CODEPOINT_RANGES` based on the font's Unicode coverage:
 
 ## Step 4: Write `naming.rs`
 
-Define the `FontFamily` marker enum and `GlyphName<F>` type alias:
+Define the `FontFamilyMarker` enum and `GlyphName<F>` type alias:
 
 ```rust
 //! Font family marker type for MyFont.
 
-use fonts_rs_model::FontFamily;
+use fonts_rs_model::FontFamilyMarker;
 use fonts_rs_model::GlyphName;
 use fonts_rs_model::sealed;
 
@@ -89,7 +89,7 @@ use fonts_rs_model::sealed;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum MyFont {}
 
-impl FontFamily for MyFont {}
+impl FontFamilyMarker for MyFont {}
 impl sealed::Sealed for MyFont {}
 
 /// Convenience type alias for MyFont glyph names.
@@ -199,53 +199,63 @@ FontBuild::new(&font_path)
     .map_err(|e| miette::miette!("{e}"))?;
 ```
 
-## Step 6: Write `lib.rs`
+## Step 6: Write `family.rs` and `lib.rs`
+
+`family.rs` wires the generated phf maps into the `FontFamily` trait
+and declares the family's capabilities via `impl_font_family!`:
+
+```rust
+//! Runtime font family API for MyFont.
+
+use crate::codepoint_map;
+use crate::definition::MyFontConfig;
+use crate::naming::MyFont;
+use crate::naming::MyFontName;
+use crate::variant;
+
+fonts_rs_generator::impl_font_family!(
+    MyFont,
+    MyFontConfig,
+    glyphs = codepoint_map::GLYPHS,
+    reverse = codepoint_map::REVERSE_GLYPHS,
+    name = MyFontName,
+    glyph_prefix = variant::GLYPH_PREFIX,
+    capabilities = [icon_theme, pango, html],
+);
+```
+
+The macro emits the `FontFamily` impl (`codepoint`, `glyph_name`,
+`all_glyphs`, `glyph_count`), the declared capability impls, and
+inherent forwarders so callers can write `MyFont::codepoint("x")`
+without importing the trait.
+
+`lib.rs` ties everything together:
 
 ```rust
 //! MyFont font integration for GTK 4.
 
 pub mod codepoint_map;
 pub mod constants;
+pub mod definition;
+mod family;
 pub mod naming;
 pub mod variant;
+
+#[cfg(feature = "gtk")]
+pub mod gtk;
 
 #[cfg(feature = "render")]
 pub mod fonts;
 
-use fonts_rs_model::CodePoint;
-
+pub use definition::MyFontConfig;
+#[cfg(feature = "gtk")]
+pub use fonts_rs_model::GtkFont;
+pub use fonts_rs_model::prelude;
+pub use naming::MyFont;
 pub use naming::MyFontName;
 
 /// Type alias for this font family's glyph name type.
 pub type FamilyName = MyFontName;
-
-/// Extension trait adding codepoint lookup to `GlyphName<MyFont>`.
-pub trait GlyphNameExt {
-    fn codepoint(&self) -> Option<CodePoint>;
-}
-
-impl GlyphNameExt for MyFontName {
-    fn codepoint(&self) -> Option<CodePoint> {
-        let key = self.as_ref();
-        if let Some(ch) = codepoint_map::REVERSE_GLYPHS.get(key).copied() {
-            return Some(CodePoint::from(ch));
-        }
-        let full = format!("{}-{}", variant::GLYPH_PREFIX, key);
-        codepoint_map::REVERSE_GLYPHS.get(&full).copied().map(CodePoint::from)
-    }
-}
-
-/// Registers embedded glyphs as a GResource.
-#[cfg(feature = "gtk")]
-pub fn register_glyphs() -> Result<(), gio::glib::Error> {
-    gio::resources_register_include!("icons.gresource")?;
-    Ok(())
-}
-
-/// Returns an iterator over all known glyphs.
-pub fn all_glyphs() -> impl Iterator<Item = (char, &'static str)> {
-    codepoint_map::GLYPHS.entries().map(|(c, name)| (*c, *name))
-}
 ```
 
 ### Generated Module Stubs
@@ -355,15 +365,15 @@ mod tests {
 
     #[test]
     fn all_glyphs_is_not_empty() {
-        let count = all_glyphs().count();
+        let count = MyFont::glyph_count();
         assert!(count > 0, "MyFont should export at least one glyph");
     }
 
     #[test]
     fn all_glyphs_names_start_with_family_prefix() {
-        for (_, name) in all_glyphs() {
+        for (_, name) in MyFont::all_glyphs() {
             assert!(
-                name.starts_with("myfont-"),
+                name.as_ref().starts_with("myfont-"),
                 "glyph name '{name}' should start with 'myfont-'"
             );
         }
@@ -371,21 +381,21 @@ mod tests {
 
     #[test]
     fn all_glyphs_names_are_lowercase() {
-        for (_, name) in all_glyphs() {
-            assert_eq!(*name, name.to_lowercase(), "glyph name '{name}' should be lowercase");
+        for (_, name) in MyFont::all_glyphs() {
+            assert_eq!(name.as_ref(), name.as_ref().to_lowercase(), "glyph name '{name}' should be lowercase");
         }
     }
 
     #[test]
     fn all_glyphs_names_contain_no_underscores() {
-        for (_, name) in all_glyphs() {
-            assert!(!name.contains('_'), "glyph name '{name}' should not contain underscores");
+        for (_, name) in MyFont::all_glyphs() {
+            assert!(!name.as_ref().contains('_'), "glyph name '{name}' should not contain underscores");
         }
     }
 
     #[test]
     fn all_glyphs_codepoints_are_unique() {
-        let codepoints: Vec<char> = all_glyphs().map(|(c, _)| c).collect();
+        let codepoints: Vec<char> = MyFont::all_glyphs().map(|(c, _)| c.as_char()).collect();
         let unique: std::collections::HashSet<char> = codepoints.iter().copied().collect();
         assert_eq!(codepoints.len(), unique.len(), "all codepoints should be unique");
     }

@@ -13,8 +13,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use std::time::Instant;
 
-use fonts_rs_fourteen_segment::GtkFont;
-use fonts_rs_fourteen_segment::naming::FourteenSegment;
+use fonts_rs_fourteen_segment::FourteenSegment;
 use fonts_rs_fourteen_segment::variant;
 
 use gtk4::Align;
@@ -189,10 +188,10 @@ fn update_dynamic_css(state: &Rc<RefCell<MarqueeState>>) {
     s.css_provider.load_from_string(&css);
     // Tell the compositor the window surface is not opaque in fullscreen,
     // so the transparent CSS background actually shows through to the desktop.
-    if s.fullscreen {
-        if let Some(surface) = s.window.surface() {
-            surface.set_opaque_region(None);
-        }
+    if s.fullscreen
+        && let Some(surface) = s.window.surface()
+    {
+        surface.set_opaque_region(None);
     }
 }
 
@@ -203,9 +202,7 @@ fn update_dynamic_css(state: &Rc<RefCell<MarqueeState>>) {
 /// always resolves to black. This workaround recolors the SVG bytes before
 /// creating the texture. Handles both SVGs with `fill="currentColor"` and
 /// SVGs with no fill attribute at all.
-fn colorized_texture(resource_path: &str, hex_color: &str) -> Option<gtk4::gdk::Texture> {
-    let bytes = gio::resources_lookup_data(resource_path, gio::ResourceLookupFlags::NONE).ok()?;
-    let svg = std::str::from_utf8(bytes.as_ref()).ok()?;
+fn colorized_texture(svg: &str, hex_color: &str) -> Option<gtk4::gdk::Texture> {
     let colored = if svg.contains("currentColor") {
         svg.replace("currentColor", hex_color)
     } else {
@@ -244,7 +241,7 @@ struct MarqueeState {
 
 fn main() -> Result<glib::ExitCode> {
     gtk4::init().into_diagnostic()?;
-    FourteenSegment::register_glyphs().into_diagnostic()?;
+    FourteenSegment::ensure_registered().into_diagnostic()?;
 
     let app = Application::builder().application_id(APP_ID).build();
     app.connect_activate(build_ui);
@@ -1020,14 +1017,13 @@ fn update_marquee(state: &Rc<RefCell<MarqueeState>>) {
         match char_to_glyph_base(ch) {
             Some(base) => {
                 let full_name = format!("{}-{}", variant::GLYPH_PREFIX, base);
-                let resource_path = format!("{}/scalable/glyphs/{}.svg", variant::GRESOURCE_PREFIX, full_name,);
                 // Alternate glow for a subtle pulse effect
                 let hex_color = if (s.offset + i).is_multiple_of(3) {
                     rgba_to_hex(&s.glow_color)
                 } else {
                     rgba_to_hex(&s.fg_color)
                 };
-                if let Some(texture) = colorized_texture(&resource_path, &hex_color) {
+                if let Some(texture) = FourteenSegment::glyph_svg(&full_name).and_then(|svg| colorized_texture(&svg, &hex_color)) {
                     img.set_paintable(Some(&texture));
                     img.set_css_classes(&["marquee-dot"]);
                 } else {

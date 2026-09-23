@@ -24,10 +24,10 @@ fonts-rs-barcode-code128 = "0.1"
 ```
 
 ```rust
-use fonts_rs_barcode_code128::register_glyphs;
+use fonts_rs_barcode_code128::Code128;
 
 fn main() {
-    register_glyphs().unwrap();
+    Code128::install().unwrap();
 }
 ```
 

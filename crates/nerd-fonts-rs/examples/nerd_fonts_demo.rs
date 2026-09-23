@@ -7,9 +7,8 @@
 //! cargo run --example nerd_fonts_demo --features gtk,embed-fonts
 //! ```
 
-use nerd_fonts_model::IconName;
+use nerd_fonts_rs::NerdFonts;
 use nerd_fonts_rs::gtk::resolve_gtk_nerd_icon;
-use nerd_fonts_rs::icons::IconNameExt;
 
 use gtk4::Align;
 use gtk4::Application;
@@ -199,12 +198,15 @@ fn do_resolve(result_label: &Label, name: &str) {
         result_label.set_label("Codepoint: —\nGTK icon name: —");
         return;
     }
-    let cp = IconName::from_glyph_name(name.strip_prefix("nf-").unwrap_or(name))
-        .and_then(|n| n.codepoint())
-        .map(|c| c.as_char());
+    let cp = NerdFonts::codepoint(name);
     let gtk_name = resolve_gtk_nerd_icon(name);
     match cp {
-        Some(c) => result_label.set_label(&format!("Codepoint: U+{:04X} ('{}')\nGTK icon name: {}", c as u32, c, gtk_name.as_deref().unwrap_or("—"))),
+        Some(c) => result_label.set_label(&format!(
+            "Codepoint: U+{:04X} ('{}')\nGTK icon name: {}",
+            c.as_char() as u32,
+            c.as_char(),
+            gtk_name.as_deref().unwrap_or("—")
+        )),
         None => result_label.set_label(&format!("Codepoint: not found\nGTK icon name: {}", gtk_name.as_deref().unwrap_or("—"))),
     }
 }
@@ -252,8 +254,7 @@ fn build_gallery_section() -> Frame {
     }
 
     for (i, icon_name) in GALLERY_ICONS.iter().enumerate() {
-        let codepoint = IconName::from_glyph_name(icon_name.strip_prefix("nf-").unwrap_or(icon_name))
-            .and_then(|n| n.codepoint())
+        let codepoint = NerdFonts::codepoint(icon_name)
             .map(|c| c.as_char().to_string())
             .unwrap_or_else(|| "?".to_string());
 

@@ -8,7 +8,7 @@
 //! ```
 
 use fonts_rs_barcode_ean13::Ean13;
-use fonts_rs_barcode_ean13::GtkFont;
+use fonts_rs_model::FontFamily;
 use gtk4::Align;
 use gtk4::Application;
 use gtk4::ApplicationWindow;
@@ -22,8 +22,6 @@ use miette::IntoDiagnostic;
 use miette::Result;
 
 const APP_ID: &str = "io.smearor.fonts_rs.barcode_ean13_demo";
-
-const FONT_FAMILY: &str = "LibreBarcodeEAN13Text";
 
 /// EAN13 set A/B parity patterns indexed by the first digit (0-9).
 const PARITY_PATTERNS: &[[char; 6]] = &[
@@ -110,8 +108,7 @@ fn encode_ean13(input: &str) -> Result<String, String> {
 
 fn main() -> Result<glib::ExitCode> {
     gtk4::init().into_diagnostic()?;
-    Ean13::register_glyphs().into_diagnostic()?;
-    Ean13::register_font().into_diagnostic()?;
+    Ean13::install().into_diagnostic()?;
 
     let app = Application::builder().application_id(APP_ID).build();
 
@@ -121,7 +118,8 @@ fn main() -> Result<glib::ExitCode> {
 }
 
 fn build_ui(app: &Application) {
-    let css = format!(".barcode-display {{\n    font-family: '{FONT_FAMILY}';\n    font-size: 192px;\n}}\n");
+    let font_family = Ean13::CSS_FONT_FAMILY;
+    let css = format!(".barcode-display {{\n    font-family: '{font_family}';\n    font-size: 192px;\n}}\n");
 
     let provider = gtk4::CssProvider::new();
     provider.load_from_string(&css);
@@ -137,13 +135,8 @@ fn build_ui(app: &Application) {
         .build();
 
     if let Some(font_map) = window.pango_context().font_map() {
-        match Ean13::load_font() {
-            Ok(path) => {
-                if let Err(e) = font_map.add_font_file(path) {
-                    eprintln!("Failed to load font: {e}");
-                }
-            }
-            Err(e) => eprintln!("Failed to load font from GResource: {e}"),
+        if let Err(e) = Ean13::install_pango(&font_map) {
+            eprintln!("Failed to install font into Pango: {e}");
         }
     } else {
         eprintln!("No Pango font map available");

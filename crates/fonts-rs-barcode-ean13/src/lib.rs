@@ -8,27 +8,24 @@
 //! ```no_run
 //! # #[cfg(feature = "gtk")]
 //! use fonts_rs_barcode_ean13::Ean13;
-//! # #[cfg(feature = "gtk")]
-//! use fonts_rs_barcode_ean13::GtkFont;
 //!
 //! # #[cfg(feature = "gtk")]
 //! // Call once at startup before using any glyphs
-//! Ean13::register_glyphs().unwrap();
+//! Ean13::install().unwrap();
 //! ```
 //!
 //! Then resolve glyph names to Unicode codepoints:
 //!
 //! ```no_run
-//! use fonts_rs_barcode_ean13::Ean13Name;
-//! use fonts_rs_barcode_ean13::GlyphNameExt;
+//! use fonts_rs_barcode_ean13::Ean13;
 //!
-//! let name = Ean13Name::new("zero-compatibility".to_string());
-//! let codepoint = name.codepoint();
+//! let codepoint = Ean13::codepoint("zero-compatibility");
 //! ```
 
 pub mod codepoint_map;
 pub mod constants;
 pub mod definition;
+mod family;
 
 #[cfg(feature = "gtk")]
 pub mod gtk;
@@ -36,35 +33,13 @@ pub mod gtk;
 #[cfg(feature = "render")]
 pub mod fonts;
 
-use fonts_rs_model::CodePoint;
-
 // Re-export key types
 pub use definition::Ean13;
 pub use definition::Ean13Definition;
 pub use definition::Ean13Name;
 #[cfg(feature = "gtk")]
 pub use fonts_rs_model::GtkFont;
-
-/// Extension trait adding codepoint lookup to `GlyphName<Ean13>`.
-pub trait GlyphNameExt {
-    /// Resolves this glyph name to its Unicode [`CodePoint`].
-    ///
-    /// Returns `None` if the name is not found in the codepoint map.
-    fn codepoint(&self) -> Option<CodePoint>;
-}
-
-impl GlyphNameExt for Ean13Name {
-    fn codepoint(&self) -> Option<CodePoint> {
-        let key = self.as_ref();
-        codepoint_map::REVERSE_GLYPHS.get(key).copied().map(CodePoint::from)
-    }
-}
-
-/// Returns an iterator over all known glyphs, yielding
-/// `(char, &'static str)` pairs of codepoint and glyph name.
-pub fn all_glyphs() -> impl Iterator<Item = (char, &'static str)> {
-    codepoint_map::GLYPHS.entries().map(|(c, name)| (*c, *name))
-}
+pub use fonts_rs_model::prelude;
 
 #[cfg(test)]
 mod tests {
@@ -72,27 +47,27 @@ mod tests {
 
     #[test]
     fn all_glyphs_is_not_empty() {
-        let count = all_glyphs().count();
+        let count = Ean13::glyph_count();
         assert!(count > 0, "EAN13 should export at least one glyph");
     }
 
     #[test]
     fn all_glyphs_names_are_lowercase() {
-        for (_, name) in all_glyphs() {
-            assert_eq!(*name, name.to_lowercase(), "glyph name '{name}' should be lowercase");
+        for (_, name) in Ean13::all_glyphs() {
+            assert_eq!(name.as_ref(), name.as_ref().to_lowercase(), "glyph name '{name}' should be lowercase");
         }
     }
 
     #[test]
     fn all_glyphs_names_contain_no_underscores() {
-        for (_, name) in all_glyphs() {
-            assert!(!name.contains('_'), "glyph name '{name}' should not contain underscores");
+        for (_, name) in Ean13::all_glyphs() {
+            assert!(!name.as_ref().contains('_'), "glyph name '{name}' should not contain underscores");
         }
     }
 
     #[test]
     fn all_glyphs_codepoints_are_unique() {
-        let codepoints: Vec<char> = all_glyphs().map(|(c, _)| c).collect();
+        let codepoints: Vec<char> = Ean13::all_glyphs().map(|(c, _)| c.as_char()).collect();
         let unique: std::collections::HashSet<char> = codepoints.iter().copied().collect();
         assert_eq!(codepoints.len(), unique.len(), "all codepoints should be unique");
     }

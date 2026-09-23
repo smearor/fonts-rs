@@ -24,10 +24,10 @@ fonts-rs-dicefont = "0.1"
 ```
 
 ```rust
-use fonts_rs_dicefont::register_glyphs;
+use fonts_rs_dicefont::Dicefont;
 
 fn main() {
-    register_glyphs().unwrap();
+    Dicefont::install().unwrap();
 }
 ```
 

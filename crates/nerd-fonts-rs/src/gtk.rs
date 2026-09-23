@@ -4,9 +4,7 @@
 
 use tracing::trace;
 
-use nerd_fonts_model::IconName;
-
-use crate::icons::IconNameExt;
+use crate::naming::NerdFonts;
 
 /// Resolves a CSS class name (e.g. `"nf-fa-gamepad"` or `"fa-gamepad"`)
 /// into an icon name string that `gtk4::Image::from_icon_name` understands.
@@ -43,7 +41,7 @@ pub fn resolve_gtk_nerd_icon(css_class: &str) -> Option<String> {
         .unwrap_or(&gtk_friendly_name)
         .strip_suffix("-symbolic")
         .unwrap_or(&gtk_friendly_name);
-    IconName::from_glyph_name(glyph_name)?.codepoint()?;
+    NerdFonts::codepoint(glyph_name)?;
 
     Some(gtk_friendly_name)
 }

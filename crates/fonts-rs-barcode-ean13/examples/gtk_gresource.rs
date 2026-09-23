@@ -16,11 +16,9 @@ use fonts_rs_test::run_gtk_gresource;
 
 const APP_ID: &str = "io.smearor.fonts_rs.barcode_ean13_gresource";
 
-const FONT_FAMILY: &str = "LibreBarcodeEAN13Text";
-
 /// Hardcoded EAN13-encoded string (guard + left group + centre + right group + guard).
 const BARCODE_TEXT: &str = ":ABCDEFGHIJ*abcdefghij:";
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
-    run_gtk_gresource::<Ean13>(APP_ID, "EAN13 — GTK GResource", FONT_FAMILY, BARCODE_TEXT)
+    run_gtk_gresource::<Ean13>(APP_ID, "EAN13 — GTK GResource", BARCODE_TEXT)
 }

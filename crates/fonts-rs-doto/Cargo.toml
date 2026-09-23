@@ -56,7 +56,7 @@ extra-bold-soft-dot = []
 extra-bold-dot = []
 
 gtk = ["dep:gtk4", "dep:gio", "fonts-rs-generator/gtk"]
-render = ["dep:ab_glyph"]
+render = ["dep:ab_glyph", "fonts-rs-model/render"]
 embed-fonts = []
 
 [dependencies]

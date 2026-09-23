@@ -5,15 +5,15 @@ all `fonts-rs-*` crates. These types are the foundation of the modular fonts
 framework, enabling any font family crate to use the same build pipeline
 without Nerd Fonts dependencies.
 
-## `FontFamily` (Marker Trait)
+## `FontFamilyMarker` (Marker Trait)
 
 A sealed marker trait that identifies each font family at compile time.
-Each font family crate defines a zero-sized enum implementing `FontFamily`
-and the private `Sealed` trait. This prevents external crates from defining
-their own font family markers.
+Each font family crate defines a zero-sized enum implementing
+`FontFamilyMarker` and the private `Sealed` trait. This prevents external
+crates from defining their own font family markers.
 
 ```rust
-pub trait FontFamily: sealed::Sealed {}
+pub trait FontFamilyMarker: sealed::Sealed {}
 ```
 
 Used as the phantom type parameter in `GlyphName<F>`, so that
@@ -23,14 +23,40 @@ compile time - preventing mix-ups between font families.
 ### Example
 
 ```rust
-use fonts_rs_model::FontFamily;
+use fonts_rs_model::FontFamilyMarker;
 use fonts_rs_model::sealed;
 
 pub enum Doto {}
 
-impl FontFamily for Doto {}
+impl FontFamilyMarker for Doto {}
 impl sealed::Sealed for Doto {}
 ```
+
+## `FontFamily` (Core Trait)
+
+The runtime glyph API implemented by each font family marker type -
+typically via `impl_font_family!` in `family.rs`:
+
+```rust
+pub trait FontFamily: FontFamilyMarker + FontFamilyConfig {
+    type Name: AsRef<str> + FromStr;
+    const VARIANTS: &'static [FontVariant] = &[];
+
+    fn glyph_name(ch: impl Into<CodePoint>) -> Option<Self::Name>;
+    fn codepoint(name: impl AsRef<str>) -> Option<CodePoint>;
+    fn all_glyphs() -> impl Iterator<Item = (CodePoint, Self::Name)>;
+    fn glyph_count() -> usize { Self::all_glyphs().count() }
+}
+```
+
+The lookup methods are generic: `codepoint` accepts `&str`, `String`,
+and the typed `Self::Name` (`GlyphName<F>` / `IconName`) via `AsRef<str>`;
+`glyph_name` accepts `char` and `CodePoint` via `Into<CodePoint>`.
+`all_glyphs` yields the typed `Self::Name` — use `name.as_ref()` when
+plain `&str` access is enough.
+
+The macro also emits inherent forwarders, so callers write
+`Doto::codepoint("doto-a")` without importing the trait.
 
 ## `FontFamilyConfig` (Trait)
 
@@ -82,7 +108,7 @@ PostScript glyph names (e.g. Barcode, Seven-Segment).
 ```rust
 pub trait FontDefinition: FontFamilyConfig {
     type Name: AsRef<str> + Clone + Ord + Serialize + for<'a> Deserialize<'a>;
-    type Family: FontFamily;
+    type Family: FontFamilyMarker;
 
     fn normalize_name(raw_glyph_name: &str) -> Option<Self::Name>;
     fn should_skip(raw_glyph_name: &str) -> bool { ... }
@@ -228,7 +254,7 @@ pub struct GlyphEntry<N: AsRef<str>> {
 Phantom-typed glyph name newtype:
 
 ```rust
-pub struct GlyphName<F: FontFamily> {
+pub struct GlyphName<F: FontFamilyMarker> {
     name: String,
     _marker: PhantomData<F>,
 }

@@ -5,9 +5,11 @@
 
 pub mod css;
 pub mod definition;
+pub mod family;
 pub mod icons;
 pub mod init;
 pub mod naming;
+pub mod variant;
 
 #[cfg(feature = "gtk")]
 pub mod gtk_font;
@@ -38,6 +40,7 @@ pub use nerd_fonts_model::GlyphEntry;
 pub use nerd_fonts_model::IconName;
 pub use nerd_fonts_model::IconSet;
 pub use nerd_fonts_model::ResourcePath;
+pub use variant::NerdFontVariant;
 
 // Re-export icon functions
 pub use icons::all_icons;

@@ -7,9 +7,11 @@
 //! [`PangoFont`](crate::PangoFont), [`HtmlExport`](crate::HtmlExport), and
 //! [`SoftwareRender`](crate::SoftwareRender).
 
+use crate::CodePoint;
 use crate::FontFamilyConfig;
 use crate::FontFamilyMarker;
 use crate::FontVariant;
+use std::str::FromStr;
 
 /// Runtime access to a font family: metadata and glyph maps.
 ///
@@ -30,7 +32,11 @@ use crate::FontVariant;
 pub trait FontFamily: FontFamilyMarker + FontFamilyConfig {
     /// Typed glyph name of this family (e.g. `GlyphName<Code39>`,
     /// `IconName` for Nerd Fonts).
-    type Name: AsRef<str>;
+    ///
+    /// `FromStr` lets implementations construct the typed name from the
+    /// `&'static str` stored in the glyph maps; `AsRef<str>` lets lookup
+    /// methods accept it alongside plain `&str` constants.
+    type Name: AsRef<str> + FromStr;
 
     /// CSS `font-family` name, e.g. `"Libre Barcode Code 39"`.
     ///
@@ -43,12 +49,29 @@ pub trait FontFamily: FontFamilyMarker + FontFamilyConfig {
     /// Useful for UIs that offer a variant picker.
     const VARIANTS: &'static [FontVariant] = &[];
 
-    /// Looks up the glyph name for a Unicode codepoint.
-    fn glyph_name(ch: char) -> Option<&'static str>;
+    /// Looks up the typed glyph name for a Unicode codepoint.
+    ///
+    /// Accepts both `char` and [`CodePoint`] via `Into<CodePoint>`.
+    fn glyph_name(ch: impl Into<CodePoint>) -> Option<Self::Name>;
 
     /// Looks up the codepoint for a glyph name.
-    fn codepoint(name: &str) -> Option<char>;
+    ///
+    /// Accepts `&str`, `String`, and the typed [`Self::Name`] via
+    /// `AsRef<str>` — both `constants::UNI002A` and `GlyphName<F>` work.
+    fn codepoint(name: impl AsRef<str>) -> Option<CodePoint>;
 
     /// Iterates all `(codepoint, glyph_name)` pairs.
-    fn all_glyphs() -> impl Iterator<Item = (char, &'static str)>;
+    ///
+    /// Yields the typed [`Self::Name`], consistent with
+    /// [`glyph_name`](Self::glyph_name). Use [`AsRef<str>`] on the name
+    /// when plain `&str` access is enough.
+    fn all_glyphs() -> impl Iterator<Item = (CodePoint, Self::Name)>;
+
+    /// Returns the number of glyphs in this family.
+    ///
+    /// Default: `all_glyphs().count()` — O(n). Implementations backed
+    /// by a `phf::Map` override this with `map.len()` — O(1).
+    fn glyph_count() -> usize {
+        Self::all_glyphs().count()
+    }
 }

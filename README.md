@@ -96,15 +96,12 @@ fonts-rs-doto = "0.1"
 ```
 
 ```rust
-use fonts_rs_doto::register_glyphs;
-use fonts_rs_doto::GlyphNameExt;
-use fonts_rs_doto::DotoName;
+use fonts_rs_doto::Doto;
 
 fn main() {
-    register_glyphs().unwrap();
+    Doto::install().unwrap();
 
-    let name = DotoName::new("doto-a".to_string());
-    if let Some(codepoint) = name.codepoint() {
+    if let Some(codepoint) = Doto::codepoint("doto-a") {
         println!("Glyph codepoint: U+{:04X}", codepoint as u32);
     }
 }
@@ -118,12 +115,12 @@ nerd-fonts-rs = "0.1"
 ```
 
 ```rust
-use nerd_fonts_rs::{init, resolve_icon_codepoint};
+use nerd_fonts_rs::NerdFonts;
 
 fn main() {
-    init(None);
+    nerd_fonts_rs::init().unwrap();
 
-    if let Some(c) = resolve_icon_codepoint("nf-fa-gamepad") {
+    if let Some(c) = NerdFonts::codepoint("nf-fa-gamepad") {
         println!("Gamepad icon: U+{:04X}", c as u32);
     }
 }

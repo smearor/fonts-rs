@@ -107,18 +107,15 @@ nerd-fonts-rs = { version = "0.1", features = ["metadata"] }
 ### Font Family Crate (e.g. Doto)
 
 ```rust
-use fonts_rs_doto::register_glyphs;
-use fonts_rs_doto::GlyphNameExt;
-use fonts_rs_doto::DotoName;
+use fonts_rs_doto::Doto;
 
 fn main() {
-    // Register GResource (gtk feature)
-    register_glyphs().unwrap();
+    // Register GResource + install font (gtk feature)
+    Doto::install().unwrap();
 
     // Look up a glyph by name
-    let name = DotoName::new("doto-a".to_string());
-    if let Some(codepoint) = name.codepoint() {
-        println!("Glyph codepoint: U+{:04X}", codepoint as u32);
+    if let Some(codepoint) = Doto::codepoint("doto-a") {
+        println!("Glyph codepoint: U+{:04X}", codepoint.as_char() as u32);
     }
 }
 ```
@@ -126,15 +123,15 @@ fn main() {
 ### Nerd Fonts (nerd-fonts-rs)
 
 ```rust
-use nerd_fonts_rs::{init, resolve_icon_codepoint};
+use nerd_fonts_rs::NerdFonts;
 
 fn main() {
     // Call once at startup
-    init(None);
+    nerd_fonts_rs::init().unwrap();
 
     // Resolve an icon name to its Unicode codepoint
-    if let Some(c) = resolve_icon_codepoint("nf-fa-gamepad") {
-        println!("Gamepad icon: U+{:04X}", c as u32);
+    if let Some(c) = NerdFonts::codepoint("nf-fa-gamepad") {
+        println!("Gamepad icon: U+{:04X}", c.as_char() as u32);
     }
 }
 ```

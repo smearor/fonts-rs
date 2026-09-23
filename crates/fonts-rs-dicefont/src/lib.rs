@@ -9,30 +9,27 @@
 //!
 //! ```no_run
 //! # #[cfg(feature = "gtk")]
-//! use fonts_rs_dicefont::GtkFont;
-//! # #[cfg(feature = "gtk")]
-//! use fonts_rs_dicefont::naming::Dicefont;
+//! use fonts_rs_dicefont::Dicefont;
 //!
 //! # #[cfg(feature = "gtk")]
 //! // Call once at startup before using any glyphs
-//! if let Err(e) = Dicefont::register_glyphs() {
-//!     eprintln!("Failed to register glyphs: {e}");
+//! if let Err(e) = Dicefont::install() {
+//!     eprintln!("Failed to install font: {e}");
 //! }
 //! ```
 //!
 //! Then resolve glyph names to Unicode codepoints:
 //!
 //! ```no_run
-//! use fonts_rs_dicefont::naming::DicefontName;
-//! use fonts_rs_dicefont::GlyphNameExt;
+//! use fonts_rs_dicefont::Dicefont;
 //!
-//! let name = DicefontName::new("d6-1".to_string());
-//! let codepoint = name.codepoint();
+//! let codepoint = Dicefont::codepoint("d6-1");
 //! ```
 
 pub mod codepoint_map;
 pub mod constants;
 pub mod definition;
+mod family;
 pub mod naming;
 pub mod variant;
 
@@ -42,12 +39,12 @@ pub mod gtk;
 #[cfg(feature = "render")]
 pub mod fonts;
 
-use fonts_rs_model::CodePoint;
-
 // Re-export key types
 pub use definition::DicefontConfig;
 #[cfg(feature = "gtk")]
 pub use fonts_rs_model::GtkFont;
+pub use fonts_rs_model::prelude;
+pub use naming::Dicefont;
 pub use naming::DicefontName;
 
 /// Type alias for this font family's glyph name type.
@@ -56,77 +53,48 @@ pub use naming::DicefontName;
 /// is provided for consistency with the template structure.
 pub type FamilyName = DicefontName;
 
-/// Extension trait adding codepoint lookup to `GlyphName<Dicefont>`.
-///
-/// Accepts either a base glyph name (e.g. `"d6-1"`) or a fully-qualified
-/// name (e.g. `"dicefont-d6-1"`). When a base name is given, the
-/// [`GLYPH_PREFIX`](variant::GLYPH_PREFIX) is prepended automatically.
-pub trait GlyphNameExt {
-    /// Resolves this glyph name to its Unicode [`CodePoint`].
-    ///
-    /// Returns `None` if the name is not found in the codepoint map.
-    fn codepoint(&self) -> Option<CodePoint>;
-}
-
-impl GlyphNameExt for DicefontName {
-    fn codepoint(&self) -> Option<CodePoint> {
-        let key = self.as_ref();
-        if let Some(ch) = codepoint_map::REVERSE_GLYPHS.get(key).copied() {
-            return Some(CodePoint::from(ch));
-        }
-        let full = format!("{}-{}", variant::GLYPH_PREFIX, key);
-        codepoint_map::REVERSE_GLYPHS.get(&full).copied().map(CodePoint::from)
-    }
-}
-
-/// Returns an iterator over all known glyphs, yielding
-/// `(char, &'static str)` pairs of codepoint and glyph name.
-pub fn all_glyphs() -> impl Iterator<Item = (char, &'static str)> {
-    codepoint_map::GLYPHS.entries().map(|(c, name)| (*c, *name))
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn all_glyphs_is_not_empty() {
-        let count = all_glyphs().count();
+        let count = Dicefont::glyph_count();
         assert!(count > 0, "Dicefont should export at least one glyph");
     }
 
     #[test]
     fn all_glyphs_names_start_with_dicefont() {
-        for (_, name) in all_glyphs() {
-            assert!(name.starts_with("dicefont-"), "glyph name '{name}' should start with 'dicefont-'");
+        for (_, name) in Dicefont::all_glyphs() {
+            assert!(name.as_ref().starts_with("dicefont-"), "glyph name '{name}' should start with 'dicefont-'");
         }
     }
 
     #[test]
     fn all_glyphs_names_are_lowercase() {
-        for (_, name) in all_glyphs() {
-            assert_eq!(*name, name.to_lowercase(), "glyph name '{name}' should be lowercase");
+        for (_, name) in Dicefont::all_glyphs() {
+            assert_eq!(name.as_ref(), name.as_ref().to_lowercase(), "glyph name '{name}' should be lowercase");
         }
     }
 
     #[test]
     fn all_glyphs_names_contain_no_underscores() {
-        for (_, name) in all_glyphs() {
-            assert!(!name.contains('_'), "glyph name '{name}' should not contain underscores");
+        for (_, name) in Dicefont::all_glyphs() {
+            assert!(!name.as_ref().contains('_'), "glyph name '{name}' should not contain underscores");
         }
     }
 
     #[test]
     fn all_glyphs_codepoints_are_unique() {
-        let codepoints: Vec<char> = all_glyphs().map(|(c, _)| c).collect();
+        let codepoints: Vec<char> = Dicefont::all_glyphs().map(|(c, _)| c.as_char()).collect();
         let unique: std::collections::HashSet<char> = codepoints.iter().copied().collect();
         assert_eq!(codepoints.len(), unique.len(), "all codepoints should be unique");
     }
 
     #[test]
     fn all_glyphs_codepoints_in_pua() {
-        for (c, _) in all_glyphs() {
-            let cp = c as u32;
+        for (c, _) in Dicefont::all_glyphs() {
+            let cp = c.as_char() as u32;
             assert!((0xF000..=0xFFFF).contains(&cp), "codepoint U+{cp:04X} should be in the Private Use Area");
         }
     }

@@ -5,8 +5,10 @@ use serde::Deserialize;
 use serde::Deserializer;
 use serde::Serialize;
 use serde::Serializer;
+use std::convert::Infallible;
 use std::fmt;
 use std::marker::PhantomData;
+use std::str::FromStr;
 
 /// A normalized glyph name for a specific font family.
 ///
@@ -64,5 +66,27 @@ impl<'de, F: FontFamilyMarker> Deserialize<'de> for GlyphName<F> {
     {
         let name = String::deserialize(deserializer)?;
         Ok(Self { name, _marker: PhantomData })
+    }
+}
+
+impl<F: FontFamilyMarker> FromStr for GlyphName<F> {
+    type Err = Infallible;
+
+    /// Wraps `s` without validation — normalization is the job of
+    /// `FontDefinition::normalize_name`, not of this newtype.
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self::new(s.to_string()))
+    }
+}
+
+impl<F: FontFamilyMarker> From<&str> for GlyphName<F> {
+    fn from(name: &str) -> Self {
+        Self::new(name.to_string())
+    }
+}
+
+impl<F: FontFamilyMarker> From<String> for GlyphName<F> {
+    fn from(name: String) -> Self {
+        Self::new(name)
     }
 }

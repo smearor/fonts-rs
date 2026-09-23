@@ -7,11 +7,7 @@
 //! cargo run --example seven_segment_demo --features gtk,embed-fonts
 //! ```
 
-use fonts_rs_seven_segment::GlyphNameExt;
-use fonts_rs_seven_segment::GtkFont;
-use fonts_rs_seven_segment::SevenSegmentName;
-use fonts_rs_seven_segment::all_glyphs;
-use fonts_rs_seven_segment::naming::SevenSegment;
+use fonts_rs_seven_segment::SevenSegment;
 use fonts_rs_seven_segment::variant;
 
 use gtk4::Align;
@@ -81,7 +77,7 @@ const GALLERY_GLYPH_BASES: &[&str] = &[
 
 fn main() -> Result<glib::ExitCode> {
     gtk4::init().into_diagnostic()?;
-    SevenSegment::register_glyphs().into_diagnostic()?;
+    SevenSegment::ensure_registered().into_diagnostic()?;
 
     let app = Application::builder().application_id(APP_ID).build();
 
@@ -122,7 +118,7 @@ fn build_ui(app: &Application) {
         .build();
 
     let title = Label::builder()
-        .label(&format!("DSEG7 — Seven-Segment Display ({})", variant::GLYPH_PREFIX))
+        .label(format!("DSEG7 — Seven-Segment Display ({})", variant::GLYPH_PREFIX))
         .css_classes(["title-1"])
         .halign(Align::Center)
         .build();
@@ -235,9 +231,7 @@ fn do_resolve(result_label: &Label, name: &str) {
         result_label.set_label("Codepoint: —");
         return;
     }
-    let glyph_name = SevenSegmentName::new(name.to_string());
-    let cp = glyph_name.codepoint();
-    match cp {
+    match SevenSegment::codepoint(name) {
         Some(c) => result_label.set_label(&format!("Codepoint: U+{:04X} ('{}')", c.as_char() as u32, c.as_char())),
         None => result_label.set_label("Codepoint: no Unicode mapping (font-specific glyph)"),
     }
@@ -261,7 +255,7 @@ fn build_gallery_section() -> Frame {
     section.append(&header);
 
     let desc = Label::builder()
-        .label(&format!("DSEG7 glyphs ({}) rendered as GTK icons via GResource registration.", variant::GLYPH_PREFIX))
+        .label(format!("DSEG7 glyphs ({}) rendered as GTK icons via GResource registration.", variant::GLYPH_PREFIX))
         .halign(Align::Start)
         .wrap(true)
         .build();
@@ -302,9 +296,9 @@ fn build_gallery_section() -> Frame {
     section.append(&grid);
 
     // Show total glyph count
-    let count = all_glyphs().count();
+    let count = SevenSegment::glyph_count();
     let count_label = Label::builder()
-        .label(&format!("Total exported glyphs: {count}"))
+        .label(format!("Total exported glyphs: {count}"))
         .halign(Align::Center)
         .css_classes(["dim-label"])
         .build();

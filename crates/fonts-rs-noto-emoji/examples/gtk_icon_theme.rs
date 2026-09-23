@@ -5,10 +5,8 @@
 //! cargo run --example gtk_icon_theme --features gtk
 //! ```
 
-use fonts_rs_model::FontFamilyConfig;
-use fonts_rs_noto_emoji::NotoEmojiConfig;
+use fonts_rs_noto_emoji::NotoEmoji;
 use fonts_rs_noto_emoji::constants;
-use fonts_rs_noto_emoji::naming::NotoEmoji;
 use fonts_rs_test::run_gtk_icon_theme;
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
@@ -19,10 +17,5 @@ fn main() -> miette::Result<gtk4::glib::ExitCode> {
         (constants::NOTO_EMOJI_FIRE, "Fire"),
     ];
 
-    run_gtk_icon_theme::<NotoEmoji, NotoEmojiConfig>(
-        "io.smearor.fonts_rs.noto_emoji_icon_theme",
-        "Noto Emoji — GtkIconTheme",
-        NotoEmojiConfig::GRESOURCE_PREFIX,
-        &icons,
-    )
+    run_gtk_icon_theme::<NotoEmoji>("io.smearor.fonts_rs.noto_emoji_icon_theme", "Noto Emoji — GtkIconTheme", &icons)
 }

@@ -6,4 +6,4 @@
 //! The active variant's TTF path is determined at build time by `build.rs`
 //! and exposed via the `DSEG7_FONT_PATH` environment variable.
 
-fonts_rs_generator::impl_font_loader!(env: "DSEG7_FONT_PATH");
+fonts_rs_generator::impl_font_loader!(crate::naming::SevenSegment, env: "DSEG7_FONT_PATH");

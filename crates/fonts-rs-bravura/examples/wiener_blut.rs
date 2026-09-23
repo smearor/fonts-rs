@@ -15,9 +15,7 @@ use ab_glyph::Font;
 use ab_glyph::FontVec;
 use ab_glyph::OutlineCurve;
 
-use fonts_rs_bravura::GtkFont;
-use fonts_rs_bravura::fonts;
-use fonts_rs_bravura::naming::Bravura;
+use fonts_rs_bravura::Bravura;
 
 use gtk4::Application;
 use gtk4::ApplicationWindow;
@@ -337,13 +335,12 @@ fn event_duration_ms_tempo(event: &Event, bpm: f64) -> u32 {
             if *dotted { base + base / 2 } else { base }
         }
         Event::Rest { duration } => {
-            let base = match duration {
+            (match duration {
                 Duration::Whole => beat_ms * 4.0,
                 Duration::Half => beat_ms * 2.0,
                 Duration::Quarter => beat_ms,
                 Duration::Eighth => beat_ms * 0.5,
-            } as u32;
-            base
+            }) as u32
         }
         Event::Barline | Event::DoubleBar | Event::FinalBar => 0,
     }
@@ -357,7 +354,7 @@ fn main() -> Result<()> {
 }
 
 fn build_ui(app: &Application) {
-    if let Err(e) = Bravura::register_glyphs() {
+    if let Err(e) = Bravura::ensure_registered() {
         eprintln!("Failed to register glyphs: {e}");
     }
 
@@ -469,7 +466,7 @@ fn build_ui(app: &Application) {
         .build();
     for bars in [58, 59, 60, 61, 62] {
         let lbl = Label::builder()
-            .label(&format!("{bars}"))
+            .label(format!("{bars}"))
             .hexpand(true)
             .halign(gtk4::Align::Center)
             .css_classes(["caption"])
@@ -510,7 +507,7 @@ fn build_ui(app: &Application) {
         .build();
     for bpm in [174, 177, 180, 183, 186] {
         let lbl = Label::builder()
-            .label(&format!("{bpm}"))
+            .label(format!("{bpm}"))
             .hexpand(true)
             .halign(gtk4::Align::Center)
             .css_classes(["caption"])
@@ -752,7 +749,7 @@ fn draw_score(state: &Rc<RefCell<AppState>>, cr: &cairo::Context, width: i32, he
     let s = state.borrow();
     let page = &s.pages[s.current_page];
 
-    let font = match fonts::font() {
+    let font = match Bravura::font() {
         Some(f) => f,
         None => return,
     };

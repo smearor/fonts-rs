@@ -5,11 +5,8 @@
 //! cargo run --example composed_svg_text --features gtk
 //! ```
 
-use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_test::run_composed_svg_text;
 use nerd_fonts_rs::NerdFonts;
-use nerd_fonts_rs::NerdFontsConfig;
-use nerd_fonts_rs::all_icons;
 
 const APP_ID: &str = "io.smearor.fonts_rs.nerd_fonts_composed_svg";
 
@@ -20,15 +17,5 @@ const SAMPLE_TEXT: &str = "\u{F005}\u{F004}\u{F06D}\u{F135}";
 const GLYPH_HEIGHT: f64 = 200.0;
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
-    let char_to_name: Vec<(char, &str)> = all_icons().collect();
-
-    run_composed_svg_text::<NerdFonts, NerdFontsConfig>(
-        APP_ID,
-        "Nerd Fonts — Composed SVG Text",
-        NerdFontsConfig::GRESOURCE_PREFIX,
-        SAMPLE_TEXT,
-        "icon",
-        &char_to_name,
-        GLYPH_HEIGHT,
-    )
+    run_composed_svg_text::<NerdFonts>(APP_ID, "Nerd Fonts — Composed SVG Text", SAMPLE_TEXT, "icon", GLYPH_HEIGHT)
 }

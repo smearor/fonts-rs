@@ -130,8 +130,19 @@ static TEMP_GUARDS: OnceLock<Vec<tempfile::NamedTempFile>> = OnceLock::new();
 /// Returns [`InitError`] if writing temp files, locating font files, or
 /// adding them to the font map fails.
 pub fn load_fonts() -> Result<(), InitError> {
-    let font_map = pangocairo::FontMap::default();
+    install_fonts(&pangocairo::FontMap::default())
+}
 
+/// Loads the Nerd Font symbol fonts into the given Pango font map.
+///
+/// Shared implementation behind [`load_fonts`] and
+/// [`PangoFont::install_pango`](fonts_rs_model::PangoFont::install_pango).
+///
+/// # Errors
+///
+/// Returns [`InitError`] if writing temp files, locating font files, or
+/// adding them to the font map fails.
+pub(crate) fn install_fonts(font_map: &pango::FontMap) -> Result<(), InitError> {
     #[cfg(feature = "embed-fonts")]
     {
         let regular_bytes = include_bytes!("../resources/NerdFontsSymbolsOnly/SymbolsNerdFont-Regular.ttf");

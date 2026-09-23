@@ -13,9 +13,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use fonts_rs_dicefont::GtkFont;
-use fonts_rs_dicefont::naming::Dicefont;
-use fonts_rs_dicefont::variant;
+use fonts_rs_dicefont::Dicefont;
 
 use gtk4::Align;
 use gtk4::Application;
@@ -96,19 +94,12 @@ fn rgba_to_hex(rgba: &gtk4::gdk::RGBA) -> String {
     format!("#{:02x}{:02x}{:02x}", (rgba.red() * 255.0) as u8, (rgba.green() * 255.0) as u8, (rgba.blue() * 255.0) as u8,)
 }
 
-/// Load an SVG from a GResource, replace `currentColor` with the given hex color,
+/// Replace `currentColor` in an SVG document with the given hex color
 /// and return a `gdk::Texture`.
-fn colorized_texture(resource_path: &str, hex_color: &str) -> Option<gtk4::gdk::Texture> {
-    let bytes = gio::resources_lookup_data(resource_path, gio::ResourceLookupFlags::NONE).ok()?;
-    let svg = std::str::from_utf8(bytes.as_ref()).ok()?;
+fn colorized_texture(svg: &str, hex_color: &str) -> Option<gtk4::gdk::Texture> {
     let colored = svg.replace("currentColor", hex_color);
     let bytes = glib::Bytes::from(colored.as_bytes());
     gtk4::gdk::Texture::from_bytes(&bytes).ok()
-}
-
-/// Build the GResource path for a glyph name.
-fn glyph_resource_path(glyph_name: &str) -> String {
-    format!("{}/scalable/glyphs/{}.svg", variant::GRESOURCE_PREFIX, glyph_name)
 }
 
 /// Build the full glyph name from prefix and face value.
@@ -170,7 +161,7 @@ struct DiceState {
 
 fn main() -> Result<glib::ExitCode> {
     gtk4::init().into_diagnostic()?;
-    Dicefont::register_glyphs().into_diagnostic()?;
+    Dicefont::ensure_registered().into_diagnostic()?;
 
     let app = Application::builder().application_id(APP_ID).build();
     app.connect_activate(build_ui);
@@ -615,8 +606,7 @@ fn recolor_dice(state: &Rc<RefCell<DiceState>>) {
             let r = random_face(&dw.die);
             face_glyph_name(&dw.die, r)
         };
-        let path = glyph_resource_path(&glyph);
-        if let Some(texture) = colorized_texture(&path, &hex) {
+        if let Some(texture) = Dicefont::glyph_svg(&glyph).and_then(|svg| colorized_texture(&svg, &hex)) {
             dw.image.set_paintable(Some(&texture));
         }
     }
@@ -669,8 +659,7 @@ fn start_roll(state: &Rc<RefCell<DiceState>>) {
                 face_glyph_name(die, face)
             };
 
-            let path = glyph_resource_path(&initial_glyph);
-            if let Some(texture) = colorized_texture(&path, &hex_color) {
+            if let Some(texture) = Dicefont::glyph_svg(&initial_glyph).and_then(|svg| colorized_texture(&svg, &hex_color)) {
                 img.set_paintable(Some(&texture));
             }
             s.dice_tray.append(&img);
@@ -770,8 +759,7 @@ fn animate_roll(state: &Rc<RefCell<DiceState>>) {
             dw.frame += 1;
             dw.final_face = *final_face;
             dw.final_face_name = final_name.clone();
-            let path = glyph_resource_path(glyph);
-            if let Some(texture) = colorized_texture(&path, &hex_color) {
+            if let Some(texture) = Dicefont::glyph_svg(glyph).and_then(|svg| colorized_texture(&svg, &hex_color)) {
                 dw.image.set_paintable(Some(&texture));
             }
         }

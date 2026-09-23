@@ -11,30 +11,27 @@
 //!
 //! ```no_run
 //! # #[cfg(feature = "gtk")]
-//! use fonts_rs_fourteen_segment::GtkFont;
-//! # #[cfg(feature = "gtk")]
-//! use fonts_rs_fourteen_segment::naming::FourteenSegment;
+//! use fonts_rs_fourteen_segment::FourteenSegment;
 //!
 //! # #[cfg(feature = "gtk")]
 //! // Call once at startup before using any glyphs
-//! if let Err(e) = FourteenSegment::register_glyphs() {
-//!     eprintln!("Failed to register glyphs: {e}");
+//! if let Err(e) = FourteenSegment::install() {
+//!     eprintln!("Failed to install font: {e}");
 //! }
 //! ```
 //!
 //! Then resolve glyph names to Unicode codepoints:
 //!
 //! ```no_run
-//! use fonts_rs_fourteen_segment::naming::FourteenSegmentName;
-//! use fonts_rs_fourteen_segment::GlyphNameExt;
+//! use fonts_rs_fourteen_segment::FourteenSegment;
 //!
-//! let name = FourteenSegmentName::new("zero".to_string());
-//! let codepoint = name.codepoint();
+//! let codepoint = FourteenSegment::codepoint("zero");
 //! ```
 
 pub mod codepoint_map;
 pub mod constants;
 pub mod definition;
+mod family;
 pub mod naming;
 pub mod variant;
 
@@ -44,12 +41,12 @@ pub mod gtk;
 #[cfg(feature = "render")]
 pub mod fonts;
 
-use fonts_rs_model::CodePoint;
-
 // Re-export key types
 pub use definition::FourteenSegmentConfig;
 #[cfg(feature = "gtk")]
 pub use fonts_rs_model::GtkFont;
+pub use fonts_rs_model::prelude;
+pub use naming::FourteenSegment;
 pub use naming::FourteenSegmentName;
 
 /// Type alias for this font family's glyph name type.
@@ -58,70 +55,40 @@ pub use naming::FourteenSegmentName;
 /// is provided for consistency with the template structure.
 pub type FamilyName = FourteenSegmentName;
 
-/// Extension trait adding codepoint lookup to `GlyphName<FourteenSegment>`.
-///
-/// Accepts either a base glyph name (e.g. `"zero"`) or a fully-qualified
-/// variant name (e.g. `"dseg14-classic-regular-zero"`). When a base name
-/// is given, the active variant's [`GLYPH_PREFIX`](variant::GLYPH_PREFIX)
-/// is prepended automatically.
-pub trait GlyphNameExt {
-    /// Resolves this glyph name to its Unicode [`CodePoint`].
-    ///
-    /// Returns `None` if the name is not found in the codepoint map.
-    fn codepoint(&self) -> Option<CodePoint>;
-}
-
-impl GlyphNameExt for FourteenSegmentName {
-    fn codepoint(&self) -> Option<CodePoint> {
-        let key = self.as_ref();
-        if let Some(ch) = codepoint_map::REVERSE_GLYPHS.get(key).copied() {
-            return Some(CodePoint::from(ch));
-        }
-        let full = format!("{}-{}", variant::GLYPH_PREFIX, key);
-        codepoint_map::REVERSE_GLYPHS.get(&full).copied().map(CodePoint::from)
-    }
-}
-
-/// Returns an iterator over all known glyphs, yielding
-/// `(char, &'static str)` pairs of codepoint and glyph name.
-pub fn all_glyphs() -> impl Iterator<Item = (char, &'static str)> {
-    codepoint_map::GLYPHS.entries().map(|(c, name)| (*c, *name))
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn all_glyphs_is_not_empty() {
-        let count = all_glyphs().count();
+        let count = FourteenSegment::glyph_count();
         assert!(count > 0, "DSEG14 should export at least one glyph");
     }
 
     #[test]
     fn all_glyphs_names_start_with_dseg14() {
-        for (_, name) in all_glyphs() {
-            assert!(name.starts_with("dseg14-"), "glyph name '{name}' should start with 'dseg14-'");
+        for (_, name) in FourteenSegment::all_glyphs() {
+            assert!(name.as_ref().starts_with("dseg14-"), "glyph name '{name}' should start with 'dseg14-'");
         }
     }
 
     #[test]
     fn all_glyphs_names_are_lowercase() {
-        for (_, name) in all_glyphs() {
-            assert_eq!(*name, name.to_lowercase(), "glyph name '{name}' should be lowercase");
+        for (_, name) in FourteenSegment::all_glyphs() {
+            assert_eq!(name.as_ref(), name.as_ref().to_lowercase(), "glyph name '{name}' should be lowercase");
         }
     }
 
     #[test]
     fn all_glyphs_names_contain_no_underscores() {
-        for (_, name) in all_glyphs() {
-            assert!(!name.contains('_'), "glyph name '{name}' should not contain underscores");
+        for (_, name) in FourteenSegment::all_glyphs() {
+            assert!(!name.as_ref().contains('_'), "glyph name '{name}' should not contain underscores");
         }
     }
 
     #[test]
     fn all_glyphs_codepoints_are_unique() {
-        let codepoints: Vec<char> = all_glyphs().map(|(c, _)| c).collect();
+        let codepoints: Vec<char> = FourteenSegment::all_glyphs().map(|(c, _)| c.as_char()).collect();
         let unique: std::collections::HashSet<char> = codepoints.iter().copied().collect();
         assert_eq!(codepoints.len(), unique.len(), "all codepoints should be unique");
     }

@@ -6,4 +6,4 @@
 //! The active variant's TTF path is determined at build time by `build.rs`
 //! and exposed via the `REDACTED_FONT_PATH` environment variable.
 
-fonts_rs_generator::impl_font_loader!(env: "REDACTED_FONT_PATH");
+fonts_rs_generator::impl_font_loader!(crate::naming::Redacted, env: "REDACTED_FONT_PATH");

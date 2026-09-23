@@ -36,7 +36,7 @@ use miette::Result;
 use nerd_fonts_model::CodePoint;
 use nerd_fonts_model::ICONS_RESOURCE_PATH;
 use nerd_fonts_model::IconName;
-use nerd_fonts_rs::icons::IconNameExt;
+use nerd_fonts_rs::NerdFonts;
 use nerd_fonts_rs::icons::all_icons_typed;
 use nerd_fonts_rs::metadata::NerdFontsMetadata;
 
@@ -344,7 +344,7 @@ fn build_ui(app: &Application) {
             .iter()
             .filter_map(|name| {
                 let icon_name = IconName::parse(name)?;
-                let cp = icon_name.codepoint()?;
+                let cp = NerdFonts::codepoint(name)?;
                 Some((cp, icon_name))
             })
             .collect();

@@ -9,30 +9,27 @@
 //!
 //! ```no_run
 //! # #[cfg(feature = "gtk")]
-//! use fonts_rs_noto_emoji::GtkFont;
-//! # #[cfg(feature = "gtk")]
-//! use fonts_rs_noto_emoji::naming::NotoEmoji;
+//! use fonts_rs_noto_emoji::NotoEmoji;
 //!
 //! # #[cfg(feature = "gtk")]
 //! // Call once at startup before using any glyphs
-//! if let Err(e) = NotoEmoji::register_glyphs() {
-//!     eprintln!("Failed to register glyphs: {e}");
+//! if let Err(e) = NotoEmoji::install() {
+//!     eprintln!("Failed to install font: {e}");
 //! }
 //! ```
 //!
 //! Then resolve glyph names to Unicode codepoints:
 //!
 //! ```no_run
-//! use fonts_rs_noto_emoji::naming::NotoEmojiName;
-//! use fonts_rs_noto_emoji::GlyphNameExt;
+//! use fonts_rs_noto_emoji::NotoEmoji;
 //!
-//! let name = NotoEmojiName::new("grinning-face".to_string());
-//! let codepoint = name.codepoint();
+//! let codepoint = NotoEmoji::codepoint("grinning-face");
 //! ```
 
 pub mod codepoint_map;
 pub mod constants;
 pub mod definition;
+mod family;
 pub mod naming;
 pub mod variant;
 
@@ -51,6 +48,8 @@ use fonts_rs_model::CodePoint;
 pub use definition::NotoEmojiConfig;
 #[cfg(feature = "gtk")]
 pub use fonts_rs_model::GtkFont;
+pub use fonts_rs_model::prelude;
+pub use naming::NotoEmoji;
 pub use naming::NotoEmojiName;
 
 /// Type alias for this font family's glyph name type.
@@ -58,35 +57,6 @@ pub use naming::NotoEmojiName;
 /// Prefer [`NotoEmojiName`] from the [`naming`] module — this alias
 /// is provided for consistency with the template structure.
 pub type FamilyName = NotoEmojiName;
-
-/// Extension trait adding codepoint lookup to `GlyphName<NotoEmoji>`.
-///
-/// Accepts either a base glyph name (e.g. `"grinning-face"`) or a fully-qualified
-/// name (e.g. `"noto-emoji-grinning-face"`). When a base name is given, the
-/// [`GLYPH_PREFIX`](variant::GLYPH_PREFIX) is prepended automatically.
-pub trait GlyphNameExt {
-    /// Resolves this glyph name to its Unicode [`CodePoint`].
-    ///
-    /// Returns `None` if the name is not found in the codepoint map.
-    fn codepoint(&self) -> Option<CodePoint>;
-}
-
-impl GlyphNameExt for NotoEmojiName {
-    fn codepoint(&self) -> Option<CodePoint> {
-        let key = self.as_ref();
-        if let Some(ch) = codepoint_map::REVERSE_GLYPHS.get(key).copied() {
-            return Some(CodePoint::from(ch));
-        }
-        let full = format!("{}-{}", variant::GLYPH_PREFIX, key);
-        codepoint_map::REVERSE_GLYPHS.get(&full).copied().map(CodePoint::from)
-    }
-}
-
-/// Returns an iterator over all known glyphs, yielding
-/// `(char, &'static str)` pairs of codepoint and glyph name.
-pub fn all_glyphs() -> impl Iterator<Item = (char, &'static str)> {
-    codepoint_map::GLYPHS.entries().map(|(c, name)| (*c, *name))
-}
 
 /// Returns all known Noto Emoji glyphs as `(CodePoint, glyph_name)` pairs,
 /// sorted alphabetically by glyph name.

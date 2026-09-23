@@ -15,15 +15,12 @@
 //! ```
 
 use fonts_rs_barcode_ean13::Ean13;
-use fonts_rs_barcode_ean13::Ean13Definition;
-use fonts_rs_barcode_ean13::all_glyphs;
-use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_test::run_svg_gresource;
 
 const APP_ID: &str = "io.smearor.fonts_rs.barcode_ean13_svg_gresource";
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
-    let glyphs: Vec<(char, &str)> = all_glyphs().take(4).collect();
+    let glyphs: Vec<_> = Ean13::all_glyphs().take(4).collect();
 
-    run_svg_gresource::<Ean13, Ean13Definition>(APP_ID, "EAN13 — SVG GResource", Ean13Definition::GRESOURCE_PREFIX, &glyphs)
+    run_svg_gresource::<Ean13>(APP_ID, "EAN13 — SVG GResource", &glyphs)
 }

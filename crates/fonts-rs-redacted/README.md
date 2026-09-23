@@ -24,10 +24,10 @@ fonts-rs-redacted = "0.1"
 ```
 
 ```rust
-use fonts_rs_redacted::register_glyphs;
+use fonts_rs_redacted::Redacted;
 
 fn main() {
-    register_glyphs().unwrap();
+    Redacted::install().unwrap();
 }
 ```
 

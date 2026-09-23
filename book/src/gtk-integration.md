@@ -2,23 +2,27 @@
 
 ## Font Family Crates
 
-Each font family crate provides a `register_glyphs()` function (enabled with
-the `gtk` feature) that registers the compiled GResource bundle:
+Each font family marker type provides an `install()` method (enabled with
+the `gtk` feature) that registers the compiled GResource bundle and loads
+the font:
 
 ```rust
-use fonts_rs_doto::register_glyphs;
+use fonts_rs_doto::Doto;
 
 fn main() {
-    // Register GResource (call once at startup)
-    register_glyphs().unwrap();
+    // Register GResource + load font (call once at startup)
+    Doto::install().unwrap();
 
     // Now GTK can resolve icon names from the GResource bundle
     let image = gtk4::Image::from_icon_name("doto-a");
 }
 ```
 
-`register_glyphs()` calls `gio::resources_register_include!("icons.gresource")`
-to register the compiled GResource binary containing all SVG glyph files.
+`install()` registers the compiled GResource binary containing all SVG
+glyph files and loads the TTF into the fontconfig/pango font map.
+Registration is lazy and idempotent — `ensure_registered()` is called
+automatically by glyph accessors, so `install()` is only needed for
+explicit fail-fast setup at startup.
 
 ## Nerd Fonts (nerd-fonts-rs)
 
@@ -29,10 +33,8 @@ The `nerd-fonts-rs` crate provides additional GTK4 functionality:
 Call `init()` once at application startup:
 
 ```rust
-use nerd_fonts_rs::init;
-
 fn main() {
-    init(None);
+    nerd_fonts_rs::init().unwrap();
     // ...
 }
 ```

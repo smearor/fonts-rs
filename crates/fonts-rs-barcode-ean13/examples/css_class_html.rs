@@ -18,17 +18,8 @@
 use fonts_rs_barcode_ean13::Ean13;
 use fonts_rs_test::run_css_class_html;
 
-const FONT_FAMILY: &str = "LibreBarcodeEAN13Text";
-
 const BARCODE_TEXT: &str = ":ABCDEFGHIJ*abcdefghij:";
 
 fn main() -> miette::Result<()> {
-    run_css_class_html::<Ean13>(
-        FONT_FAMILY,
-        "barcode-ean13",
-        "barcode",
-        BARCODE_TEXT,
-        "Libre Barcode EAN13 — CSS Class",
-        "barcode_ean13_css_class.html",
-    )
+    run_css_class_html::<Ean13>("barcode", BARCODE_TEXT, "Libre Barcode EAN13 — CSS Class", "barcode_ean13_css_class.html")
 }

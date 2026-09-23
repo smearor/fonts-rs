@@ -6,4 +6,4 @@
 //! The font's TTF path is determined at build time by `build.rs`
 //! and exposed via the `NOTO_EMOJI_FONT_PATH` environment variable.
 
-fonts_rs_generator::impl_font_loader!(env: "NOTO_EMOJI_FONT_PATH");
+fonts_rs_generator::impl_font_loader!(crate::naming::NotoEmoji, env: "NOTO_EMOJI_FONT_PATH");

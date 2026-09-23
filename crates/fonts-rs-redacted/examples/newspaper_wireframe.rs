@@ -1,8 +1,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use fonts_rs_redacted::GtkFont;
-use fonts_rs_redacted::naming::Redacted;
+use fonts_rs_redacted::Redacted;
 use fonts_rs_redacted::variant;
 use gtk4::Align;
 use gtk4::Application;
@@ -126,13 +125,11 @@ fn extract_svg_viewbox(svg: &str) -> &str {
 
 /// Extract the inner content of an SVG (between the opening tag and </svg>).
 fn extract_svg_inner(svg: &str) -> &str {
-    if let Some(svg_start) = svg.find("<svg") {
-        if let Some(tag_end) = svg[svg_start..].find('>') {
-            let content_start = svg_start + tag_end + 1;
-            if let Some(close) = svg.rfind("</svg>") {
-                return &svg[content_start..close];
-            }
-        }
+    if let Some(svg_start) = svg.find("<svg")
+        && let Some(tag_end) = svg[svg_start..].find('>')
+        && let Some(close) = svg.rfind("</svg>")
+    {
+        return &svg[svg_start + tag_end + 1..close];
     }
     ""
 }
@@ -141,7 +138,6 @@ fn extract_svg_inner(svg: &str) -> &str {
 /// Uses nested `<svg>` elements to handle different glyph viewBoxes.
 fn compose_text_svg(text: &str, hex_color: &str) -> String {
     let prefix = variant::GLYPH_PREFIX;
-    let gresource_prefix = variant::GRESOURCE_PREFIX;
 
     let chars: Vec<char> = text.chars().collect();
     let n = chars.len();
@@ -153,16 +149,12 @@ fn compose_text_svg(text: &str, hex_color: &str) -> String {
             continue;
         };
         let full_name = format!("{prefix}-{base}");
-        let resource_path = format!("{gresource_prefix}/{}/{}/{full_name}.svg", fonts_rs_model::SCALABLE_DIR, fonts_rs_model::ICONS_CONTEXT_GLYPHS);
-        let Ok(bytes) = gio::resources_lookup_data(&resource_path, gio::ResourceLookupFlags::NONE) else {
-            continue;
-        };
-        let Ok(svg) = std::str::from_utf8(bytes.as_ref()) else {
+        let Some(svg) = Redacted::glyph_svg(&full_name) else {
             continue;
         };
 
-        let viewbox = extract_svg_viewbox(svg);
-        let content = extract_svg_inner(svg);
+        let viewbox = extract_svg_viewbox(&svg);
+        let content = extract_svg_inner(&svg);
         let colored = content.replace("currentColor", hex_color);
 
         let x = i as u32 * BASE_GLYPH_WIDTH;
@@ -216,7 +208,7 @@ struct WireframeState {
 
 fn main() -> Result<glib::ExitCode> {
     gtk4::init().into_diagnostic()?;
-    Redacted::register_glyphs().into_diagnostic()?;
+    Redacted::ensure_registered().into_diagnostic()?;
 
     let app = Application::builder().application_id(APP_ID).build();
     app.connect_activate(build_ui);

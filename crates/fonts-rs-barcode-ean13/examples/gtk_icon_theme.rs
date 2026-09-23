@@ -11,9 +11,7 @@
 //! ```
 
 use fonts_rs_barcode_ean13::Ean13;
-use fonts_rs_barcode_ean13::Ean13Definition;
 use fonts_rs_barcode_ean13::constants;
-use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_test::run_gtk_icon_theme;
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
@@ -24,10 +22,5 @@ fn main() -> miette::Result<gtk4::glib::ExitCode> {
         (constants::TWO_COMPATIBILITY, "two-compatibility"),
     ];
 
-    run_gtk_icon_theme::<Ean13, Ean13Definition>(
-        "io.smearor.fonts_rs.barcode_ean13_icon_theme",
-        "EAN13 — GtkIconTheme",
-        Ean13Definition::GRESOURCE_PREFIX,
-        &icons,
-    )
+    run_gtk_icon_theme::<Ean13>("io.smearor.fonts_rs.barcode_ean13_icon_theme", "EAN13 — GtkIconTheme", &icons)
 }

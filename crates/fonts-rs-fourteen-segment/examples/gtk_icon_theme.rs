@@ -5,10 +5,8 @@
 //! cargo run --example gtk_icon_theme --features gtk
 //! ```
 
-use fonts_rs_fourteen_segment::FourteenSegmentConfig;
+use fonts_rs_fourteen_segment::FourteenSegment;
 use fonts_rs_fourteen_segment::constants;
-use fonts_rs_fourteen_segment::naming::FourteenSegment;
-use fonts_rs_fourteen_segment::variant;
 use fonts_rs_test::run_gtk_icon_theme;
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
@@ -19,10 +17,5 @@ fn main() -> miette::Result<gtk4::glib::ExitCode> {
         (constants::DSEG14_CLASSIC_REGULAR_B, "B"),
     ];
 
-    run_gtk_icon_theme::<FourteenSegment, FourteenSegmentConfig>(
-        "io.smearor.fonts_rs.fourteen_segment_icon_theme",
-        "DSEG14 — GtkIconTheme",
-        variant::GRESOURCE_PREFIX,
-        &icons,
-    )
+    run_gtk_icon_theme::<FourteenSegment>("io.smearor.fonts_rs.fourteen_segment_icon_theme", "DSEG14 — GtkIconTheme", &icons)
 }

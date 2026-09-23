@@ -6,4 +6,4 @@
 //! The font's TTF path is determined at build time by `build.rs`
 //! and exposed via the `DICEFONT_FONT_PATH` environment variable.
 
-fonts_rs_generator::impl_font_loader!(env: "DICEFONT_FONT_PATH");
+fonts_rs_generator::impl_font_loader!(crate::naming::Dicefont, env: "DICEFONT_FONT_PATH");

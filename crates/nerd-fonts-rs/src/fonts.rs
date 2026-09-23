@@ -20,6 +20,10 @@ use woff2_patched::decode::is_woff2;
 #[cfg(not(feature = "embed-fonts"))]
 const NERD_FONT_RELATIVE: &str = "resources/NerdFontsSymbolsOnly/SymbolsNerdFont-Regular.ttf";
 
+/// Relative path to the Symbols-only Nerd Font Mono (single-cell icons).
+#[cfg(not(feature = "embed-fonts"))]
+const NERD_FONT_MONO_RELATIVE: &str = "resources/NerdFontsSymbolsOnly/SymbolsNerdFontMono-Regular.ttf";
+
 /// Relative path to the JetBrains Mono Nerd Font (WOFF2, for labels with full character set).
 #[cfg(not(feature = "embed-fonts"))]
 const LABEL_FONT_RELATIVE: &str = "resources/JetBrainsMonoNLNerdFont/JetBrainsMonoNLNerdFont-Regular.woff2";
@@ -79,6 +83,9 @@ pub fn init(base_dir: Option<&str>) {
 /// Cached Symbols-only Nerd Font loaded from disk.
 static NERD_FONT: OnceLock<Option<FontVec>> = OnceLock::new();
 
+/// Cached Symbols-only Nerd Font Mono loaded from disk.
+static NERD_FONT_MONO: OnceLock<Option<FontVec>> = OnceLock::new();
+
 /// Cached label font (JetBrains Mono Nerd Font) loaded from disk.
 static LABEL_FONT: OnceLock<Option<FontVec>> = OnceLock::new();
 
@@ -109,6 +116,44 @@ pub fn nerd_font() -> Option<&'static FontVec> {
                     },
                     Err(e) => {
                         error!("fonts-rs: failed to read Nerd Font: {}", e);
+                        None
+                    }
+                }
+            }
+        })
+        .as_ref()
+}
+
+/// Get the cached Symbols-only Nerd Font Mono, loading from disk on first access.
+///
+/// The Mono variant renders every icon in a single cell — preferred for
+/// terminal-style layouts where double-width icons break alignment.
+pub fn mono_font() -> Option<&'static FontVec> {
+    NERD_FONT_MONO
+        .get_or_init(|| {
+            #[cfg(feature = "embed-fonts")]
+            {
+                let data = include_bytes!("../resources/NerdFontsSymbolsOnly/SymbolsNerdFontMono-Regular.ttf").to_vec();
+                match FontVec::try_from_vec(data) {
+                    Ok(font) => Some(font),
+                    Err(e) => {
+                        trace!("fonts-rs: failed to parse embedded Nerd Font Mono: {}", e);
+                        None
+                    }
+                }
+            }
+            #[cfg(not(feature = "embed-fonts"))]
+            {
+                match read_font_file(NERD_FONT_MONO_RELATIVE) {
+                    Ok(data) => match FontVec::try_from_vec(data) {
+                        Ok(font) => Some(font),
+                        Err(e) => {
+                            trace!("fonts-rs: failed to parse Nerd Font Mono: {}", e);
+                            None
+                        }
+                    },
+                    Err(e) => {
+                        error!("fonts-rs: failed to read Nerd Font Mono: {}", e);
                         None
                     }
                 }

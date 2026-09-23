@@ -26,7 +26,7 @@ include = [
 default = ["gtk"]
 
 gtk = ["dep:gtk4", "dep:gio", "fonts-rs-generator/gtk"]
-render = ["dep:ab_glyph"]
+render = ["dep:ab_glyph", "fonts-rs-model/render"]
 embed-fonts = []
 
 # Emoji metadata: keywords and categories for search functionality

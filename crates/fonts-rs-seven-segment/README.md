@@ -26,10 +26,10 @@ fonts-rs-seven-segment = { version = "0.1", features = ["modern-bold"] }
 ```
 
 ```rust
-use fonts_rs_seven_segment::register_glyphs;
+use fonts_rs_seven_segment::SevenSegment;
 
 fn main() {
-    register_glyphs().unwrap();
+    SevenSegment::install().unwrap();
 }
 ```
 

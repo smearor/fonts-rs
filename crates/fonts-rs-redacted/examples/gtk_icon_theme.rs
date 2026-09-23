@@ -5,10 +5,8 @@
 //! cargo run --example gtk_icon_theme --features gtk
 //! ```
 
-use fonts_rs_redacted::RedactedConfig;
+use fonts_rs_redacted::Redacted;
 use fonts_rs_redacted::constants;
-use fonts_rs_redacted::naming::Redacted;
-use fonts_rs_redacted::variant;
 use fonts_rs_test::run_gtk_icon_theme;
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
@@ -19,5 +17,5 @@ fn main() -> miette::Result<gtk4::glib::ExitCode> {
         (constants::REDACTED_REDACTED_O, "O"),
     ];
 
-    run_gtk_icon_theme::<Redacted, RedactedConfig>("io.smearor.fonts_rs.redacted_icon_theme", "Redacted — GtkIconTheme", variant::GRESOURCE_PREFIX, &icons)
+    run_gtk_icon_theme::<Redacted>("io.smearor.fonts_rs.redacted_icon_theme", "Redacted — GtkIconTheme", &icons)
 }

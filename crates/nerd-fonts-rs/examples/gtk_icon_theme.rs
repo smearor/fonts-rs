@@ -5,10 +5,8 @@
 //! cargo run --example gtk_icon_theme --features gtk
 //! ```
 
-use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_test::run_gtk_icon_theme;
 use nerd_fonts_rs::NerdFonts;
-use nerd_fonts_rs::NerdFontsConfig;
 use nerd_fonts_rs::icons::constants;
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
@@ -19,10 +17,5 @@ fn main() -> miette::Result<gtk4::glib::ExitCode> {
         (constants::NF_FA_FIRE_SYMBOLIC, "Fire"),
     ];
 
-    run_gtk_icon_theme::<NerdFonts, NerdFontsConfig>(
-        "io.smearor.fonts_rs.nerd_fonts_icon_theme",
-        "Nerd Fonts — GtkIconTheme",
-        NerdFontsConfig::GRESOURCE_PREFIX,
-        &icons,
-    )
+    run_gtk_icon_theme::<NerdFonts>("io.smearor.fonts_rs.nerd_fonts_icon_theme", "Nerd Fonts — GtkIconTheme", &icons)
 }

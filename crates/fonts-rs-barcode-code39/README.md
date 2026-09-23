@@ -24,10 +24,10 @@ fonts-rs-barcode-code39 = "0.1"
 ```
 
 ```rust
-use fonts_rs_barcode_code39::register_glyphs;
+use fonts_rs_barcode_code39::Code39;
 
 fn main() {
-    register_glyphs().unwrap();
+    Code39::install().unwrap();
 }
 ```
 

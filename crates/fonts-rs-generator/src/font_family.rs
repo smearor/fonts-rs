@@ -58,35 +58,10 @@ macro_rules! impl_font_family {
      glyphs = $glyphs:expr,
      reverse = $reverse:expr,
      name = $name:ty,
-     css_font_family = $css_font_family:expr,
+     $(css_font_family = $css_font_family:expr,)*
+     $(glyph_prefix = $glyph_prefix:expr,)*
      capabilities = [$($capability:ident),* $(,)?]
      $(,)?) => {
-        $crate::impl_font_family!(@impl $marker, $definition,
-            glyphs = $glyphs,
-            reverse = $reverse,
-            name = $name,
-            css_font_family = $css_font_family,
-            capabilities = [$($capability),*]);
-    };
-    ($marker:ident, $definition:ty,
-     glyphs = $glyphs:expr,
-     reverse = $reverse:expr,
-     name = $name:ty,
-     capabilities = [$($capability:ident),* $(,)?]
-     $(,)?) => {
-        $crate::impl_font_family!(@impl $marker, $definition,
-            glyphs = $glyphs,
-            reverse = $reverse,
-            name = $name,
-            css_font_family = Self::FAMILY_DISPLAY_NAME,
-            capabilities = [$($capability),*]);
-    };
-    (@impl $marker:ident, $definition:ty,
-     glyphs = $glyphs:expr,
-     reverse = $reverse:expr,
-     name = $name:ty,
-     css_font_family = $css_font_family:expr,
-     capabilities = [$($capability:ident),* $(,)?]) => {
         impl ::fonts_rs_model::FontFamilyConfig for $marker {
             const FONT_FAMILY_NAME: &'static str = <$definition as ::fonts_rs_model::FontFamilyConfig>::FONT_FAMILY_NAME;
             const FAMILY_DISPLAY_NAME: &'static str = <$definition as ::fonts_rs_model::FontFamilyConfig>::FAMILY_DISPLAY_NAME;
@@ -99,22 +74,72 @@ macro_rules! impl_font_family {
         impl ::fonts_rs_model::FontFamily for $marker {
             type Name = $name;
 
-            const CSS_FONT_FAMILY: &'static str = $css_font_family;
+            $(const CSS_FONT_FAMILY: &'static str = $css_font_family;)*
 
-            fn glyph_name(ch: char) -> Option<&'static str> {
-                $glyphs.get(&ch).copied()
+            fn glyph_name(ch: impl Into<::fonts_rs_model::CodePoint>) -> Option<Self::Name> {
+                let ch = ch.into().as_char();
+                $glyphs.get(&ch).and_then(|name| <Self::Name as ::std::str::FromStr>::from_str(name).ok())
             }
 
-            fn codepoint(name: &str) -> Option<char> {
-                $reverse.get(name).copied()
+            fn codepoint(name: impl AsRef<str>) -> Option<::fonts_rs_model::CodePoint> {
+                let name = name.as_ref();
+                if let Some(ch) = $reverse.get(name).copied() {
+                    return Some(::fonts_rs_model::CodePoint::from_char(ch));
+                }
+                $(let full = ::std::format!("{}-{}", $glyph_prefix, name);
+                  if let Some(ch) = $reverse.get(&full).copied() {
+                      return Some(::fonts_rs_model::CodePoint::from_char(ch));
+                  })*
+                None
             }
 
-            fn all_glyphs() -> impl Iterator<Item = (char, &'static str)> {
-                $glyphs.entries().map(|(ch, name)| (*ch, *name))
+            fn all_glyphs() -> impl Iterator<Item = (::fonts_rs_model::CodePoint, Self::Name)> {
+                $glyphs.entries().filter_map(|(ch, name)| {
+                    <Self::Name as ::std::str::FromStr>::from_str(name)
+                        .ok()
+                        .map(|name| (::fonts_rs_model::CodePoint::from_char(*ch), name))
+                })
+            }
+
+            fn glyph_count() -> usize {
+                $glyphs.len()
             }
         }
 
         $($crate::impl_font_family!(@capability $marker $capability);)*
+
+        impl $marker {
+            /// Resolves a glyph name to its Unicode codepoint.
+            ///
+            /// Accepts `&str`, `String`, and the typed glyph name via
+            /// `AsRef<str>`. Forwards to [`FontFamily::codepoint`](::fonts_rs_model::FontFamily::codepoint).
+            pub fn codepoint(name: impl AsRef<str>) -> Option<::fonts_rs_model::CodePoint> {
+                <Self as ::fonts_rs_model::FontFamily>::codepoint(name)
+            }
+
+            /// Resolves a Unicode codepoint to its typed glyph name.
+            ///
+            /// Accepts `char` and `CodePoint` via `Into<CodePoint>`.
+            /// Forwards to [`FontFamily::glyph_name`](::fonts_rs_model::FontFamily::glyph_name).
+            pub fn glyph_name(ch: impl Into<::fonts_rs_model::CodePoint>) -> Option<<Self as ::fonts_rs_model::FontFamily>::Name> {
+                <Self as ::fonts_rs_model::FontFamily>::glyph_name(ch)
+            }
+
+            /// Returns an iterator over all known glyphs, yielding
+            /// `(CodePoint, Self::Name)` pairs of codepoint and typed glyph name.
+            ///
+            /// Forwards to [`FontFamily::all_glyphs`](::fonts_rs_model::FontFamily::all_glyphs).
+            pub fn all_glyphs() -> impl Iterator<Item = (::fonts_rs_model::CodePoint, <Self as ::fonts_rs_model::FontFamily>::Name)> {
+                <Self as ::fonts_rs_model::FontFamily>::all_glyphs()
+            }
+
+            /// Returns the number of glyphs in this family — O(1).
+            ///
+            /// Forwards to [`FontFamily::glyph_count`](::fonts_rs_model::FontFamily::glyph_count).
+            pub fn glyph_count() -> usize {
+                <Self as ::fonts_rs_model::FontFamily>::glyph_count()
+            }
+        }
 
         #[cfg(feature = "gtk")]
         impl $marker {

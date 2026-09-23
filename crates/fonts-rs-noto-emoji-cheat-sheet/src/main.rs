@@ -14,11 +14,8 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use fonts_rs_model::CodePoint;
-use fonts_rs_noto_emoji::GlyphNameExt;
-use fonts_rs_noto_emoji::GtkFont;
+use fonts_rs_noto_emoji::NotoEmoji;
 use fonts_rs_noto_emoji::all_emoji;
-use fonts_rs_noto_emoji::naming::NotoEmoji;
-use fonts_rs_noto_emoji::variant::GRESOURCE_PREFIX;
 use gtk4::Align;
 use gtk4::Application;
 use gtk4::ApplicationWindow;
@@ -33,7 +30,6 @@ use gtk4::Scale;
 use gtk4::ScrolledWindow;
 use gtk4::TextView;
 use gtk4::WrapMode;
-use gtk4::gio;
 use gtk4::glib;
 use gtk4::prelude::*;
 use miette::IntoDiagnostic;
@@ -93,7 +89,7 @@ fn navigate_to(
 
 fn main() -> Result<glib::ExitCode> {
     gtk4::init().into_diagnostic()?;
-    NotoEmoji::register_glyphs().into_diagnostic()?;
+    NotoEmoji::ensure_registered().into_diagnostic()?;
 
     let app = Application::builder().application_id(APP_ID).build();
     app.connect_activate(build_ui);
@@ -333,8 +329,7 @@ fn build_ui(app: &Application) {
             let mut filtered: Vec<(CodePoint, String)> = search_results
                 .iter()
                 .filter_map(|name| {
-                    let glyph_name = fonts_rs_noto_emoji::naming::NotoEmojiName::new(name.to_string());
-                    let cp = glyph_name.codepoint()?;
+                    let cp = NotoEmoji::codepoint(name)?;
                     Some((cp, name.to_string()))
                 })
                 .collect();
@@ -882,10 +877,7 @@ fn show_detail(content: &Box, name: &str, codepoint: CodePoint, search_entry: &E
         }
     }
 
-    let resource_path = format!("{}/{}/{}/{}.svg", GRESOURCE_PREFIX, fonts_rs_model::SCALABLE_DIR, fonts_rs_model::ICONS_CONTEXT_EMOJI, name);
-    if let Ok(bytes) = gio::resources_lookup_data(&resource_path, gio::ResourceLookupFlags::NONE) {
-        let svg_xml = String::from_utf8_lossy(bytes.as_ref()).into_owned();
-
+    if let Some(svg_xml) = NotoEmoji::glyph_svg(name) {
         let svg_heading = Label::builder()
             .label("SVG")
             .css_classes(["heading"])

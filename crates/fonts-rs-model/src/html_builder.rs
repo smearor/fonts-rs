@@ -161,7 +161,7 @@ with the TTF embedded as a base64 data URI from the GResource bundle.</p>
 
         let codepoints: Vec<char> = match &self.glyphs {
             Some(glyphs) => glyphs.clone(),
-            None => F::all_glyphs().map(|(ch, _)| ch).collect(),
+            None => F::all_glyphs().map(|(ch, _)| ch.as_char()).collect(),
         };
 
         let mut svg_grid = String::new();
@@ -170,10 +170,11 @@ with the TTF embedded as a base64 data URI from the GResource bundle.</p>
             let Some(name) = F::glyph_name(ch) else {
                 continue;
             };
-            let Some(svg) = F::glyph_svg(name) else {
+            let Some(svg) = F::glyph_svg(name.as_ref()) else {
                 continue;
             };
             let svg = svg.replace("currentColor", "#333");
+            let name = name.as_ref();
             svg_grid.push_str(&format!(
                 r#"<div class="glyph-cell"><div class="glyph-svg">{svg}</div><div class="glyph-name">{name}</div></div>"#
             ));

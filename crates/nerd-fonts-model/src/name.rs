@@ -1,6 +1,7 @@
 //! Normalized GTK icon name newtype for type-safe icon name handling.
 
 use std::fmt;
+use std::str::FromStr;
 
 use super::paths::ICONS_RESOURCE_PATH;
 use super::set::IconSet;
@@ -143,6 +144,33 @@ impl<'de> serde::Deserialize<'de> for IconName {
 impl From<&IconName> for ResourcePath {
     fn from(name: &IconName) -> Self {
         ResourcePath::from_name(ICONS_RESOURCE_PATH, name.as_ref())
+    }
+}
+
+/// Error returned when parsing an [`IconName`] from a string fails.
+///
+/// The input does not normalize to a name matching a known
+/// [`IconSet`] prefix (e.g. `nf-fa-`, `nf-md-`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct IconNameParseError {
+    /// The input that failed to parse.
+    input: String,
+}
+
+impl fmt::Display for IconNameParseError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "unknown icon set prefix for icon name: '{}'", self.input)
+    }
+}
+
+impl std::error::Error for IconNameParseError {}
+
+impl FromStr for IconName {
+    type Err = IconNameParseError;
+
+    /// Parses an icon name from any common form — see [`IconName::parse`].
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::parse(s).ok_or_else(|| IconNameParseError { input: s.to_string() })
     }
 }
 

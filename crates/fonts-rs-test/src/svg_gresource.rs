@@ -3,6 +3,7 @@
 //! Provides [`run_svg_gresource`] for loading individual SVG glyphs from
 //! GResource and displaying them as GDK textures in a GTK grid.
 
+use fonts_rs_model::CodePoint;
 use fonts_rs_model::IconThemeFont;
 use gtk4::Align;
 use gtk4::Application;
@@ -32,15 +33,17 @@ use crate::app::run_gtk_app;
 ///
 /// - `app_id`: Unique GTK application ID.
 /// - `window_title`: Window title text.
-/// - `glyphs`: Slice of `(codepoint, glyph_name)` pairs to display.
+/// - `glyphs`: Slice of `(`[`CodePoint`]`, glyph_name)` pairs to display.
+///   The name accepts `&str`, `String`, and the typed `F::Name`
+///   (`GlyphName<F>` / `IconName`) via `AsRef<str>`.
 ///
 /// # Errors
 ///
 /// Returns an error if GTK init or GResource registration fails.
-pub fn run_svg_gresource<F: IconThemeFont>(app_id: &str, window_title: &str, glyphs: &[(char, &str)]) -> Result<glib::ExitCode> {
+pub fn run_svg_gresource<F: IconThemeFont>(app_id: &str, window_title: &str, glyphs: &[(CodePoint, impl AsRef<str>)]) -> Result<glib::ExitCode> {
     F::ensure_registered().into_diagnostic()?;
 
-    let glyphs: Vec<(char, String)> = glyphs.iter().map(|(ch, name)| (*ch, name.to_string())).collect();
+    let glyphs: Vec<(CodePoint, String)> = glyphs.iter().map(|(ch, name)| (*ch, name.as_ref().to_string())).collect();
 
     let window_title = window_title.to_string();
 
@@ -49,7 +52,7 @@ pub fn run_svg_gresource<F: IconThemeFont>(app_id: &str, window_title: &str, gly
     })
 }
 
-fn build_ui<F: IconThemeFont>(app: &Application, window_title: &str, glyphs: &[(char, String)]) {
+fn build_ui<F: IconThemeFont>(app: &Application, window_title: &str, glyphs: &[(CodePoint, String)]) {
     let window = ApplicationWindow::builder()
         .application(app)
         .title(window_title)

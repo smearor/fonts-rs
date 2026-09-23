@@ -5,10 +5,8 @@
 //! cargo run --example gtk_icon_theme --features gtk
 //! ```
 
-use fonts_rs_dicefont::DicefontConfig;
+use fonts_rs_dicefont::Dicefont;
 use fonts_rs_dicefont::constants;
-use fonts_rs_dicefont::naming::Dicefont;
-use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_test::run_gtk_icon_theme;
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
@@ -19,10 +17,5 @@ fn main() -> miette::Result<gtk4::glib::ExitCode> {
         (constants::DICEFONT_D6_4, "d6-4"),
     ];
 
-    run_gtk_icon_theme::<Dicefont, DicefontConfig>(
-        "io.smearor.fonts_rs.dicefont_icon_theme",
-        "Dicefont — GtkIconTheme",
-        DicefontConfig::GRESOURCE_PREFIX,
-        &icons,
-    )
+    run_gtk_icon_theme::<Dicefont>("io.smearor.fonts_rs.dicefont_icon_theme", "Dicefont — GtkIconTheme", &icons)
 }

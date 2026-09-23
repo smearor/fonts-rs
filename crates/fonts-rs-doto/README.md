@@ -28,15 +28,12 @@ fonts-rs-doto = { version = "0.1", features = ["bold-dot"] }
 ```
 
 ```rust
-use fonts_rs_doto::register_glyphs;
-use fonts_rs_doto::GlyphNameExt;
-use fonts_rs_doto::DotoName;
+use fonts_rs_doto::Doto;
 
 fn main() {
-    register_glyphs().unwrap();
+    Doto::install().unwrap();
 
-    let name = DotoName::new("doto-a".to_string());
-    if let Some(codepoint) = name.codepoint() {
+    if let Some(codepoint) = Doto::codepoint("doto-a") {
         println!("U+{:04X}", codepoint as u32);
     }
 }
