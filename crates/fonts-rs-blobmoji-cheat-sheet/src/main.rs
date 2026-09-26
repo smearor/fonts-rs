@@ -46,8 +46,32 @@ impl CheatSheetFamily for BlobmojiSheet {
         Blobmoji::install_icon_theme(&display).into_diagnostic()
     }
 
+    /// Emoji picker order when metadata is enabled: glyphs follow the
+    /// googlefonts/emoji-metadata group ordering (smileys first, skin-tone
+    /// alternates after their base). Glyphs outside the ordering (a few
+    /// sequences without ordering entries) are appended, sorted by name.
     fn all_glyphs() -> Vec<(CodePoint, BlobmojiName)> {
-        Blobmoji::all_glyphs().collect()
+        #[cfg(feature = "metadata")]
+        {
+            let mut by_name: std::collections::HashMap<String, (CodePoint, BlobmojiName)> =
+                Blobmoji::all_glyphs().map(|(cp, name)| (name.as_ref().to_string(), (cp, name))).collect();
+            let mut ordered: Vec<(CodePoint, BlobmojiName)> = Vec::with_capacity(by_name.len());
+            for group in BlobmojiMetadata.groups() {
+                for name in group.glyphs {
+                    if let Some(entry) = by_name.remove(*name) {
+                        ordered.push(entry);
+                    }
+                }
+            }
+            let mut rest: Vec<(CodePoint, BlobmojiName)> = by_name.into_values().collect();
+            rest.sort_by(|a, b| a.1.cmp(&b.1));
+            ordered.extend(rest);
+            ordered
+        }
+        #[cfg(not(feature = "metadata"))]
+        {
+            Blobmoji::all_glyphs().collect()
+        }
     }
 
     fn codepoint(name: &str) -> Option<CodePoint> {

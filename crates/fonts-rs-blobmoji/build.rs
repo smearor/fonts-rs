@@ -13,6 +13,7 @@
 // stem. Emoji sequences are allocated PUA codepoints by `SvgDirSource`.
 
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::path::Path;
 
 use fonts_rs_generator::CodepointStrategy;
@@ -28,8 +29,11 @@ use fonts_rs_generator::build_constants;
 use fonts_rs_generator::emoji::ANNOTATIONS_FILE;
 use fonts_rs_generator::emoji::EMOJI_TEST_FILE;
 use fonts_rs_generator::emoji::EmojiMetadataGenerator;
+use fonts_rs_generator::emoji::ORDERING_FILE;
 use fonts_rs_generator::emoji::parse_cldr_annotations;
+use fonts_rs_generator::emoji::parse_emoji_ordering;
 use fonts_rs_generator::emoji::parse_emoji_test;
+use fonts_rs_generator::escape_str;
 use fonts_rs_generator::normalize_to_kebab;
 use fonts_rs_generator::set_font_path_env;
 use fonts_rs_model::CodePoint;
@@ -179,6 +183,9 @@ fn main() -> miette::Result<()> {
     // Runs inside FontBuild's export closure so metadata.json and
     // icons.gresource.xml land in OUT_DIR where the GResource compilation
     // and code generation expect them.
+    // The resolver closure consumes its own copy; the ordering
+    // generator below borrows `sequence_names` again.
+    let resolver_names = sequence_names.clone();
     FontBuild::new(&font_path)
         .compile_font_gresource()
         .gresource_prefix(BlobmojiConfig::GRESOURCE_PREFIX)
@@ -190,7 +197,7 @@ fn main() -> miette::Result<()> {
                 .name_resolver(move |parsed| {
                     parsed.codepoints.as_ref().and_then(|codepoints| {
                         let key: Vec<CodePoint> = codepoints.iter().filter(|cp| cp.as_char() != VARIATION_SELECTOR_16).copied().collect();
-                        sequence_names.get(&key).cloned()
+                        resolver_names.get(&key).cloned()
                     })
                 })
                 .name_prefix(&glyph_name_prefix)
@@ -202,20 +209,19 @@ fn main() -> miette::Result<()> {
     // Generate variant info for runtime use.
     config.write_variant_info()?;
 
-    // Generate metadata (keywords + categories) if enabled. Keywords come
-    // from CLDR annotation data, categories from Unicode emoji-test.txt -
+    // Generate metadata (keywords + categories + ordering) if enabled.
+    // Keywords come from CLDR annotation data plus shortcodes/emoticons
+    // from the ordering file, categories from Unicode emoji-test.txt -
     // the same sources as fonts-rs-noto-emoji, reused via
-    // EmojiMetadataGenerator. Multi-codepoint sequences (ZWJ, keycap,
-    // flag) get no keywords: the CLDR keyword map is keyed by single
-    // codepoints, and their `entry.code` is a PUA allocation.
+    // EmojiMetadataGenerator.
     if std::env::var("CARGO_FEATURE_METADATA").is_ok() {
-        eprintln!("build.rs: generating emoji metadata (keywords/categories)...");
+        eprintln!("build.rs: generating emoji metadata (keywords/categories/ordering)...");
 
         let annotations_path = Path::new(build_constants::RESOURCES_DIR).join(ANNOTATIONS_FILE);
         let emoji_test_path = Path::new(build_constants::RESOURCES_DIR).join(EMOJI_TEST_FILE);
 
         let annotations_json = std::fs::read_to_string(&annotations_path).map_err(|e| miette::miette!("Failed to read {}: {e}", annotations_path.display()))?;
-        let (_name_map, keyword_map, _name_by_codepoint) = parse_cldr_annotations(&annotations_json)?;
+        let (_name_map, mut keyword_map, _name_by_codepoint) = parse_cldr_annotations(&annotations_json)?;
 
         let emoji_test_content = std::fs::read_to_string(&emoji_test_path).map_err(|e| miette::miette!("Failed to read {}: {e}", emoji_test_path.display()))?;
         let category_map = parse_emoji_test(&emoji_test_content);
@@ -223,6 +229,61 @@ fn main() -> miette::Result<()> {
         // Read the generated metadata.json to get the full list of exported glyphs.
         let metadata_json = std::fs::read_to_string(build_constants::metadata_path()).map_err(|e| miette::miette!("Failed to read metadata.json: {e}"))?;
         let entries: Vec<GlyphEntry<String>> = serde_json::from_str(&metadata_json).map_err(|e| miette::miette!("Failed to parse metadata.json: {e}"))?;
+
+        // Emoji picker ordering from googlefonts/emoji-metadata. Resolves
+        // each ordered codepoint sequence to the exported glyph name
+        // (mirroring SvgDirSource's resolver + prefix + fallback) and
+        // merges shortcodes/emoticons into the keyword map so `:smile:`
+        // and `:D` hit search.
+        let ordering_path = Path::new(build_constants::RESOURCES_DIR).join(ORDERING_FILE);
+        let ordering_json = std::fs::read_to_string(&ordering_path).map_err(|e| miette::miette!("Failed to read {}: {e}", ordering_path.display()))?;
+        let ordering = parse_emoji_ordering(&ordering_json)?;
+
+        let exported_names: HashSet<&str> = entries.iter().map(|entry| entry.name.as_str()).collect();
+        let code_by_name: HashMap<&str, CodePoint> = entries.iter().filter_map(|entry| entry.code.map(|code| (entry.name.as_str(), code))).collect();
+
+        let resolve_glyph_name = |sequence: &[CodePoint]| -> Option<String> {
+            let key: Vec<CodePoint> = sequence.iter().filter(|cp| cp.as_char() != VARIATION_SELECTOR_16).copied().collect();
+            let stem = sequence_names.get(&key).cloned().unwrap_or_else(|| {
+                let raw: Vec<String> = key.iter().map(|cp| format!("{:x}", cp.as_char() as u32)).collect();
+                format!("emoji-u{}", raw.join("-"))
+            });
+            let name = format!("{glyph_name_prefix}-{}", normalize_to_kebab(&stem)?);
+            exported_names.contains(name.as_str()).then_some(name)
+        };
+
+        let out_dir = std::env::var("OUT_DIR").map_err(|e| miette::miette!("OUT_DIR not set: {e}"))?;
+        let mut ordering_src = String::from("// @generated by build.rs - do not edit\n\npub static GROUPS: &[EmojiGroup] = &[\n");
+        for group in &ordering.0 {
+            let mut names: Vec<String> = Vec::new();
+            for emoji in &group.emoji {
+                for sequence in std::iter::once(&emoji.base).chain(emoji.alternates.iter()) {
+                    let codepoints: Vec<CodePoint> = sequence.iter().filter_map(|v| char::from_u32(*v)).map(CodePoint::from).collect();
+                    let Some(name) = resolve_glyph_name(&codepoints) else { continue };
+                    names.push(name.clone());
+
+                    // Attach shortcodes/emoticons of the base emoji as
+                    // keywords so search hits them.
+                    if let Some(code) = code_by_name.get(name.as_str()) {
+                        let mut keywords = keyword_map.get(code).cloned().unwrap_or_default();
+                        for extra in emoji.shortcodes.iter().chain(emoji.emoticons.iter()) {
+                            if !keywords.contains(extra) {
+                                keywords.push(extra.clone());
+                            }
+                        }
+                        keyword_map.insert(*code, keywords);
+                    }
+                }
+            }
+            names.dedup();
+            if names.is_empty() {
+                continue;
+            }
+            let name_refs: Vec<String> = names.iter().map(|name| format!("\"{}\"", escape_str(name))).collect();
+            ordering_src.push_str(&format!("    EmojiGroup::new(\"{}\", &[{}]),\n", escape_str(&group.group), name_refs.join(", ")));
+        }
+        ordering_src.push_str("];\n");
+        std::fs::write(Path::new(&out_dir).join("ordering.rs"), ordering_src).map_err(|e| miette::miette!("Failed to write ordering.rs: {e}"))?;
 
         EmojiMetadataGenerator::new(keyword_map, category_map)
             .run(&entries)
