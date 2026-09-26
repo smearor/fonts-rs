@@ -38,6 +38,8 @@ pub use gtk_gresource::run_gtk_gresource;
 #[cfg(feature = "gtk")]
 pub use icon_theme::run_gtk_icon_theme;
 #[cfg(all(feature = "gtk", feature = "render"))]
+pub use render::render_text;
+#[cfg(all(feature = "gtk", feature = "render"))]
 pub use render::run_embed_fonts_render;
 #[cfg(feature = "gtk")]
 pub use svg_compose::run_composed_svg_text;

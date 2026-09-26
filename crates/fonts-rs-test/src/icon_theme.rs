@@ -43,7 +43,10 @@ use crate::app::run_gtk_app;
 pub fn run_gtk_icon_theme<F: IconThemeFont>(app_id: &str, window_title: &str, icons: &[(impl AsRef<str>, impl AsRef<str>)]) -> Result<glib::ExitCode> {
     F::ensure_registered().into_diagnostic()?;
 
-    let icons: Vec<(String, String)> = icons.iter().map(|(name, label)| (name.as_ref().to_string(), label.as_ref().to_string())).collect();
+    let icons: Vec<(String, String)> = icons
+        .iter()
+        .map(|(name, label)| (name.as_ref().to_string(), label.as_ref().to_string()))
+        .collect();
 
     let window_title = window_title.to_string();
 

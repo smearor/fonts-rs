@@ -5,8 +5,10 @@
 
 use ab_glyph::Font;
 use ab_glyph::FontVec;
-use ab_glyph::Glyph;
+use ab_glyph::GlyphId;
+use ab_glyph::GlyphImageFormat;
 use ab_glyph::ScaleFont;
+use ab_glyph::v2::GlyphImage;
 use fonts_rs_model::SoftwareRender;
 use gtk4::Align;
 use gtk4::Application;
@@ -15,6 +17,7 @@ use gtk4::Box;
 use gtk4::Label;
 use gtk4::Orientation;
 use gtk4::Picture;
+use gtk4::gdk_pixbuf::Pixbuf;
 use gtk4::glib;
 use gtk4::prelude::*;
 use miette::Result;
@@ -77,6 +80,8 @@ fn build_ui(app: &Application, window_title: &str, font: &'static FontVec, text:
     main_box.append(&title);
 
     let (width, height, pixels) = render_text(font, text, font_size);
+    let non_black = pixels.chunks_exact(4).filter(|px| px[0] > 0 || px[1] > 0 || px[2] > 0).count();
+    eprintln!("render_text: {width}x{height}, non_black={non_black}");
 
     let bytes = glib::Bytes::from_owned(pixels);
     let texture = gtk4::gdk::MemoryTexture::new(width, height, gtk4::gdk::MemoryFormat::R8g8b8a8Premultiplied, &bytes, (width * 4) as usize);
@@ -92,11 +97,17 @@ fn build_ui(app: &Application, window_title: &str, font: &'static FontVec, text:
 
 /// Renders text into an RGBA pixel buffer using `ab_glyph`.
 ///
+/// Outline glyphs are rasterized as white coverage on opaque black.
+/// Bitmap strikes (CBDT/CBLC color fonts like Noto Color Emoji, which
+/// carry no outlines) are blitted via `glyph_raster_image2`.
+///
 /// Returns `(width, height, pixels)` where `pixels` is RGBA8.
-fn render_text(font: &FontVec, text: &str, scale: f32) -> (i32, i32, Vec<u8>) {
+pub fn render_text(font: &FontVec, text: &str, scale: f32) -> (i32, i32, Vec<u8>) {
     let scaled = font.as_scaled(scale);
 
-    let mut glyphs: Vec<Glyph> = Vec::new();
+    // Pen advances come from hmtx — available for outline and bitmap
+    // glyphs alike (outline bounds are not a reliable advance).
+    let mut glyphs: Vec<(GlyphId, f32)> = Vec::new();
     let mut x = 0.0_f32;
     let ascent = scaled.ascent();
     let descent = scaled.descent();
@@ -104,21 +115,22 @@ fn render_text(font: &FontVec, text: &str, scale: f32) -> (i32, i32, Vec<u8>) {
 
     for ch in text.chars() {
         let glyph_id = font.glyph_id(ch);
-        let glyph = glyph_id.with_scale_and_position(scale, ab_glyph::point(x, ascent));
-        if let Some(outlined) = font.outline_glyph(glyph.clone()) {
-            let bounds = outlined.px_bounds();
-            x += bounds.width().max(0.0);
-        }
-        glyphs.push(glyph);
+        glyphs.push((glyph_id, x));
+        x += scaled.h_advance(glyph_id);
     }
 
     let total_width = x.ceil().max(1.0) as u32;
     let total_height = line_height.ceil().max(1.0) as u32;
 
     let mut alpha = vec![0.0_f32; (total_width * total_height) as usize];
+    let mut pixels = vec![0u8; (total_width * total_height * 4) as usize];
+    for px in pixels.chunks_exact_mut(4) {
+        px[3] = 255;
+    }
 
-    for glyph in &glyphs {
-        if let Some(outlined) = font.outline_glyph(glyph.clone()) {
+    for (glyph_id, pen_x) in &glyphs {
+        let glyph = glyph_id.with_scale_and_position(scale, ab_glyph::point(*pen_x, ascent));
+        if let Some(outlined) = font.outline_glyph(glyph) {
             let bounds = outlined.px_bounds();
             outlined.draw(|gx, gy, coverage| {
                 let px = bounds.min.x as i32 + gx as i32;
@@ -128,17 +140,108 @@ fn render_text(font: &FontVec, text: &str, scale: f32) -> (i32, i32, Vec<u8>) {
                     alpha[idx] = alpha[idx].max(coverage);
                 }
             });
+        } else if let Some(image) = font.glyph_raster_image2(*glyph_id, scale as u16) {
+            blit_raster_image(&image, *pen_x, ascent, scale, &mut pixels, total_width, total_height);
         }
     }
 
-    let mut pixels = Vec::with_capacity((total_width * total_height * 4) as usize);
-    for &a in &alpha {
+    for (idx, &a) in alpha.iter().enumerate() {
         let v = (a * 255.0).round() as u8;
-        pixels.push(v);
-        pixels.push(v);
-        pixels.push(v);
-        pixels.push(255);
+        let px = &mut pixels[idx * 4..idx * 4 + 4];
+        px[0] = px[0].max(v);
+        px[1] = px[1].max(v);
+        px[2] = px[2].max(v);
     }
 
     (total_width as i32, total_height as i32, pixels)
+}
+
+/// Blits a bitmap strike into the RGBA buffer.
+///
+/// `glyph_raster_image2` returns the best matching strike, whose
+/// `pixels_per_em` may differ from the requested size — the image is
+/// rescaled by `scale / pixels_per_em` with nearest-neighbor sampling
+/// and positioned by its bearings (`origin`).
+fn blit_raster_image(image: &GlyphImage, pen_x: f32, baseline: f32, scale: f32, pixels: &mut [u8], width: u32, height: u32) {
+    if image.pixels_per_em == 0 {
+        return;
+    }
+    let Some((src_w, src_h, src)) = raster_image_rgba(image) else {
+        return;
+    };
+    let factor = scale / f32::from(image.pixels_per_em);
+    let dest_w = (src_w as f32 * factor).round().max(1.0) as i32;
+    let dest_h = (src_h as f32 * factor).round().max(1.0) as i32;
+    let left = (pen_x + image.origin.x * factor).round() as i32;
+    // `origin.y` is the bottom bearing: signed distance from the
+    // baseline to the bitmap's bottom edge (negative = below baseline).
+    // The top edge sits `height` strike pixels above it.
+    let top = (baseline - (image.origin.y + src_h as f32) * factor).round() as i32;
+
+    for dy in 0..dest_h {
+        for dx in 0..dest_w {
+            let sx = (dx as f32 / factor) as u32;
+            let sy = (dy as f32 / factor) as u32;
+            if sx >= src_w || sy >= src_h {
+                continue;
+            }
+            let s = ((sy * src_w + sx) * 4) as usize;
+            let px = left + dx;
+            let py = top + dy;
+            if px < 0 || py < 0 || px >= width as i32 || py >= height as i32 {
+                continue;
+            }
+            let dst = ((py as u32 * width + px as u32) * 4) as usize;
+            // premultiplied RGBA on the opaque black background
+            pixels[dst] = src[s];
+            pixels[dst + 1] = src[s + 1];
+            pixels[dst + 2] = src[s + 2];
+        }
+    }
+}
+
+/// Decodes a raster strike into premultiplied RGBA8.
+///
+/// Returns `(width, height, pixels)`. Supported formats:
+/// `BitmapPremulBgra32` (raw CBDT bitmaps) and `Png` (Noto Color Emoji
+/// stores PNG blobs in CBDT format 17); other formats return `None`.
+fn raster_image_rgba(image: &GlyphImage) -> Option<(u32, u32, Vec<u8>)> {
+    match image.format {
+        GlyphImageFormat::BitmapPremulBgra32 => {
+            let mut rgba = Vec::with_capacity(image.data.len());
+            for bgra in image.data.chunks_exact(4) {
+                rgba.extend_from_slice(&[bgra[2], bgra[1], bgra[0], bgra[3]]);
+            }
+            Some((u32::from(image.width), u32::from(image.height), rgba))
+        }
+        GlyphImageFormat::Png => decode_png_rgba(image.data),
+        _ => None,
+    }
+}
+
+/// Decodes PNG data into premultiplied RGBA8 via gdk-pixbuf.
+fn decode_png_rgba(data: &[u8]) -> Option<(u32, u32, Vec<u8>)> {
+    let pixbuf = Pixbuf::from_read(std::io::Cursor::new(data.to_vec())).ok()?;
+    let width = pixbuf.width() as u32;
+    let height = pixbuf.height() as u32;
+    let channels = pixbuf.n_channels() as usize;
+    let rowstride = pixbuf.rowstride() as usize;
+    let bytes = pixbuf.read_pixel_bytes();
+    let raw: &[u8] = bytes.as_ref();
+
+    let mut rgba = Vec::with_capacity((width * height * 4) as usize);
+    for y in 0..height as usize {
+        for x in 0..width as usize {
+            let i = y * rowstride + x * channels;
+            let a = if channels == 4 { raw[i + 3] } else { 255 };
+            // premultiply onto the opaque black background
+            rgba.extend_from_slice(&[
+                (u16::from(raw[i]) * u16::from(a) / 255) as u8,
+                (u16::from(raw[i + 1]) * u16::from(a) / 255) as u8,
+                (u16::from(raw[i + 2]) * u16::from(a) / 255) as u8,
+                a,
+            ]);
+        }
+    }
+    Some((width, height, rgba))
 }
