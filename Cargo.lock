@@ -477,6 +477,36 @@ dependencies = [
 ]
 
 [[package]]
+name = "fonts-rs-eva"
+version = "0.3.0"
+dependencies = [
+ "ab_glyph",
+ "const_format",
+ "fonts-rs-generator",
+ "fonts-rs-model",
+ "fonts-rs-test",
+ "gio",
+ "glib",
+ "gtk4",
+ "miette",
+ "phf",
+ "serde_json",
+ "tracing",
+]
+
+[[package]]
+name = "fonts-rs-eva-cheat-sheet"
+version = "0.3.0"
+dependencies = [
+ "fonts-rs-cheat-sheet",
+ "fonts-rs-eva",
+ "fonts-rs-model",
+ "gtk4",
+ "miette",
+ "pangocairo",
+]
+
+[[package]]
 name = "fonts-rs-fourteen-segment"
 version = "0.3.0"
 dependencies = [

@@ -17,6 +17,8 @@ members = [
     "crates/fonts-rs-blobmoji",
     "crates/fonts-rs-blobmoji-cheat-sheet",
     "crates/fonts-rs-cuernavaca",
+    "crates/fonts-rs-eva",
+    "crates/fonts-rs-eva-cheat-sheet",
     "crates/fonts-rs-tabler",
     "crates/fonts-rs-tabler-cheat-sheet",
     "crates/nerd-fonts-model",
@@ -59,6 +61,7 @@ fonts-rs-noto-emoji = { version = "0.3.0", path = "crates/fonts-rs-noto-emoji" }
 fonts-rs-noto-emoji-generator = { version = "0.3.0", path = "crates/fonts-rs-noto-emoji-generator" }
 fonts-rs-blobmoji = { version = "0.3.0", path = "crates/fonts-rs-blobmoji" }
 fonts-rs-cuernavaca = { version = "0.3.0", path = "crates/fonts-rs-cuernavaca" }
+fonts-rs-eva = { version = "0.3.0", path = "crates/fonts-rs-eva" }
 fonts-rs-tabler = { version = "0.3.0", path = "crates/fonts-rs-tabler" }
 nerd-fonts-model = { version = "0.3.0", path = "crates/nerd-fonts-model" }
 nerd-fonts-generator = { version = "0.3.0", path = "crates/nerd-fonts-generator" }
