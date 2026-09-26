@@ -90,6 +90,7 @@ graph TD
 | `fonts-rs-blobmoji` | Blobmoji | OFL-1.1 | COLRv1/bitmap × flags |
 | `fonts-rs-tabler` | Tabler Icons | MIT | outline, filled |
 | `fonts-rs-lucide` | Lucide Icons | ISC | fontless (SVG-only) |
+| `fonts-rs-heroicons` | Heroicons | MIT | fontless (SVG-only) × outline, solid, mini, micro |
 | `fonts-rs-eva` | Eva Icons | MIT | outline, filled |
 | `nerd-fonts-rs` | Nerd Fonts | MIT | - |
 

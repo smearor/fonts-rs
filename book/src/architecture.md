@@ -31,6 +31,8 @@ graph TD
     Gen --> Tabler
     Model --> Lucide["fonts-rs-lucide (fontless)"]
     Gen --> Lucide
+    Model --> Heroicons["fonts-rs-heroicons (fontless)"]
+    Gen --> Heroicons
 
     NotoGen --> NotoEmoji["fonts-rs-noto-emoji"]
     NFGen --> NFRs["nerd-fonts-rs"]
@@ -39,16 +41,18 @@ graph TD
     CheatSheet["fonts-rs-cheat-sheet (generic)"]
     NotoEmoji --> NotoCS["fonts-rs-noto-emoji-cheat-sheet"]
     Lucide --> LucideCS["fonts-rs-lucide-cheat-sheet"]
+    Heroicons --> HeroiconsCS["fonts-rs-heroicons-cheat-sheet"]
     NFRs --> NFCS["nerd-fonts-cheat-sheet"]
     CheatSheet --> NotoCS
     CheatSheet --> LucideCS
+    CheatSheet --> HeroiconsCS
     CheatSheet --> NFCS
 ```
 
 ## Build Pipeline
 
 Each font family crate follows the same build pipeline via `FontBuild`.
-Fontless icon sets (Lucide) use `FontBuild::svg_only()` + `run_svg()` —
+Fontless icon sets (Lucide, Heroicons) use `FontBuild::svg_only()` + `run_svg()` —
 same artifacts, but the input is an SVG directory and change detection
 relies entirely on `extra_hash` components:
 
