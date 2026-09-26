@@ -199,6 +199,62 @@ FontBuild::new(&font_path)
     .map_err(|e| miette::miette!("{e}"))?;
 ```
 
+### Pre-rendered SVGs (Hybrid)
+
+If the upstream project ships full-color source SVGs (e.g. Blobmoji,
+Tabler Icons), use `SvgDirSource` for the GResource and bundle the TTF
+separately for `pixel-drawing`. Glyph names come from an external name
+map or a `name_resolver` closure; codepoints come from the filename or a
+`GlyphNameMap`:
+
+```rust
+use fonts_rs_generator::CodepointStrategy;
+use fonts_rs_generator::ExportConfig;
+use fonts_rs_generator::FontBuild;
+use fonts_rs_generator::GlyphSource;
+use fonts_rs_generator::SvgDirSource;
+use fonts_rs_generator::build_constants;
+
+let config = ExportConfig::<MyFontConfig>::with_variant(*entry);
+let svg_dir = Path::new(build_constants::RESOURCES_DIR).join("svg");
+
+FontBuild::new(&font_path)
+    .compile_font_gresource()
+    .gresource_prefix(MyFontConfig::GRESOURCE_PREFIX)
+    .extra_hash(format!("{}-{:016x}", entry.as_str(), hash_svg_dir(&svg_dir)))
+    .run(|_font_path, resources_dir| {
+        SvgDirSource::new(&svg_dir)
+            .filename_parser(EmojiUFilenameParser)       // or default NameParser
+            .codepoint_strategy(CodepointStrategy::FromFilename) // or FromNameMap
+            .name_resolver(move |parsed| /* map to semantic name */ { todo!() })
+            .name_prefix(&glyph_name_prefix)
+            .filter(move |codepoints| /* e.g. drop flags for *-noflags */ true)
+            .export(&config, resources_dir)
+    })
+    .map_err(|e| miette::miette!("{e}"))?;
+```
+
+Key points:
+
+- **`SvgDirSource`** iterates `resources/svg/` — no TTF outline
+  extraction. The SVGs are the final artwork (full color).
+- **`filename_parser`** maps filenames to codepoints
+  (`EmojiUFilenameParser` for `emoji_u{cp}.svg`, `NameParser` for plain
+  `{name}.svg` like Tabler).
+- **`codepoint_strategy`** assigns codepoints: `FromFilename` (emoji
+  codepoints in the filename) or `FromNameMap` (external
+  `GlyphNameMap`, e.g. Tabler's `icons.json` unicode values).
+- **`name_resolver`** maps parsed filenames to semantic names (e.g. CLDR
+  `tts` names for emoji, `format!("{name}-symbolic")` for icons).
+- **`filter`** drops glyphs per variant (e.g. flag emoji for
+  `*-noflags`).
+- **`extra_hash`** must cover the SVG directory — the default hash only
+  covers the TTF file, so SVG changes would not trigger a re-export.
+
+See `crates/fonts-rs-blobmoji/build.rs` (CLDR name map + flag filter)
+and `crates/fonts-rs-tabler/build.rs` (`FromNameMap` + metadata) for
+complete implementations.
+
 ## Step 6: Write `family.rs` and `lib.rs`
 
 `family.rs` wires the generated phf maps into the `FontFamily` trait
