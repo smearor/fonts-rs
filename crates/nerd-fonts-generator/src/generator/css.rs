@@ -4,6 +4,7 @@ use std::path::PathBuf;
 
 use fonts_rs_generator::GenerateError;
 use fonts_rs_generator::GlyphGenerator;
+use fonts_rs_generator::generator::web_css::web_icon_css_rules;
 use nerd_fonts_model::GlyphEntry;
 use nerd_fonts_model::IconName;
 
@@ -36,14 +37,7 @@ impl GlyphGenerator<IconName> for WebCssGenerator {
         output.push_str("    line-height: 1;\n");
         output.push_str("}\n\n");
 
-        let mut sorted: Vec<&GlyphEntry<IconName>> = icons.iter().filter(|i| i.code.is_some()).collect();
-        sorted.sort_by(|a, b| a.name.cmp(&b.name));
-
-        for icon in sorted {
-            let Some(code) = &icon.code else { continue };
-            let ch = code.as_char();
-            output.push_str(&format!(".nerd-{}:before {{\n    content: \"\\{:x}\"\n}}\n\n", icon.name, ch as u32));
-        }
+        output.push_str(&web_icon_css_rules(icons, "nerd"));
 
         Ok(output)
     }

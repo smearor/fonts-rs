@@ -103,6 +103,7 @@ fn sample_icons() -> Vec<GlyphEntry<IconName>> {
                 name: icon_name.clone(),
                 file: PathBuf::from(format!("resources/icons/{icon_name}.svg")),
                 resource_path: ResourcePath::from(&icon_name),
+                sequence: None,
             })
         })
         .collect()
