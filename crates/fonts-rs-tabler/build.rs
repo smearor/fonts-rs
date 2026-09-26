@@ -18,6 +18,8 @@ use fonts_rs_generator::MetadataGenerator;
 use fonts_rs_generator::SvgDirSource;
 use fonts_rs_generator::VariantList;
 use fonts_rs_generator::build_constants;
+use fonts_rs_generator::hash_str;
+use fonts_rs_generator::hash_svg_dir;
 use fonts_rs_generator::set_font_path_env;
 use fonts_rs_model::CodePoint;
 use fonts_rs_model::FontFamilyConfig;
@@ -45,37 +47,6 @@ const VARIANTS: VariantList<TablerConfig> =
 /// modifying `SvgPostProcessor`s — otherwise a matching hash would
 /// reuse a stale export.
 const EXPORT_PIPELINE_VERSION: u64 = 1;
-
-/// FNV-1a hash over a string's bytes.
-fn hash_str(content: &str) -> u64 {
-    content
-        .bytes()
-        .fold(0xcbf29ce484222325_u64, |hash, byte| (hash ^ u64::from(byte)).wrapping_mul(0x100000001b3))
-}
-
-/// FNV-1a hash over the sorted SVG filenames and file contents in
-/// `svg_dir`.
-///
-/// Mixed into `FontBuild::extra_hash` so changes to `resources/svg/`
-/// force a re-export even when the TTF file is unchanged — the default
-/// hash only covers the font file.
-fn hash_svg_dir(svg_dir: &Path) -> u64 {
-    let mut names: Vec<String> = std::fs::read_dir(svg_dir)
-        .map(|entries| {
-            entries
-                .filter_map(|entry| entry.ok())
-                .map(|entry| entry.file_name().to_string_lossy().into_owned())
-                .collect()
-        })
-        .unwrap_or_default();
-    names.sort();
-    names.iter().fold(0xcbf29ce484222325_u64, |hash, name| {
-        let content = std::fs::read(svg_dir.join(name)).unwrap_or_default();
-        name.bytes()
-            .chain(content.iter().copied())
-            .fold(hash, |hash, byte| (hash ^ u64::from(byte)).wrapping_mul(0x100000001b3))
-    })
-}
 
 /// Parses the `icons.json` object into a name → codepoint map for the
 /// active style.
