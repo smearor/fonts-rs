@@ -29,6 +29,8 @@ pub mod svg;
 pub mod variant_list;
 
 pub use build_constants::hash_font_file;
+pub use build_helpers::hash_str;
+pub use build_helpers::hash_svg_dir;
 pub use build_helpers::set_font_path_env;
 pub use build_runner::FontBuild;
 pub use export_config::ExportConfig;
