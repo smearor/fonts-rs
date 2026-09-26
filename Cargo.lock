@@ -629,6 +629,7 @@ dependencies = [
  "fonts-rs-tabler",
  "gtk4",
  "miette",
+ "pangocairo",
 ]
 
 [[package]]

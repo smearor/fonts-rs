@@ -24,6 +24,7 @@ fonts-rs-model.workspace = true
 fonts-rs-tabler.workspace = true
 gtk4 = { workspace = true, features = ["v4_12"] }
 miette.workspace = true
+pangocairo.workspace = true
 
 [lints]
 workspace = true
