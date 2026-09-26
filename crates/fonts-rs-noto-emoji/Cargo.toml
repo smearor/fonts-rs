@@ -29,6 +29,18 @@ gtk = ["dep:gtk4", "dep:gio", "fonts-rs-generator/gtk"]
 render = ["dep:ab_glyph", "fonts-rs-model/render"]
 embed-fonts = []
 
+# Each feature selects one TTF variant:
+#   mono (NotoEmoji-Regular) or color (COLRv1) / bitmap (CBDT) x flags
+# If none is active, build.rs defaults to `color-flags`.
+# `renderable` is a marker for variants with visible ab_glyph output
+# (mono silhouettes, bitmap color) — don't enable it directly.
+renderable = []
+mono = ["renderable"]
+color-flags = []
+color-noflags = []
+bitmap-flags = ["renderable"]
+bitmap-noflags = ["renderable"]
+
 # Emoji metadata: keywords and categories for search functionality
 metadata = []
 
@@ -89,4 +101,4 @@ required-features = ["gtk"]
 
 [[example]]
 name = "embed_fonts_render"
-required-features = ["gtk", "render", "embed-fonts"]
+required-features = ["gtk", "render", "embed-fonts", "renderable"]

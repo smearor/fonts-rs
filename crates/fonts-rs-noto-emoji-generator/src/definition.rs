@@ -30,12 +30,6 @@ impl FontFamilyMarker for NotoEmoji {}
 /// TTF font file name (relative to `resources/`).
 pub const FONT_FILE: &str = "NotoEmoji-Regular.ttf";
 
-/// CLDR annotations file name (relative to `resources/`).
-pub const ANNOTATIONS_FILE: &str = "metadata/annotations.json";
-
-/// Unicode emoji-test.txt file name (relative to `resources/`).
-pub const EMOJI_TEST_FILE: &str = "metadata/emoji-test.txt";
-
 /// Unicode codepoint ranges for emoji:
 /// - BMP: Misc symbols (U+2600–U+26FF), Dingbats (U+2700–U+27BF)
 /// - SMP: Supplemental symbols and pictographs (U+1F300–U+1FAFF)

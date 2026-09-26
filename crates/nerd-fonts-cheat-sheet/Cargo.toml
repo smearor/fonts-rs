@@ -20,6 +20,7 @@ embed-fonts = ["nerd-fonts-rs/embed-fonts"]
 metadata = ["nerd-fonts-rs/metadata"]
 
 [dependencies]
+fonts-rs-cheat-sheet.workspace = true
 fonts-rs-model.workspace = true
 nerd-fonts-model.workspace = true
 nerd-fonts-rs.workspace = true

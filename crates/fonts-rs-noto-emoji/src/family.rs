@@ -17,5 +17,6 @@ fonts_rs_generator::impl_font_family!(
     reverse = codepoint_map::REVERSE_GLYPHS,
     name = NotoEmojiName,
     glyph_prefix = variant::GLYPH_PREFIX,
+    gresource_prefix = variant::GRESOURCE_PREFIX,
     capabilities = [icon_theme, pango, html],
 );

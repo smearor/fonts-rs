@@ -9,8 +9,8 @@ use std::path::PathBuf;
 use clap::Parser;
 use clap::Subcommand;
 use fonts_rs_model::GlyphEntry;
+use fonts_rs_noto_emoji_generator::EmojiMetadataGenerator;
 use fonts_rs_noto_emoji_generator::MetadataGenerator;
-use fonts_rs_noto_emoji_generator::NotoEmojiMetadataGenerator;
 use fonts_rs_noto_emoji_generator::parse_cldr_annotations;
 use fonts_rs_noto_emoji_generator::parse_emoji_test;
 use miette::Context;
@@ -63,7 +63,7 @@ fn main() -> miette::Result<()> {
         .with_context(|| format!("Failed to read {}", cli.emoji_test.display()))?;
     let category_map = parse_emoji_test(&emoji_test);
 
-    let generator = NotoEmojiMetadataGenerator::new(keyword_map, category_map);
+    let generator = EmojiMetadataGenerator::new(keyword_map, category_map);
 
     match cli.command {
         Command::Keywords => {

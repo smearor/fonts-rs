@@ -50,15 +50,26 @@ mod tests {
         assert!(results.is_empty(), "empty query should return no results");
     }
 
+    /// Returns the variant-prefixed glyph name for U+1F600 (grinning face),
+    /// derived from the actual glyph map so the test works with any active
+    /// variant.
+    fn grinning_face_name() -> String {
+        crate::all_emoji()
+            .into_iter()
+            .map(|(_, name)| name)
+            .find(|name| name.ends_with("grinning-face"))
+            .expect("grinning-face glyph should exist")
+    }
+
     #[test]
     fn emoji_keywords_returns_slice() {
-        let kws = NotoEmojiMetadata.keywords("noto-emoji-grinning-face");
+        let kws = NotoEmojiMetadata.keywords(grinning_face_name());
         assert!(!kws.is_empty(), "grinning-face should have keywords");
     }
 
     #[test]
     fn emoji_categories_returns_slice() {
-        let cats = NotoEmojiMetadata.categories("noto-emoji-grinning-face");
+        let cats = NotoEmojiMetadata.categories(grinning_face_name());
         assert!(!cats.is_empty(), "grinning-face should have a category");
     }
 }

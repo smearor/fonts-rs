@@ -1,25 +1,22 @@
 //! Build-time code generation and glyph export for Noto Emoji.
 //!
-//! Provides:
-//! - [`NotoEmojiDefinition`] implementing the generic [`FontDefinition`] trait
-//! - CLDR annotation parsing for emoji keywords and semantic names
-//! - Unicode emoji-test.txt parsing for emoji categories
-//! - [`NotoEmojiMetadataGenerator`] for generating phf::Map metadata tables
+//! Provides [`NotoEmojiDefinition`] implementing the generic
+//! [`FontDefinition`] trait plus the family constants. Generic emoji
+//! metadata infrastructure (CLDR parsing, emoji-test parsing, the
+//! metadata generator) lives in [`fonts_rs_generator::emoji`] and is
+//! re-exported here for convenience.
 
-pub mod cldr;
 pub mod definition;
-pub mod emoji_test;
-pub mod generator;
 
-pub use cldr::parse_cldr_annotations;
-pub use definition::ANNOTATIONS_FILE;
 pub use definition::EMOJI_RANGES;
-pub use definition::EMOJI_TEST_FILE;
 pub use definition::FONT_FILE;
 pub use definition::NotoEmoji;
 pub use definition::NotoEmojiDefinition;
-pub use emoji_test::parse_emoji_test;
-pub use generator::metadata::NotoEmojiMetadataGenerator;
+pub use fonts_rs_generator::emoji::ANNOTATIONS_FILE;
+pub use fonts_rs_generator::emoji::EMOJI_TEST_FILE;
+pub use fonts_rs_generator::emoji::EmojiMetadataGenerator;
+pub use fonts_rs_generator::emoji::parse_cldr_annotations;
+pub use fonts_rs_generator::emoji::parse_emoji_test;
 
 // Re-export generic types from the framework for backward compatibility.
 pub use fonts_rs_generator::EMPTY_SVG;

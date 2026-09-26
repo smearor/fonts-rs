@@ -19,6 +19,7 @@ gtk = ["fonts-rs-noto-emoji/gtk"]
 metadata = ["fonts-rs-noto-emoji/metadata"]
 
 [dependencies]
+fonts-rs-cheat-sheet.workspace = true
 fonts-rs-model.workspace = true
 fonts-rs-noto-emoji.workspace = true
 gtk4 = { workspace = true, features = ["v4_12"] }

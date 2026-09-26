@@ -18,5 +18,6 @@ fonts_rs_generator::impl_font_family!(
     name = FourteenSegmentName,
     css_font_family = "DSEG14 Classic",
     glyph_prefix = variant::GLYPH_PREFIX,
+    gresource_prefix = variant::GRESOURCE_PREFIX,
     capabilities = [icon_theme, pango, html],
 );

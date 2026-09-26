@@ -364,6 +364,36 @@ dependencies = [
 ]
 
 [[package]]
+name = "fonts-rs-blobmoji"
+version = "0.3.0"
+dependencies = [
+ "ab_glyph",
+ "const_format",
+ "fonts-rs-generator",
+ "fonts-rs-model",
+ "fonts-rs-test",
+ "gio",
+ "glib",
+ "gtk4",
+ "miette",
+ "phf",
+ "serde",
+ "serde_json",
+ "tracing",
+]
+
+[[package]]
+name = "fonts-rs-blobmoji-cheat-sheet"
+version = "0.3.0"
+dependencies = [
+ "fonts-rs-blobmoji",
+ "fonts-rs-cheat-sheet",
+ "fonts-rs-model",
+ "gtk4",
+ "miette",
+]
+
+[[package]]
 name = "fonts-rs-bravura"
 version = "0.3.0"
 dependencies = [
@@ -382,6 +412,15 @@ dependencies = [
  "serde",
  "serde_json",
  "tracing",
+]
+
+[[package]]
+name = "fonts-rs-cheat-sheet"
+version = "0.3.0"
+dependencies = [
+ "fonts-rs-model",
+ "gtk4",
+ "miette",
 ]
 
 [[package]]
@@ -509,6 +548,7 @@ dependencies = [
 name = "fonts-rs-noto-emoji-cheat-sheet"
 version = "0.3.0"
 dependencies = [
+ "fonts-rs-cheat-sheet",
  "fonts-rs-model",
  "fonts-rs-noto-emoji",
  "gtk4",
@@ -524,10 +564,7 @@ dependencies = [
  "fonts-rs-generator",
  "fonts-rs-model",
  "miette",
- "serde",
  "serde_json",
- "skrifa",
- "thiserror 2.0.20",
 ]
 
 [[package]]
@@ -562,6 +599,36 @@ dependencies = [
  "miette",
  "phf",
  "tracing",
+]
+
+[[package]]
+name = "fonts-rs-tabler"
+version = "0.3.0"
+dependencies = [
+ "ab_glyph",
+ "const_format",
+ "fonts-rs-generator",
+ "fonts-rs-model",
+ "fonts-rs-test",
+ "gio",
+ "glib",
+ "gtk4",
+ "miette",
+ "phf",
+ "serde",
+ "serde_json",
+ "tracing",
+]
+
+[[package]]
+name = "fonts-rs-tabler-cheat-sheet"
+version = "0.3.0"
+dependencies = [
+ "fonts-rs-cheat-sheet",
+ "fonts-rs-model",
+ "fonts-rs-tabler",
+ "gtk4",
+ "miette",
 ]
 
 [[package]]
@@ -1015,6 +1082,7 @@ dependencies = [
 name = "nerd-fonts-cheat-sheet"
 version = "0.3.0"
 dependencies = [
+ "fonts-rs-cheat-sheet",
  "fonts-rs-model",
  "gtk4",
  "miette",
