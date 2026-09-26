@@ -1,7 +1,7 @@
 //! GTK integration for Lucide Icons.
 //!
 //! Registers the Lucide glyph GResource bundle. There is no
-//! `font.gresource` — Lucide is a fontless SVG-only set, so
+//! `font.gresource` - Lucide is a fontless SVG-only set, so
 //! `register_font()` is a no-op and `load_font()` returns
 //! `NoFontGresource`.
 

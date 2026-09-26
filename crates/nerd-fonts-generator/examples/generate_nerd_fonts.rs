@@ -2,7 +2,7 @@
 //!
 //! Demonstrates how to construct [`GlyphEntry<IconName>`] data and use the
 //! [`GlyphGenerator`] trait to generate Rust constants, phf codepoint
-//! maps, and web CSS — all in-memory, without writing files.
+//! maps, and web CSS - all in-memory, without writing files.
 //!
 //! Run with:
 //! ```sh

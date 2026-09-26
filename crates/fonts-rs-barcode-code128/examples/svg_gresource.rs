@@ -13,5 +13,5 @@ const APP_ID: &str = "io.smearor.fonts_rs.barcode_code128_svg_gresource";
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
     let glyphs: Vec<_> = Code128::all_glyphs().take(4).collect();
 
-    run_svg_gresource::<Code128>(APP_ID, "Code128 — SVG GResource", &glyphs)
+    run_svg_gresource::<Code128>(APP_ID, "Code128 - SVG GResource", &glyphs)
 }

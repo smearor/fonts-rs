@@ -17,5 +17,5 @@ fn main() -> miette::Result<gtk4::glib::ExitCode> {
         (constants::UNI004C, "uni004c"),
     ];
 
-    run_gtk_icon_theme::<Code39>("io.smearor.fonts_rs.barcode_code39_icon_theme", "Code39 — GtkIconTheme", &icons)
+    run_gtk_icon_theme::<Code39>("io.smearor.fonts_rs.barcode_code39_icon_theme", "Code39 - GtkIconTheme", &icons)
 }

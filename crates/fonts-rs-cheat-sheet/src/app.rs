@@ -433,7 +433,7 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
             let keywords = F::keywords(name);
             let categories = F::categories(name);
 
-            // Category buttons (green) — wrapped via FlowBox.
+            // Category buttons (green) - wrapped via FlowBox.
             if !categories.is_empty() {
                 let cat_flow = FlowBox::builder()
                     .orientation(Orientation::Horizontal)
@@ -456,7 +456,7 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
                 meta_box.append(&cat_flow);
             }
 
-            // Keyword buttons (orange) — wrapped via FlowBox.
+            // Keyword buttons (orange) - wrapped via FlowBox.
             if !keywords.is_empty() {
                 let kw_flow = FlowBox::builder()
                     .orientation(Orientation::Horizontal)
@@ -659,7 +659,7 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
         }
     });
 
-    // FlowBox handles dynamic column reflow automatically — no manual calculation needed.
+    // FlowBox handles dynamic column reflow automatically - no manual calculation needed.
 
     // --- Back/Forward button handlers ---
     {

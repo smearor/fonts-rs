@@ -81,7 +81,7 @@ pub(super) fn show_detail<F: CheatSheetFamily>(content: &Box, name: &F::Name, co
     content.append(&cp_heading);
 
     // Codepoint glyph (very large, own line). Families with icon-theme
-    // glyphs (e.g. emoji, fontless SVG sets) render the registered SVG —
+    // glyphs (e.g. emoji, fontless SVG sets) render the registered SVG -
     // their codepoint is a PUA handle that the system font fallback
     // would draw as an unrelated glyph. Others render the char as text.
     let cp_widget: gtk4::Widget = if let Some(icon_name) = F::glyph_icon_name(name) {

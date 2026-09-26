@@ -7,11 +7,11 @@
 //! The UI lives in `fonts-rs-cheat-sheet`; this binary only supplies
 //! the Lucide hooks via [`CheatSheetFamily`]. With the `metadata`
 //! feature (default), search also covers upstream tags from
-//! `icons.json` — e.g. "font size" finds `lucide-a-arrow-down-symbolic`.
+//! `icons.json` - e.g. "font size" finds `lucide-a-arrow-down-symbolic`.
 //!
 //! Lucide is a fontless icon set: grid cells render via the
 //! `GtkIconTheme` (`glyph_icon_name`), not as font text. Upstream
-//! `categories` populate the green category chips — the first family
+//! `categories` populate the green category chips - the first family
 //! with real icon-set categories.
 //!
 //! Run with:
@@ -45,7 +45,7 @@ impl CheatSheetFamily for LucideSheet {
 
     fn init() -> Result<()> {
         Lucide::install().into_diagnostic()?;
-        // Grid cells render via Image::from_icon_name — the icon theme
+        // Grid cells render via Image::from_icon_name - the icon theme
         // path must be added to the display's GtkIconTheme. Runs after
         // gtk4::init(), so the default display is already open. No
         // install_pango/icon_css: Lucide ships no TTF.
@@ -111,7 +111,7 @@ impl CheatSheetFamily for LucideSheet {
 
     /// Render cells via the GtkIconTheme: Lucide is fontless, so a
     /// text label would show a PUA glyph only if some installed font
-    /// covers the codepoint — the bundled SVGs are authoritative.
+    /// covers the codepoint - the bundled SVGs are authoritative.
     fn glyph_icon_name(name: &LucideIconName) -> Option<String> {
         Some(name.as_ref().to_string())
     }

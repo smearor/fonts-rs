@@ -16,7 +16,7 @@ const LUCIDE_RANGES: &[CodePointRange] = &[CodePointRange::new(CodePoint::from_c
 
 /// Configuration for the Lucide Icons font family.
 ///
-/// Lucide is a fontless SVG-only set — there is no TTF, so there is no
+/// Lucide is a fontless SVG-only set - there is no TTF, so there is no
 /// CSS `font-family` name and no font-loader integration. Glyphs are
 /// resolved through the GResource icon theme; codepoints are stable
 /// hash-of-name PUA allocations.

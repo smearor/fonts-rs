@@ -1,7 +1,7 @@
 //! Icon metadata: keywords and categories for search functionality.
 //!
 //! Provides keyword and category lookup for Lucide icons, enabling
-//! search beyond simple name matching — e.g. "font size" finds
+//! search beyond simple name matching - e.g. "font size" finds
 //! `lucide-a-arrow-down-symbolic`.
 //!
 //! Data is sourced from upstream per-icon JSON files (`icons/{name}.json`

@@ -12,5 +12,5 @@ use fonts_rs_test::run_gtk_icon_theme;
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
     let icons = [(constants::H, "H"), (constants::E, "E"), (constants::L, "L"), (constants::O, "O")];
 
-    run_gtk_icon_theme::<Code128>("io.smearor.fonts_rs.barcode_code128_icon_theme", "Code128 — GtkIconTheme", &icons)
+    run_gtk_icon_theme::<Code128>("io.smearor.fonts_rs.barcode_code128_icon_theme", "Code128 - GtkIconTheme", &icons)
 }

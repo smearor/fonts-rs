@@ -1,14 +1,14 @@
 //! Lucide Icons integration for GTK 4.
 //!
 //! Provides icon name resolution, GResource registration, and codepoint
-//! lookup for the Lucide Icons font family — ~1,850 stroke-based
+//! lookup for the Lucide Icons font family - ~1,850 stroke-based
 //! icons on a 24×24 grid.
 //!
 //! Lucide is a **fontless** icon set: upstream ships only pre-rendered
 //! SVGs (`stroke="currentColor"`), no webfont. Glyphs are resolved via
 //! `GtkIconTheme` from the GResource bundle; codepoints are stable
 //! hash-of-name PUA allocations. There is no `pango`, `render`, or
-//! `embed-fonts` capability — and no `html` (FontFace); typed
+//! `embed-fonts` capability - and no `html` (FontFace); typed
 //! inline-SVG HTML export works via [`HtmlSvgExport`].
 //!
 //! Keyword and category metadata (`metadata` feature) is sourced from
@@ -61,7 +61,7 @@ pub use naming::LucideIconName;
 
 /// Type alias for this font family's glyph name type.
 ///
-/// Prefer [`LucideIconName`] from the [`naming`] module — this alias
+/// Prefer [`LucideIconName`] from the [`naming`] module - this alias
 /// is provided for consistency with the template structure.
 pub type FamilyName = LucideIconName;
 
@@ -85,7 +85,7 @@ mod tests {
         all_icons().into_iter().next().map(|(_, name)| name).expect("at least one icon should exist")
     }
 
-    /// `codepoint`/`glyph_name` must round-trip for exported icons —
+    /// `codepoint`/`glyph_name` must round-trip for exported icons -
     /// the chain behind icon theme lookup and the cheat sheet.
     /// HashedPua codepoints are stable, but the test still derives
     /// them from the name to stay implementation-agnostic.
@@ -97,7 +97,7 @@ mod tests {
         assert_eq!(resolved.as_ref(), name);
     }
 
-    /// All codepoints are hashed PUA allocations (U+E000–U+F8FF) —
+    /// All codepoints are hashed PUA allocations (U+E000–U+F8FF) -
     /// Lucide has no upstream codepoint table.
     #[test]
     fn codepoints_are_pua() {
@@ -127,7 +127,7 @@ mod tests {
         }
     }
 
-    /// `glyph_svg` must return the vector artwork from the GResource —
+    /// `glyph_svg` must return the vector artwork from the GResource -
     /// the chain behind `gtk_icon_theme` and the detail sidebar.
     #[cfg(feature = "gtk")]
     #[test]
@@ -191,11 +191,11 @@ mod tests {
         let coverage = opaque as f64 / (width * height) as f64;
         assert!(
             (0.10..0.42).contains(&coverage),
-            "book-minus should render as stroke outline (10-42% coverage), got {coverage:.2} — symbolic classes keep fill unpainted"
+            "book-minus should render as stroke outline (10-42% coverage), got {coverage:.2} - symbolic classes keep fill unpainted"
         );
     }
 
-    /// Metadata search must find icons by keyword — e.g. upstream tags
+    /// Metadata search must find icons by keyword - e.g. upstream tags
     /// map "font size" onto `a-arrow-down`/`a-arrow-up`.
     #[cfg(feature = "metadata")]
     #[test]

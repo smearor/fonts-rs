@@ -1,7 +1,7 @@
 //! DSEG14 fourteen-segment display font integration for GTK 4.
 //!
 //! Provides glyph name resolution, GResource registration, and codepoint
-//! lookup for the DSEG14 font family — a fourteen-segment display font
+//! lookup for the DSEG14 font family - a fourteen-segment display font
 //! suitable for retro-style digital readouts.
 //!
 //! The active variant (style + weight) is selected at build time via
@@ -51,7 +51,7 @@ pub use naming::FourteenSegmentName;
 
 /// Type alias for this font family's glyph name type.
 ///
-/// Prefer [`FourteenSegmentName`] from the [`naming`] module — this alias
+/// Prefer [`FourteenSegmentName`] from the [`naming`] module - this alias
 /// is provided for consistency with the template structure.
 pub type FamilyName = FourteenSegmentName;
 

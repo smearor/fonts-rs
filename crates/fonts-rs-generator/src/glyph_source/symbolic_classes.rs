@@ -75,7 +75,7 @@ impl Paint {
 ///
 /// The original attributes are kept untouched so non-symbolic
 /// consumers (HTML export, `glyph_svg`, `compose_svg`) still see the
-/// authored paints — the classes are inert outside GTK's symbolic
+/// authored paints - the classes are inert outside GTK's symbolic
 /// renderer. Existing `class` values are preserved and extended.
 ///
 /// Limitation: `fill:`/`stroke:` declarations inside `style` attributes

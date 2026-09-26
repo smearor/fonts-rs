@@ -1,7 +1,7 @@
 //! Build script for fonts-rs-lucide.
 //!
 //! Lucide is a **fontless** icon set: upstream ships only pre-rendered
-//! SVGs (`stroke="currentColor"`, `fill="none"`, 24×24 grid) — no
+//! SVGs (`stroke="currentColor"`, `fill="none"`, 24×24 grid) - no
 //! webfont. This crate therefore uses `FontBuild::svg_only()`:
 //! GResource SVGs are the only artifact, codepoints are stable PUA
 //! allocations via `CodepointStrategy::HashedPua`, and there is no
@@ -13,7 +13,7 @@
 //! maps category slugs to display titles. Lucide ships no aliases.
 //!
 //! Change detection: with no font file, `extra_hash` carries the whole
-//! hash — SVG directory and both metadata JSONs.
+//! hash - SVG directory and both metadata JSONs.
 
 use std::path::Path;
 

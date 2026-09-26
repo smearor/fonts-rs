@@ -7,7 +7,7 @@
 //! The UI lives in `fonts-rs-cheat-sheet`; this binary only supplies
 //! the Eva hooks via [`CheatSheetFamily`]. With the `metadata` feature
 //! (default), search also covers upstream keywords from
-//! `icons-tags.json` — e.g. "alarm" finds `eva-bell-symbolic`.
+//! `icons-tags.json` - e.g. "alarm" finds `eva-bell-symbolic`.
 //! Eva ships no categories or aliases, so those stay empty.
 //!
 //! Run with:
@@ -42,7 +42,7 @@ impl CheatSheetFamily for EvaSheet {
 
     fn init() -> Result<()> {
         Eva::install().into_diagnostic()?;
-        // Register the bundled TTF with the global Pango font map —
+        // Register the bundled TTF with the global Pango font map -
         // without this, `font-family: 'Eva-Icons'` falls back to any
         // installed font covering the PUA codepoints (e.g. Nerd Fonts).
         Eva::install_pango(&pangocairo::FontMap::default()).into_diagnostic()?;

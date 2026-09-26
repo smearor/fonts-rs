@@ -20,5 +20,5 @@ const APP_ID: &str = "io.smearor.fonts_rs.barcode_ean13_gresource";
 const BARCODE_TEXT: &str = ":ABCDEFGHIJ*abcdefghij:";
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
-    run_gtk_gresource::<Ean13>(APP_ID, "EAN13 — GTK GResource", BARCODE_TEXT)
+    run_gtk_gresource::<Ean13>(APP_ID, "EAN13 - GTK GResource", BARCODE_TEXT)
 }

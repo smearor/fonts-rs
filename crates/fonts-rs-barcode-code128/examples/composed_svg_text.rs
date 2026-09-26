@@ -16,5 +16,5 @@ const BARCODE_TEXT: &str = "HELLO";
 const GLYPH_HEIGHT: f64 = 200.0;
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
-    run_composed_svg_text::<Code128>(APP_ID, "Code128 — Composed SVG Text", BARCODE_TEXT, "barcode", GLYPH_HEIGHT)
+    run_composed_svg_text::<Code128>(APP_ID, "Code128 - Composed SVG Text", BARCODE_TEXT, "barcode", GLYPH_HEIGHT)
 }

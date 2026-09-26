@@ -15,5 +15,5 @@ const BARCODE_TEXT: &str = "*HELLO*";
 const FONT_SIZE: f32 = 64.0;
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
-    run_embed_fonts_render::<Code39>(APP_ID, "Code39 — ab_glyph Software Rendering", BARCODE_TEXT, FONT_SIZE)
+    run_embed_fonts_render::<Code39>(APP_ID, "Code39 - ab_glyph Software Rendering", BARCODE_TEXT, FONT_SIZE)
 }
