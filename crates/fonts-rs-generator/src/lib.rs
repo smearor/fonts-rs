@@ -62,6 +62,7 @@ pub use glyph_source::PaintTarget;
 pub use glyph_source::ParsedGlyph;
 pub use glyph_source::PuaAllocator;
 pub use glyph_source::StripEntityNamespaces;
+pub use glyph_source::SymbolicClasses;
 pub use glyph_source::SvgDirSource;
 pub use glyph_source::SvgFilenameParser;
 pub use glyph_source::SvgPostProcessor;

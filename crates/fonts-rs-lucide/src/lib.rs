@@ -152,6 +152,49 @@ mod tests {
         assert_eq!(metadata::LucideMetadata.categories(name), *expected);
     }
 
+    /// Rendering `lucide-book-minus-symbolic` through `GtkIconTheme` must
+    /// produce a stroke outline, not a filled blob. GTK applies symbolic
+    /// recoloring to `-symbolic` icon names; if it overrode `fill="none"`
+    /// the book shape would fill solid and hide the minus stroke
+    /// (high pixel coverage instead of low).
+    #[cfg(feature = "gtk")]
+    #[test]
+    fn icon_theme_renders_outline_not_filled() {
+        use gtk4::prelude::*;
+
+        if gtk4::init().is_err() {
+            eprintln!("SKIP: no display for GTK rendering test");
+            return;
+        }
+        let display = gtk4::gdk::Display::default().expect("display after gtk4::init");
+        Lucide::install_icon_theme(&display).expect("Lucide icon theme registration should succeed");
+        let theme = gtk4::IconTheme::for_display(&display);
+        assert!(theme.has_icon("lucide-book-minus-symbolic"), "lucide-book-minus-symbolic should resolve in the icon theme");
+        let icon = theme.lookup_icon("lucide-book-minus-symbolic", &[], 96, 1, gtk4::TextDirection::None, gtk4::IconLookupFlags::empty());
+
+        let snapshot = gtk4::Snapshot::new();
+        icon.snapshot(&snapshot, 96.0, 96.0);
+        let node = snapshot.to_node().expect("snapshot should produce a render node");
+
+        let mut surface = gtk4::gdk::cairo::ImageSurface::create(gtk4::gdk::cairo::Format::ARgb32, 96, 96).expect("cairo surface");
+        {
+            let cr = gtk4::gdk::cairo::Context::new(&surface).expect("cairo context");
+            node.draw(&cr);
+        }
+        surface.flush();
+        let (width, height, stride) = (surface.width() as usize, surface.height() as usize, surface.stride() as usize);
+        let data = surface.data().expect("surface data");
+        let opaque = (0..height)
+            .flat_map(|y| (0..width).map(move |x| (x, y)))
+            .filter(|&(x, y)| data[y * stride + x * 4 + 3] > 0)
+            .count();
+        let coverage = opaque as f64 / (width * height) as f64;
+        assert!(
+            (0.10..0.42).contains(&coverage),
+            "book-minus should render as stroke outline (10-42% coverage), got {coverage:.2} — symbolic classes keep fill unpainted"
+        );
+    }
+
     /// Metadata search must find icons by keyword — e.g. upstream tags
     /// map "font size" onto `a-arrow-down`/`a-arrow-up`.
     #[cfg(feature = "metadata")]

@@ -23,6 +23,7 @@ use fonts_rs_generator::FontBuild;
 use fonts_rs_generator::GlyphSource;
 use fonts_rs_generator::MetadataGenerator;
 use fonts_rs_generator::SvgDirSource;
+use fonts_rs_generator::SymbolicClasses;
 use fonts_rs_generator::build_constants;
 use fonts_rs_generator::hash_str;
 use fonts_rs_generator::hash_svg_dir;
@@ -36,7 +37,7 @@ use definition::LucideConfig;
 
 /// Bump when the glyph export pipeline (naming, layout, post-processing)
 /// changes in ways that require re-export of unchanged inputs.
-const EXPORT_PIPELINE_VERSION: u32 = 1;
+const EXPORT_PIPELINE_VERSION: u32 = 2;
 
 /// `MetadataGenerator` backed by merged upstream `icons.json`
 /// (`icons/{name}.json`: `tags` + `categories` per icon).
@@ -103,6 +104,7 @@ fn main() -> miette::Result<()> {
                 .codepoint_strategy(CodepointStrategy::HashedPua)
                 .name_resolver(|parsed| Some(format!("{}-symbolic", parsed.raw_name)))
                 .name_prefix(LucideConfig::FONT_FAMILY_NAME)
+                .post_process(SymbolicClasses)
                 .export(&config, resources_dir)
         })
         .map_err(|e| miette::miette!("{e}"))?;

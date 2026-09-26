@@ -16,6 +16,7 @@ use fonts_rs_generator::FontVariantExt;
 use fonts_rs_generator::GlyphSource;
 use fonts_rs_generator::MetadataGenerator;
 use fonts_rs_generator::SvgDirSource;
+use fonts_rs_generator::SymbolicClasses;
 use fonts_rs_generator::VariantList;
 use fonts_rs_generator::build_constants;
 use fonts_rs_generator::hash_str;
@@ -46,7 +47,7 @@ const VARIANTS: VariantList<TablerConfig> =
 /// itself changes in ways the hash cannot see - e.g. adding or
 /// modifying `SvgPostProcessor`s - otherwise a matching hash would
 /// reuse a stale export.
-const EXPORT_PIPELINE_VERSION: u64 = 1;
+const EXPORT_PIPELINE_VERSION: u64 = 2;
 
 /// Parses the `icons.json` object into a name → codepoint map for the
 /// active style.
@@ -179,6 +180,7 @@ fn main() -> miette::Result<()> {
                 .codepoint_map(&codepoint_map)
                 .name_resolver(|parsed| Some(format!("{}-symbolic", parsed.raw_name)))
                 .name_prefix(TablerConfig::FONT_FAMILY_NAME)
+                .post_process(SymbolicClasses)
                 .export(&config, resources_dir)
         })
         .map_err(|e| miette::miette!("{e}"))?;

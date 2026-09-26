@@ -27,6 +27,7 @@ pub mod pua_allocator;
 pub mod source;
 pub mod strip_entity_namespaces;
 pub mod svg_dir_source;
+pub mod symbolic_classes;
 
 pub use codepoint_strategy::CodepointStrategy;
 pub use current_color::CurrentColor;
@@ -45,3 +46,4 @@ pub use pua_allocator::PuaAllocator;
 pub use source::GlyphSource;
 pub use strip_entity_namespaces::StripEntityNamespaces;
 pub use svg_dir_source::SvgDirSource;
+pub use symbolic_classes::SymbolicClasses;
