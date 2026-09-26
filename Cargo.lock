@@ -541,6 +541,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "fonts-rs-heroicons"
+version = "0.3.0"
+dependencies = [
+ "const_format",
+ "fonts-rs-generator",
+ "fonts-rs-model",
+ "fonts-rs-test",
+ "gio",
+ "glib",
+ "gtk4",
+ "miette",
+ "phf",
+ "serde_json",
+]
+
+[[package]]
+name = "fonts-rs-heroicons-cheat-sheet"
+version = "0.3.0"
+dependencies = [
+ "fonts-rs-cheat-sheet",
+ "fonts-rs-heroicons",
+ "fonts-rs-model",
+ "gtk4",
+ "miette",
+]
+
+[[package]]
 name = "fonts-rs-lucide"
 version = "0.3.0"
 dependencies = [

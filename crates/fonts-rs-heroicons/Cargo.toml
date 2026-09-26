@@ -1,0 +1,78 @@
+[package]
+name = "fonts-rs-heroicons"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "Heroicons integration for GTK 4 - fontless SVG-only icon set"
+publish = true
+
+# Heroicons are licensed under the MIT License - see resources/LICENSE.
+license-file = "resources/LICENSE"
+
+include = [
+    "src/**/*.rs",
+    "build.rs",
+    "resources/**/*.json",
+    "resources/svg/**/*.svg",
+    "resources/LICENSE",
+    "Cargo.toml",
+]
+
+[features]
+default = ["gtk"]
+
+gtk = ["dep:gtk4", "dep:gio", "fonts-rs-generator/gtk"]
+
+# Each feature selects one icon variant: outline (default, 24x24
+# stroke-based), solid (24x24 filled), mini (20x20 filled) or micro
+# (16x16 filled). If none is active, build.rs defaults to `outline`.
+outline = []
+solid = []
+mini = []
+micro = []
+
+# Icon metadata: keywords (heroicons.com search) and aliases for search
+metadata = []
+
+[dependencies]
+fonts-rs-generator.workspace = true
+fonts-rs-model.workspace = true
+gio = { workspace = true, optional = true }
+gtk4 = { workspace = true, optional = true }
+const_format.workspace = true
+phf.workspace = true
+
+[build-dependencies]
+const_format.workspace = true
+fonts-rs-generator.workspace = true
+fonts-rs-model.workspace = true
+miette.workspace = true
+serde_json.workspace = true
+
+[lints]
+workspace = true
+
+[[example]]
+name = "gtk_icon_theme"
+required-features = ["gtk"]
+
+[[example]]
+name = "svg_gresource"
+required-features = ["gtk"]
+
+[[example]]
+name = "svg_html"
+required-features = ["gtk"]
+
+[[example]]
+name = "composed_svg_text"
+required-features = ["gtk"]
+
+[dev-dependencies]
+fonts-rs-test = { workspace = true, features = ["gtk", "render"] }
+gtk4 = { workspace = true, features = ["v4_12"] }
+glib.workspace = true
+miette.workspace = true

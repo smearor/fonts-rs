@@ -23,6 +23,8 @@ members = [
     "crates/fonts-rs-tabler-cheat-sheet",
     "crates/fonts-rs-lucide",
     "crates/fonts-rs-lucide-cheat-sheet",
+    "crates/fonts-rs-heroicons",
+    "crates/fonts-rs-heroicons-cheat-sheet",
     "crates/nerd-fonts-model",
     "crates/nerd-fonts-generator",
     "crates/nerd-fonts-rs",
@@ -66,6 +68,7 @@ fonts-rs-cuernavaca = { version = "0.3.0", path = "crates/fonts-rs-cuernavaca" }
 fonts-rs-eva = { version = "0.3.0", path = "crates/fonts-rs-eva" }
 fonts-rs-tabler = { version = "0.3.0", path = "crates/fonts-rs-tabler" }
 fonts-rs-lucide = { version = "0.3.0", path = "crates/fonts-rs-lucide" }
+fonts-rs-heroicons = { version = "0.3.0", path = "crates/fonts-rs-heroicons" }
 nerd-fonts-model = { version = "0.3.0", path = "crates/nerd-fonts-model" }
 nerd-fonts-generator = { version = "0.3.0", path = "crates/nerd-fonts-generator" }
 nerd-fonts-rs = { version = "0.3.0", path = "crates/nerd-fonts-rs" }

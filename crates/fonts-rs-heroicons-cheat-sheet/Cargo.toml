@@ -1,0 +1,35 @@
+[package]
+name = "fonts-rs-heroicons-cheat-sheet"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+description = "Heroicons cheat sheet application"
+publish = true
+
+[features]
+default = ["gtk", "metadata"]
+
+gtk = ["fonts-rs-heroicons/gtk"]
+metadata = ["fonts-rs-heroicons/metadata"]
+
+# Icon variant passed through to fonts-rs-heroicons (default: outline).
+outline = ["fonts-rs-heroicons/outline"]
+solid = ["fonts-rs-heroicons/solid"]
+mini = ["fonts-rs-heroicons/mini"]
+micro = ["fonts-rs-heroicons/micro"]
+
+[dependencies]
+fonts-rs-cheat-sheet.workspace = true
+fonts-rs-heroicons.workspace = true
+fonts-rs-model.workspace = true
+gtk4 = { workspace = true, features = ["v4_12"] }
+miette.workspace = true
+
+[lints]
+workspace = true
