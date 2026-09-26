@@ -7,6 +7,7 @@
 //! re-exported from `fonts-rs-model`. Nerd Font specific types
 //! ([`IconName`], [`IconSet`]) remain in this crate.
 
+pub mod config;
 pub mod name;
 pub mod paths;
 pub mod set;
@@ -17,8 +18,9 @@ pub use fonts_rs_model::CodePointParseError;
 pub use fonts_rs_model::GlyphEntry;
 pub use fonts_rs_model::ResourcePath;
 
+pub use config::NerdFontsConfig;
+pub use fonts_rs_model::IconNameParseError;
 pub use name::IconName;
-pub use name::IconNameParseError;
 pub use paths::GRESOURCE_PREFIX;
 pub use paths::ICONS_RESOURCE_PATH;
 pub use set::IconSet;
