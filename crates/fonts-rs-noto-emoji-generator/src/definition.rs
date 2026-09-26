@@ -1,4 +1,4 @@
-//! `NotoEmojiDefinition` — `FontDefinition` implementation for Noto Emoji.
+//! `NotoEmojiDefinition` - `FontDefinition` implementation for Noto Emoji.
 //!
 //! This module implements the generic [`FontDefinition`] trait for the Noto Emoji
 //! font family, allowing the `FontDefinition::export_glyphs` pipeline to be used.

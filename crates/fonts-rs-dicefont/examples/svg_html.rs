@@ -9,5 +9,5 @@ use fonts_rs_dicefont::Dicefont;
 use fonts_rs_test::run_svg_html;
 
 fn main() -> miette::Result<()> {
-    run_svg_html::<Dicefont>("Dicefont — SVG Glyphs", "dicefont_svg_html.html")
+    run_svg_html::<Dicefont>("Dicefont - SVG Glyphs", "dicefont_svg_html.html")
 }

@@ -1,4 +1,4 @@
-// build.rs: Blobmoji hybrid build — pre-rendered SVGs + TTF for pixel-drawing.
+// build.rs: Blobmoji hybrid build - pre-rendered SVGs + TTF for pixel-drawing.
 //
 // The TTF variant is selected by the active Cargo feature (one of four
 // variants in the 2x2 color x flags matrix). GResource SVGs are always
@@ -65,8 +65,8 @@ const VARIATION_SELECTOR_16: char = '\u{FE0F}';
 
 /// Parses CLDR annotations into a codepoint-sequence → kebab-name map.
 ///
-/// Unlike `fonts_rs_generator::emoji::parse_cldr_annotations` — which
-/// skips multi-codepoint emoji — this keeps sequences (ZWJ, keycap, flag)
+/// Unlike `fonts_rs_generator::emoji::parse_cldr_annotations` - which
+/// skips multi-codepoint emoji - this keeps sequences (ZWJ, keycap, flag)
 /// because the pre-rendered SVG set covers them. Variation selectors are
 /// stripped from the key sequence.
 ///
@@ -124,7 +124,7 @@ fn is_flag_emoji(codepoints: &[CodePoint]) -> bool {
 /// FNV-1a hash over the sorted SVG filenames in `svg_dir`.
 ///
 /// Mixed into `FontBuild::extra_hash` so changes to `resources/svg/`
-/// force a re-export even when the TTF file is unchanged — the default
+/// force a re-export even when the TTF file is unchanged - the default
 /// hash only covers the font file.
 fn hash_svg_dir(svg_dir: &Path) -> u64 {
     let mut names: Vec<String> = std::fs::read_dir(svg_dir)
@@ -147,7 +147,7 @@ fn main() -> miette::Result<()> {
 
     eprintln!("build.rs: active variant: {} -> {}", entry, font_path.display());
 
-    // Expose the active variant's bitmap capability as a cfg — cargo
+    // Expose the active variant's bitmap capability as a cfg - cargo
     // feature cfgs cannot see the build-time default variant, so tests
     // gate on this instead.
     println!("cargo::rustc-check-cfg=cfg(blobmoji_bitmap)");
@@ -203,7 +203,7 @@ fn main() -> miette::Result<()> {
     config.write_variant_info()?;
 
     // Generate metadata (keywords + categories) if enabled. Keywords come
-    // from CLDR annotation data, categories from Unicode emoji-test.txt —
+    // from CLDR annotation data, categories from Unicode emoji-test.txt -
     // the same sources as fonts-rs-noto-emoji, reused via
     // EmojiMetadataGenerator. Multi-codepoint sequences (ZWJ, keycap,
     // flag) get no keywords: the CLDR keyword map is keyed by single

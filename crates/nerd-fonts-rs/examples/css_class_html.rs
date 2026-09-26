@@ -3,7 +3,7 @@
 //! Nerd Fonts deliberately does not implement `HtmlExport` (`@font-face`
 //! is unreliable in the GTK4 CSS parser). This page uses the same
 //! `.nerd-icon` / `.nerd-icon-mono` classes that [`icon_css`] generates
-//! for GTK — the Symbols Nerd Font must be installed on the system for
+//! for GTK - the Symbols Nerd Font must be installed on the system for
 //! the icons to render.
 //!
 //! Run with:
@@ -25,7 +25,7 @@ fn main() -> miette::Result<()> {
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Nerd Fonts — CSS Class</title>
+<title>Nerd Fonts - CSS Class</title>
 <style>
 {css}
 body {{
@@ -41,10 +41,10 @@ body {{
 </style>
 </head>
 <body>
-<h1>Nerd Fonts — CSS Class</h1>
+<h1>Nerd Fonts - CSS Class</h1>
 <p>The icons below use the <code>.nerd-icon</code> CSS class referencing
 the <code>NerdFontsSymbolsOnly</code> font family. The font must be
-installed on the system (or loaded via Pango in GTK) — no
+installed on the system (or loaded via Pango in GTK) - no
 <code>@font-face</code> rule is embedded.</p>
 <div class="nerd-icon">{SAMPLE_TEXT}</div>
 </body>

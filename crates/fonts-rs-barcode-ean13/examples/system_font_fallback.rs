@@ -21,8 +21,8 @@ const BARCODE_TEXT: &str = ":ABCDEFGHIJ*abcdefghij:";
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
     run_system_font_fallback::<Ean13>(
         APP_ID,
-        "EAN13 — System Font Fallback",
+        "EAN13 - System Font Fallback",
         BARCODE_TEXT,
-        "Font NOT loaded — system font fallback is used. The text is not a valid barcode.",
+        "Font NOT loaded - system font fallback is used. The text is not a valid barcode.",
     )
 }

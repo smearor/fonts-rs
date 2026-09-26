@@ -7,7 +7,7 @@ use std::fmt::Display;
 ///
 /// Implement once per font family; [`crate::run`] builds the complete
 /// application from these hooks. The associated [`Name`](Self::Name)
-/// type is the family's glyph name — `IconName` for icon fonts,
+/// type is the family's glyph name - `IconName` for icon fonts,
 /// `String` or `GlyphName<F>` for others.
 ///
 /// # Examples
@@ -46,7 +46,7 @@ pub trait CheatSheetFamily: 'static {
     /// (e.g. `"CSS Class"` for icon fonts, `"Glyph Name"` otherwise).
     const NAME_FIELD_LABEL: &'static str = "Glyph Name";
 
-    /// The glyph name type — `IconName` for icon fonts, `String` or
+    /// The glyph name type - `IconName` for icon fonts, `String` or
     /// `GlyphName<F>` for other families.
     type Name: Clone + Ord + AsRef<str> + Display + 'static;
 
@@ -77,7 +77,7 @@ pub trait CheatSheetFamily: 'static {
 
     /// Metadata search: returns the names matching `query`.
     ///
-    /// Families without metadata return an empty vec — the generic
+    /// Families without metadata return an empty vec - the generic
     /// supplement still matches names, hex codepoints, and characters.
     fn search(query: &str) -> Vec<String>;
 
@@ -98,7 +98,7 @@ pub trait CheatSheetFamily: 'static {
     ///
     /// `None` (the default) renders the codepoint character as text.
     /// Return `Some` for families that register full-color SVG glyphs in
-    /// the `GtkIconTheme` — e.g. emoji fonts whose bundled TTF family
+    /// the `GtkIconTheme` - e.g. emoji fonts whose bundled TTF family
     /// name would otherwise resolve to a system font.
     fn glyph_icon_name(_name: &Self::Name) -> Option<String> {
         None

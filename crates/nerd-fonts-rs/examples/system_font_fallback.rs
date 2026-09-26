@@ -16,8 +16,8 @@ const SAMPLE_TEXT: &str = "\u{F005}\u{F004}\u{F06D}\u{F135}";
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
     run_system_font_fallback::<NerdFonts>(
         APP_ID,
-        "Nerd Fonts — System Font Fallback",
+        "Nerd Fonts - System Font Fallback",
         SAMPLE_TEXT,
-        "Font NOT loaded — system font fallback is used. Nerd Font icons will not render correctly.",
+        "Font NOT loaded - system font fallback is used. Nerd Font icons will not render correctly.",
     )
 }

@@ -47,7 +47,7 @@ pub use naming::CuernavacaName;
 
 /// Type alias for this font family's glyph name type.
 ///
-/// Prefer [`CuernavacaName`] from the [`naming`] module — this alias
+/// Prefer [`CuernavacaName`] from the [`naming`] module - this alias
 /// is provided for consistency with the template structure.
 pub type FamilyName = CuernavacaName;
 

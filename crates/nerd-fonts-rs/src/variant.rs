@@ -11,13 +11,13 @@
 /// `NerdFonts::font()` returns the symbols-only icon font.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum NerdFontVariant {
-    /// Symbols-only Nerd Font (`SymbolsNerdFont-Regular.ttf`) — icons.
+    /// Symbols-only Nerd Font (`SymbolsNerdFont-Regular.ttf`) - icons.
     #[default]
     Symbols,
     /// Symbols-only Nerd Font Mono (`SymbolsNerdFontMono-Regular.ttf`)
-    /// — single-cell icons for terminal-style layouts.
+    /// - single-cell icons for terminal-style layouts.
     SymbolsMono,
     /// JetBrains Mono Nerd Font (`JetBrainsMonoNLNerdFont-Regular.woff2`)
-    /// — labels with a full character set.
+    /// - labels with a full character set.
     Label,
 }

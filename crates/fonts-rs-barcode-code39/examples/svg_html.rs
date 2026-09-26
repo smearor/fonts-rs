@@ -9,5 +9,5 @@ use fonts_rs_barcode_code39::Code39;
 use fonts_rs_test::run_svg_html;
 
 fn main() -> miette::Result<()> {
-    run_svg_html::<Code39>("Libre Barcode Code 39 — SVG Glyphs", "barcode_code39_svg_html.html")
+    run_svg_html::<Code39>("Libre Barcode Code 39 - SVG Glyphs", "barcode_code39_svg_html.html")
 }

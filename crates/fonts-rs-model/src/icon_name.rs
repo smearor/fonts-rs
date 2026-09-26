@@ -34,14 +34,14 @@ use std::str::FromStr;
 /// 6. Prefix with `F::ICON_PREFIX` and suffix with `-symbolic`
 ///
 /// The result is validated via
-/// [`FontFamilyConfig::is_valid_icon_name`] — single-set families accept
+/// [`FontFamilyConfig::is_valid_icon_name`] - single-set families accept
 /// any prefixed name; multi-set families (Nerd Fonts) check set
 /// membership.
 ///
 /// Serializes as a string in JSON.
 ///
 /// The standard traits are implemented manually so that `F` needs no
-/// `Clone`/`Ord`/etc. bounds — the phantom marker never affects
+/// `Clone`/`Ord`/etc. bounds - the phantom marker never affects
 /// equality, ordering, or hashing.
 pub struct IconName<F: FontFamilyConfig> {
     /// The normalized icon name (`{prefix}{name}-symbolic`).
@@ -206,7 +206,7 @@ impl std::error::Error for IconNameParseError {}
 impl<F: FontFamilyConfig> FromStr for IconName<F> {
     type Err = IconNameParseError;
 
-    /// Parses an icon name from any common form — see [`IconName::parse`].
+    /// Parses an icon name from any common form - see [`IconName::parse`].
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Self::parse(s).ok_or_else(|| IconNameParseError { input: s.to_string() })
     }

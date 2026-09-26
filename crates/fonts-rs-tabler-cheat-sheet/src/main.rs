@@ -41,7 +41,7 @@ impl CheatSheetFamily for TablerSheet {
 
     fn init() -> Result<()> {
         Tabler::install().into_diagnostic()?;
-        // Register the bundled TTF with the global Pango font map —
+        // Register the bundled TTF with the global Pango font map -
         // without this, `font-family: 'tabler-icons'` falls back to any
         // installed font covering the PUA codepoints (e.g. Nerd Fonts).
         Tabler::install_pango(&pangocairo::FontMap::default()).into_diagnostic()?;

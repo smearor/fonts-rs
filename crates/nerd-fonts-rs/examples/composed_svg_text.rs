@@ -17,5 +17,5 @@ const SAMPLE_TEXT: &str = "\u{F005}\u{F004}\u{F06D}\u{F135}";
 const GLYPH_HEIGHT: f64 = 200.0;
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
-    run_composed_svg_text::<NerdFonts>(APP_ID, "Nerd Fonts — Composed SVG Text", SAMPLE_TEXT, "icon", GLYPH_HEIGHT)
+    run_composed_svg_text::<NerdFonts>(APP_ID, "Nerd Fonts - Composed SVG Text", SAMPLE_TEXT, "icon", GLYPH_HEIGHT)
 }

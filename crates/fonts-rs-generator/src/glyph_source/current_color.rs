@@ -12,7 +12,7 @@ use quick_xml::events::Event;
 /// symbolic icons recolor via CSS `color` / `-gtk-icon-palette`.
 ///
 /// XML-aware via `quick_xml`: only paint attributes on element tags are
-/// rewritten — comments, CDATA and metadata pass through untouched.
+/// rewritten - comments, CDATA and metadata pass through untouched.
 /// Opt-in per family; multi-color sets (Blobmoji) simply don't register
 /// the hook.
 pub struct CurrentColor {

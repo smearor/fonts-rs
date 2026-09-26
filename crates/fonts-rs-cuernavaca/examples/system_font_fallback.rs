@@ -16,8 +16,8 @@ const SAMPLE_TEXT: &str = "KQRBNP";
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
     run_system_font_fallback::<Cuernavaca>(
         APP_ID,
-        "Cuernavaca — System Font Fallback",
+        "Cuernavaca - System Font Fallback",
         SAMPLE_TEXT,
-        "Font NOT loaded — system font fallback is used. Chess piece glyphs will not render correctly.",
+        "Font NOT loaded - system font fallback is used. Chess piece glyphs will not render correctly.",
     )
 }

@@ -35,12 +35,12 @@
 ///
 /// # Emitted items
 ///
-/// - `impl FontFamilyConfig for $marker` — delegates all constants to
+/// - `impl FontFamilyConfig for $marker` - delegates all constants to
 ///   `$definition`.
-/// - `impl FontFamily for $marker` — `type Name = $name`, glyph lookups
+/// - `impl FontFamily for $marker` - `type Name = $name`, glyph lookups
 ///   via the `$glyphs` (`phf::Map<char, &'static str>`) and `$reverse`
 ///   (`phf::Map<&'static str, char>`) maps.
-/// - One empty impl per declared capability — all capability methods
+/// - One empty impl per declared capability - all capability methods
 ///   are trait defaults. Valid capabilities: `icon_theme`
 ///   ([`IconThemeFont`](::fonts_rs_model::IconThemeFont)), `pango`
 ///   ([`PangoFont`](::fonts_rs_model::PangoFont)), `html`
@@ -51,10 +51,10 @@
 ///
 /// Capability impls and forwarders are `#[cfg(feature = "gtk")]`-gated;
 /// the core impl is feature-free. `SoftwareRender` is not a capability
-/// here — it is emitted by [`impl_font_loader!`](crate::impl_font_loader).
+/// here - it is emitted by [`impl_font_loader!`](crate::impl_font_loader).
 #[macro_export]
 macro_rules! impl_font_family {
-    // Internal: resolves `GRESOURCE_PREFIX` on the marker — the
+    // Internal: resolves `GRESOURCE_PREFIX` on the marker - the
     // variant-aware override when `gresource_prefix = ...` was passed
     // (families exporting under a variant-suffixed prefix via
     // `ExportConfig::with_variant`), else the definition's static prefix.
@@ -145,7 +145,7 @@ macro_rules! impl_font_family {
                 <Self as ::fonts_rs_model::FontFamily>::all_glyphs()
             }
 
-            /// Returns the number of glyphs in this family — O(1).
+            /// Returns the number of glyphs in this family - O(1).
             ///
             /// Forwards to [`FontFamily::glyph_count`](::fonts_rs_model::FontFamily::glyph_count).
             pub fn glyph_count() -> usize {
@@ -183,13 +183,19 @@ macro_rules! impl_font_family {
     };
     (@capability $marker:ident html) => {
         #[cfg(feature = "gtk")]
+        impl ::fonts_rs_model::HtmlSvgExport for $marker {}
+        #[cfg(feature = "gtk")]
         impl ::fonts_rs_model::HtmlExport for $marker {}
+    };
+    (@capability $marker:ident html_svg) => {
+        #[cfg(feature = "gtk")]
+        impl ::fonts_rs_model::HtmlSvgExport for $marker {}
     };
     (@capability $marker:ident $unknown:ident) => {
         ::core::compile_error!(concat!(
             "impl_font_family!: unknown capability `",
             stringify!($unknown),
-            "` — expected one of: icon_theme, pango, html"
+            "` - expected one of: icon_theme, pango, html, html_svg"
         ));
     };
 
@@ -253,9 +259,21 @@ macro_rules! impl_font_family {
             /// Starts an `HtmlBuilder` for exporting a self-contained
             /// HTML page.
             ///
-            /// Forwards to [`HtmlExport::html`](::fonts_rs_model::HtmlExport::html).
+            /// Forwards to [`HtmlSvgExport::html`](::fonts_rs_model::HtmlSvgExport::html).
             pub fn html() -> ::fonts_rs_model::HtmlBuilder<Self> {
-                <Self as ::fonts_rs_model::HtmlExport>::html()
+                <Self as ::fonts_rs_model::HtmlSvgExport>::html()
+            }
+        }
+    };
+    (@forward $marker:ident html_svg) => {
+        #[cfg(feature = "gtk")]
+        impl $marker {
+            /// Starts an `HtmlBuilder` for exporting a self-contained
+            /// HTML page with inline SVG glyphs.
+            ///
+            /// Forwards to [`HtmlSvgExport::html`](::fonts_rs_model::HtmlSvgExport::html).
+            pub fn html() -> ::fonts_rs_model::HtmlBuilder<Self> {
+                <Self as ::fonts_rs_model::HtmlSvgExport>::html()
             }
         }
     };

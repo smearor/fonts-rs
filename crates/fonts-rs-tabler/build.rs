@@ -1,8 +1,8 @@
-// build.rs: Tabler Icons build — pre-rendered SVGs + webfont TTF.
+// build.rs: Tabler Icons build - pre-rendered SVGs + webfont TTF.
 //
 // The variant (outline | filled) is selected by Cargo feature; default
 // is `outline`. Glyph names are variant-independent
-// (`tabler-{name}-symbolic`) — the variant only selects which SVG set
+// (`tabler-{name}-symbolic`) - the variant only selects which SVG set
 // and TTF ship. Codepoints come from `resources/metadata/icons.json`
 // (`styles.{variant}.unicode`): filled icons use different codepoints
 // than their outline counterparts.
@@ -43,8 +43,8 @@ const VARIANTS: VariantList<TablerConfig> =
 /// Export pipeline version.
 ///
 /// Mixed into `FontBuild::extra_hash`. Bump when the export pipeline
-/// itself changes in ways the hash cannot see — e.g. adding or
-/// modifying `SvgPostProcessor`s — otherwise a matching hash would
+/// itself changes in ways the hash cannot see - e.g. adding or
+/// modifying `SvgPostProcessor`s - otherwise a matching hash would
 /// reuse a stale export.
 const EXPORT_PIPELINE_VERSION: u64 = 1;
 

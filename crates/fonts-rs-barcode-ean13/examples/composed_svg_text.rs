@@ -1,14 +1,14 @@
 //! Minimal example: compose multiple EAN13 glyph SVGs into a single SVG barcode.
 //!
 //! Demonstrates the composed SVG text rendering path:
-//! 1. `register_glyphs()` — registers SVG icon GResource
-//! 2. `gio::resources_lookup_data()` — loads individual glyph SVGs
+//! 1. `register_glyphs()` - registers SVG icon GResource
+//! 2. `gio::resources_lookup_data()` - loads individual glyph SVGs
 //! 3. Extract `viewBox` and inner content from each glyph SVG
 //! 4. Compose into a single SVG with nested `<svg>` elements side by side
 //! 5. Render as `gdk::Texture` and display in a `Picture` widget
 //!
 //! This path renders a complete barcode from pre-generated SVG glyph
-//! outlines — no TTF font, no Pango, no ab_glyph required.
+//! outlines - no TTF font, no Pango, no ab_glyph required.
 //!
 //! Run with:
 //! ```sh
@@ -27,5 +27,5 @@ const BARCODE_TEXT: &str = ":ABCDEFGHIJ*abcdefghij:";
 const GLYPH_HEIGHT: f64 = 200.0;
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
-    run_composed_svg_text::<Ean13>(APP_ID, "EAN13 — Composed SVG Text", BARCODE_TEXT, "barcode", GLYPH_HEIGHT)
+    run_composed_svg_text::<Ean13>(APP_ID, "EAN13 - Composed SVG Text", BARCODE_TEXT, "barcode", GLYPH_HEIGHT)
 }

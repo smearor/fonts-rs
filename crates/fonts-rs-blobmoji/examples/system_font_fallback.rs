@@ -16,8 +16,8 @@ const SAMPLE_TEXT: &str = "🎉🚀😍🔥";
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
     run_system_font_fallback::<Blobmoji>(
         APP_ID,
-        "Blobmoji — System Font Fallback",
+        "Blobmoji - System Font Fallback",
         SAMPLE_TEXT,
-        "Font NOT loaded — system font fallback is used. Emoji glyphs may render as monochrome or not at all.",
+        "Font NOT loaded - system font fallback is used. Emoji glyphs may render as monochrome or not at all.",
     )
 }

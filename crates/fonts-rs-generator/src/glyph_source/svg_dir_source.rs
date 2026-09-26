@@ -115,7 +115,7 @@ impl<'a> SvgDirSource<'a> {
 
 impl GlyphSource for SvgDirSource<'_> {
     fn glyphs(&self) -> Result<Vec<GlyphDescriptor>, GlyphSourceError> {
-        // Collect and sort by filename — `fs::read_dir` order is not
+        // Collect and sort by filename - `fs::read_dir` order is not
         // guaranteed, so unsorted input would make PUA probing
         // order-dependent and non-reproducible.
         let mut paths = fs::read_dir(&self.svg_dir)?.collect::<Result<Vec<_>, _>>()?;
@@ -176,7 +176,7 @@ impl SvgDirSource<'_> {
     /// [`CodepointStrategy`].
     ///
     /// Multi-codepoint sequences (ZWJ emoji, keycaps) have no single
-    /// codepoint — `FromFilename` allocates a stable PUA codepoint for
+    /// codepoint - `FromFilename` allocates a stable PUA codepoint for
     /// them so `code` stays unique in the generated `phf` maps. The
     /// real sequence is preserved in [`GlyphDescriptor::sequence`].
     fn resolve_codepoint(&self, parsed: &ParsedGlyph, allocator: &mut PuaAllocator) -> Result<Option<CodePoint>, GlyphSourceError> {
@@ -197,7 +197,7 @@ impl SvgDirSource<'_> {
     ///
     /// The result is kebab-normalized and, when `name_prefix` is set,
     /// emitted as `{prefix}-{name}`. Returns `None` when normalization
-    /// yields an empty name — the glyph is then skipped.
+    /// yields an empty name - the glyph is then skipped.
     fn resolve_name(&self, parsed: &ParsedGlyph) -> Option<String> {
         let base = self
             .name_resolver
@@ -219,7 +219,7 @@ mod tests {
 
     /// Creates a temporary SVG directory with the given filenames.
     ///
-    /// `name` must be unique per test — tests run in parallel within
+    /// `name` must be unique per test - tests run in parallel within
     /// the same process.
     fn with_svg_dir(name: &str, filenames: &[&str], test: impl FnOnce(&Path)) {
         let dir = std::env::temp_dir().join(format!("svg_dir_source_test_{}_{}", std::process::id(), name));

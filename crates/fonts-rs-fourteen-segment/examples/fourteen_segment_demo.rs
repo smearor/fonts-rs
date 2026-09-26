@@ -79,7 +79,10 @@ fn main() -> Result<glib::ExitCode> {
     gtk4::init().into_diagnostic()?;
     FourteenSegment::ensure_registered().into_diagnostic()?;
 
-    let app = Application::builder().application_id(APP_ID).flags(gtk4::gio::ApplicationFlags::NON_UNIQUE).build();
+    let app = Application::builder()
+        .application_id(APP_ID)
+        .flags(gtk4::gio::ApplicationFlags::NON_UNIQUE)
+        .build();
 
     app.connect_activate(build_ui);
 
@@ -118,7 +121,7 @@ fn build_ui(app: &Application) {
         .build();
 
     let title = Label::builder()
-        .label(format!("DSEG14 — Fourteen-Segment Display ({})", variant::GLYPH_PREFIX))
+        .label(format!("DSEG14 - Fourteen-Segment Display ({})", variant::GLYPH_PREFIX))
         .css_classes(["title-1"])
         .halign(Align::Center)
         .build();
@@ -178,7 +181,7 @@ fn build_resolution_section() -> Frame {
 
     section.append(&input_row);
 
-    let result_label = Label::builder().label("Codepoint: —").halign(Align::Start).css_classes(["dim-label"]).build();
+    let result_label = Label::builder().label("Codepoint: -").halign(Align::Start).css_classes(["dim-label"]).build();
     section.append(&result_label);
 
     let quick_label = Label::builder().label("Or pick from common glyphs:").halign(Align::Start).build();
@@ -228,7 +231,7 @@ fn build_resolution_section() -> Frame {
 
 fn do_resolve(result_label: &Label, name: &str) {
     if name.is_empty() {
-        result_label.set_label("Codepoint: —");
+        result_label.set_label("Codepoint: -");
         return;
     }
     match FourteenSegment::codepoint(name) {

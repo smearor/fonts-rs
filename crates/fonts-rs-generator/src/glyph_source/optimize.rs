@@ -10,7 +10,7 @@ use quick_xml::events::Event;
 /// instructions, and whitespace-only text nodes.
 ///
 /// Deterministic output for hash-based change detection; no external
-/// toolchain. Numeric precision rounding is intentionally left out —
+/// toolchain. Numeric precision rounding is intentionally left out -
 /// path-data rewriting is error-prone and upstream SVGs are usually
 /// already optimized.
 pub struct Optimize;

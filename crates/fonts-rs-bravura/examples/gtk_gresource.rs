@@ -13,5 +13,5 @@ const APP_ID: &str = "io.smearor.fonts_rs.bravura_gresource";
 const SAMPLE_TEXT: &str = "\u{E050}\u{E0A4}\u{E083}";
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
-    run_gtk_gresource::<Bravura>(APP_ID, "Bravura — GTK GResource", SAMPLE_TEXT)
+    run_gtk_gresource::<Bravura>(APP_ID, "Bravura - GTK GResource", SAMPLE_TEXT)
 }

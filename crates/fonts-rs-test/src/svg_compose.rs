@@ -69,7 +69,7 @@ fn build_ui<F: IconThemeFont>(app: &Application, window_title: &str, text: &str,
         .build();
 
     let title = Label::builder()
-        .label(format!("Composed SVG — glyphs assembled into one {content_label}"))
+        .label(format!("Composed SVG - glyphs assembled into one {content_label}"))
         .css_classes(["title-2"])
         .halign(Align::Center)
         .build();

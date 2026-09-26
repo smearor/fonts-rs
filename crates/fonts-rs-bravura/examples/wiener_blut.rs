@@ -1,4 +1,4 @@
-//! Wiener Blut — Interactive music sheet with Bravura SMuFL glyphs.
+//! Wiener Blut - Interactive music sheet with Bravura SMuFL glyphs.
 //!
 //! Displays a simplified arrangement of Johann Strauss II's "Wiener Blut"
 //! Op. 354 using Bravura font glyphs rendered via ab_glyph on a Cairo surface.
@@ -347,7 +347,10 @@ fn event_duration_ms_tempo(event: &Event, bpm: f64) -> u32 {
 }
 
 fn main() -> Result<()> {
-    let app = Application::builder().application_id(APP_ID).flags(gtk4::gio::ApplicationFlags::NON_UNIQUE).build();
+    let app = Application::builder()
+        .application_id(APP_ID)
+        .flags(gtk4::gio::ApplicationFlags::NON_UNIQUE)
+        .build();
     app.connect_activate(build_ui);
     app.run();
     Ok(())
@@ -374,7 +377,7 @@ fn build_ui(app: &Application) {
     });
 
     let title_label = Label::builder()
-        .label("<span size=\"large\" weight=\"bold\">Wiener Blut</span>\n<span size=\"medium\">Walzer, Op. 354 — Johann Strauss II</span>")
+        .label("<span size=\"large\" weight=\"bold\">Wiener Blut</span>\n<span size=\"medium\">Walzer, Op. 354 - Johann Strauss II</span>")
         .use_markup(true)
         .build();
 
@@ -551,7 +554,7 @@ fn build_ui(app: &Application) {
 
     let window = ApplicationWindow::builder()
         .application(app)
-        .title("Wiener Blut — Bravura SMuFL Demo")
+        .title("Wiener Blut - Bravura SMuFL Demo")
         .default_width(950)
         .default_height(600)
         .child(&main_box)
@@ -694,7 +697,7 @@ fn schedule_next_note(state: Rc<RefCell<AppState>>, da: DrawingArea, update: Rc<
             s.current_page += 1;
             s.current_note = 0;
         } else {
-            // End of piece — stop playback
+            // End of piece - stop playback
             s.playing = false;
             drop(s);
             btn.set_label("▶ Abspielen");
@@ -757,7 +760,7 @@ fn draw_score(state: &Rc<RefCell<AppState>>, cr: &cairo::Context, width: i32, he
     let w = width as f64;
     let h = height as f64;
 
-    // Background — warm paper color
+    // Background - warm paper color
     cr.set_source_rgb(0.98, 0.96, 0.92);
     cr.paint().unwrap_or(());
 
@@ -892,7 +895,7 @@ fn draw_score(state: &Rc<RefCell<AppState>>, cr: &cairo::Context, width: i32, he
     cr.select_font_face("Serif", cairo::FontSlant::Normal, cairo::FontWeight::Normal);
     cr.set_font_size(11.0);
     cr.move_to(left_margin, h - 15.0);
-    cr.show_text("Bravura SMuFL — Demo mit ab_glyph Rendering").unwrap_or(());
+    cr.show_text("Bravura SMuFL - Demo mit ab_glyph Rendering").unwrap_or(());
 }
 
 /// Draw a Bravura glyph at (x, y) where y is the top of the glyph.

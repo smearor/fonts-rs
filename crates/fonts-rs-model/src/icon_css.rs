@@ -2,7 +2,7 @@
 //!
 //! Provides [`icon_css`] for generating GTK CSS classes that map a
 //! class name to a `font-family`. The font itself must be loaded into
-//! the Pango font map separately — GTK4's CSS parser does not reliably
+//! the Pango font map separately - GTK4's CSS parser does not reliably
 //! load fonts from `@font-face` rules.
 
 /// Generates GTK CSS helper classes for icon fonts.

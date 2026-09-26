@@ -17,5 +17,5 @@ const SAMPLE_TEXT: &str = "KQRBNP";
 const GLYPH_HEIGHT: f64 = 200.0;
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
-    run_composed_svg_text::<Cuernavaca>(APP_ID, "Cuernavaca — Composed SVG Text", SAMPLE_TEXT, "chess notation", GLYPH_HEIGHT)
+    run_composed_svg_text::<Cuernavaca>(APP_ID, "Cuernavaca - Composed SVG Text", SAMPLE_TEXT, "chess notation", GLYPH_HEIGHT)
 }

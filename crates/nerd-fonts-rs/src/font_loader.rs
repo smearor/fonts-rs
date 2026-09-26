@@ -123,7 +123,7 @@ static TEMP_GUARDS: OnceLock<Vec<tempfile::NamedTempFile>> = OnceLock::new();
 /// are kept alive in a static `OnceLock` for the process lifetime.
 ///
 /// Without `embed-fonts`, the font files are located on disk and passed
-/// directly to `add_font_file` — no temporary files are created.
+/// directly to `add_font_file` - no temporary files are created.
 ///
 /// # Errors
 ///

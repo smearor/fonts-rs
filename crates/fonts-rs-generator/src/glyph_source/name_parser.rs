@@ -3,7 +3,7 @@
 use crate::glyph_source::filename_parser::SvgFilenameParser;
 use crate::glyph_source::parsed_glyph::ParsedGlyph;
 
-/// Parses `{name}.svg` filenames — the near-universal icon-set pattern
+/// Parses `{name}.svg` filenames - the near-universal icon-set pattern
 /// (Lucide, Heroicons, Feather, Tabler, Simple Icons, …).
 ///
 /// The filename stem becomes [`ParsedGlyph::raw_name`]; no codepoints

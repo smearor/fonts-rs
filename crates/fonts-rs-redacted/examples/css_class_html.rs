@@ -11,5 +11,5 @@ use fonts_rs_test::run_css_class_html;
 const SAMPLE_TEXT: &str = "HELLO";
 
 fn main() -> miette::Result<()> {
-    run_css_class_html::<Redacted>("redacted text", SAMPLE_TEXT, "Redacted — CSS Class", "redacted_css_class.html")
+    run_css_class_html::<Redacted>("redacted text", SAMPLE_TEXT, "Redacted - CSS Class", "redacted_css_class.html")
 }

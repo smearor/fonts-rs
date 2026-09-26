@@ -1,8 +1,8 @@
-// build.rs: Eva Icons build — pre-rendered SVGs + webfont TTF.
+// build.rs: Eva Icons build - pre-rendered SVGs + webfont TTF.
 //
 // The variant (fill | outline) is selected by Cargo feature; default is
 // `fill`. Both variants share a single TTF (`Eva-Icons.ttf`) whose fill
-// and outline glyphs live at different codepoints — the feature selects
+// and outline glyphs live at different codepoints - the feature selects
 // the codepoint set and the `resources/svg/{variant}` artwork. Glyph
 // names are variant-independent (`eva-{name}-symbolic`): the upstream
 // `-outline` filename/CSS suffix is stripped by the name resolver.
@@ -12,7 +12,7 @@
 // Keyword metadata comes from upstream `icons-tags.ts` (the search tags
 // powering the official eva-icons.com cheat sheet), vendored as
 // `resources/metadata/icons-tags.json`. Eva ships no categories or
-// aliases — only keywords are populated.
+// aliases - only keywords are populated.
 
 use std::path::Path;
 
@@ -39,7 +39,7 @@ mod definition;
 
 use definition::EvaConfig;
 
-/// Both variants are realized by the same TTF — upstream ships a single
+/// Both variants are realized by the same TTF - upstream ships a single
 /// `Eva-Icons.ttf` where fill and outline glyphs occupy different
 /// codepoints. The variant only selects which codepoint set and SVG
 /// directory the export uses.
@@ -48,8 +48,8 @@ const VARIANTS: VariantList<EvaConfig> = VariantList::new(&[FontVariant::file("f
 /// Export pipeline version.
 ///
 /// Mixed into `FontBuild::extra_hash`. Bump when the export pipeline
-/// itself changes in ways the hash cannot see — e.g. adding or
-/// modifying `SvgPostProcessor`s — otherwise a matching hash would
+/// itself changes in ways the hash cannot see - e.g. adding or
+/// modifying `SvgPostProcessor`s - otherwise a matching hash would
 /// reuse a stale export.
 const EXPORT_PIPELINE_VERSION: u64 = 1;
 
@@ -162,7 +162,7 @@ fn main() -> miette::Result<()> {
         })
         .map_err(|e| miette::miette!("{e}"))?;
 
-    // Generate metadata (keywords only — Eva ships no categories or
+    // Generate metadata (keywords only - Eva ships no categories or
     // aliases) if enabled.
     if std::env::var("CARGO_FEATURE_METADATA").is_ok() {
         eprintln!("build.rs: generating icon metadata (keywords)...");

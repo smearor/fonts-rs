@@ -11,5 +11,5 @@ use fonts_rs_test::run_css_class_html;
 const SAMPLE_TEXT: &str = "ABCDEF12";
 
 fn main() -> miette::Result<()> {
-    run_css_class_html::<FourteenSegment>("14-segment display", SAMPLE_TEXT, "DSEG14 — CSS Class", "fourteen_segment_css_class.html")
+    run_css_class_html::<FourteenSegment>("14-segment display", SAMPLE_TEXT, "DSEG14 - CSS Class", "fourteen_segment_css_class.html")
 }

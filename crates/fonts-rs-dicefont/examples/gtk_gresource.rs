@@ -14,5 +14,5 @@ const APP_ID: &str = "io.smearor.fonts_rs.dicefont_gresource";
 const SAMPLE_TEXT: &str = "\u{F131}\u{F132}\u{F133}";
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
-    run_gtk_gresource::<Dicefont>(APP_ID, "Dicefont — GTK GResource", SAMPLE_TEXT)
+    run_gtk_gresource::<Dicefont>(APP_ID, "Dicefont - GTK GResource", SAMPLE_TEXT)
 }

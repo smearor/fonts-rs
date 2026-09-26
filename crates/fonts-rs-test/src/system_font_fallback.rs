@@ -1,7 +1,7 @@
 //! System font fallback example.
 //!
 //! Provides [`run_system_font_fallback`] for demonstrating what happens when
-//! the font is NOT loaded — GTK falls back to the system font.
+//! the font is NOT loaded - GTK falls back to the system font.
 
 use fonts_rs_model::FontFamily;
 use gtk4::Align;

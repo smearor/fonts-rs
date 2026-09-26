@@ -17,5 +17,5 @@ const SAMPLE_TEXT: &str = "🎉🚀😍🔥";
 const GLYPH_HEIGHT: f64 = 200.0;
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
-    run_composed_svg_text::<NotoEmoji>(APP_ID, "Noto Emoji — Composed SVG Text", SAMPLE_TEXT, "emoji", GLYPH_HEIGHT)
+    run_composed_svg_text::<NotoEmoji>(APP_ID, "Noto Emoji - Composed SVG Text", SAMPLE_TEXT, "emoji", GLYPH_HEIGHT)
 }

@@ -14,6 +14,6 @@ pub const GRESOURCE_PREFIX: &str = "/io/smearor/fonts/nerd_fonts";
 
 /// Root path inside the compiled GResource bundle where icons are stored.
 ///
-/// `{GRESOURCE_PREFIX}/scalable/glyphs` — matches the generated
+/// `{GRESOURCE_PREFIX}/scalable/glyphs` - matches the generated
 /// `icons.gresource.xml` layout (`{prefix}/{SCALABLE_DIR}/{ICONS_CONTEXT}`).
 pub const ICONS_RESOURCE_PATH: &str = concatcp!(GRESOURCE_PREFIX, "/", SCALABLE_DIR, "/", ICONS_CONTEXT_GLYPHS);

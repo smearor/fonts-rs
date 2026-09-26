@@ -1,19 +1,23 @@
-//! HTML export capability.
+//! `@font-face` HTML export capability.
 //!
 //! Provides the [`HtmlExport`] trait for font families that can produce
-//! self-contained HTML pages (`@font-face` or inline SVG).
+//! self-contained HTML pages embedding their TTF as a base64 data URI.
+//! Inline-SVG export (no font required) lives in the base trait
+//! [`HtmlSvgExport`](crate::HtmlSvgExport).
 
 use crate::FontError;
-use crate::HtmlBuilder;
-use crate::IconThemeFont;
+use crate::HtmlSvgExport;
 use base64::Engine;
 
-/// Self-contained HTML export.
+/// Self-contained `@font-face` HTML export.
 ///
-/// Supertrait [`IconThemeFont`] provides `glyph_svg` for the inline-SVG
-/// mode. Families that deliberately avoid `@font-face` (Nerd Fonts) do
-/// not implement this trait.
-pub trait HtmlExport: IconThemeFont {
+/// Extends [`HtmlSvgExport`] with the font-based export mode: the
+/// default-variant TTF is embedded via
+/// [`GtkFont::load_font`](crate::GtkFont::load_font). Families that
+/// deliberately avoid `@font-face` (Nerd Fonts) or ship no TTF at all
+/// (fontless icon sets) do not implement this trait - they can still
+/// implement [`HtmlSvgExport`] alone.
+pub trait HtmlExport: HtmlSvgExport {
     /// Returns a `@font-face` CSS rule embedding the default-variant
     /// TTF as a base64 data URI. Low-level building block for custom
     /// HTML pages.
@@ -31,14 +35,5 @@ pub trait HtmlExport: IconThemeFont {
             "@font-face {{\n    font-family: '{}';\n    src: url('data:font/ttf;base64,{font_b64}') format('truetype');\n}}",
             Self::CSS_FONT_FAMILY
         ))
-    }
-
-    /// Starts an [`HtmlBuilder`] for exporting a self-contained HTML
-    /// page.
-    fn html() -> HtmlBuilder<Self>
-    where
-        Self: Sized,
-    {
-        HtmlBuilder::new()
     }
 }

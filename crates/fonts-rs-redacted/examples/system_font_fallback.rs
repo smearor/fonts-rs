@@ -15,8 +15,8 @@ const SAMPLE_TEXT: &str = "HELLO";
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
     run_system_font_fallback::<Redacted>(
         APP_ID,
-        "Redacted — System Font Fallback",
+        "Redacted - System Font Fallback",
         SAMPLE_TEXT,
-        "Font NOT loaded — system font fallback is used. Placeholder bars will not render correctly.",
+        "Font NOT loaded - system font fallback is used. Placeholder bars will not render correctly.",
     )
 }

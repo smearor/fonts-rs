@@ -1,8 +1,8 @@
 //! `FontFamilyConfig` for the Nerd Fonts font family.
 //!
 //! [`NerdFontsConfig`] lives in `nerd-fonts-model` (not `nerd-fonts-rs`)
-//! so that every crate in the Nerd Fonts stack — model, generator,
-//! runtime, cheat sheet — can name [`IconName`](crate::IconName), which
+//! so that every crate in the Nerd Fonts stack - model, generator,
+//! runtime, cheat sheet - can name [`IconName`](crate::IconName), which
 //! is phantom-typed over this config.
 
 use crate::paths::GRESOURCE_PREFIX;
@@ -38,7 +38,7 @@ impl FontFamilyConfig for NerdFontsConfig {
     const ICON_PREFIX: &'static str = "nf-";
 
     /// A Nerd Fonts icon name is valid iff it resolves to a known
-    /// [`IconSet`] — the multi-set override of the default prefix check.
+    /// [`IconSet`] - the multi-set override of the default prefix check.
     fn is_valid_icon_name(name: &str) -> bool {
         IconSet::detect(name) != IconSet::Other
     }

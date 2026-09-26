@@ -9,5 +9,5 @@ use fonts_rs_blobmoji::Blobmoji;
 use fonts_rs_test::run_svg_html;
 
 fn main() -> miette::Result<()> {
-    run_svg_html::<Blobmoji>("Blobmoji — SVG Glyphs", "blobmoji_svg_html.html")
+    run_svg_html::<Blobmoji>("Blobmoji - SVG Glyphs", "blobmoji_svg_html.html")
 }

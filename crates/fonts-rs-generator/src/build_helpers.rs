@@ -9,7 +9,7 @@ use std::path::Path;
 ///
 /// Mixed into `FontBuild::extra_hash` so changes to external metadata
 /// sources (name maps, codepoint tables, stylesheets) force a re-export
-/// even when the font file itself is unchanged — the default hash only
+/// even when the font file itself is unchanged - the default hash only
 /// covers the font file.
 pub fn hash_str(content: &str) -> u64 {
     content
@@ -21,7 +21,7 @@ pub fn hash_str(content: &str) -> u64 {
 ///
 /// Mixed into `FontBuild::extra_hash` so changes to a pre-rendered SVG
 /// directory (e.g. `resources/svg/`) force a re-export even when the
-/// font file is unchanged — the default hash only covers the font file.
+/// font file is unchanged - the default hash only covers the font file.
 pub fn hash_svg_dir(svg_dir: &Path) -> u64 {
     let mut names: Vec<String> = std::fs::read_dir(svg_dir)
         .map(|entries| {

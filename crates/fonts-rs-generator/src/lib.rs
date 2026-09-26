@@ -2,7 +2,7 @@
 //!
 //! Provides font-agnostic glyph extraction from TTF/OTF fonts, SVG icon
 //! generation, reverse codepoint map construction, GResource XML generation,
-//! and generic code generators — all parameterized by the [`FontDefinition`]
+//! and generic code generators - all parameterized by the [`FontDefinition`]
 //! trait.
 //!
 //! Each font family crate implements [`FontDefinition`] to plug into the

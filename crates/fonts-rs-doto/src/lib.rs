@@ -1,7 +1,7 @@
 //! Doto dot-matrix variable font integration for GTK 4.
 //!
 //! Provides glyph name resolution, GResource registration, and codepoint
-//! lookup for the Doto font family — a dot-matrix display font with two
+//! lookup for the Doto font family - a dot-matrix display font with two
 //! variable axes (`wght` and `rond`).
 //!
 //! The active variant (weight + roundness) is selected at build time via
@@ -54,7 +54,7 @@ pub use naming::DotoName;
 
 /// Type alias for this font family's glyph name type.
 ///
-/// Prefer [`DotoName`] from the [`naming`] module — this alias
+/// Prefer [`DotoName`] from the [`naming`] module - this alias
 /// is provided for consistency with the template structure.
 pub type FamilyName = DotoName;
 

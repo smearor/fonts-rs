@@ -48,7 +48,7 @@ impl<'a, X: FontFamilyConfig> VariantList<'a, X> {
     /// Scans `CARGO_FEATURE_{NAME}` environment variables for each variant and
     /// returns the index of the active one. If no variant is active, returns
     /// `default_index`. If more than one is active, falls back to `default_index`
-    /// with a warning — this allows `--all-features` to work in CI without
+    /// with a warning - this allows `--all-features` to work in CI without
     /// breaking on mutually exclusive variant features.
     ///
     /// Uses `X::FAMILY_DISPLAY_NAME` for diagnostic messages.

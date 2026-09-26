@@ -1,4 +1,4 @@
-//! `NerdFontsDefinition` — `FontDefinition` implementation for Nerd Fonts.
+//! `NerdFontsDefinition` - `FontDefinition` implementation for Nerd Fonts.
 //!
 //! This module implements the generic [`FontDefinition`] trait for the Nerd Fonts
 //! font family, allowing the `FontDefinition::export_glyphs` pipeline to be used.

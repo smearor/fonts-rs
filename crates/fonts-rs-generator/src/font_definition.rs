@@ -35,7 +35,7 @@ use crate::gresource::model::GResources;
 pub trait FontDefinition: FontFamilyConfig {
     /// The glyph name type used by this font family.
     ///
-    /// For simple font families, this is `GlyphName<Self::Family>` — the
+    /// For simple font families, this is `GlyphName<Self::Family>` - the
     /// shared phantom-typed newtype from `fonts-rs-model`. For Nerd Fonts,
     /// this is `IconName`, which carries additional semantics.
     ///
@@ -121,14 +121,14 @@ pub trait FontDefinition: FontFamilyConfig {
     /// GResource XML for any font family.
     ///
     /// Generates:
-    /// - `<output_dir>/scalable/{context}/*.svg` — one SVG file per glyph
-    /// - `<output_dir>/metadata.json` — glyph metadata (name, codepoint, file path)
-    /// - `<output_dir>/icons.gresource.xml` — GResource bundle manifest
+    /// - `<output_dir>/scalable/{context}/*.svg` - one SVG file per glyph
+    /// - `<output_dir>/metadata.json` - glyph metadata (name, codepoint, file path)
+    /// - `<output_dir>/icons.gresource.xml` - GResource bundle manifest
     ///
     /// # Arguments
     ///
-    /// - `font_path` — Path to the TTF/OTF font file
-    /// - `output_dir` — Root output directory (typically `resources/`)
+    /// - `font_path` - Path to the TTF/OTF font file
+    /// - `output_dir` - Root output directory (typically `resources/`)
     ///
     /// # Returns
     ///

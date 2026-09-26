@@ -9,7 +9,7 @@ use crate::config::NerdFontsConfig;
 
 /// A normalized Nerd Fonts GTK icon name (`nf-{set}-{name}-symbolic`).
 ///
-/// Alias for `fonts_rs_model::IconName<NerdFontsConfig>` — see the
+/// Alias for `fonts_rs_model::IconName<NerdFontsConfig>` - see the
 /// generic type for the normalization pipeline and method surface.
 /// `icon_set()` is available because [`NerdFontsConfig`] implements
 /// [`IconSetDetect`](fonts_rs_model::IconSetDetect).

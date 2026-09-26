@@ -39,7 +39,7 @@ impl CheatSheetFamily for BlobmojiSheet {
 
     fn init() -> Result<()> {
         Blobmoji::install().into_diagnostic()?;
-        // Grid cells render via Image::from_icon_name — the icon theme
+        // Grid cells render via Image::from_icon_name - the icon theme
         // path must be added to the display's GtkIconTheme. Runs after
         // gtk4::init(), so the default display is already open.
         let display = gtk4::gdk::Display::default().ok_or_else(|| miette::miette!("no default GDK display"))?;
@@ -108,7 +108,7 @@ impl CheatSheetFamily for BlobmojiSheet {
 
     /// Render cells via the GtkIconTheme: the bundled TTFs declare family
     /// "Noto Color Emoji", which fontconfig resolves to the system emoji
-    /// font — a text label would show non-blob artwork.
+    /// font - a text label would show non-blob artwork.
     fn glyph_icon_name(name: &BlobmojiName) -> Option<String> {
         Some(name.as_ref().to_string())
     }

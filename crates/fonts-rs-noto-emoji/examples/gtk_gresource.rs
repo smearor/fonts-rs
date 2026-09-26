@@ -14,5 +14,5 @@ const APP_ID: &str = "io.smearor.fonts_rs.noto_emoji_gresource";
 const SAMPLE_TEXT: &str = "🎉🚀😍🔥";
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
-    run_gtk_gresource::<NotoEmoji>(APP_ID, "Noto Emoji — GTK GResource", SAMPLE_TEXT)
+    run_gtk_gresource::<NotoEmoji>(APP_ID, "Noto Emoji - GTK GResource", SAMPLE_TEXT)
 }

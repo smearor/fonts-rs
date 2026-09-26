@@ -12,5 +12,5 @@ use fonts_rs_test::run_css_class_html;
 const SAMPLE_TEXT: &str = "🎉🚀😍🔥";
 
 fn main() -> miette::Result<()> {
-    run_css_class_html::<NotoEmoji>("emoji", SAMPLE_TEXT, "Noto Emoji — CSS Class", "noto_emoji_css_class.html")
+    run_css_class_html::<NotoEmoji>("emoji", SAMPLE_TEXT, "Noto Emoji - CSS Class", "noto_emoji_css_class.html")
 }

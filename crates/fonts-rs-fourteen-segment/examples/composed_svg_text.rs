@@ -16,5 +16,5 @@ const SAMPLE_TEXT: &str = "ABCDEF12";
 const GLYPH_HEIGHT: f64 = 200.0;
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
-    run_composed_svg_text::<FourteenSegment>(APP_ID, "DSEG14 — Composed SVG Text", SAMPLE_TEXT, "14-segment display", GLYPH_HEIGHT)
+    run_composed_svg_text::<FourteenSegment>(APP_ID, "DSEG14 - Composed SVG Text", SAMPLE_TEXT, "14-segment display", GLYPH_HEIGHT)
 }

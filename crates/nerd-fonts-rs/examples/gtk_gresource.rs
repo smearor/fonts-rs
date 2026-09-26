@@ -14,5 +14,5 @@ const APP_ID: &str = "io.smearor.fonts_rs.nerd_fonts_gresource";
 const SAMPLE_TEXT: &str = "\u{F005}\u{F004}\u{F06D}\u{F135}";
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
-    run_gtk_gresource::<NerdFonts>(APP_ID, "Nerd Fonts — GTK GResource", SAMPLE_TEXT)
+    run_gtk_gresource::<NerdFonts>(APP_ID, "Nerd Fonts - GTK GResource", SAMPLE_TEXT)
 }

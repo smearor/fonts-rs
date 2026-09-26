@@ -13,5 +13,5 @@ const APP_ID: &str = "io.smearor.fonts_rs.cuernavaca_svg_gresource";
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
     let glyphs: Vec<_> = Cuernavaca::all_glyphs().take(4).collect();
 
-    run_svg_gresource::<Cuernavaca>(APP_ID, "Cuernavaca — SVG GResource", &glyphs)
+    run_svg_gresource::<Cuernavaca>(APP_ID, "Cuernavaca - SVG GResource", &glyphs)
 }

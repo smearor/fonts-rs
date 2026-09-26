@@ -8,7 +8,7 @@
 use fonts_rs_tabler::Tabler;
 use fonts_rs_test::run_css_class_html;
 
-/// Builds the sample text from icon codepoints resolved at runtime —
+/// Builds the sample text from icon codepoints resolved at runtime -
 /// codepoints differ between the outline and filled variants.
 fn sample_text() -> String {
     ["tabler-home-symbolic", "tabler-heart-symbolic", "tabler-star-symbolic", "tabler-bell-symbolic"]
@@ -18,5 +18,5 @@ fn sample_text() -> String {
 }
 
 fn main() -> miette::Result<()> {
-    run_css_class_html::<Tabler>("icon", &sample_text(), "Tabler Icons — CSS Class", "tabler_css_class.html")
+    run_css_class_html::<Tabler>("icon", &sample_text(), "Tabler Icons - CSS Class", "tabler_css_class.html")
 }

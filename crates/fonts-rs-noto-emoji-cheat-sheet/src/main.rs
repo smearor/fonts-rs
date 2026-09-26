@@ -39,7 +39,7 @@ impl CheatSheetFamily for NotoEmojiSheet {
 
     fn init() -> Result<()> {
         NotoEmoji::ensure_registered().into_diagnostic()?;
-        // Grid cells render via Image::from_icon_name — the icon theme
+        // Grid cells render via Image::from_icon_name - the icon theme
         // path must be added to the display's GtkIconTheme. Runs after
         // gtk4::init(), so the default display is already open.
         let display = gtk4::gdk::Display::default().ok_or_else(|| miette::miette!("no default GDK display"))?;
@@ -102,7 +102,7 @@ impl CheatSheetFamily for NotoEmojiSheet {
         }
     }
 
-    /// Render cells via the GtkIconTheme — deterministic bundled SVGs
+    /// Render cells via the GtkIconTheme - deterministic bundled SVGs
     /// instead of whichever emoji font fontconfig resolves on the
     /// system.
     fn glyph_icon_name(name: &String) -> Option<String> {

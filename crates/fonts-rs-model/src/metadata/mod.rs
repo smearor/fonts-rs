@@ -1,6 +1,6 @@
 //! Metadata newtypes and registry trait for font glyph search.
 //!
-//! Provides [`GlyphKeywordMap`], [`GlyphCategoryMap`], and [`GlyphAliasMap`] —
+//! Provides [`GlyphKeywordMap`], [`GlyphCategoryMap`], and [`GlyphAliasMap`] -
 //! newtype wrappers around `phf::Map` that enable idiomatic access (Deref,
 //! iteration, len, get).
 //!

@@ -1,7 +1,7 @@
 //! Emoji metadata infrastructure shared by emoji font families.
 //!
-//! The data sources are Unicode standards — CLDR `annotations.json` for
-//! keywords and semantic names, `emoji-test.txt` for group categories —
+//! The data sources are Unicode standards - CLDR `annotations.json` for
+//! keywords and semantic names, `emoji-test.txt` for group categories -
 //! and work for any font covering the emoji codepoint ranges
 //! (e.g. Noto Emoji, Blobmoji).
 

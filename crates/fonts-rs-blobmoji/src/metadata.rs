@@ -5,7 +5,7 @@
 //!
 //! Keywords are sourced from CLDR annotation data (`default` field).
 //! Categories are sourced from Unicode `emoji-test.txt` (`group` field).
-//! Multi-codepoint sequences (ZWJ, keycap, flag) carry no keywords —
+//! Multi-codepoint sequences (ZWJ, keycap, flag) carry no keywords -
 //! the CLDR keyword map is keyed by single codepoints.
 //!
 //! This module is only available when the `metadata` feature is enabled.

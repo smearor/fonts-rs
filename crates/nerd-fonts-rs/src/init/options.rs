@@ -53,7 +53,7 @@ impl InitOptions {
     ///
     /// Call once at application startup. GResource registration is
     /// idempotent: repeated calls are safe and return the cached result.
-    /// The CSS provider is added on every call — a duplicate provider is
+    /// The CSS provider is added on every call - a duplicate provider is
     /// harmless and preserves retry semantics when no display existed on
     /// the first call.
     ///

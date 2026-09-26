@@ -9,5 +9,5 @@ use fonts_rs_tabler::Tabler;
 use fonts_rs_test::run_svg_html;
 
 fn main() -> miette::Result<()> {
-    run_svg_html::<Tabler>("Tabler Icons — SVG Glyphs", "tabler_svg_html.html")
+    run_svg_html::<Tabler>("Tabler Icons - SVG Glyphs", "tabler_svg_html.html")
 }

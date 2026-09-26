@@ -7,7 +7,7 @@ use fonts_rs_model::CodePoint;
 /// Parses `emoji_u{cp1}_{cp2}_….svg` filenames (blobmoji2, noto-emoji).
 ///
 /// Handles multi-codepoint sequences (ZWJ emoji, skin-tone modifiers,
-/// keycaps) — each `_`-separated hex segment becomes one [`CodePoint`].
+/// keycaps) - each `_`-separated hex segment becomes one [`CodePoint`].
 /// The filename stem (without `emoji_u` prefix and `.svg` suffix)
 /// becomes [`ParsedGlyph::raw_name`].
 pub struct EmojiUFilenameParser;

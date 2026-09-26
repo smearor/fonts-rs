@@ -72,7 +72,7 @@ impl<'de, F: FontFamilyMarker> Deserialize<'de> for GlyphName<F> {
 impl<F: FontFamilyMarker> FromStr for GlyphName<F> {
     type Err = Infallible;
 
-    /// Wraps `s` without validation — normalization is the job of
+    /// Wraps `s` without validation - normalization is the job of
     /// `FontDefinition::normalize_name`, not of this newtype.
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(Self::new(s.to_string()))

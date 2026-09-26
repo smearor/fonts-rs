@@ -8,7 +8,7 @@
 use fonts_rs_eva::Eva;
 use fonts_rs_test::run_css_class_html;
 
-/// Builds the sample text from icon codepoints resolved at runtime —
+/// Builds the sample text from icon codepoints resolved at runtime -
 /// codepoints differ between the fill and outline variants.
 fn sample_text() -> String {
     ["eva-home-symbolic", "eva-heart-symbolic", "eva-star-symbolic", "eva-bell-symbolic"]
@@ -18,5 +18,5 @@ fn sample_text() -> String {
 }
 
 fn main() -> miette::Result<()> {
-    run_css_class_html::<Eva>("icon", &sample_text(), "Eva Icons — CSS Class", "eva_css_class.html")
+    run_css_class_html::<Eva>("icon", &sample_text(), "Eva Icons - CSS Class", "eva_css_class.html")
 }

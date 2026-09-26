@@ -7,7 +7,7 @@ use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_model::GRESOURCE_BASE_PREFIX;
 use fonts_rs_model::ICONS_CONTEXT_EMOJI;
 
-/// Emoji codepoint ranges — same coverage as Noto Emoji.
+/// Emoji codepoint ranges - same coverage as Noto Emoji.
 const EMOJI_RANGES: &[CodePointRange] = &[
     CodePointRange::new(CodePoint::from_char('\u{2600}'), CodePoint::from_char('\u{26FF}')),
     CodePointRange::new(CodePoint::from_char('\u{2700}'), CodePoint::from_char('\u{27BF}')),

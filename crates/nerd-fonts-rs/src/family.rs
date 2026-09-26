@@ -1,7 +1,7 @@
 //! Runtime font family API for Nerd Fonts.
 //!
 //! Manual implementations of the [`FontFamily`] core trait and the
-//! capability traits — Nerd Fonts does not use the `impl_font_family!`
+//! capability traits - Nerd Fonts does not use the `impl_font_family!`
 //! macro because its build pipeline differs from the generated font
 //! crates (vendored icon GResource, two TTFs installed into the Pango
 //! font map). Icons follow the standard `{prefix}/scalable/glyphs`
@@ -144,7 +144,7 @@ impl NerdFonts {
         <Self as FontFamily>::all_glyphs()
     }
 
-    /// Returns the number of icons in this family — O(1).
+    /// Returns the number of icons in this family - O(1).
     ///
     /// Forwards to [`FontFamily::glyph_count`](fonts_rs_model::FontFamily::glyph_count).
     pub fn glyph_count() -> usize {

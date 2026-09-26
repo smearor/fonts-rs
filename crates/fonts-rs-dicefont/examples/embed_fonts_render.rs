@@ -16,5 +16,5 @@ const SAMPLE_TEXT: &str = "\u{F131}\u{F132}\u{F133}";
 const FONT_SIZE: f32 = 64.0;
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
-    run_embed_fonts_render::<Dicefont>(APP_ID, "Dicefont — ab_glyph Software Rendering", SAMPLE_TEXT, FONT_SIZE)
+    run_embed_fonts_render::<Dicefont>(APP_ID, "Dicefont - ab_glyph Software Rendering", SAMPLE_TEXT, FONT_SIZE)
 }

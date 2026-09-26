@@ -42,7 +42,11 @@ use crate::gresource::GResourceSpec;
 /// ```
 pub struct FontBuild {
     /// Path to the TTF/OTF font file (relative to crate root).
-    font_path: PathBuf,
+    ///
+    /// `None` for fontless SVG-only icon sets created via
+    /// [`svg_only`](Self::svg_only) - change detection then relies
+    /// entirely on `extra_hash` components.
+    font_path: Option<PathBuf>,
     /// Whether to also compile `font.gresource` in addition to `icons.gresource`.
     compile_font_gresource: bool,
     /// GResource prefix for the font family (e.g. `/io/smearor/fonts/barcode_ean13`).
@@ -67,7 +71,26 @@ impl FontBuild {
     /// Create a new builder with the given font path.
     pub fn new(font_path: impl Into<PathBuf>) -> Self {
         Self {
-            font_path: font_path.into(),
+            font_path: Some(font_path.into()),
+            compile_font_gresource: false,
+            gresource_prefix: None,
+            extra_hash: Vec::new(),
+            extra_rerun_if_changed: Vec::new(),
+            additional_gresources: Vec::new(),
+        }
+    }
+
+    /// Create a builder for fontless icon sets (SVG-only sources).
+    ///
+    /// There is no font file to hash or re-run on, so change detection
+    /// relies entirely on [`extra_hash`](Self::extra_hash) components -
+    /// callers must hash every input that affects the export (the SVG
+    /// directory via `hash_svg_dir`, metadata files via `hash_str`).
+    /// Run the pipeline with [`run_svg`](Self::run_svg), whose export
+    /// closure receives only the resources directory.
+    pub fn svg_only() -> Self {
+        Self {
+            font_path: None,
             compile_font_gresource: false,
             gresource_prefix: None,
             extra_hash: Vec::new(),
@@ -139,7 +162,9 @@ impl FontBuild {
     ///
     /// # Errors
     ///
-    /// Returns an error if any file operation or code generation fails.
+    /// Returns an error if any file operation or code generation fails,
+    /// or if the builder was created via [`svg_only`](Self::svg_only) -
+    /// fontless builds must use [`run_svg`](Self::run_svg).
     pub fn run<F, E>(self, export: F) -> Result<(), E>
     where
         F: FnOnce(&Path, &Path) -> Result<usize, E>,
@@ -151,6 +176,33 @@ impl FontBuild {
             RustConstantsGenerator::run(&entries).map_err(|e| std::io::Error::other(e.to_string()))?;
             Ok(())
         })
+    }
+
+    /// Run the fontless build pipeline with default code generation.
+    ///
+    /// Like [`run`](Self::run), but for builds created via
+    /// [`svg_only`](Self::svg_only): the `export` closure receives only
+    /// the resources directory since no font path exists.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if any file operation or code generation fails,
+    /// or if the builder was created via [`new`](Self::new) - fonted
+    /// builds must use [`run`](Self::run).
+    pub fn run_svg<F, E>(self, export: F) -> Result<(), E>
+    where
+        F: FnOnce(&Path) -> Result<usize, E>,
+        E: From<std::io::Error>,
+    {
+        self.run_with(
+            |_font_path, resources_dir| export(resources_dir),
+            |json| {
+                let entries: Vec<GlyphEntry<String>> = serde_json::from_str(json).map_err(std::io::Error::other)?;
+                CodemapGenerator::<DefaultNaming>::run(&entries).map_err(|e| std::io::Error::other(e.to_string()))?;
+                RustConstantsGenerator::run(&entries).map_err(|e| std::io::Error::other(e.to_string()))?;
+                Ok(())
+            },
+        )
     }
 
     /// Run the build pipeline with a custom code generation closure.
@@ -170,7 +222,9 @@ impl FontBuild {
         E: From<std::io::Error>,
     {
         println!("cargo:rustc-cfg=is_lib");
-        println!("cargo:rerun-if-changed={}", self.font_path.display());
+        if let Some(font_path) = &self.font_path {
+            println!("cargo:rerun-if-changed={}", font_path.display());
+        }
 
         for path in &self.extra_rerun_if_changed {
             println!("cargo:rerun-if-changed={}", path.display());
@@ -180,18 +234,23 @@ impl FontBuild {
         let metadata_path = metadata_path();
         let hash_path = hash_path();
         let icons_xml = icons_gresource_xml();
-        let current_hash = hash_font_file(&self.font_path);
+        // Fontless builds have no base hash - the extra_hash components
+        // carry the entire change detection (callers must supply them).
+        let base_hash = self.font_path.as_deref().map(hash_font_file).unwrap_or_default();
         let current_hash = if self.extra_hash.is_empty() {
-            current_hash
+            base_hash
         } else {
-            format!("{current_hash}-{}", self.extra_hash.join("-"))
+            format!("{base_hash}-{}", self.extra_hash.join("-"))
         };
 
         let needs_export = !metadata_path.exists() || fs::read_to_string(&hash_path).ok().as_deref() != Some(current_hash.as_str());
 
         if needs_export {
-            eprintln!("build.rs: exporting glyphs from {}...", self.font_path.display());
-            let count = export(&self.font_path, &out)?;
+            eprintln!(
+                "build.rs: exporting glyphs from {}...",
+                self.font_path.as_deref().map_or("(svg-only)", |p| p.to_str().unwrap_or_default())
+            );
+            let count = export(self.font_path.as_deref().unwrap_or_else(|| Path::new("")), &out)?;
             eprintln!("build.rs: exported {count} glyphs");
             fs::write(&hash_path, &current_hash)?;
         }
@@ -203,7 +262,9 @@ impl FontBuild {
         glib_build_tools::compile_resources(&[out_str], icons_xml_str, ICONS_GRESOURCE);
 
         if self.compile_font_gresource {
-            let font_xml_path = if let (Some(prefix), Some(file_name)) = (&self.gresource_prefix, self.font_path.file_name().and_then(|n| n.to_str())) {
+            let font_xml_path = if let (Some(prefix), Some(file_name)) =
+                (&self.gresource_prefix, self.font_path.as_deref().and_then(|p| p.file_name()).and_then(|n| n.to_str()))
+            {
                 let xml_content = format!(
                     "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<gresources>\n    <gresource prefix=\"{prefix}\">\n        <file alias=\"{file_name}\">{file_name}</file>\n    </gresource>\n</gresources>\n"
                 );
@@ -211,7 +272,7 @@ impl FontBuild {
                 fs::write(&xml_path, xml_content)?;
 
                 let resource_path = format!("{prefix}/{file_name}");
-                let content = format!("// @generated by build.rs — do not edit\n\npub const FONT_RESOURCE_PATH: &str = \"{resource_path}\";\n");
+                let content = format!("// @generated by build.rs - do not edit\n\npub const FONT_RESOURCE_PATH: &str = \"{resource_path}\";\n");
                 fs::write(out.join("font_resource.rs"), content)?;
 
                 xml_path

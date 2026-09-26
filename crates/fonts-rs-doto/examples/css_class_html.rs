@@ -11,5 +11,5 @@ use fonts_rs_test::run_css_class_html;
 const SAMPLE_TEXT: &str = "HELLO";
 
 fn main() -> miette::Result<()> {
-    run_css_class_html::<Doto>("dot matrix text", SAMPLE_TEXT, "Doto — CSS Class", "doto_css_class.html")
+    run_css_class_html::<Doto>("dot matrix text", SAMPLE_TEXT, "Doto - CSS Class", "doto_css_class.html")
 }

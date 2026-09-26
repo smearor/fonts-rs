@@ -1,11 +1,11 @@
 //! Eva Icons font integration for GTK 4 and pixel-drawing.
 //!
 //! Provides icon name resolution, GResource registration, and codepoint
-//! lookup for the Eva Icons font family — ~490 icons in a `fill`
+//! lookup for the Eva Icons font family - ~490 icons in a `fill`
 //! (default) and an `outline` variant sharing a single webfont TTF.
 //!
 //! Keyword metadata (`metadata` feature) is sourced from upstream
-//! `icons-tags.json` — the search tags powering the official
+//! `icons-tags.json` - the search tags powering the official
 //! eva-icons.com cheat sheet.
 //!
 //! ## Quick Start
@@ -56,7 +56,7 @@ pub use naming::EvaIconName;
 
 /// Type alias for this font family's glyph name type.
 ///
-/// Prefer [`EvaIconName`] from the [`naming`] module — this alias
+/// Prefer [`EvaIconName`] from the [`naming`] module - this alias
 /// is provided for consistency with the template structure.
 pub type FamilyName = EvaIconName;
 
@@ -84,7 +84,7 @@ mod tests {
         all_icons().into_iter().next().map(|(_, name)| name).expect("at least one icon should exist")
     }
 
-    /// `codepoint`/`glyph_name` must round-trip for exported icons —
+    /// `codepoint`/`glyph_name` must round-trip for exported icons -
     /// the chain behind icon theme lookup and the cheat sheet.
     /// Codepoints differ between variants, so the test derives them
     /// from the name instead of hardcoding values.
@@ -118,7 +118,7 @@ mod tests {
     }
 
     /// The outline variant strips the upstream `-outline` suffix, so
-    /// names stay variant-independent — no exported name may contain
+    /// names stay variant-independent - no exported name may contain
     /// `-outline-symbolic`.
     #[test]
     fn icon_names_are_variant_independent() {
@@ -127,7 +127,7 @@ mod tests {
         }
     }
 
-    /// Metadata search must find icons by keyword — e.g. upstream tags
+    /// Metadata search must find icons by keyword - e.g. upstream tags
     /// map "alarm" to `bell`, `bell-off`, and `clock`.
     #[cfg(feature = "metadata")]
     #[test]
@@ -139,7 +139,7 @@ mod tests {
         assert!(metadata::EvaMetadata.search("").is_empty(), "empty query should return no results");
     }
 
-    /// `glyph_svg` must return the vector artwork from the GResource —
+    /// `glyph_svg` must return the vector artwork from the GResource -
     /// the chain behind `gtk_icon_theme` and the detail sidebar.
     #[cfg(feature = "gtk")]
     #[test]

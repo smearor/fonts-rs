@@ -33,7 +33,7 @@ pub enum ExportError {
     /// An error from a [`GlyphSource`](crate::glyph_source::GlyphSource)
     /// implementation.
     ///
-    /// Boxed to avoid a recursive type — [`GlyphSourceError`] itself
+    /// Boxed to avoid a recursive type - [`GlyphSourceError`] itself
     /// wraps `ExportError`.
     #[error("glyph source error: {0}")]
     GlyphSource(Box<GlyphSourceError>),

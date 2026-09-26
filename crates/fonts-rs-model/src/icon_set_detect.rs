@@ -3,7 +3,7 @@
 //! Provides the [`IconSetDetect`] trait for icon font families whose
 //! namespace is split into named sets distinguished by name prefix
 //! (e.g. Nerd Fonts: `nf-fa-*` for Font Awesome, `nf-md-*` for Material
-//! Design). Single-set icon fonts simply don't implement this trait —
+//! Design). Single-set icon fonts simply don't implement this trait -
 //! [`IconName::icon_set`](crate::IconName::icon_set) is then absent at
 //! compile time.
 

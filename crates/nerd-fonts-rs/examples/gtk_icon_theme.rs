@@ -17,5 +17,5 @@ fn main() -> miette::Result<gtk4::glib::ExitCode> {
         (constants::NF_FA_FIRE_SYMBOLIC, "Fire"),
     ];
 
-    run_gtk_icon_theme::<NerdFonts>("io.smearor.fonts_rs.nerd_fonts_icon_theme", "Nerd Fonts — GtkIconTheme", &icons)
+    run_gtk_icon_theme::<NerdFonts>("io.smearor.fonts_rs.nerd_fonts_icon_theme", "Nerd Fonts - GtkIconTheme", &icons)
 }

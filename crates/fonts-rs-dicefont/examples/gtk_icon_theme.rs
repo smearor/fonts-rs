@@ -17,5 +17,5 @@ fn main() -> miette::Result<gtk4::glib::ExitCode> {
         (constants::DICEFONT_D6_4, "d6-4"),
     ];
 
-    run_gtk_icon_theme::<Dicefont>("io.smearor.fonts_rs.dicefont_icon_theme", "Dicefont — GtkIconTheme", &icons)
+    run_gtk_icon_theme::<Dicefont>("io.smearor.fonts_rs.dicefont_icon_theme", "Dicefont - GtkIconTheme", &icons)
 }

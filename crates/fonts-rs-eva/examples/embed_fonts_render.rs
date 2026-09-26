@@ -15,7 +15,7 @@ const APP_ID: &str = "io.smearor.fonts_rs.eva_embed_render";
 
 const FONT_SIZE: f32 = 64.0;
 
-/// Builds the sample text from icon codepoints resolved at runtime —
+/// Builds the sample text from icon codepoints resolved at runtime -
 /// codepoints differ between the fill and outline variants.
 fn sample_text() -> String {
     ["eva-home-symbolic", "eva-heart-symbolic", "eva-star-symbolic", "eva-bell-symbolic"]
@@ -25,5 +25,5 @@ fn sample_text() -> String {
 }
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
-    run_embed_fonts_render::<Eva>(APP_ID, "Eva Icons — ab_glyph Software Rendering", &sample_text(), FONT_SIZE)
+    run_embed_fonts_render::<Eva>(APP_ID, "Eva Icons - ab_glyph Software Rendering", &sample_text(), FONT_SIZE)
 }

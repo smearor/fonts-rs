@@ -9,5 +9,5 @@ use fonts_rs_noto_emoji::NotoEmoji;
 use fonts_rs_test::run_svg_html;
 
 fn main() -> miette::Result<()> {
-    run_svg_html::<NotoEmoji>("Noto Emoji — SVG Glyphs", "noto_emoji_svg_html.html")
+    run_svg_html::<NotoEmoji>("Noto Emoji - SVG Glyphs", "noto_emoji_svg_html.html")
 }

@@ -1,7 +1,7 @@
 //! Prelude re-exporting the runtime font API.
 //!
 //! One `use` line brings the core trait and all enabled capability
-//! traits into scope — same pattern as `gtk4::prelude::*`:
+//! traits into scope - same pattern as `gtk4::prelude::*`:
 //!
 //! ```ignore
 //! use fonts_rs_model::prelude::*;
@@ -19,7 +19,7 @@ pub use crate::HtmlBuilder;
 #[cfg(feature = "gtk")]
 pub use crate::HtmlExport;
 #[cfg(feature = "gtk")]
-pub use crate::HtmlMode;
+pub use crate::HtmlSvgExport;
 #[cfg(feature = "gtk")]
 pub use crate::IconThemeFont;
 #[cfg(feature = "gtk")]

@@ -1,12 +1,12 @@
 //! Redacted placeholder font integration for GTK 4.
 //!
 //! Provides glyph name resolution, GResource registration, and codepoint
-//! lookup for the Redacted font family — a placeholder/blocking text font
+//! lookup for the Redacted font family - a placeholder/blocking text font
 //! for wireframes and prototypes.
 //!
 //! The active variant is selected at build time via Cargo features:
-//! - `redacted` — block bars (Regular only)
-//! - `script-light`, `script-regular`, `script-bold` — scribble style
+//! - `redacted` - block bars (Regular only)
+//! - `script-light`, `script-regular`, `script-bold` - scribble style
 //!
 //! ## Quick Start
 //!
@@ -52,7 +52,7 @@ pub use naming::RedactedName;
 
 /// Type alias for this font family's glyph name type.
 ///
-/// Prefer [`RedactedName`] from the [`naming`] module — this alias
+/// Prefer [`RedactedName`] from the [`naming`] module - this alias
 /// is provided for consistency with the template structure.
 pub type FamilyName = RedactedName;
 

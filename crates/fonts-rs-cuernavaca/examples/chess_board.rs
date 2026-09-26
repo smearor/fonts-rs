@@ -1,4 +1,4 @@
-//! Chess Board — Interactive chess game with Cuernavaca font pieces.
+//! Chess Board - Interactive chess game with Cuernavaca font pieces.
 //!
 //! Renders an 8x8 chess board with pieces from the Cuernavaca chess font.
 //! Click to select a piece, then click a destination square to move.
@@ -697,7 +697,10 @@ fn main() -> Result<glib::ExitCode> {
     gtk4::init().into_diagnostic()?;
     Cuernavaca::ensure_registered().into_diagnostic()?;
 
-    let app = Application::builder().application_id(APP_ID).flags(gtk4::gio::ApplicationFlags::NON_UNIQUE).build();
+    let app = Application::builder()
+        .application_id(APP_ID)
+        .flags(gtk4::gio::ApplicationFlags::NON_UNIQUE)
+        .build();
     app.connect_activate(build_ui);
     Ok(app.run())
 }
@@ -705,7 +708,7 @@ fn main() -> Result<glib::ExitCode> {
 fn build_ui(app: &Application) {
     let window = ApplicationWindow::builder()
         .application(app)
-        .title("Chess Board — Cuernavaca")
+        .title("Chess Board - Cuernavaca")
         .default_width(900)
         .default_height(700)
         .build();
@@ -743,7 +746,7 @@ fn build_ui(app: &Application) {
         .build();
 
     let title = Label::builder()
-        .label("Chess — Cuernavaca")
+        .label("Chess - Cuernavaca")
         .css_classes(["chess-title"])
         .halign(Align::Center)
         .build();

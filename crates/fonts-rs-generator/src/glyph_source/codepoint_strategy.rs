@@ -13,7 +13,7 @@ pub enum CodepointStrategy {
     /// Allocate a stable PUA codepoint via deterministic hash-of-name
     /// (fontless icon sets).
     HashedPua,
-    /// No codepoints — icon-theme-only usage; `GtkIconTheme` resolves
+    /// No codepoints - icon-theme-only usage; `GtkIconTheme` resolves
     /// names → SVG directly.
     #[default]
     None,

@@ -6,7 +6,7 @@ use fonts_rs_model::CodePoint;
 ///
 /// The shared `export` runner enriches this with `file` and
 /// `resource_path` to produce a [`GlyphEntry`](fonts_rs_model::GlyphEntry)
-/// — sources stay free of GResource layout knowledge.
+/// - sources stay free of GResource layout knowledge.
 #[derive(Debug, Clone)]
 pub struct GlyphDescriptor {
     /// Unicode codepoint, or `None` if the glyph has no mapping.

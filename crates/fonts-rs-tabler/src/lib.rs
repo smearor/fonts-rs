@@ -1,7 +1,7 @@
 //! Tabler Icons font integration for GTK 4 and pixel-drawing.
 //!
 //! Provides icon name resolution, GResource registration, and codepoint
-//! lookup for the Tabler Icons font family — over 5,000 stroke-based
+//! lookup for the Tabler Icons font family - over 5,000 stroke-based
 //! outline icons plus a filled variant, with semantic names, tags, and
 //! categories from upstream `icons.json`.
 //!
@@ -53,7 +53,7 @@ pub use naming::TablerIconName;
 
 /// Type alias for this font family's glyph name type.
 ///
-/// Prefer [`TablerIconName`] from the [`naming`] module — this alias
+/// Prefer [`TablerIconName`] from the [`naming`] module - this alias
 /// is provided for consistency with the template structure.
 pub type FamilyName = TablerIconName;
 
@@ -80,7 +80,7 @@ mod tests {
         all_icons().into_iter().next().map(|(_, name)| name).expect("at least one icon should exist")
     }
 
-    /// `codepoint`/`glyph_name` must round-trip for exported icons —
+    /// `codepoint`/`glyph_name` must round-trip for exported icons -
     /// the chain behind icon theme lookup and the cheat sheet.
     /// Codepoints differ between variants, so the test derives them
     /// from the name instead of hardcoding values.
@@ -113,7 +113,7 @@ mod tests {
         }
     }
 
-    /// `glyph_svg` must return the vector artwork from the GResource —
+    /// `glyph_svg` must return the vector artwork from the GResource -
     /// the chain behind `gtk_icon_theme` and the detail sidebar.
     #[cfg(feature = "gtk")]
     #[test]
@@ -139,7 +139,7 @@ mod tests {
     }
 
     /// Every alias in the active style's table must resolve to its
-    /// canonical glyph name — spot-checked on the first entries to
+    /// canonical glyph name - spot-checked on the first entries to
     /// stay variant-agnostic.
     #[cfg(feature = "metadata")]
     #[test]

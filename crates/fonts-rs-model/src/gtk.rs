@@ -48,7 +48,7 @@ impl From<std::io::Error> for LoadFontError {
 /// Loads `css` into a `CssProvider` and attaches it to the default
 /// display at application priority.
 ///
-/// Shared by every font family's init path — the provider is added on
+/// Shared by every font family's init path - the provider is added on
 /// every call; a duplicate provider is harmless and preserves retry
 /// semantics when no display existed on the first call.
 ///
@@ -131,7 +131,7 @@ pub trait GtkFont: 'static {
     ///
     /// A `static OnceLock` inside this default body would be shared
     /// across *all* impls, so the cache is a `HashMap` keyed by
-    /// `TypeId::of::<Self>()` instead — one entry per family, no
+    /// `TypeId::of::<Self>()` instead - one entry per family, no
     /// macro-generated statics required.
     ///
     /// # Errors
@@ -146,7 +146,7 @@ pub trait GtkFont: 'static {
 
     /// Explicit fail-fast setup for application startup.
     ///
-    /// Equivalent to [`ensure_registered`](Self::ensure_registered) —
+    /// Equivalent to [`ensure_registered`](Self::ensure_registered) -
     /// exists to make intent visible at the call site
     /// (`Code39::install()?` in `main()`).
     ///

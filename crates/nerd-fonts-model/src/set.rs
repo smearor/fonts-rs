@@ -68,7 +68,7 @@ pub enum IconSet {
 impl IconSet {
     /// Detects the icon set from a Nerd Font icon name prefix.
     ///
-    /// Performs a simple prefix match — zero allocation, O(1).
+    /// Performs a simple prefix match - zero allocation, O(1).
     /// The compiler can optimize the match into a jump table.
     pub fn detect(icon_name: &str) -> Self {
         match icon_name {

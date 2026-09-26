@@ -13,5 +13,5 @@ const APP_ID: &str = "io.smearor.fonts_rs.barcode_code39_gresource";
 const BARCODE_TEXT: &str = "*HELLO*";
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
-    run_gtk_gresource::<Code39>(APP_ID, "Code39 — GTK GResource", BARCODE_TEXT)
+    run_gtk_gresource::<Code39>(APP_ID, "Code39 - GTK GResource", BARCODE_TEXT)
 }

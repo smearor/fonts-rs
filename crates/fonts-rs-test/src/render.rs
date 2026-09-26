@@ -73,7 +73,7 @@ fn build_ui(app: &Application, window_title: &str, font: &'static FontVec, text:
         .build();
 
     let title = Label::builder()
-        .label("Rendered with ab_glyph (embed-fonts) — no Pango font map")
+        .label("Rendered with ab_glyph (embed-fonts) - no Pango font map")
         .css_classes(["title-2"])
         .halign(Align::Center)
         .build();
@@ -105,7 +105,7 @@ fn build_ui(app: &Application, window_title: &str, font: &'static FontVec, text:
 pub fn render_text(font: &FontVec, text: &str, scale: f32) -> (i32, i32, Vec<u8>) {
     let scaled = font.as_scaled(scale);
 
-    // Pen advances come from hmtx — available for outline and bitmap
+    // Pen advances come from hmtx - available for outline and bitmap
     // glyphs alike (outline bounds are not a reliable advance).
     let mut glyphs: Vec<(GlyphId, f32)> = Vec::new();
     let mut x = 0.0_f32;
@@ -159,7 +159,7 @@ pub fn render_text(font: &FontVec, text: &str, scale: f32) -> (i32, i32, Vec<u8>
 /// Blits a bitmap strike into the RGBA buffer.
 ///
 /// `glyph_raster_image2` returns the best matching strike, whose
-/// `pixels_per_em` may differ from the requested size — the image is
+/// `pixels_per_em` may differ from the requested size - the image is
 /// rescaled by `scale / pixels_per_em` with nearest-neighbor sampling
 /// and positioned by its bearings (`origin`).
 fn blit_raster_image(image: &GlyphImage, pen_x: f32, baseline: f32, scale: f32, pixels: &mut [u8], width: u32, height: u32) {

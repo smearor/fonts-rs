@@ -15,5 +15,5 @@ const SAMPLE_TEXT: &str = "12345678";
 const FONT_SIZE: f32 = 64.0;
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
-    run_embed_fonts_render::<SevenSegment>(APP_ID, "DSEG7 — ab_glyph Software Rendering", SAMPLE_TEXT, FONT_SIZE)
+    run_embed_fonts_render::<SevenSegment>(APP_ID, "DSEG7 - ab_glyph Software Rendering", SAMPLE_TEXT, FONT_SIZE)
 }

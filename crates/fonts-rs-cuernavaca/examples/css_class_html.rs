@@ -12,5 +12,5 @@ use fonts_rs_test::run_css_class_html;
 const SAMPLE_TEXT: &str = "KQRBNP";
 
 fn main() -> miette::Result<()> {
-    run_css_class_html::<Cuernavaca>("chess notation", SAMPLE_TEXT, "Cuernavaca — CSS Class", "cuernavaca_css_class.html")
+    run_css_class_html::<Cuernavaca>("chess notation", SAMPLE_TEXT, "Cuernavaca - CSS Class", "cuernavaca_css_class.html")
 }

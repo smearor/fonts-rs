@@ -1,4 +1,4 @@
-//! TTF/OTF-backed [`GlyphSource`] — retrofits the `skrifa` outline extraction.
+//! TTF/OTF-backed [`GlyphSource`] - retrofits the `skrifa` outline extraction.
 
 use crate::export_config::ExportConfig;
 use crate::export_config::default_name_filter;
@@ -24,7 +24,7 @@ use std::path::Path;
 /// ([`ExportConfig::export_glyphs`] / [`ExportConfig::export_glyphs_by_name_map`])
 /// to the [`GlyphSource`] interface without changing the emitted artifacts.
 ///
-/// Owns the raw font bytes because `skrifa::FontRef` borrows them —
+/// Owns the raw font bytes because `skrifa::FontRef` borrows them -
 /// [`Font`] is re-created per call (table parsing is cheap).
 pub struct FontFileSource<'a, X: FontFamilyConfig> {
     /// Raw font file bytes.
@@ -62,7 +62,7 @@ impl<'a, X: FontFamilyConfig> FontFileSource<'a, X> {
         self
     }
 
-    /// Lists glyphs via PostScript names — mirrors `export_glyphs`.
+    /// Lists glyphs via PostScript names - mirrors `export_glyphs`.
     fn glyphs_by_post_names(&self, font: &Font) -> Result<Vec<GlyphDescriptor>, GlyphSourceError> {
         let reverse_cmap = font.build_reverse_cmap_with_ranges(X::CODEPOINT_RANGES);
         let should_export = self.config.name_filter.unwrap_or(default_name_filter);
@@ -94,7 +94,7 @@ impl<'a, X: FontFamilyConfig> FontFileSource<'a, X> {
         Ok(descriptors)
     }
 
-    /// Lists glyphs via an external name→codepoint map — mirrors
+    /// Lists glyphs via an external name→codepoint map - mirrors
     /// `export_glyphs_by_name_map`.
     fn glyphs_by_name_map(&self, font: &Font, name_map: &GlyphNameMap) -> Result<Vec<GlyphDescriptor>, GlyphSourceError> {
         let charmap = font.charmap();

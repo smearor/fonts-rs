@@ -13,5 +13,5 @@ const APP_ID: &str = "io.smearor.fonts_rs.redacted_svg_gresource";
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
     let glyphs: Vec<_> = Redacted::all_glyphs().take(4).collect();
 
-    run_svg_gresource::<Redacted>(APP_ID, "Redacted — SVG GResource", &glyphs)
+    run_svg_gresource::<Redacted>(APP_ID, "Redacted - SVG GResource", &glyphs)
 }

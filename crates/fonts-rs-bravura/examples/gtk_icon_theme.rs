@@ -17,5 +17,5 @@ fn main() -> miette::Result<gtk4::glib::ExitCode> {
         (constants::BRAVURA_TIMESIG4, "time-sig-4"),
     ];
 
-    run_gtk_icon_theme::<Bravura>("io.smearor.fonts_rs.bravura_icon_theme", "Bravura — GtkIconTheme", &icons)
+    run_gtk_icon_theme::<Bravura>("io.smearor.fonts_rs.bravura_icon_theme", "Bravura - GtkIconTheme", &icons)
 }

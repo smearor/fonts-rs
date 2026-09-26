@@ -1,7 +1,7 @@
 //! Dicefont dice face font integration for GTK 4.
 //!
 //! Provides glyph name resolution, GResource registration, and codepoint
-//! lookup for the Dicefont font family — an icon font with die face
+//! lookup for the Dicefont font family - an icon font with die face
 //! glyphs for all standard dice (D2, D4, D6, D8, D10, D12, D20) plus
 //! dot-d6 variants.
 //!
@@ -49,7 +49,7 @@ pub use naming::DicefontName;
 
 /// Type alias for this font family's glyph name type.
 ///
-/// Prefer [`DicefontName`] from the [`naming`] module — this alias
+/// Prefer [`DicefontName`] from the [`naming`] module - this alias
 /// is provided for consistency with the template structure.
 pub type FamilyName = DicefontName;
 

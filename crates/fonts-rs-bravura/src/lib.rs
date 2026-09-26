@@ -1,7 +1,7 @@
 //! Bravura SMuFL music notation font integration for GTK 4.
 //!
 //! Provides glyph name resolution, GResource registration, and codepoint
-//! lookup for the Bravura font family — the reference font for the
+//! lookup for the Bravura font family - the reference font for the
 //! Standard Music Font Layout (SMuFL) specification, covering thousands
 //! of musical notation symbols mapped to the Unicode Private Use Area.
 //!
@@ -49,7 +49,7 @@ pub use naming::BravuraName;
 
 /// Type alias for this font family's glyph name type.
 ///
-/// Prefer [`BravuraName`] from the [`naming`] module — this alias
+/// Prefer [`BravuraName`] from the [`naming`] module - this alias
 /// is provided for consistency with the template structure.
 pub type FamilyName = BravuraName;
 

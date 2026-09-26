@@ -17,5 +17,5 @@ const SAMPLE_TEXT: &str = "\u{F131}\u{F132}\u{F133}";
 const GLYPH_HEIGHT: f64 = 200.0;
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
-    run_composed_svg_text::<Dicefont>(APP_ID, "Dicefont — Composed SVG Text", SAMPLE_TEXT, "dice glyph", GLYPH_HEIGHT)
+    run_composed_svg_text::<Dicefont>(APP_ID, "Dicefont - Composed SVG Text", SAMPLE_TEXT, "dice glyph", GLYPH_HEIGHT)
 }

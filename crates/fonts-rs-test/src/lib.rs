@@ -1,14 +1,14 @@
 //! Shared example utilities for fonts-rs font family crates.
 //!
 //! Provides generic functions for common GTK example patterns:
-//! - [`run_gtk_icon_theme`] — GtkIconTheme lookup
-//! - [`run_composed_svg_text`] — composed SVG text
-//! - [`run_css_class_html`] — CSS @font-face HTML
-//! - [`run_embed_fonts_render`] — ab_glyph software rendering
-//! - [`run_svg_gresource`] — SVG glyphs from GResource
-//! - [`run_svg_html`] — SVG HTML page
-//! - [`run_gtk_gresource`] — GTK GResource font loading
-//! - [`run_system_font_fallback`] — system font fallback
+//! - [`run_gtk_icon_theme`] - GtkIconTheme lookup
+//! - [`run_composed_svg_text`] - composed SVG text
+//! - [`run_css_class_html`] - CSS @font-face HTML
+//! - [`run_embed_fonts_render`] - ab_glyph software rendering
+//! - [`run_svg_gresource`] - SVG glyphs from GResource
+//! - [`run_svg_html`] - SVG HTML page
+//! - [`run_gtk_gresource`] - GTK GResource font loading
+//! - [`run_system_font_fallback`] - system font fallback
 
 #[cfg(feature = "gtk")]
 mod app;

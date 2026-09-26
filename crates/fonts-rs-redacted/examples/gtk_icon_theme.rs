@@ -17,5 +17,5 @@ fn main() -> miette::Result<gtk4::glib::ExitCode> {
         (constants::REDACTED_REDACTED_O, "O"),
     ];
 
-    run_gtk_icon_theme::<Redacted>("io.smearor.fonts_rs.redacted_icon_theme", "Redacted — GtkIconTheme", &icons)
+    run_gtk_icon_theme::<Redacted>("io.smearor.fonts_rs.redacted_icon_theme", "Redacted - GtkIconTheme", &icons)
 }

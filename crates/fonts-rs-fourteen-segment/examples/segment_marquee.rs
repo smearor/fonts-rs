@@ -1,4 +1,4 @@
-//! Fourteen-Segment Marquee — a scrolling LED-style display using DSEG14 glyphs.
+//! Fourteen-Segment Marquee - a scrolling LED-style display using DSEG14 glyphs.
 //!
 //! Type text, watch it scroll across the fourteen-segment display like an old
 //! digital readout. The display glows, the segments pulse, and you can see
@@ -243,7 +243,10 @@ fn main() -> Result<glib::ExitCode> {
     gtk4::init().into_diagnostic()?;
     FourteenSegment::ensure_registered().into_diagnostic()?;
 
-    let app = Application::builder().application_id(APP_ID).flags(gtk4::gio::ApplicationFlags::NON_UNIQUE).build();
+    let app = Application::builder()
+        .application_id(APP_ID)
+        .flags(gtk4::gio::ApplicationFlags::NON_UNIQUE)
+        .build();
     app.connect_activate(build_ui);
     Ok(app.run())
 }

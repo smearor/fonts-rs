@@ -74,7 +74,7 @@ pub trait FontFamilyConfig {
     /// Validates a fully-formed icon name (`{ICON_PREFIX}{name}-symbolic`).
     ///
     /// The default accepts any name carrying the family's
-    /// [`ICON_PREFIX`](Self::ICON_PREFIX) — sufficient for single-set
+    /// [`ICON_PREFIX`](Self::ICON_PREFIX) - sufficient for single-set
     /// icon fonts. Multi-set icon fonts override this to check set
     /// membership (Nerd Fonts validates via `IconSet::detect`).
     fn is_valid_icon_name(name: &str) -> bool {

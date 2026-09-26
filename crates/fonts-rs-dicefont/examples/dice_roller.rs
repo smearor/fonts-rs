@@ -1,4 +1,4 @@
-//! Dice Roller — a tabletop RPG dice tray using Dicefont glyphs.
+//! Dice Roller - a tabletop RPG dice tray using Dicefont glyphs.
 //!
 //! Select your dice, roll them, and watch the die faces animate before
 //! settling on the result. Features a roll history log, color customization,
@@ -163,7 +163,10 @@ fn main() -> Result<glib::ExitCode> {
     gtk4::init().into_diagnostic()?;
     Dicefont::ensure_registered().into_diagnostic()?;
 
-    let app = Application::builder().application_id(APP_ID).flags(gtk4::gio::ApplicationFlags::NON_UNIQUE).build();
+    let app = Application::builder()
+        .application_id(APP_ID)
+        .flags(gtk4::gio::ApplicationFlags::NON_UNIQUE)
+        .build();
     app.connect_activate(build_ui);
     Ok(app.run())
 }
@@ -292,7 +295,7 @@ fn build_ui(app: &Application) {
     tray_header.append(&tray_title);
 
     let total_label = Label::builder()
-        .label("Total: —")
+        .label("Total: -")
         .css_classes(["total-label"])
         .hexpand(true)
         .halign(Align::End)
@@ -710,7 +713,7 @@ fn animate_roll(state: &Rc<RefCell<DiceState>>) {
         let new_frame = dw.frame + 1;
 
         let (glyph, final_face, final_name) = if new_frame >= ANIMATION_FRAMES {
-            // Final face — settle on a result
+            // Final face - settle on a result
             if dw.is_fate {
                 let fate_idx = (simple_rng() % 3) as usize;
                 let fate_name = FATE_FACES[fate_idx].to_string();
@@ -807,14 +810,14 @@ fn finish_roll(state: &Rc<RefCell<DiceState>>) {
     }
 
     if roll_parts.is_empty() {
-        s.total_label.set_label("Total: —");
+        s.total_label.set_label("Total: -");
     } else {
         s.total_label.set_label(&format!("Total: {}", total));
     }
 
     // Update history
     let history_entry = if roll_parts.is_empty() {
-        "—".to_string()
+        "-".to_string()
     } else {
         format!("{} = {}", roll_parts.join(" + "), total)
     };

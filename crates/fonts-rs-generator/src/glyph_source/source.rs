@@ -1,4 +1,4 @@
-//! The [`GlyphSource`] trait — core abstraction for glyph sources.
+//! The [`GlyphSource`] trait - core abstraction for glyph sources.
 
 use crate::export_config::ExportConfig;
 use crate::font_family_config::FontFamilyConfigExt;
@@ -13,7 +13,7 @@ use std::path::Path;
 ///
 /// Implementations provide glyph identities ([`GlyphDescriptor`] list)
 /// and the SVG artwork for each glyph. The shared [`export`](Self::export)
-/// runner turns both into `GlyphEntry` artifacts — `metadata.json`,
+/// runner turns both into `GlyphEntry` artifacts - `metadata.json`,
 /// `gresource.xml`, `phf` codegen consume them uniformly.
 ///
 /// Two implementations exist: `FontFileSource` (TTF/OTF outline
@@ -30,7 +30,7 @@ pub trait GlyphSource {
     /// `resources_dir`, then emits `metadata.json` and
     /// `icons.gresource.xml`.
     ///
-    /// Default implementation — works for every `GlyphSource`, whether
+    /// Default implementation - works for every `GlyphSource`, whether
     /// `FontFileSource` or `SvgDirSource`.
     ///
     /// Returns the number of exported glyphs.

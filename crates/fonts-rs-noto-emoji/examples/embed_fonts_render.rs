@@ -7,7 +7,7 @@
 //!
 //! `bitmap-flags` is a required feature: only the CBDT strikes render
 //! in color via ab_glyph. Under `color-*` (COLRv1, the default) the
-//! font's `glyf` outlines are empty — ab_glyph has no COLR support and
+//! font's `glyf` outlines are empty - ab_glyph has no COLR support and
 //! would render a black box. Under `mono` the glyphs render as white
 //! silhouettes.
 
@@ -22,5 +22,5 @@ const SAMPLE_TEXT: &str = "🎉🚀😍🔥";
 const FONT_SIZE: f32 = 64.0;
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
-    run_embed_fonts_render::<NotoEmoji>(APP_ID, "Noto Emoji — ab_glyph Software Rendering", SAMPLE_TEXT, FONT_SIZE)
+    run_embed_fonts_render::<NotoEmoji>(APP_ID, "Noto Emoji - ab_glyph Software Rendering", SAMPLE_TEXT, FONT_SIZE)
 }

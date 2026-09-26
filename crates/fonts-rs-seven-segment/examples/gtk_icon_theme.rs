@@ -17,5 +17,5 @@ fn main() -> miette::Result<gtk4::glib::ExitCode> {
         (constants::DSEG7_CLASSIC_REGULAR_THREE, "3"),
     ];
 
-    run_gtk_icon_theme::<SevenSegment>("io.smearor.fonts_rs.seven_segment_icon_theme", "DSEG7 — GtkIconTheme", &icons)
+    run_gtk_icon_theme::<SevenSegment>("io.smearor.fonts_rs.seven_segment_icon_theme", "DSEG7 - GtkIconTheme", &icons)
 }

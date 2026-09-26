@@ -11,7 +11,7 @@ use fonts_rs_test::run_gtk_icon_theme;
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
     // Icon names are variant-prefixed (`blobmoji-{variant}-*`), so they
     // are resolved from codepoints instead of using the generated
-    // constants — this keeps the example compiling under every variant.
+    // constants - this keeps the example compiling under every variant.
     let icons: Vec<(String, &str)> = [
         ('\u{1F600}', "Grinning Face"),
         ('\u{1F60A}', "Smiling Face"),
@@ -22,5 +22,5 @@ fn main() -> miette::Result<gtk4::glib::ExitCode> {
     .filter_map(|(ch, label)| Blobmoji::glyph_name(ch).map(|name| (name.as_ref().to_string(), label)))
     .collect();
 
-    run_gtk_icon_theme::<Blobmoji>("io.smearor.fonts_rs.blobmoji_icon_theme", "Blobmoji — GtkIconTheme", &icons)
+    run_gtk_icon_theme::<Blobmoji>("io.smearor.fonts_rs.blobmoji_icon_theme", "Blobmoji - GtkIconTheme", &icons)
 }

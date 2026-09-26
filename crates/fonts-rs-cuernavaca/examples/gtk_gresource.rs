@@ -14,5 +14,5 @@ const APP_ID: &str = "io.smearor.fonts_rs.cuernavaca_gresource";
 const SAMPLE_TEXT: &str = "KQRBNP";
 
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
-    run_gtk_gresource::<Cuernavaca>(APP_ID, "Cuernavaca — GTK GResource", SAMPLE_TEXT)
+    run_gtk_gresource::<Cuernavaca>(APP_ID, "Cuernavaca - GTK GResource", SAMPLE_TEXT)
 }

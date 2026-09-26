@@ -11,7 +11,7 @@ use crate::GtkFont;
 ///
 /// Requires the family's glyph GResource. All methods have default
 /// implementations built on the [`FontFamily`] glyph maps and the
-/// [`GtkFont`] registration primitives — opting in is an empty impl
+/// [`GtkFont`] registration primitives - opting in is an empty impl
 /// emitted by `impl_font_family!`.
 pub trait IconThemeFont: FontFamily + GtkFont {
     /// Registers the glyph GResource and adds the family's icon

@@ -15,8 +15,8 @@ const SAMPLE_TEXT: &str = "\u{E050}\u{E0A4}\u{E083}";
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
     run_system_font_fallback::<Bravura>(
         APP_ID,
-        "Bravura — System Font Fallback",
+        "Bravura - System Font Fallback",
         SAMPLE_TEXT,
-        "Font NOT loaded — system font fallback is used. PUA codepoints may not render.",
+        "Font NOT loaded - system font fallback is used. PUA codepoints may not render.",
     )
 }

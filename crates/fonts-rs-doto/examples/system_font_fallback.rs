@@ -15,8 +15,8 @@ const SAMPLE_TEXT: &str = "HELLO";
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
     run_system_font_fallback::<Doto>(
         APP_ID,
-        "Doto — System Font Fallback",
+        "Doto - System Font Fallback",
         SAMPLE_TEXT,
-        "Font NOT loaded — system font fallback is used. The text is not rendered as dot-matrix.",
+        "Font NOT loaded - system font fallback is used. The text is not rendered as dot-matrix.",
     )
 }

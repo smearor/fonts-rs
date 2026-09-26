@@ -144,7 +144,7 @@ fn build_resolution_section() -> Frame {
     section.append(&input_row);
 
     let result_label = Label::builder()
-        .label("Codepoint: —\nGTK icon name: —")
+        .label("Codepoint: -\nGTK icon name: -")
         .halign(Align::Start)
         .css_classes(["dim-label"])
         .build();
@@ -198,7 +198,7 @@ fn build_resolution_section() -> Frame {
 
 fn do_resolve(result_label: &Label, name: &str) {
     if name.is_empty() {
-        result_label.set_label("Codepoint: —\nGTK icon name: —");
+        result_label.set_label("Codepoint: -\nGTK icon name: -");
         return;
     }
     let cp = NerdFonts::codepoint(name);
@@ -208,9 +208,9 @@ fn do_resolve(result_label: &Label, name: &str) {
             "Codepoint: U+{:04X} ('{}')\nGTK icon name: {}",
             c.as_char() as u32,
             c.as_char(),
-            gtk_name.as_deref().unwrap_or("—")
+            gtk_name.as_deref().unwrap_or("-")
         )),
-        None => result_label.set_label(&format!("Codepoint: not found\nGTK icon name: {}", gtk_name.as_deref().unwrap_or("—"))),
+        None => result_label.set_label(&format!("Codepoint: not found\nGTK icon name: {}", gtk_name.as_deref().unwrap_or("-"))),
     }
 }
 

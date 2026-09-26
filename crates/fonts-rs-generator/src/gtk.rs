@@ -36,7 +36,7 @@
 /// ```
 #[macro_export]
 macro_rules! impl_gtk_font {
-    // Icons only — no font.gresource
+    // Icons only - no font.gresource
     ($marker:ty) => {
         impl ::fonts_rs_model::GtkFont for $marker {
             fn register_glyphs() -> Result<(), ::fonts_rs_model::RegisterGlyphError> {
@@ -53,7 +53,7 @@ macro_rules! impl_gtk_font {
             }
         }
     };
-    // With font.gresource — includes generated font_resource.rs
+    // With font.gresource - includes generated font_resource.rs
     ($marker:ty, with_font_gresource) => {
         include!(concat!(env!("OUT_DIR"), "/font_resource.rs"));
 

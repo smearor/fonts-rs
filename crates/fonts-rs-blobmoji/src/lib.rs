@@ -1,7 +1,7 @@
 //! Blobmoji font integration for GTK 4 and pixel-drawing.
 //!
 //! Provides glyph name resolution, GResource registration, and codepoint
-//! lookup for the Blobmoji font family — a community-maintained emoji
+//! lookup for the Blobmoji font family - a community-maintained emoji
 //! font recreating Google's classic "blob" emoji style, covering all
 //! Unicode emoji codepoints with semantic names from CLDR annotation data.
 //!
@@ -54,7 +54,7 @@ pub use naming::BlobmojiName;
 
 /// Type alias for this font family's glyph name type.
 ///
-/// Prefer [`BlobmojiName`] from the [`naming`] module — this alias
+/// Prefer [`BlobmojiName`] from the [`naming`] module - this alias
 /// is provided for consistency with the template structure.
 pub type FamilyName = BlobmojiName;
 
@@ -137,7 +137,7 @@ mod tests {
 
     /// `render_text` must produce a non-empty, non-black buffer for the
     /// bitmap variants: CBDT strikes are PNG blobs positioned by their
-    /// bottom bearing — a regression test for the "1px line" and
+    /// bottom bearing - a regression test for the "1px line" and
     /// "black box" failure modes. Under `color-*` the COLRv1 font has
     /// empty `glyf` outlines (ab_glyph renders nothing), so this test
     /// only runs when the active variant ships CBDT strikes

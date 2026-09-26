@@ -17,5 +17,5 @@ fn main() -> miette::Result<gtk4::glib::ExitCode> {
         (constants::CUERNAVACA_B, "Bishop"),
     ];
 
-    run_gtk_icon_theme::<Cuernavaca>("io.smearor.fonts_rs.cuernavaca_icon_theme", "Cuernavaca — GtkIconTheme", &icons)
+    run_gtk_icon_theme::<Cuernavaca>("io.smearor.fonts_rs.cuernavaca_icon_theme", "Cuernavaca - GtkIconTheme", &icons)
 }

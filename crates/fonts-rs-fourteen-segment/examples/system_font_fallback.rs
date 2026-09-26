@@ -15,8 +15,8 @@ const SAMPLE_TEXT: &str = "ABCDEF12";
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
     run_system_font_fallback::<FourteenSegment>(
         APP_ID,
-        "DSEG14 — System Font Fallback",
+        "DSEG14 - System Font Fallback",
         SAMPLE_TEXT,
-        "Font NOT loaded — system font fallback is used. Fourteen-segment display glyphs will not render correctly.",
+        "Font NOT loaded - system font fallback is used. Fourteen-segment display glyphs will not render correctly.",
     )
 }

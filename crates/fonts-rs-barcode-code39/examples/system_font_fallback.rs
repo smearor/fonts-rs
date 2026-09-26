@@ -15,8 +15,8 @@ const BARCODE_TEXT: &str = "*HELLO*";
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
     run_system_font_fallback::<Code39>(
         APP_ID,
-        "Code39 — System Font Fallback",
+        "Code39 - System Font Fallback",
         BARCODE_TEXT,
-        "Font NOT loaded — system font fallback is used. The text is not a valid barcode.",
+        "Font NOT loaded - system font fallback is used. The text is not a valid barcode.",
     )
 }

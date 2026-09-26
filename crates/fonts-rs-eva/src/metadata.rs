@@ -1,7 +1,7 @@
 //! Icon metadata: keywords for search functionality.
 //!
 //! Provides keyword lookup for Eva icons, enabling search beyond
-//! simple name matching — e.g. "alarm" finds `eva-bell-symbolic` and
+//! simple name matching - e.g. "alarm" finds `eva-bell-symbolic` and
 //! `eva-clock-symbolic`.
 //!
 //! Keywords are sourced from upstream `icons-tags.json` (converted

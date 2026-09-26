@@ -126,7 +126,7 @@ pub fn nerd_font() -> Option<&'static FontVec> {
 
 /// Get the cached Symbols-only Nerd Font Mono, loading from disk on first access.
 ///
-/// The Mono variant renders every icon in a single cell — preferred for
+/// The Mono variant renders every icon in a single cell - preferred for
 /// terminal-style layouts where double-width icons break alignment.
 pub fn mono_font() -> Option<&'static FontVec> {
     NERD_FONT_MONO

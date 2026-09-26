@@ -13,5 +13,5 @@ const APP_ID: &str = "io.smearor.fonts_rs.fourteen_segment_svg_gresource";
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
     let glyphs: Vec<_> = FourteenSegment::all_glyphs().take(4).collect();
 
-    run_svg_gresource::<FourteenSegment>(APP_ID, "DSEG14 — SVG GResource", &glyphs)
+    run_svg_gresource::<FourteenSegment>(APP_ID, "DSEG14 - SVG GResource", &glyphs)
 }

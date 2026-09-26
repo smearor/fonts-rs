@@ -2,7 +2,7 @@
 //!
 //! The Eva webfont is loaded from disk or embedded via the
 //! `embed-fonts` feature and cached in `OnceLock` for the process
-//! lifetime. Both variants share the same `Eva-Icons.ttf` — the variant
+//! lifetime. Both variants share the same `Eva-Icons.ttf` - the variant
 //! only affects which codepoints the generated maps resolve.
 //!
 //! The font's TTF path is determined at build time by `build.rs`

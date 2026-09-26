@@ -33,7 +33,7 @@ fn main() -> miette::Result<()> {
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Nerd Fonts — SVG Glyphs</title>
+<title>Nerd Fonts - SVG Glyphs</title>
 <style>
 body {{
     font-family: sans-serif;
@@ -74,9 +74,9 @@ h1 {{
 </style>
 </head>
 <body>
-<h1>Nerd Fonts — SVG Glyphs</h1>
+<h1>Nerd Fonts - SVG Glyphs</h1>
 <p>Each icon below is an inline SVG loaded from the GResource bundle.
-No TTF font or <code>@font-face</code> is required — the SVGs are
+No TTF font or <code>@font-face</code> is required - the SVGs are
 pre-rendered vector outlines embedded directly in the HTML.</p>
 <div class="glyph-grid">
 {svg_grid}

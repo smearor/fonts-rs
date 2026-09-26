@@ -16,8 +16,8 @@ const SAMPLE_TEXT: &str = "\u{F131}\u{F132}\u{F133}";
 fn main() -> miette::Result<gtk4::glib::ExitCode> {
     run_system_font_fallback::<Dicefont>(
         APP_ID,
-        "Dicefont — System Font Fallback",
+        "Dicefont - System Font Fallback",
         SAMPLE_TEXT,
-        "Font NOT loaded — system font fallback is used. The dice face glyphs will not render correctly.",
+        "Font NOT loaded - system font fallback is used. The dice face glyphs will not render correctly.",
     )
 }

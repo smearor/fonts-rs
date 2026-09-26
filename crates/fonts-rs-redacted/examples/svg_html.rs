@@ -9,5 +9,5 @@ use fonts_rs_redacted::Redacted;
 use fonts_rs_test::run_svg_html;
 
 fn main() -> miette::Result<()> {
-    run_svg_html::<Redacted>("Redacted — SVG Glyphs", "redacted_svg_html.html")
+    run_svg_html::<Redacted>("Redacted - SVG Glyphs", "redacted_svg_html.html")
 }

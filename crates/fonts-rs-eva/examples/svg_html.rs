@@ -9,5 +9,5 @@ use fonts_rs_eva::Eva;
 use fonts_rs_test::run_svg_html;
 
 fn main() -> miette::Result<()> {
-    run_svg_html::<Eva>("Eva Icons — SVG Glyphs", "eva_svg_html.html")
+    run_svg_html::<Eva>("Eva Icons - SVG Glyphs", "eva_svg_html.html")
 }

@@ -22,7 +22,7 @@
 /// fonts_rs_generator::impl_font_loader!(env: "DSEG7_FONT_PATH");
 /// ```
 ///
-/// ## With marker type — additionally emits `impl SoftwareRender`
+/// ## With marker type - additionally emits `impl SoftwareRender`
 ///
 /// ```ignore
 /// fonts_rs_generator::impl_font_loader!(Code39, "LibreBarcode39-Regular.ttf");

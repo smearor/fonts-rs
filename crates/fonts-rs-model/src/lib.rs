@@ -6,7 +6,7 @@
 //!
 //! The high-level runtime API is the [`FontFamily`] core trait plus the
 //! capability traits [`IconThemeFont`], [`PangoFont`], [`HtmlExport`], and
-//! [`SoftwareRender`] — see [`prelude`] for a one-line import.
+//! [`SoftwareRender`] - see [`prelude`] for a one-line import.
 //!
 //! These types are extracted from `nerd-fonts-model` and generalized so
 //! that any font family crate can use them without Nerd Font dependencies.
@@ -37,7 +37,7 @@ pub mod html_builder;
 #[cfg(feature = "gtk")]
 pub mod html_export;
 #[cfg(feature = "gtk")]
-pub mod html_mode;
+pub mod html_svg_export;
 pub mod icon_css;
 pub mod icon_name;
 pub mod icon_set_detect;
@@ -97,7 +97,7 @@ pub use html_builder::HtmlBuilder;
 #[cfg(feature = "gtk")]
 pub use html_export::HtmlExport;
 #[cfg(feature = "gtk")]
-pub use html_mode::HtmlMode;
+pub use html_svg_export::HtmlSvgExport;
 pub use icon_css::icon_css;
 pub use icon_name::IconName;
 pub use icon_name::IconNameParseError;

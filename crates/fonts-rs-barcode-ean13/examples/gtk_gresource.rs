@@ -1,10 +1,10 @@
 //! Minimal GTK example: load font from GResource and render barcode text.
 //!
 //! Demonstrates the full GTK loading path:
-//! 1. `register_glyphs()` — registers SVG icon GResource
-//! 2. `register_font()` — registers TTF font GResource
-//! 3. `load_font()` — extracts TTF to temp file, adds to Pango font map
-//! 4. CSS `font-family` — GTK/Pango renders text with the loaded font
+//! 1. `register_glyphs()` - registers SVG icon GResource
+//! 2. `register_font()` - registers TTF font GResource
+//! 3. `load_font()` - extracts TTF to temp file, adds to Pango font map
+//! 4. CSS `font-family` - GTK/Pango renders text with the loaded font
 //!
 //! Run with:
 //! ```sh

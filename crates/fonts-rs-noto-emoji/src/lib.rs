@@ -1,7 +1,7 @@
 //! Noto Emoji font integration for GTK 4 and pixel-drawing.
 //!
 //! Provides glyph name resolution, GResource registration, and codepoint
-//! lookup for the Noto Emoji font family — Google's monochrome emoji font
+//! lookup for the Noto Emoji font family - Google's monochrome emoji font
 //! covering all Unicode emoji codepoints with semantic names from CLDR
 //! annotation data.
 //!
@@ -54,7 +54,7 @@ pub use naming::NotoEmojiName;
 
 /// Type alias for this font family's glyph name type.
 ///
-/// Prefer [`NotoEmojiName`] from the [`naming`] module — this alias
+/// Prefer [`NotoEmojiName`] from the [`naming`] module - this alias
 /// is provided for consistency with the template structure.
 pub type FamilyName = NotoEmojiName;
 
@@ -76,7 +76,7 @@ mod tests {
 
     /// `glyph_name` must resolve emoji codepoints to variant-prefixed
     /// icon names, and `glyph_svg` must return the colored vector
-    /// artwork from the GResource — the chain behind `gtk_icon_theme`
+    /// artwork from the GResource - the chain behind `gtk_icon_theme`
     /// and `svg_gresource`.
     #[cfg(feature = "gtk")]
     #[test]
@@ -108,7 +108,7 @@ mod tests {
     /// bitmap variants: CBDT strikes are PNG blobs positioned by their
     /// bottom bearing. Under `color-*` the COLRv1 font has empty `glyf`
     /// outlines (ab_glyph renders nothing); under `mono` the coverage
-    /// is white-on-black by design — so this test only runs when the
+    /// is white-on-black by design - so this test only runs when the
     /// active variant ships CBDT strikes (`noto_emoji_bitmap` cfg is
     /// emitted by build.rs, which also covers the default variant).
     #[cfg(all(feature = "gtk", feature = "render", noto_emoji_bitmap))]

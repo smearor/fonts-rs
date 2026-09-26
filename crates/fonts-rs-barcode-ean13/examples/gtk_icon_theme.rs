@@ -1,9 +1,9 @@
 //! Minimal GTK example: use GtkIconTheme to look up EAN13 glyph SVGs by icon name.
 //!
 //! Demonstrates the GtkIconTheme rendering path:
-//! 1. `register_glyphs()` — registers SVG icon GResource bundle
-//! 2. `GtkIconTheme` — resolves icon names to `IconPaintable`s
-//! 3. `GtkImage::from_icon_name()` — displays each glyph as an icon
+//! 1. `register_glyphs()` - registers SVG icon GResource bundle
+//! 2. `GtkIconTheme` - resolves icon names to `IconPaintable`s
+//! 3. `GtkImage::from_icon_name()` - displays each glyph as an icon
 //!
 //! Run with:
 //! ```sh
@@ -22,5 +22,5 @@ fn main() -> miette::Result<gtk4::glib::ExitCode> {
         (constants::TWO_COMPATIBILITY, "two-compatibility"),
     ];
 
-    run_gtk_icon_theme::<Ean13>("io.smearor.fonts_rs.barcode_ean13_icon_theme", "EAN13 — GtkIconTheme", &icons)
+    run_gtk_icon_theme::<Ean13>("io.smearor.fonts_rs.barcode_ean13_icon_theme", "EAN13 - GtkIconTheme", &icons)
 }

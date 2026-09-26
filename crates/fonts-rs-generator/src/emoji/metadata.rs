@@ -3,7 +3,7 @@
 //! Keywords are sourced from CLDR annotation data (`default` field).
 //! Categories are sourced from Unicode `emoji-test.txt` (`group` field).
 //!
-//! Implements [`MetadataGenerator`] for emoji families — keyword and
+//! Implements [`MetadataGenerator`] for emoji families - keyword and
 //! category maps are keyed by Unicode codepoint, so the generator works
 //! for any font covering the emoji ranges (Noto Emoji, Blobmoji, ...).
 

@@ -16,7 +16,7 @@ use std::collections::HashSet;
 /// entities (`xmlns:i="&ns_ai;"`) and embed metadata such as
 /// `<i:aipgf>` PGIF blobs or `i:extraneous` attributes. librsvg rejects
 /// entity declarations outright, and composing the SVG into a larger
-/// document drops the DOCTYPE — either way the prefixes end up
+/// document drops the DOCTYPE - either way the prefixes end up
 /// unbound and parsing fails.
 ///
 /// The processor removes the DOCTYPE, every `xmlns:*` attribute whose
@@ -94,7 +94,7 @@ fn prefix_of(name: &str) -> Option<&str> {
 /// entity references into `removed` and dropping attributes that use
 /// removed prefixes.
 ///
-/// Returns `None` when the element's own name uses a removed prefix —
+/// Returns `None` when the element's own name uses a removed prefix -
 /// the caller then skips the element (and its subtree for
 /// [`Event::Start`]).
 fn filter_element(element: BytesStart<'_>, removed: &mut HashSet<String>) -> Option<BytesStart<'static>> {

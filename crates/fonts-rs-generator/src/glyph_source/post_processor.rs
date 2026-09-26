@@ -6,7 +6,7 @@ use crate::glyph_source::error::GlyphSourceError;
 /// to the output directory.
 ///
 /// Implementations should be XML-aware (`quick_xml` is already a
-/// dependency of this crate) — naive string replacement would also
+/// dependency of this crate) - naive string replacement would also
 /// match `fill="…"` inside comments, CDATA, or embedded metadata.
 pub trait SvgPostProcessor {
     /// Transforms the SVG source text.

@@ -1,18 +1,18 @@
 //! Software rendering capability.
 //!
 //! Provides the [`SoftwareRender`] trait for font families loadable via
-//! `ab_glyph` — the only capability trait without a `GtkFont` bound,
+//! `ab_glyph` - the only capability trait without a `GtkFont` bound,
 //! usable in pure-Rust renderers.
 
 use crate::FontFamily;
 
 /// Software rendering via `ab_glyph` (feature `render`).
 ///
-/// Emitted per family by `impl_font_loader!` — the font loading itself
+/// Emitted per family by `impl_font_loader!` - the font loading itself
 /// stays per-crate because the TTF source differs (`embed-fonts` vs.
 /// `resources/` directory).
 pub trait SoftwareRender: FontFamily {
-    /// Variant selector — `()` for single-font families, a per-family
+    /// Variant selector - `()` for single-font families, a per-family
     /// enum for multi-TTF families (e.g. `NerdFontVariant`).
     type Variant: Copy + Default;
 

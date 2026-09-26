@@ -16,7 +16,7 @@ use std::str::FromStr;
 /// Runtime access to a font family: metadata and glyph maps.
 ///
 /// Implemented once per font crate via `impl_font_family!`. The core
-/// trait is feature-free — pure data access that works without GTK.
+/// trait is feature-free - pure data access that works without GTK.
 ///
 /// # Usage Modes
 ///
@@ -57,7 +57,7 @@ pub trait FontFamily: FontFamilyMarker + FontFamilyConfig {
     /// Looks up the codepoint for a glyph name.
     ///
     /// Accepts `&str`, `String`, and the typed [`Self::Name`] via
-    /// `AsRef<str>` — both `constants::UNI002A` and `GlyphName<F>` work.
+    /// `AsRef<str>` - both `constants::UNI002A` and `GlyphName<F>` work.
     fn codepoint(name: impl AsRef<str>) -> Option<CodePoint>;
 
     /// Iterates all `(codepoint, glyph_name)` pairs.
@@ -69,8 +69,8 @@ pub trait FontFamily: FontFamilyMarker + FontFamilyConfig {
 
     /// Returns the number of glyphs in this family.
     ///
-    /// Default: `all_glyphs().count()` — O(n). Implementations backed
-    /// by a `phf::Map` override this with `map.len()` — O(1).
+    /// Default: `all_glyphs().count()` - O(n). Implementations backed
+    /// by a `phf::Map` override this with `map.len()` - O(1).
     fn glyph_count() -> usize {
         Self::all_glyphs().count()
     }

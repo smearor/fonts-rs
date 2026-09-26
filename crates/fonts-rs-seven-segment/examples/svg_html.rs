@@ -9,5 +9,5 @@ use fonts_rs_seven_segment::SevenSegment;
 use fonts_rs_test::run_svg_html;
 
 fn main() -> miette::Result<()> {
-    run_svg_html::<SevenSegment>("DSEG7 — SVG Glyphs", "seven_segment_svg_html.html")
+    run_svg_html::<SevenSegment>("DSEG7 - SVG Glyphs", "seven_segment_svg_html.html")
 }

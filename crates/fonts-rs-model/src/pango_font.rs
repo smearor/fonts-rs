@@ -10,7 +10,7 @@ use pango::prelude::FontMapExt;
 
 /// Pango text rendering via the family's TTF(s).
 ///
-/// Only implemented by families that ship a usable TTF — icons-only
+/// Only implemented by families that ship a usable TTF - icons-only
 /// families simply lack this impl.
 pub trait PangoFont: FontFamily + GtkFont {
     /// Loads all TTFs of the family into `font_map`, enabling CSS

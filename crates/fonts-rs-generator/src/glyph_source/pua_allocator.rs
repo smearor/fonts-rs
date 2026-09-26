@@ -7,7 +7,7 @@ use std::collections::HashSet;
 /// Allocates stable Private Use Area codepoints (U+E000–U+F8FF) via
 /// deterministic hash-of-name with linear probing on collision.
 ///
-/// An icon keeps its codepoint across upstream additions/removals —
+/// An icon keeps its codepoint across upstream additions/removals -
 /// persisted references (favorites, recents) never silently break.
 ///
 /// Callers must feed names in a deterministic order (e.g. sorted
@@ -32,7 +32,7 @@ impl PuaAllocator {
 
     /// Returns the deterministic PUA codepoint for `name`.
     ///
-    /// Each name is allocated exactly once per export run — glyph names
+    /// Each name is allocated exactly once per export run - glyph names
     /// are unique within a family.
     ///
     /// # Errors
@@ -51,7 +51,7 @@ impl PuaAllocator {
         Err(GlyphSourceError::PuaExhausted)
     }
 
-    /// FNV-1a hash — stable across Rust versions, unlike `DefaultHasher`,
+    /// FNV-1a hash - stable across Rust versions, unlike `DefaultHasher`,
     /// so generated codepoints are reproducible across builds.
     fn hash(bytes: &[u8]) -> u64 {
         bytes
