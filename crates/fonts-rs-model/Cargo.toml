@@ -16,6 +16,9 @@ publish = true
 gtk = ["dep:gio", "dep:gtk4", "dep:pango", "dep:base64"]
 render = ["dep:ab_glyph"]
 
+# Enable GTK 4.12+ APIs (load_from_string for CssProvider)
+v4_12 = ["gtk4?/v4_12"]
+
 [dependencies]
 phf.workspace = true
 serde.workspace = true

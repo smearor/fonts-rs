@@ -57,7 +57,7 @@ pub trait IconThemeFont: FontFamily + GtkFont {
     fn compose_svg(text: &str, glyph_height: f64) -> String {
         let _ = Self::ensure_registered();
 
-        let mut segments: Vec<(f64, String, String)> = Vec::new();
+        let mut segments: Vec<(f64, String, String, String)> = Vec::new();
 
         for ch in text.chars() {
             let Some(name) = Self::glyph_name(ch) else {
@@ -68,6 +68,7 @@ pub trait IconThemeFont: FontFamily + GtkFont {
             };
 
             let viewbox = extract_svg_viewbox(&svg).to_string();
+            let xmlns = extract_svg_xmlns(&svg);
             let content = extract_svg_inner(&svg).to_string();
 
             let parts: Vec<f64> = viewbox.split_whitespace().filter_map(|s| s.parse().ok()).collect();
@@ -77,20 +78,20 @@ pub trait IconThemeFont: FontFamily + GtkFont {
                 glyph_height * 0.3
             };
 
-            segments.push((scaled_width, viewbox, content));
+            segments.push((scaled_width, viewbox, xmlns, content));
         }
 
-        let total_width: f64 = segments.iter().map(|(w, _, _)| *w).sum();
+        let total_width: f64 = segments.iter().map(|(w, ..)| *w).sum();
         let total_width = total_width.ceil().max(1.0) as u32;
         let total_height = glyph_height.ceil() as u32;
 
         let mut inner = String::new();
         let mut x = 0.0_f64;
-        for (scaled_width, viewbox, content) in &segments {
+        for (scaled_width, viewbox, xmlns, content) in &segments {
             let colored = content.replace("currentColor", "#000");
             let w = scaled_width.ceil();
             inner.push_str(&format!(
-                "<svg x=\"{x:.0}\" y=\"0\" width=\"{w}\" height=\"{glyph_height:.0}\" viewBox=\"{viewbox}\">{colored}</svg>"
+                "<svg x=\"{x:.0}\" y=\"0\" width=\"{w}\" height=\"{glyph_height:.0}\" viewBox=\"{viewbox}\"{xmlns}>{colored}</svg>"
             ));
             x += scaled_width;
         }
@@ -99,6 +100,30 @@ pub trait IconThemeFont: FontFamily + GtkFont {
             "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{total_width}\" height=\"{total_height}\"><rect width=\"100%\" height=\"100%\" fill=\"#fff\"/>{inner}</svg>"
         )
     }
+}
+
+/// Extracts the `xmlns` namespace declarations from the root `<svg>`
+/// tag, e.g. ` xmlns="…" xmlns:ns1="…"` (leading space per attribute).
+///
+/// Glyph SVGs may use prefixed namespaces (`ns1:href` on `<use>`
+/// elements). Stripping the root tag for composition would drop the
+/// declarations and leave the prefixes unbound, so they are re-attached
+/// to each nested `<svg>` element.
+fn extract_svg_xmlns(svg: &str) -> String {
+    let Some(start) = svg.find("<svg") else {
+        return String::new();
+    };
+    let Some(end) = svg[start..].find('>') else {
+        return String::new();
+    };
+    svg[start..start + end]
+        .split_whitespace()
+        .filter(|attr| attr.starts_with("xmlns"))
+        .fold(String::new(), |mut out, attr| {
+            out.push(' ');
+            out.push_str(attr);
+            out
+        })
 }
 
 /// Extracts the `viewBox` attribute value from an SVG string.

@@ -38,6 +38,9 @@ pub mod html_builder;
 pub mod html_export;
 #[cfg(feature = "gtk")]
 pub mod html_mode;
+pub mod icon_css;
+pub mod icon_name;
+pub mod icon_set_detect;
 #[cfg(feature = "gtk")]
 pub mod icon_theme_font;
 pub mod keyword;
@@ -95,6 +98,10 @@ pub use html_builder::HtmlBuilder;
 pub use html_export::HtmlExport;
 #[cfg(feature = "gtk")]
 pub use html_mode::HtmlMode;
+pub use icon_css::icon_css;
+pub use icon_name::IconName;
+pub use icon_name::IconNameParseError;
+pub use icon_set_detect::IconSetDetect;
 #[cfg(feature = "gtk")]
 pub use icon_theme_font::IconThemeFont;
 pub use keyword::GlyphKeyword;

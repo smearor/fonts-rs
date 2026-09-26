@@ -61,6 +61,26 @@ pub trait FontFamilyConfig {
     /// PUA at `U+F0001`–`U+10FFFF`) should override this.
     const CODEPOINT_RANGES: &[CodePointRange] = &[BMP_RANGE];
 
+    /// Icon name prefix for this family's GTK icon names.
+    ///
+    /// Icon names follow the convention `{ICON_PREFIX}{name}-symbolic`
+    /// (kebab-case, lowercase). Nerd Fonts uses `"nf-"`; standalone icon
+    /// fonts use their own prefix (e.g. `"tabler-"` for Tabler Icons).
+    ///
+    /// Defaults to `""` for families that don't use typed
+    /// [`IconName`](crate::IconName) handling.
+    const ICON_PREFIX: &'static str = "";
+
+    /// Validates a fully-formed icon name (`{ICON_PREFIX}{name}-symbolic`).
+    ///
+    /// The default accepts any name carrying the family's
+    /// [`ICON_PREFIX`](Self::ICON_PREFIX) — sufficient for single-set
+    /// icon fonts. Multi-set icon fonts override this to check set
+    /// membership (Nerd Fonts validates via `IconSet::detect`).
+    fn is_valid_icon_name(name: &str) -> bool {
+        Self::ICON_PREFIX.is_empty() || name.starts_with(Self::ICON_PREFIX)
+    }
+
     /// Build the GResource sub-prefix for icons: `{GRESOURCE_PREFIX}/{SCALABLE_DIR}/{ICONS_CONTEXT}`.
     ///
     /// Used in `icons.gresource.xml` and resource paths.

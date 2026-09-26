@@ -24,6 +24,14 @@ pub struct GlyphEntry<N: AsRef<str>> {
     pub file: PathBuf,
     /// Full GResource path.
     pub resource_path: ResourcePath,
+    /// Full codepoint sequence for multi-codepoint glyphs (ZWJ emoji,
+    /// keycap sequences); `None` for single-codepoint glyphs.
+    ///
+    /// Sequences get a stable PUA codepoint in `code` so codepoint-keyed
+    /// lookups stay unique; this field preserves the real codepoints for
+    /// consumers that emit emoji text (cheat sheet copy-paste, pickers).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sequence: Option<Vec<CodePoint>>,
 }
 
 impl<N: AsRef<str>> GlyphEntry<N> {
@@ -45,6 +53,7 @@ impl<N: AsRef<str>> GlyphEntry<N> {
             name,
             file,
             resource_path,
+            sequence: None,
         }
     }
 }
