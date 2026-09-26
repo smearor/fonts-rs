@@ -14,18 +14,7 @@
 /// GTK4 CSS parser does not reliably load fonts from `@font-face` rules.
 /// Instead, fonts are loaded directly into the Pango font map.
 pub fn icon_css() -> String {
-    let mut css = String::with_capacity(256);
-
-    css.push_str(".nerd-icon {\n");
-    css.push_str("    font-family: 'NerdFontsSymbolsOnly';\n");
-    css.push_str("    font-size: 1.5em;\n");
-    css.push_str("}\n");
-    css.push_str(".nerd-icon-mono {\n");
-    css.push_str("    font-family: 'NerdFontsSymbolsOnlyMono';\n");
-    css.push_str("    font-size: 1.5em;\n");
-    css.push_str("}\n");
-
-    css
+    fonts_rs_model::icon_css(&[("nerd-icon", "NerdFontsSymbolsOnly"), ("nerd-icon-mono", "NerdFontsSymbolsOnlyMono")])
 }
 
 #[cfg(test)]

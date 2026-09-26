@@ -31,16 +31,16 @@ include = [
 default = ["gtk"]
 
 # GTK4 icon name resolution, color application, GResource registration
-gtk = ["dep:gtk4", "dep:gio", "pango", "fonts-rs-generator/gtk"]
+gtk = ["dep:gtk4", "dep:gio", "pango", "fonts-rs-model/gtk", "fonts-rs-generator/gtk"]
 
 # Pango font loading via add_font_file (no GTK required)
 pango = ["dep:pango", "dep:pangocairo", "dep:tempfile"]
 
 # Enable GTK 4.12+ APIs (load_from_string for CssProvider)
-v4_12 = ["gtk4?/v4_12"]
+v4_12 = ["gtk4?/v4_12", "fonts-rs-model/v4_12"]
 
 # Software rendering with ab_glyph (pixel buffer, no GTK required)
-render = ["dep:ab_glyph", "dep:woff2-patched"]
+render = ["dep:ab_glyph", "dep:woff2-patched", "fonts-rs-model/render"]
 
 # Web CSS generation (per-icon codepoint mappings for web instances)
 web = []

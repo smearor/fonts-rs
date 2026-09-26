@@ -44,13 +44,18 @@ impl InitOptions {
 
     /// Initializes fonts-rs with the configured options.
     ///
-    /// - Registers GResource bundles (gtk feature)
-    /// - Registers vendored icon GResource (gtk feature)
+    /// - Registers GResource bundles (gtk feature, idempotent via
+    ///   [`GtkFont::ensure_registered`])
+    /// - Registers vendored icon GResource (gtk feature, idempotent)
     /// - Sets font search base directory (render feature, without embed-fonts)
     /// - Loads Nerd Font TTF files into the global Pango-Cairo font map (pango feature)
     /// - Loads icon CSS classes into GTK display (gtk feature)
     ///
-    /// Call once at application startup.
+    /// Call once at application startup. GResource registration is
+    /// idempotent: repeated calls are safe and return the cached result.
+    /// The CSS provider is added on every call — a duplicate provider is
+    /// harmless and preserves retry semantics when no display existed on
+    /// the first call.
     ///
     /// # Errors
     ///
@@ -67,24 +72,8 @@ impl InitOptions {
 
         #[cfg(feature = "gtk")]
         {
-            gio::resources_register_include!("compiled.gresource").map_err(|e| InitError::GResourceRegister(e.to_string()))?;
-
-            crate::icons::register_icons().map_err(|e| InitError::IconRegister(e.to_string()))?;
-
-            let provider = gtk4::CssProvider::new();
-            let css = crate::css::icon_css();
-            #[cfg(feature = "v4_12")]
-            {
-                provider.load_from_string(&css);
-            }
-            #[cfg(not(feature = "v4_12"))]
-            {
-                #[allow(deprecated)]
-                provider.load_from_data(&css);
-            }
-            if let Some(display) = gtk4::gdk::Display::default() {
-                gtk4::style_context_add_provider_for_display(&display, &provider, gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION);
-            }
+            crate::NerdFonts::ensure_registered().map_err(|e| InitError::GResourceRegister(e.to_string()))?;
+            fonts_rs_model::gtk::load_css(&crate::css::icon_css());
         }
 
         Ok(())

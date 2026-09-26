@@ -2,9 +2,10 @@
 //!
 //! Manual implementations of the [`FontFamily`] core trait and the
 //! capability traits — Nerd Fonts does not use the `impl_font_family!`
-//! macro because its layout differs from the generated font crates:
-//! icons live under `{GRESOURCE_PREFIX}/icons` (not `scalable/glyphs`),
-//! and two TTFs (symbols + label) are installed into the Pango font map.
+//! macro because its build pipeline differs from the generated font
+//! crates (vendored icon GResource, two TTFs installed into the Pango
+//! font map). Icons follow the standard `{prefix}/scalable/glyphs`
+//! resource layout.
 //!
 //! [`HtmlExport`](fonts_rs_model::HtmlExport) is deliberately not
 //! implemented: Nerd Fonts avoids `@font-face` because the GTK4 CSS
@@ -39,8 +40,18 @@ impl FontFamilyConfig for NerdFonts {
 
     const CODEPOINT_RANGES: &[CodePointRange] = NerdFontsConfig::CODEPOINT_RANGES;
 
-    /// Nerd Font icons live directly under `{GRESOURCE_PREFIX}/icons`,
-    /// not the generated `{prefix}/scalable/{context}` layout.
+    /// Nerd Fonts icon names carry the `nf-` prefix.
+    const ICON_PREFIX: &'static str = NerdFontsConfig::ICON_PREFIX;
+
+    /// Delegates to [`NerdFontsConfig::is_valid_icon_name`] so
+    /// `IconName<NerdFonts>` validates identically to the canonical
+    /// `IconName<NerdFontsConfig>`.
+    fn is_valid_icon_name(name: &str) -> bool {
+        NerdFontsConfig::is_valid_icon_name(name)
+    }
+
+    /// Nerd Font icons follow the standard
+    /// `{GRESOURCE_PREFIX}/scalable/glyphs` layout.
     fn icons_resource_prefix() -> String {
         ICONS_RESOURCE_PATH.to_string()
     }
@@ -74,9 +85,7 @@ impl FontFamily for NerdFonts {
     }
 
     fn all_glyphs() -> impl Iterator<Item = (fonts_rs_model::CodePoint, Self::Name)> {
-        crate::icons::all_icons().filter_map(|(ch, name)| {
-            IconName::parse(name).map(|name| (fonts_rs_model::CodePoint::from_char(ch), name))
-        })
+        crate::icons::all_icons().filter_map(|(ch, name)| IconName::parse(name).map(|name| (fonts_rs_model::CodePoint::from_char(ch), name)))
     }
 
     fn glyph_count() -> usize {

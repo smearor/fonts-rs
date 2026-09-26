@@ -47,7 +47,10 @@ fn main() -> Result<glib::ExitCode> {
     gtk4::init().into_diagnostic()?;
     nerd_fonts_rs::init().into_diagnostic()?;
 
-    let app = Application::builder().application_id(APP_ID).build();
+    let app = Application::builder()
+        .application_id(APP_ID)
+        .flags(gtk4::gio::ApplicationFlags::NON_UNIQUE)
+        .build();
 
     app.connect_activate(build_ui);
 
