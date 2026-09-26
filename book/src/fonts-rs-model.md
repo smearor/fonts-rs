@@ -72,10 +72,12 @@ pub trait FontFamilyConfig {
     const GRESOURCE_PREFIX: &'static str;
     const ICONS_CONTEXT: &'static str = ICONS_CONTEXT_GLYPHS;
     const CODEPOINT_RANGES: &[CodePointRange] = &[BMP_RANGE];
+    const ICON_PREFIX: &'static str = "";
 
     fn icons_dir(output_dir: &Path) -> PathBuf { ... }
     fn prepare_icons_dir(output_dir: &Path) -> std::io::Result<PathBuf> { ... }
     fn icons_resource_prefix() -> String { ... }
+    fn is_valid_icon_name(name: &str) -> bool { ... }
 }
 ```
 
@@ -91,6 +93,8 @@ pub trait FontFamilyConfig {
   override e.g. `"emoji"` for Noto Emoji
 - **`CODEPOINT_RANGES`**: Unicode ranges for reverse cmap probing -
   default BMP, override e.g. `ASCII_PRINTABLE_RANGE` for barcode fonts
+- **`ICON_PREFIX`**: Icon name prefix for icon fonts (e.g. `"nf-"` for
+  Nerd Fonts, `"tabler-"` for Tabler). Empty for non-icon families.
 
 ### Methods
 
@@ -98,6 +102,14 @@ pub trait FontFamilyConfig {
   recreates it (avoids stale SVGs from previous builds)
 - **`icons_dir`**: Returns the path to `scalable/{context}/` within the
   output directory
+- **`icons_resource_prefix`**: Returns
+  `{GRESOURCE_PREFIX}/scalable/{ICONS_CONTEXT}` — the canonical resource
+  layout for icon-theme glyphs. Every family ships SVGs at
+  `{prefix}/scalable/{context}/{name}.svg`; override only when upstream
+  assets demand a different layout.
+- **`is_valid_icon_name`**: Validation hook used by `IconName<F>` —
+  default accepts names starting with `ICON_PREFIX`; multi-set fonts
+  override it (Nerd Fonts delegates to `IconSet` prefix detection).
 
 ## `FontDefinition` (Trait)
 
@@ -268,6 +280,59 @@ Each font family crate defines a type alias:
 ```rust
 pub type DotoName = GlyphName<Doto>;
 ```
+
+## `IconName<F>`
+
+Phantom-typed GTK icon name for icon font families — the icon-font
+counterpart of `GlyphName<F>`:
+
+```rust
+pub struct IconName<F: FontFamilyConfig> {
+    name: String,
+    _marker: PhantomData<F>,
+}
+```
+
+Normalizes raw glyph names to the canonical `{ICON_PREFIX}{kebab}-symbolic`
+form (lowercase, `_` → `-`, `-symbolic` suffix) and validates via
+`F::is_valid_icon_name`. Implements `AsRef<str>`, `Display`, `FromStr`,
+`Serialize`, `Deserialize`, `Hash`, `Eq`, `Ord` — all without bounds on `F`.
+
+```rust
+// nerd-fonts-model
+pub type IconName = fonts_rs_model::IconName<NerdFontsConfig>;
+```
+
+Key methods: `IconName::parse` (accepts `nf-fa-x`, `nf-fa-x-symbolic`,
+`fa-x`), `from_glyph_name`, `css_class_name` (name without `-symbolic`),
+`icon_set` (delegates to `F: IconSetDetect` when implemented).
+
+## `IconSetDetect` (Trait)
+
+Optional capability for multi-set icon fonts — detects which icon set a
+name belongs to:
+
+```rust
+pub trait IconSetDetect {
+    type IconSet;
+    fn detect_icon_set(icon_name: &str) -> Self::IconSet;
+}
+```
+
+Nerd Fonts implements it with its `IconSet` enum; single-set icon fonts
+simply don't implement it. `IconName::icon_set` is only available when
+`F: IconSetDetect`.
+
+## Icon CSS helpers
+
+- **`icon_css::<F>()`** (`fonts-rs-model`, `gtk` feature): generates the
+  GTK CSS class rule `.{ICON_PREFIX}* { font-family: ... }` used by
+  family init paths.
+- **`load_css(css)`** (`fonts-rs-model`, `gtk` feature): loads a
+  `CssProvider` onto the default display at application priority.
+- **`web_icon_css_rules(icons, class_prefix)`** (`fonts-rs-generator`):
+  emits per-icon `.prefix-name:before { content: "\xxxx" }` rules for
+  web CSS generators.
 
 ## `FontFile`
 
