@@ -93,6 +93,18 @@ pub trait CheatSheetFamily: 'static {
         None
     }
 
+    /// Optional canonical ordering contract for the family.
+    ///
+    /// Families with an upstream-curated glyph order (e.g. emoji picker
+    /// ordering) return their [`GlyphOrdering`] implementation here;
+    /// `None` (the default) keeps the alphabetical grid. When `Some`,
+    /// ordering positions override the grid sort, group labels appear
+    /// in the detail sidebar, and a group jump-list is added to the
+    /// top bar.
+    fn ordering() -> Option<&'static dyn fonts_rs_model::GlyphOrdering> {
+        None
+    }
+
     /// Icon-theme name for a glyph, rendered via an image widget in grid
     /// cells instead of a text label.
     ///

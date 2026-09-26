@@ -39,6 +39,16 @@ pub(super) fn show_detail<F: CheatSheetFamily>(content: &Box, name: &F::Name, co
     let subtitle_label = Label::builder().label(&subtitle).css_classes(["sidebar-subtitle"]).halign(Align::Start).build();
     content.append(&subtitle_label);
 
+    // Ordering group label (e.g. the emoji picker group) below the subtitle.
+    if let Some(group) = F::ordering().and_then(|o| o.group(name.as_ref())) {
+        let group_label = Label::builder()
+            .label(group.as_str())
+            .css_classes(["sidebar-subtitle", "dim-label"])
+            .halign(Align::Start)
+            .build();
+        content.append(&group_label);
+    }
+
     // Name section (CSS class name for icon fonts, glyph name otherwise).
     let name_heading = Label::builder()
         .label(F::NAME_FIELD_LABEL)

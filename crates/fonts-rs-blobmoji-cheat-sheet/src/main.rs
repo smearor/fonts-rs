@@ -16,6 +16,7 @@ use fonts_rs_blobmoji::Blobmoji;
 use fonts_rs_blobmoji::BlobmojiName;
 use fonts_rs_cheat_sheet::CheatSheetFamily;
 use fonts_rs_model::CodePoint;
+use fonts_rs_model::GlyphOrdering;
 use gtk4::glib;
 use miette::IntoDiagnostic;
 use miette::Result;
@@ -128,6 +129,19 @@ impl CheatSheetFamily for BlobmojiSheet {
 
     fn alias_display(_name: &BlobmojiName) -> Option<String> {
         None
+    }
+
+    /// Picker ordering contract: enables picker-order grid sorting,
+    /// the group jump-list, and group labels in the detail sidebar.
+    fn ordering() -> Option<&'static dyn GlyphOrdering> {
+        #[cfg(feature = "metadata")]
+        {
+            Some(&BlobmojiMetadata)
+        }
+        #[cfg(not(feature = "metadata"))]
+        {
+            None
+        }
     }
 
     /// Render cells via the GtkIconTheme: the bundled TTFs declare family

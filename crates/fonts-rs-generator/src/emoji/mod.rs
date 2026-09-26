@@ -14,6 +14,7 @@ pub use cldr::parse_cldr_annotations;
 pub use emoji_test::parse_emoji_test;
 pub use metadata::EmojiMetadataGenerator;
 pub use ordering::EmojiOrdering;
+pub use ordering::EmojiOrderingGenerator;
 pub use ordering::OrderingEmoji;
 pub use ordering::OrderingGroup;
 pub use ordering::parse_emoji_ordering;

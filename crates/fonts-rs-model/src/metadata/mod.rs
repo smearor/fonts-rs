@@ -9,10 +9,16 @@
 
 mod alias_map;
 mod category_map;
+mod glyph_group;
 mod glyph_metadata;
+mod glyph_ordering;
+mod group_label;
 mod keyword_map;
 
 pub use alias_map::GlyphAliasMap;
 pub use category_map::GlyphCategoryMap;
+pub use glyph_group::GlyphGroup;
 pub use glyph_metadata::GlyphMetadata;
+pub use glyph_ordering::GlyphOrdering;
+pub use group_label::GroupLabel;
 pub use keyword_map::GlyphKeywordMap;

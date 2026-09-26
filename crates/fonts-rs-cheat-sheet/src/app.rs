@@ -3,11 +3,13 @@
 use crate::detail::show_detail;
 use crate::family::CheatSheetFamily;
 use fonts_rs_model::CodePoint;
+use fonts_rs_model::GroupLabel;
 use gtk4::Align;
 use gtk4::Application;
 use gtk4::ApplicationWindow;
 use gtk4::Box;
 use gtk4::Button;
+use gtk4::DropDown;
 use gtk4::Entry;
 use gtk4::FlowBox;
 use gtk4::HeaderBar;
@@ -137,6 +139,12 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
     let all_icons = F::all_glyphs();
     let total = all_icons.len();
 
+    // Canonical ordering contract (e.g. emoji picker ordering). `None`
+    // for families without a curated order - keeps the alphabetical grid.
+    let ordering = F::ordering();
+    let group_labels: &'static [GroupLabel] = ordering.map(|o| o.group_labels()).unwrap_or_default();
+    let active_group: Rc<RefCell<Option<GroupLabel>>> = Rc::new(RefCell::new(None));
+
     // --- HeaderBar with Back/Forward history navigation ---
     let header_bar = HeaderBar::builder()
         .title_widget(&gtk4::Label::new(Some(F::TITLE)))
@@ -186,6 +194,21 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
         .build();
     count_bar.append(&count_label);
     count_bar.append(&total_label);
+
+    // Group jump-list: a dropdown of canonical group labels. Only
+    // present when the family exposes ordering groups. The
+    // `connect_selected_notify` is wired later, once `render_grid` and
+    // `refresh_grid` exist.
+    let mut group_dropdown: Option<DropDown> = None;
+    if !group_labels.is_empty() {
+        let mut items = vec!["All groups".to_string()];
+        items.extend(group_labels.iter().map(|label| label.as_str().to_string()));
+        let refs: Vec<&str> = items.iter().map(String::as_str).collect();
+        let dropdown = DropDown::from_strings(&refs);
+        dropdown.set_tooltip_text(Some("Jump to group"));
+        count_bar.append(&dropdown);
+        group_dropdown = Some(dropdown);
+    }
     top_bar.append(&count_bar);
 
     let search_entry = Entry::builder()
@@ -326,37 +349,62 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
     let current_icon_size: Rc<RefCell<f64>> = Rc::new(RefCell::new(42.0));
 
     let icons_for_filter = all_icons.clone();
-    let render_grid = move |filter: &str| -> Vec<(CodePoint, F::Name)> {
-        let filter_lower = filter.to_lowercase();
-        if filter_lower.is_empty() {
-            return icons_for_filter.to_vec();
-        }
+    let render_grid = {
+        let active_group = active_group.clone();
+        move |filter: &str| -> Vec<(CodePoint, F::Name)> {
+            // Group jump-list filter: restrict the glyph set to the
+            // selected group (None = all groups / ordering disabled).
+            let group = *active_group.borrow();
+            let in_group = |name: &F::Name| group.is_none_or(|label| ordering.is_some_and(|o| o.group(name.as_ref()) == Some(label)));
+            let base: Vec<(CodePoint, F::Name)> = icons_for_filter.iter().filter(|(_, name)| in_group(name)).cloned().collect();
 
-        let search_results = F::search(filter);
-        let mut filtered: Vec<(CodePoint, F::Name)> = search_results
-            .iter()
-            .filter_map(|name| {
-                let icon_name = F::parse_name(name)?;
-                let cp = F::codepoint(name)?;
-                Some((cp, icon_name))
-            })
-            .collect();
-
-        for (cp, name) in icons_for_filter.iter() {
-            let hex = format!("{:X}", cp.as_char() as u32);
-            let char_str = cp.as_char().to_string();
-            if (hex.to_lowercase().contains(&filter_lower)
-                || format!("\\u{{{:X}}}", cp.as_char() as u32).to_lowercase().contains(&filter_lower)
-                || char_str.contains(filter)
-                || name.as_ref().to_lowercase().contains(&filter_lower))
-                && !filtered.iter().any(|(_, n)| n == name)
-            {
-                filtered.push((*cp, name.clone()));
+            let filter_lower = filter.to_lowercase();
+            if filter_lower.is_empty() {
+                return base;
             }
-        }
 
-        filtered.sort_by(|a, b| a.1.cmp(&b.1));
-        filtered
+            let search_results = F::search(filter);
+            let mut filtered: Vec<(CodePoint, F::Name)> = search_results
+                .iter()
+                .filter_map(|name| {
+                    let icon_name = F::parse_name(name)?;
+                    if !in_group(&icon_name) {
+                        return None;
+                    }
+                    let cp = F::codepoint(name)?;
+                    Some((cp, icon_name))
+                })
+                .collect();
+
+            for (cp, name) in base.iter() {
+                let hex = format!("{:X}", cp.as_char() as u32);
+                let char_str = cp.as_char().to_string();
+                if (hex.to_lowercase().contains(&filter_lower)
+                    || format!("\\u{{{:X}}}", cp.as_char() as u32).to_lowercase().contains(&filter_lower)
+                    || char_str.contains(filter)
+                    || name.as_ref().to_lowercase().contains(&filter_lower))
+                    && !filtered.iter().any(|(_, n)| n == name)
+                {
+                    filtered.push((*cp, name.clone()));
+                }
+            }
+
+            // Sort key: canonical ordering position (variants fall back
+            // to their base's index so they sort next to it), then name.
+            let sort_key = |name: &F::Name| {
+                ordering.and_then(|o| {
+                    o.order_index(name.as_ref())
+                        .or_else(|| o.base_of(name.as_ref()).and_then(|base| o.order_index(base)))
+                })
+            };
+            filtered.sort_by(|a, b| {
+                sort_key(&a.1)
+                    .unwrap_or(u32::MAX)
+                    .cmp(&sort_key(&b.1).unwrap_or(u32::MAX))
+                    .then_with(|| a.1.cmp(&b.1))
+            });
+            filtered
+        }
     };
 
     let grid_clone = grid.clone();
@@ -639,6 +687,21 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
             update_nav_buttons(&back_btn_for_search, &forward_btn_for_search, &hist, *idx);
         }
     });
+
+    // --- Group jump-list ---
+    if let Some(dropdown) = group_dropdown.take() {
+        let active_group_for_dropdown = active_group.clone();
+        let render_grid_for_dropdown = render_grid.clone();
+        let current_icons_for_dropdown = current_icons.clone();
+        let refresh_grid_for_dropdown = refresh_grid.clone();
+        let search_entry_for_dropdown = search_entry.clone();
+        dropdown.connect_selected_notify(move |dropdown| {
+            let index = dropdown.selected() as usize;
+            *active_group_for_dropdown.borrow_mut() = index.checked_sub(1).and_then(|i| group_labels.get(i)).copied();
+            *current_icons_for_dropdown.borrow_mut() = render_grid_for_dropdown(&search_entry_for_dropdown.text());
+            refresh_grid_for_dropdown(true);
+        });
+    }
 
     // --- Size slider ---
     let size_value_clone = size_value.clone();

@@ -107,8 +107,11 @@ pub use icon_theme_font::IconThemeFont;
 pub use keyword::GlyphKeyword;
 pub use metadata::GlyphAliasMap;
 pub use metadata::GlyphCategoryMap;
+pub use metadata::GlyphGroup;
 pub use metadata::GlyphKeywordMap;
 pub use metadata::GlyphMetadata;
+pub use metadata::GlyphOrdering;
+pub use metadata::GroupLabel;
 #[cfg(feature = "gtk")]
 pub use pango_font::PangoFont;
 pub use paths::GRESOURCE_BASE_PREFIX;
