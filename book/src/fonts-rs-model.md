@@ -323,6 +323,67 @@ Nerd Fonts implements it with its `IconSet` enum; single-set icon fonts
 simply don't implement it. `IconName::icon_set` is only available when
 `F: IconSetDetect`.
 
+## Capability Traits
+
+Optional capabilities are declared per family in `impl_font_family!`
+(`capabilities = [...]`); each emits an empty impl whose methods are
+trait defaults built on `FontFamily` + `GtkFont`. Valid capability
+names: `icon_theme`, `pango`, `html_svg`, `html`.
+
+```rust
+pub trait IconThemeFont: FontFamily + GtkFont {
+    fn install_icon_theme(display: &gtk4::gdk::Display) -> Result<(), FontError>;
+    fn icon_theme_path() -> String;
+    fn glyph_svg(name: impl AsRef<str>) -> Option<String>;
+    fn compose_svg(text: &str, glyph_height: f64) -> String;
+}
+```
+
+- **`icon_theme`** ([`IconThemeFont`]): registers the glyph GResource
+  and adds `icons_resource_prefix()` to the display's `GtkIconTheme`, so
+  `gtk4::Image::from_icon_name()` resolves family glyphs. `glyph_svg`
+  returns one glyph's SVG document, `compose_svg` lays out text as a
+  single side-by-side SVG. Works for fontless families too - everything
+  routes through the GResource.
+- **`pango`** ([`PangoFont`]): text shaping/measurement via the bundled
+  TTF — not available for fontless sets.
+
+## HTML Export (`HtmlSvgExport` + `HtmlExport`)
+
+HTML export is split into two traits so fontless families can
+participate:
+
+- **`HtmlSvgExport: IconThemeFont`** — the `html_svg` capability.
+  Provides `html()` returning an `HtmlBuilder<F>` whose `render()` /
+  `write()` produce a self-contained page of inline `<svg>` elements
+  (no TTF needed — Lucide, Tabler-level support).
+- **`HtmlExport: HtmlSvgExport`** — the `html` capability.
+  Additionally embeds the TTF via `css_font_face()` (`@font-face` with
+  base64 data URI) and unlocks `render_font_face()` /
+  `write_font_face()` on the builder. Requires a loadable font.
+
+```rust
+pub trait HtmlSvgExport: IconThemeFont {
+    fn html() -> HtmlBuilder<Self> { HtmlBuilder::new() }
+}
+
+pub trait HtmlExport: HtmlSvgExport {
+    fn css_font_face() -> Result<String, FontError> { ... }
+}
+```
+
+### `HtmlBuilder<F>`
+
+Fluent builder (`html()` entry point). `F` is a phantom marker — no
+value is stored.
+
+- **`title(s)`** — page title (default `F::FAMILY_DISPLAY_NAME`)
+- **`glyphs(codepoints)`** — restrict the inline-SVG grid (default: all)
+- **`render()` / `write(path)`** — inline-SVG page (any `IconThemeFont`)
+- **`sample_text(s)` / `css_class(s)`** — `@font-face` mode options
+- **`render_font_face()` / `write_font_face(path)`** — `@font-face`
+  page (`HtmlExport` families only)
+
 ## Icon CSS helpers
 
 - **`icon_css::<F>()`** (`fonts-rs-model`, `gtk` feature): generates the

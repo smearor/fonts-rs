@@ -1,9 +1,12 @@
 # Glyph Export
 
-Glyphs are extracted as GTK4 symbolic SVG icons at build time using
-[`skrifa`](https://crates.io/crates/skrifa) for outline parsing. The export
-logic lives in the `fonts-rs-generator` crate and is called automatically by
-each font family crate's `build.rs`.
+Glyphs become GTK4 symbolic SVG icons at build time. The export logic
+lives in the `fonts-rs-generator` crate behind the `GlyphSource`
+abstraction - `FontFileSource` extracts outlines from TTF/OTF files via
+[`skrifa`](https://crates.io/crates/skrifa), `SvgDirSource` consumes
+directories of pre-rendered SVGs (emoji sets, icon sets like Tabler and
+Lucide). Both feed the same export runner and emit identical artifacts.
+Each family crate's `build.rs` invokes the pipeline automatically.
 
 ## Automatic Generation
 
@@ -158,6 +161,21 @@ For Nerd Fonts, the prefix is `nf-` and the suffix `-symbolic` is added.
 Some glyphs (e.g. `nonmarkingreturn`, `blank`) have no outline data. These
 are exported as minimal empty SVGs so their icon names remain registered in
 `metadata.json`.
+
+## SVG Post-Processing
+
+`SvgDirSource` accepts `post_process` hooks (`SvgPostProcessor`) that
+transform each SVG before it is written. Built-in processors include
+`Optimize`, `NormalizeViewBox`, `CurrentColor`, `StripEntityNamespaces`
+and `SymbolicClasses`.
+
+`SymbolicClasses` matters for **stroke-based icon sets** (Lucide,
+Tabler outline): GTK's symbolic recoloring ignores `fill`/`stroke`
+attributes - without classes every shape is filled with the foreground
+color and `*-symbolic` icons render as solid blobs. The processor maps
+effective paints onto `transparent-fill` / `foreground-fill` /
+`foreground-stroke` classes (requires GTK ≥ 4.20 for strokes). See
+[`fonts-rs-generator`](./fonts-rs-generator.md) for the mapping table.
 
 ## Crate Structure
 

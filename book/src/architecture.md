@@ -2,14 +2,14 @@
 
 ## Workspace Structure
 
-The workspace is organized into 19 crates across three layers:
+The workspace is organized into four layers:
 
 | Layer | Crates | Role |
 |-------|--------|------|
-| Generic framework | `fonts-rs-model`, `fonts-rs-generator` | Shared types and build pipeline |
-| Font families | `fonts-rs-doto`, `fonts-rs-bravura`, ... (10 crates) | One crate per font family |
+| Generic framework | `fonts-rs-model`, `fonts-rs-generator`, `fonts-rs-test` | Shared types, build pipeline, test fixtures |
+| Font families | `fonts-rs-doto`, `fonts-rs-bravura`, `fonts-rs-tabler`, `fonts-rs-lucide`, ... | One crate per font/icon family |
 | Nerd Fonts | `nerd-fonts-model`, `nerd-fonts-generator`, `nerd-fonts-rs` | Nerd Fonts-specific integration |
-| Applications | `nerd-fonts-cheat-sheet`, `fonts-rs-noto-emoji-cheat-sheet` | Demo / cheat sheet apps |
+| Applications | `fonts-rs-cheat-sheet` + `*-cheat-sheet` crates | Generic cheat sheet library + per-family apps |
 
 ## Crate Dependencies
 
@@ -27,18 +27,30 @@ graph TD
     Gen --> Bravura
     Model --> Seven["fonts-rs-seven-segment"]
     Gen --> Seven
+    Model --> Tabler["fonts-rs-tabler"]
+    Gen --> Tabler
+    Model --> Lucide["fonts-rs-lucide (fontless)"]
+    Gen --> Lucide
 
     NotoGen --> NotoEmoji["fonts-rs-noto-emoji"]
     NFGen --> NFRs["nerd-fonts-rs"]
     Model --> NFRs
 
+    CheatSheet["fonts-rs-cheat-sheet (generic)"]
     NotoEmoji --> NotoCS["fonts-rs-noto-emoji-cheat-sheet"]
+    Lucide --> LucideCS["fonts-rs-lucide-cheat-sheet"]
     NFRs --> NFCS["nerd-fonts-cheat-sheet"]
+    CheatSheet --> NotoCS
+    CheatSheet --> LucideCS
+    CheatSheet --> NFCS
 ```
 
 ## Build Pipeline
 
-Each font family crate follows the same build pipeline via `FontBuild`:
+Each font family crate follows the same build pipeline via `FontBuild`.
+Fontless icon sets (Lucide) use `FontBuild::svg_only()` + `run_svg()` —
+same artifacts, but the input is an SVG directory and change detection
+relies entirely on `extra_hash` components:
 
 ```mermaid
 flowchart TD

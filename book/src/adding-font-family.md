@@ -255,6 +255,48 @@ See `crates/fonts-rs-blobmoji/build.rs` (CLDR name map + flag filter)
 and `crates/fonts-rs-tabler/build.rs` (`FromNameMap` + metadata) for
 complete implementations.
 
+### Fontless SVG-Only Icon Set
+
+Icon sets that ship only SVGs - no TTF at all (e.g. Lucide) - use
+`FontBuild::svg_only()` + `run_svg()`. There is no font file to hash,
+so change detection relies entirely on `extra_hash` components: hash
+the SVG directory, metadata files, and a manual
+`EXPORT_PIPELINE_VERSION` constant (bump it when the export pipeline
+itself changes - naming, post-processors):
+
+```rust
+const EXPORT_PIPELINE_VERSION: u32 = 1;
+
+FontBuild::svg_only()
+    .extra_hash(EXPORT_PIPELINE_VERSION.to_string())
+    .extra_hash(format!("{:016x}", hash_svg_dir(&svg_dir)))
+    .extra_hash(format!("{:016x}", hash_str(&icons_json)))
+    .rerun_if_changed(&svg_dir)
+    .run_svg(|resources_dir| {
+        SvgDirSource::new(&svg_dir)
+            .codepoint_strategy(CodepointStrategy::HashedPua)
+            .name_resolver(|parsed| Some(format!("{}-symbolic", parsed.raw_name)))
+            .name_prefix(MyFontConfig::FONT_FAMILY_NAME)
+            .post_process(SymbolicClasses)   // stroke-based sets: symbolic classes
+            .export(&config, resources_dir)
+    })
+    .map_err(|e| miette::miette!("{e}"))?;
+```
+
+Key points:
+
+- **`CodepointStrategy::HashedPua`** allocates a stable PUA codepoint
+  per glyph via hash-of-name - needed because the `phf` maps require
+  unique codepoints and upstream ships none.
+- **`post_process(SymbolicClasses)`** adds GTK symbolic classes to
+  stroke-based SVGs. Without it, `*-symbolic` icons render as solid
+  blobs - GTK's symbolic recoloring ignores `fill="none"` and fills
+  every shape. Requires GTK ≥ 4.20 for stroke rendering.
+- No `set_font_path_env`, no `font.gresource`, no `render`/`pango`
+  capability - `lib.rs` declares only `[icon_theme, html_svg]`.
+
+See `crates/fonts-rs-lucide/build.rs` for the complete implementation.
+
 ## Step 6: Write `family.rs` and `lib.rs`
 
 `family.rs` wires the generated phf maps into the `FontFamily` trait
@@ -279,6 +321,12 @@ fonts_rs_generator::impl_font_family!(
     capabilities = [icon_theme, pango, html],
 );
 ```
+
+Valid capability names: `icon_theme` (`IconThemeFont` - icon-theme
+lookup, `glyph_svg`, `compose_svg`), `pango` (`PangoFont` - needs a
+TTF), `html_svg` (`HtmlSvgExport` - inline-SVG HTML export, fontless
+compatible), `html` (`HtmlExport` - additionally `@font-face` export,
+needs a TTF). Fontless sets declare only `[icon_theme, html_svg]`.
 
 The macro emits the `FontFamily` impl (`codepoint`, `glyph_name`,
 `all_glyphs`, `glyph_count`), the declared capability impls, and

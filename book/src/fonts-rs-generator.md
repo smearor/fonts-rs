@@ -124,7 +124,122 @@ FontBuild::new(&font_path)
 - **`run`**: Export closure + default code generation
   (`CodemapGenerator` + `RustConstantsGenerator`)
 - **`run_with`**: Export closure + custom code generation closure
+- **`run_svg`**: Fontless variant - export closure receives only the
+  resources dir (no font path). Must be paired with `svg_only()`
 - Hash is computed as FNV-1a of the font file and stored in `resources/.hash`
+
+### Fontless Builds (`svg_only`)
+
+`FontBuild::svg_only()` creates a builder without a font file - for
+icon sets that ship only SVGs (Lucide). Change detection then relies
+entirely on `extra_hash` components; callers must hash every input
+that affects the export:
+
+```rust
+FontBuild::svg_only()
+    .extra_hash(EXPORT_PIPELINE_VERSION.to_string())
+    .extra_hash(format!("{:016x}", hash_svg_dir(&svg_dir)))
+    .extra_hash(format!("{:016x}", hash_str(&icons_json)))
+    .rerun_if_changed(&svg_dir)
+    .run_svg(|resources_dir| {
+        SvgDirSource::new(&svg_dir)
+            .codepoint_strategy(CodepointStrategy::HashedPua)
+            .name_resolver(|parsed| Some(format!("{}-symbolic", parsed.raw_name)))
+            .name_prefix(LucideConfig::FONT_FAMILY_NAME)
+            .post_process(SymbolicClasses)
+            .export(&config, resources_dir)
+    })
+```
+
+- **`EXPORT_PIPELINE_VERSION`**: a manual constant in `build.rs` that is
+  mixed into the hash. Bump it whenever the export pipeline itself
+  changes (naming, layout, post-processors) - otherwise a matching
+  hash would reuse a stale export.
+- **`hash_svg_dir` / `hash_str`**: hash helpers for non-font inputs.
+
+## `GlyphSource` (Abstraction)
+
+`GlyphSource` decouples glyph identity and artwork from the export
+pipeline. Two implementations feed the shared `export` runner:
+
+- **`FontFileSource`** - extracts outlines from TTF/OTF via `skrifa`
+- **`SvgDirSource`** - consumes a directory of pre-rendered SVGs
+
+Both emit identical artifacts (`metadata.json`, `icons.gresource.xml`,
+SVG files under `scalable/{context}/`).
+
+### `SvgDirSource` Builder Methods
+
+- **`filename_parser`** - `NameParser` (default, plain `{name}.svg`) or
+  `EmojiUFilenameParser` (`emoji_u{cp}.svg`)
+- **`codepoint_strategy`** - how `GlyphDescriptor::code` is assigned
+- **`codepoint_map`** - name→codepoint map for `FromNameMap`
+- **`name_resolver`** - parsed glyph → semantic name (falls back to the
+  raw filename stem, kebab-normalized; name collisions get a
+  deterministic suffix)
+- **`name_prefix`** - prepend `{prefix}-` to every resolved name
+- **`filter`** - drop glyphs by codepoint sequence (e.g. flag emoji)
+- **`post_process`** - add an `SvgPostProcessor`, applied in order
+
+### `CodepointStrategy`
+
+| Variant | Use case |
+|---------|----------|
+| `FromFilename` | Emoji codepoints in the filename; multi-codepoint sequences get a stable PUA allocation |
+| `FromNameMap` | Upstream name→codepoint table (`GlyphNameMap`, e.g. Tabler) |
+| `HashedPua` | Fontless sets - deterministic PUA codepoint via hash-of-name (Lucide) |
+| `None` (default) | Icon-theme-only usage; `GtkIconTheme` resolves names → SVG directly |
+
+## `SvgPostProcessor`
+
+Trait for transforming each SVG before it is written to the output
+directory (`SvgDirSource::post_process`). Implementations should be
+XML-aware via `quick-xml` - naive string replacement would also match
+paint attributes inside comments or metadata.
+
+```rust
+pub trait SvgPostProcessor {
+    fn process(&self, svg: String) -> Result<String, GlyphSourceError>;
+}
+```
+
+Available processors:
+
+- **`Optimize`** - whitespace/structure cleanup
+- **`NormalizeViewBox`** - normalize the `viewBox` attribute
+- **`CurrentColor(target)`** - rewrite `fill`/`stroke` values to
+  `currentColor` (`PaintTarget::Fill`/`Stroke`/`Both`); keeps `none`,
+  `url(…)`, `inherit`
+- **`StripEntityNamespaces`** - strip internal entity namespace
+  prefixes
+- **`SymbolicClasses`** - add GTK symbolic classes for stroke-based
+  icon sets (see below)
+
+### `SymbolicClasses` - Symbolic Recoloring for Stroke-Based Sets
+
+GTK's symbolic icon recoloring ignores `fill`/`stroke` attributes:
+paints are derived from `class` tokens (`transparent-fill`,
+`foreground-fill`, `foreground-stroke`, `success-*`, `warning-*`,
+`error-*`). Stroke-based sets (Lucide, Tabler outline) authored with
+`fill="none"` + `stroke="currentColor"` therefore render as solid
+blobs under `*-symbolic` names: every shape is filled with the
+foreground color, swallowing the stroked details.
+
+`SymbolicClasses` maps each shape element's *effective* `fill`/`stroke`
+(including values inherited from ancestor `<svg>`/`<g>` elements) onto
+symbolic classes:
+
+| Effective paint | Emitted class |
+|-----------------|---------------|
+| `fill="none"` | `transparent-fill` |
+| any other fill / unset | `foreground-fill` |
+| visible `stroke` | `foreground-stroke` |
+| `stroke="none"` / unset | *(no stroke class → not stroked)* |
+
+Original attributes are kept, so non-symbolic consumers (HTML export,
+`glyph_svg`, `compose_svg`) are unaffected. Stroke classes require
+**GTK ≥ 4.20** (or GTK 3 ≥ 3.24.50); on older versions stroke-based
+symbolic icons fall back to fill-only rendering.
 
 ## `impl_font_loader!` Macro
 

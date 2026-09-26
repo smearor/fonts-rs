@@ -89,7 +89,12 @@ graph TD
 | `fonts-rs-noto-emoji` | Noto Emoji | OFL-1.1 | COLRv1/bitmap × flags |
 | `fonts-rs-blobmoji` | Blobmoji | OFL-1.1 | COLRv1/bitmap × flags |
 | `fonts-rs-tabler` | Tabler Icons | MIT | outline, filled |
+| `fonts-rs-lucide` | Lucide Icons | ISC | fontless (SVG-only) |
+| `fonts-rs-eva` | Eva Icons | MIT | outline, filled |
 | `nerd-fonts-rs` | Nerd Fonts | MIT | - |
+
+Each icon family ships a companion `*-cheat-sheet` app built on the
+generic `fonts-rs-cheat-sheet` crate.
 
 ## License
 

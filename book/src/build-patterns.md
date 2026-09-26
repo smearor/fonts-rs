@@ -193,10 +193,17 @@ fonts_rs_generator::impl_font_family!(
 ```
 
 The macro emits the `FontFamily` impl (`codepoint`, `glyph_name`,
-`all_glyphs`, `glyph_count`), the declared capability impls
-(`IconThemeFont`, `PangoFont`, `HtmlExport`, `SoftwareRender`), and
+`all_glyphs`, `glyph_count`), the declared capability impls, and
 inherent forwarders so callers write `Doto::codepoint("x")` without
 importing the trait.
+
+Valid capability names: `icon_theme` (`IconThemeFont` - `GtkIconTheme`
+registration + `glyph_svg`/`compose_svg`), `pango` (`PangoFont`),
+`html_svg` (`HtmlSvgExport` - inline-SVG HTML export), `html`
+(`HtmlExport` - `@font-face` HTML export on top of `html_svg`).
+Fontless icon sets declare only `[icon_theme, html_svg]` — there is no
+TTF for pango or font-face export. `SoftwareRender` is not a capability
+here; it is emitted by `impl_font_loader!`.
 
 `lib.rs` ties everything together:
 
