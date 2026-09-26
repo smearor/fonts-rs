@@ -86,7 +86,9 @@ graph TD
 | `fonts-rs-redacted` | Redacted | OFL-1.1 | - |
 | `fonts-rs-dicefont` | DiceFont | OFL-1.1 | - |
 | `fonts-rs-cuernavaca` | Cuernavaca | OFL-1.1 | - |
-| `fonts-rs-noto-emoji` | Noto Emoji | OFL-1.1 | - |
+| `fonts-rs-noto-emoji` | Noto Emoji | OFL-1.1 | COLRv1/bitmap × flags |
+| `fonts-rs-blobmoji` | Blobmoji | OFL-1.1 | COLRv1/bitmap × flags |
+| `fonts-rs-tabler` | Tabler Icons | MIT | outline, filled |
 | `nerd-fonts-rs` | Nerd Fonts | MIT | - |
 
 ## License
