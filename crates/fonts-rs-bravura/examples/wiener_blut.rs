@@ -347,7 +347,7 @@ fn event_duration_ms_tempo(event: &Event, bpm: f64) -> u32 {
 }
 
 fn main() -> Result<()> {
-    let app = Application::builder().application_id(APP_ID).build();
+    let app = Application::builder().application_id(APP_ID).flags(gtk4::gio::ApplicationFlags::NON_UNIQUE).build();
     app.connect_activate(build_ui);
     app.run();
     Ok(())
