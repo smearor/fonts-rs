@@ -4,29 +4,23 @@
 //! determined at runtime (e.g. from Cargo features) without needing a
 //! separate `FontDefinition` impl per variant.
 
-use std::collections::HashSet;
 use std::fs;
 use std::marker::PhantomData;
 use std::path::Path;
 
 use fonts_rs_model::AxisValues;
-use fonts_rs_model::CodePoint;
 use fonts_rs_model::FontVariant;
 use fonts_rs_model::GlyphEntry;
 use fonts_rs_model::GlyphNameMap;
 use fonts_rs_model::SCALABLE_DIR;
 use quick_xml::se::Serializer;
 use serde::Serialize;
-use skrifa::GlyphId;
-use skrifa::MetadataProvider;
-use skrifa::instance::LocationRef;
 
 use crate::export_error::ExportError;
-use crate::font::Font;
-use crate::font_definition::normalize_to_kebab;
+use crate::glyph_source::FontFileSource;
+use crate::glyph_source::GlyphSource;
 use fonts_rs_model::FontFamilyConfig;
 
-use crate::font_family_config::FontFamilyConfigExt;
 use crate::gresource::model::GResource;
 use crate::gresource::model::GResourceFile;
 use crate::gresource::model::GResources;
@@ -124,63 +118,7 @@ impl<X: FontFamilyConfig> ExportConfig<X> {
     ///
     /// The number of exported glyphs on success, or an [`ExportError`] on failure.
     pub fn export_glyphs(&self, font_path: &Path, output_dir: &Path) -> Result<usize, ExportError> {
-        let font_data = fs::read(font_path)?;
-        let font = Font::from_data(&font_data)?;
-
-        let location = font.location(&self.axes);
-        let location_ref = LocationRef::from(&location);
-
-        let icons_context = X::ICONS_CONTEXT;
-        let icons_dir = X::prepare_icons_dir(output_dir)?;
-
-        let reverse_cmap = font.build_reverse_cmap_with_ranges(X::CODEPOINT_RANGES);
-
-        let mut entries: Vec<GlyphEntry<String>> = Vec::new();
-        let mut seen_names: HashSet<String> = HashSet::new();
-
-        let num_glyphs = font.glyph_names().num_glyphs();
-
-        for glyph_index in 0..num_glyphs {
-            let glyph_id = GlyphId::new(glyph_index);
-
-            let name = match font.glyph_names().get(glyph_id) {
-                Some(n) if !n.as_str().is_empty() => n.to_string(),
-                _ => continue,
-            };
-
-            let should_export = self.name_filter.unwrap_or(default_name_filter);
-            if !should_export(&name) {
-                continue;
-            }
-
-            let Some(kebab) = normalize_to_kebab(&name) else { continue };
-            let glyph_name = format!("{}-{}", self.glyph_name_prefix, kebab);
-
-            if seen_names.contains(&glyph_name) {
-                continue;
-            }
-            seen_names.insert(glyph_name.clone());
-
-            let codepoint = reverse_cmap.get(&glyph_id).copied();
-
-            let svg = font.glyph_to_svg_full_height_at(glyph_id, location_ref).unwrap_or_default();
-
-            let filename = icons_dir.join(format!("{}.svg", glyph_name));
-            svg.write_to(&filename)?;
-
-            entries.push(GlyphEntry::new(codepoint, glyph_name, &self.gresource_prefix, icons_context));
-        }
-
-        entries.sort_by(|a, b| a.name.cmp(&b.name));
-
-        let json_path = output_dir.join("metadata.json");
-        let json = serde_json::to_string_pretty(&entries)?;
-        fs::write(&json_path, json)?;
-
-        let xml_path = output_dir.join("icons.gresource.xml");
-        self.generate_gresource_xml(&entries, &xml_path)?;
-
-        Ok(entries.len())
+        Ok(FontFileSource::new(font_path, self)?.export(self, output_dir)?)
     }
 
     /// Export glyphs from a font using an external name→codepoint map.
@@ -210,57 +148,17 @@ impl<X: FontFamilyConfig> ExportConfig<X> {
     ///
     /// The number of exported glyphs on success, or an [`ExportError`] on failure.
     pub fn export_glyphs_by_name_map(&self, font_path: &Path, output_dir: &Path, name_map: &GlyphNameMap) -> Result<usize, ExportError> {
-        let font_data = fs::read(font_path)?;
-        let font = Font::from_data(&font_data)?;
-
-        let location = font.location(&self.axes);
-        let location_ref = LocationRef::from(&location);
-
-        let icons_context = X::ICONS_CONTEXT;
-        let icons_dir = X::prepare_icons_dir(output_dir)?;
-
-        let charmap = font.charmap();
-
-        let mut entries: Vec<GlyphEntry<String>> = Vec::new();
-        let mut seen_names: HashSet<String> = HashSet::new();
-
-        for (smufl_name, codepoint) in name_map.iter() {
-            let ch = codepoint.as_char();
-            let Some(glyph_id) = charmap.map(ch) else { continue };
-
-            let Some(kebab) = normalize_to_kebab(smufl_name) else { continue };
-            let glyph_name = format!("{}-{}", self.glyph_name_prefix, kebab);
-
-            if seen_names.contains(&glyph_name) {
-                continue;
-            }
-            seen_names.insert(glyph_name.clone());
-
-            let svg = font.glyph_to_svg_full_height_at(glyph_id, location_ref).unwrap_or_default();
-
-            let filename = icons_dir.join(format!("{}.svg", glyph_name));
-            svg.write_to(&filename)?;
-
-            entries.push(GlyphEntry::new(Some(CodePoint::from(ch)), glyph_name, &self.gresource_prefix, icons_context));
-        }
-
-        entries.sort_by(|a, b| a.name.cmp(&b.name));
-
-        let json_path = output_dir.join("metadata.json");
-        let json = serde_json::to_string_pretty(&entries)?;
-        fs::write(&json_path, json)?;
-
-        let xml_path = output_dir.join("icons.gresource.xml");
-        self.generate_gresource_xml(&entries, &xml_path)?;
-
-        Ok(entries.len())
+        Ok(FontFileSource::new(font_path, self)?.name_map(name_map).export(self, output_dir)?)
     }
 
     /// Generate GResource XML with an explicit prefix.
     ///
     /// Creates an `icons.gresource.xml` listing all glyph SVG files under
     /// the export config's GResource prefix and icons context.
-    fn generate_gresource_xml(&self, entries: &[GlyphEntry<String>], output_path: &Path) -> Result<(), ExportError> {
+    ///
+    /// `pub(crate)` for reuse by the [`GlyphSource`](crate::glyph_source::GlyphSource)
+    /// export runner.
+    pub(crate) fn generate_gresource_xml(&self, entries: &[GlyphEntry<String>], output_path: &Path) -> Result<(), ExportError> {
         let mut sorted: Vec<&GlyphEntry<String>> = entries.iter().collect();
         sorted.sort_by(|a, b| a.name.cmp(&b.name));
 

@@ -54,18 +54,30 @@
 /// here — it is emitted by [`impl_font_loader!`](crate::impl_font_loader).
 #[macro_export]
 macro_rules! impl_font_family {
+    // Internal: resolves `GRESOURCE_PREFIX` on the marker — the
+    // variant-aware override when `gresource_prefix = ...` was passed
+    // (families exporting under a variant-suffixed prefix via
+    // `ExportConfig::with_variant`), else the definition's static prefix.
+    (@gresource_prefix $definition:ty) => {
+        <$definition as ::fonts_rs_model::FontFamilyConfig>::GRESOURCE_PREFIX
+    };
+    (@gresource_prefix $definition:ty, $prefix:expr) => {
+        $prefix
+    };
     ($marker:ident, $definition:ty,
      glyphs = $glyphs:expr,
      reverse = $reverse:expr,
      name = $name:ty,
      $(css_font_family = $css_font_family:expr,)*
      $(glyph_prefix = $glyph_prefix:expr,)*
+     $(gresource_prefix = $gresource_prefix:expr,)?
      capabilities = [$($capability:ident),* $(,)?]
      $(,)?) => {
         impl ::fonts_rs_model::FontFamilyConfig for $marker {
             const FONT_FAMILY_NAME: &'static str = <$definition as ::fonts_rs_model::FontFamilyConfig>::FONT_FAMILY_NAME;
             const FAMILY_DISPLAY_NAME: &'static str = <$definition as ::fonts_rs_model::FontFamilyConfig>::FAMILY_DISPLAY_NAME;
-            const GRESOURCE_PREFIX: &'static str = <$definition as ::fonts_rs_model::FontFamilyConfig>::GRESOURCE_PREFIX;
+            const GRESOURCE_PREFIX: &'static str =
+                $crate::impl_font_family!(@gresource_prefix $definition $(, $gresource_prefix)?);
             const ICONS_CONTEXT: &'static str = <$definition as ::fonts_rs_model::FontFamilyConfig>::ICONS_CONTEXT;
             const CODEPOINT_RANGES: &[::fonts_rs_model::CodePointRange] =
                 <$definition as ::fonts_rs_model::FontFamilyConfig>::CODEPOINT_RANGES;

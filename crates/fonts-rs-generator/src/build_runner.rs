@@ -50,12 +50,13 @@ pub struct FontBuild {
     /// When set and `compile_font_gresource` is true, a `font_resource.rs` file
     /// is generated in `OUT_DIR` containing the full GResource path constant.
     gresource_prefix: Option<String>,
-    /// Optional extra hash component for change detection.
+    /// Extra hash components for change detection.
     ///
-    /// When set, the stored hash is `"{font_hash}-{extra_hash}"` instead of just
-    /// `"{font_hash}"`. This forces a re-export when the extra value changes
-    /// (e.g. a variant name), even if the font file itself is unchanged.
-    extra_hash: Option<String>,
+    /// When non-empty, the stored hash is `"{font_hash}-{c1}-{c2}-…"` instead
+    /// of just `"{font_hash}"`. This forces a re-export when any component
+    /// changes (e.g. a variant name), even if the font file itself is
+    /// unchanged.
+    extra_hash: Vec<String>,
     /// Extra `cargo:rerun-if-changed` paths beyond the font file.
     extra_rerun_if_changed: Vec<PathBuf>,
     /// Extra GResource bundles to compile beyond `icons.gresource` (and optionally `font.gresource`).
@@ -69,7 +70,7 @@ impl FontBuild {
             font_path: font_path.into(),
             compile_font_gresource: false,
             gresource_prefix: None,
-            extra_hash: None,
+            extra_hash: Vec::new(),
             extra_rerun_if_changed: Vec::new(),
             additional_gresources: Vec::new(),
         }
@@ -77,11 +78,13 @@ impl FontBuild {
 
     /// Add an extra hash component to change detection.
     ///
-    /// When the extra hash changes (e.g. a variant name), glyphs are re-exported
-    /// even if the font file itself hasn't changed. Useful for variable fonts
-    /// where the same TTF is rendered at different axis locations.
+    /// May be called multiple times; each component is mixed into the stored
+    /// hash. When any component changes (e.g. a variant name), glyphs are
+    /// re-exported even if the font file itself hasn't changed. Useful for
+    /// variable fonts where the same TTF is rendered at different axis
+    /// locations, or for non-font inputs like SVG directories.
     pub fn extra_hash(mut self, hash: impl Into<String>) -> Self {
-        self.extra_hash = Some(hash.into());
+        self.extra_hash.push(hash.into());
         self
     }
 
@@ -178,9 +181,10 @@ impl FontBuild {
         let hash_path = hash_path();
         let icons_xml = icons_gresource_xml();
         let current_hash = hash_font_file(&self.font_path);
-        let current_hash = match &self.extra_hash {
-            Some(extra) => format!("{current_hash}-{extra}"),
-            None => current_hash,
+        let current_hash = if self.extra_hash.is_empty() {
+            current_hash
+        } else {
+            format!("{current_hash}-{}", self.extra_hash.join("-"))
         };
 
         let needs_export = !metadata_path.exists() || fs::read_to_string(&hash_path).ok().as_deref() != Some(current_hash.as_str());
