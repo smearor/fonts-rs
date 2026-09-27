@@ -211,6 +211,88 @@ pub(super) fn show_detail<F: CheatSheetFamily>(content: &Box, name: &F::Name, co
         content.append(&cat_box);
     }
 
+    // Variant navigation via the ordering contract: a variant links
+    // back to its base; a base with alternates lists them as clickable
+    // glyph cells. Replaces the popover interaction - variants stay
+    // reachable from the sidebar while the grid stays collapsed.
+    if let Some(ord) = F::ordering() {
+        if let Some(base) = ord.base_of(name.as_ref())
+            && let (Some(base_name), Some(base_cp)) = (F::parse_name(base), F::codepoint(base))
+        {
+            let base_header = Label::builder()
+                .label("Variant of")
+                .css_classes(["heading"])
+                .halign(Align::Start)
+                .margin_top(12)
+                .build();
+            content.append(&base_header);
+            let btn = Button::builder()
+                .label(base)
+                .css_classes(["cat-btn"])
+                .halign(Align::Start)
+                .tooltip_text(format!("Open {base}"))
+                .build();
+            let content_ref = content.clone();
+            let search_entry_ref = search_entry.clone();
+            btn.connect_clicked(move |_| show_detail::<F>(&content_ref, &base_name, base_cp, &search_entry_ref));
+            content.append(&btn);
+        }
+
+        let variants = ord.alternates(name.as_ref());
+        if !variants.is_empty() {
+            let var_header = Label::builder()
+                .label("Variants")
+                .css_classes(["heading"])
+                .halign(Align::Start)
+                .margin_top(12)
+                .build();
+            content.append(&var_header);
+            let var_box = FlowBox::builder()
+                .column_spacing(6)
+                .row_spacing(6)
+                .halign(Align::Start)
+                .selection_mode(gtk4::SelectionMode::None)
+                .build();
+            for &variant in variants {
+                let (Some(variant_name), Some(variant_cp)) = (F::parse_name(variant), F::codepoint(variant)) else {
+                    continue;
+                };
+                let icon: gtk4::Widget = if let Some(icon_name) = F::glyph_icon_name(&variant_name) {
+                    gtk4::Image::builder()
+                        .icon_name(&icon_name)
+                        .pixel_size(32)
+                        .halign(Align::Center)
+                        .build()
+                        .upcast()
+                } else {
+                    Label::builder()
+                        .label(variant_cp.as_char().to_string())
+                        .css_classes(["cheat-icon-label"])
+                        .halign(Align::Center)
+                        .build()
+                        .upcast()
+                };
+                let cell = Box::builder().orientation(Orientation::Vertical).spacing(2).halign(Align::Center).build();
+                cell.append(&icon);
+                cell.append(
+                    &Label::builder()
+                        .label(variant)
+                        .css_classes(["caption", "dim-label"])
+                        .max_width_chars(12)
+                        .wrap(true)
+                        .halign(Align::Center)
+                        .build(),
+                );
+                let btn = Button::builder().child(&cell).css_classes(["flat"]).tooltip_text(variant).build();
+                let content_ref = content.clone();
+                let search_entry_ref = search_entry.clone();
+                btn.connect_clicked(move |_| show_detail::<F>(&content_ref, &variant_name, variant_cp, &search_entry_ref));
+                var_box.insert(&btn, -1);
+            }
+            content.append(&var_box);
+        }
+    }
+
     // SVG section.
     if let Some(svg_xml) = F::glyph_svg(name) {
         let svg_heading = Label::builder()

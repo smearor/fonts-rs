@@ -356,7 +356,15 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
             // selected group (None = all groups / ordering disabled).
             let group = *active_group.borrow();
             let in_group = |name: &F::Name| group.is_none_or(|label| ordering.is_some_and(|o| o.group(name.as_ref()) == Some(label)));
-            let base: Vec<(CodePoint, F::Name)> = icons_for_filter.iter().filter(|(_, name)| in_group(name)).cloned().collect();
+            // Variant collapsing: browsing shows base glyphs only; the
+            // search path keeps variants reachable.
+            let collapse = ordering.is_some_and(|o| o.collapse_variants());
+            let is_variant = |name: &F::Name| ordering.is_some_and(|o| o.base_of(name.as_ref()).is_some());
+            let base: Vec<(CodePoint, F::Name)> = icons_for_filter
+                .iter()
+                .filter(|(_, name)| in_group(name) && !(collapse && is_variant(name)))
+                .cloned()
+                .collect();
 
             let filter_lower = filter.to_lowercase();
             if filter_lower.is_empty() {
@@ -376,7 +384,12 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
                 })
                 .collect();
 
-            for (cp, name) in base.iter() {
+            // Name/hex supplement over the full group-filtered set -
+            // variants must stay searchable even while collapsed.
+            for (cp, name) in icons_for_filter.iter() {
+                if !in_group(name) {
+                    continue;
+                }
                 let hex = format!("{:X}", cp.as_char() as u32);
                 let char_str = cp.as_char().to_string();
                 if (hex.to_lowercase().contains(&filter_lower)
@@ -654,8 +667,8 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
         }
     };
 
-    // Initial population.
-    *current_icons.borrow_mut() = all_icons.clone();
+    // Initial population - via render_grid so group/collapse filters apply.
+    *current_icons.borrow_mut() = render_grid("");
     refresh_grid(true);
 
     // --- Search filtering ---

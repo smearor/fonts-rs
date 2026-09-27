@@ -159,3 +159,46 @@ impl CheatSheetFamily for BlobmojiSheet {
 fn main() -> Result<glib::ExitCode> {
     fonts_rs_cheat_sheet::run::<BlobmojiSheet>()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::BlobmojiSheet;
+    use fonts_rs_cheat_sheet::CheatSheetFamily;
+
+    /// The ordering hook drives grid variant collapsing, the group
+    /// dropdown and the sidebar Variants section - it must be active
+    /// under the crate's default features.
+    #[test]
+    fn ordering_hook_is_active() {
+        let ordering = BlobmojiSheet::ordering().expect("ordering should be enabled (metadata feature)");
+        assert!(ordering.collapse_variants());
+    }
+
+    /// The collapse filter in the grid relies on `base_of` resolving
+    /// variant glyph names to their base - verified on thumbs-up.
+    #[test]
+    fn ordering_resolves_thumbs_up_variants() {
+        let ordering = BlobmojiSheet::ordering().expect("ordering should be enabled");
+        let base = "blobmoji-color-flags-thumbs-up";
+        assert!(!ordering.alternates(base).is_empty(), "thumbs-up should have alternates");
+        for variant in ordering.alternates(base) {
+            assert_eq!(ordering.base_of(variant), Some(base), "variant '{variant}' should map to its base");
+        }
+    }
+
+    /// Simulates the grid's browse filter (`render_grid` with empty
+    /// search): after variant collapsing, exactly one thumbs-up cell
+    /// must remain - the base glyph.
+    #[test]
+    fn browse_view_collapses_thumbs_up_variants() {
+        let ordering = BlobmojiSheet::ordering().expect("ordering should be enabled");
+        let collapse = ordering.collapse_variants();
+        let thumbs_up_cells: Vec<String> = BlobmojiSheet::all_glyphs()
+            .iter()
+            .filter(|(_, name)| !(collapse && ordering.base_of(name.as_ref()).is_some()))
+            .map(|(_, name)| name.as_ref().to_string())
+            .filter(|name| name.contains("thumbs-up"))
+            .collect();
+        assert_eq!(thumbs_up_cells, vec!["blobmoji-color-flags-thumbs-up"]);
+    }
+}
