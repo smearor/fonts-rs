@@ -33,7 +33,7 @@ impl EmojiMetadataGenerator {
     }
 
     /// Adds `(alias, canonical_name)` pairs to the generated `aliases.rs`
-    /// map — e.g. shortcodes/emoticons from the emoji ordering file.
+    /// map - e.g. shortcodes/emoticons from the emoji ordering file.
     pub fn with_aliases(mut self, alias_pairs: Vec<(String, String)>) -> Self {
         self.alias_pairs = alias_pairs;
         self

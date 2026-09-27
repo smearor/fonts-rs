@@ -3,7 +3,7 @@
 //! [`GlyphOrdering`] is the generic equivalent of the emoji picker
 //! ordering: any font family with a curated glyph order (emoji picker
 //! groups, icon set sections, ...) implements it on top of its
-//! build-time generated tables. Consumers — e.g. the cheat sheet —
+//! build-time generated tables. Consumers - e.g. the cheat sheet -
 //! obtain it via `CheatSheetFamily::ordering()` and stay agnostic of
 //! whether the family is an emoji font.
 //!
@@ -24,7 +24,7 @@ use crate::GroupLabel;
 /// Canonical ordering and grouping contract for a font family.
 ///
 /// All data is build-time generated and returned as `'static`
-/// references — implementations are meant to be backed by `phf` maps
+/// references - implementations are meant to be backed by `phf` maps
 /// and static slices, so the trait is object-safe and usable as
 /// `&'static dyn GlyphOrdering`.
 pub trait GlyphOrdering: Sync {
@@ -44,7 +44,7 @@ pub trait GlyphOrdering: Sync {
     /// Returns the groups in canonical order.
     ///
     /// Each [`GlyphGroup`] lists glyph names in picker order with
-    /// variants inlined after their base — the full layout for UIs
+    /// variants inlined after their base - the full layout for UIs
     /// that want a native picker view.
     fn groups(&self) -> &'static [GlyphGroup];
 
@@ -60,7 +60,7 @@ pub trait GlyphOrdering: Sync {
     fn base_of(&self, name: &str) -> Option<&'static str>;
 
     /// Whether consumers may collapse variants behind their base
-    /// glyph. Defaults to `true` — families with alternates usually
+    /// glyph. Defaults to `true` - families with alternates usually
     /// want the compact picker presentation.
     fn collapse_variants(&self) -> bool {
         true

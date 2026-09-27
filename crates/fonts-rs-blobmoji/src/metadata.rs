@@ -183,7 +183,7 @@ mod tests {
         assert!(!results.is_empty(), "shortcode ':joy:' should hit search");
     }
 
-    /// `:smile:` (U+1F600, "grinning face") is a shortcode alias —
+    /// `:smile:` (U+1F600, "grinning face") is a shortcode alias -
     /// `resolve_alias` returns the canonical name.
     #[test]
     fn resolve_alias_shortcode() {

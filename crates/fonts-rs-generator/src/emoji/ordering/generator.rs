@@ -4,20 +4,20 @@
 //! family-provided sequence→glyph-name resolver and emits the static
 //! tables the runtime ordering API needs:
 //!
-//! - `ordering.rs` — `ORDERING: phf::Map<&str, u32>` (base name → flat
+//! - `ordering.rs` - `ORDERING: phf::Map<&str, u32>` (base name → flat
 //!   picker index over all ordered base entries)
-//! - `groups.rs` — `GROUP_ORDER: &[GroupLabel]`, `GROUPS: &[GlyphGroup]`
+//! - `groups.rs` - `GROUP_ORDER: &[GroupLabel]`, `GROUPS: &[GlyphGroup]`
 //!   (ordered groups with resolved names, alternates inlined after
 //!   their base) and `GROUP_OF: phf::Map<&str, &str>` (base and
 //!   alternate names → group label)
-//! - `alternates.rs` — `ALTERNATES: phf::Map<&str, &[&str]>` (base →
+//! - `alternates.rs` - `ALTERNATES: phf::Map<&str, &[&str]>` (base →
 //!   variant names) and `BASE_OF: phf::Map<&str, &str>` (variant → base)
-//! - `shortcodes.rs` — `SHORTCODES: phf::Map<&str, &[&str]>` (name →
+//! - `shortcodes.rs` - `SHORTCODES: phf::Map<&str, &[&str]>` (name →
 //!   shortcodes + emoticons)
 //!
 //! [`EmojiOrderingGenerator::run`] additionally returns the
 //! shortcode/emoticon alias pairs so callers can feed them into a
-//! [`MetadataGenerator`](crate::MetadataGenerator) alias map — search
+//! [`MetadataGenerator`](crate::MetadataGenerator) alias map - search
 //! hits `:smile:` without dedicated search code.
 //!
 //! Unresolvable sequences (upstream knows emoji the family does not
@@ -34,7 +34,7 @@ use crate::escape_str;
 /// Generates the emoji picker ordering tables.
 ///
 /// The resolver closure joins a Unicode codepoint sequence onto the
-/// family's exported glyph names — for blobmoji the same CLDR
+/// family's exported glyph names - for blobmoji the same CLDR
 /// sequence→name map `SvgDirSource` uses, then prefix + kebab +
 /// membership check against the exported set.
 pub struct EmojiOrderingGenerator<'a> {
@@ -51,7 +51,7 @@ impl<'a> EmojiOrderingGenerator<'a> {
     /// `shortcodes.rs` into `OUT_DIR`.
     ///
     /// Returns the `(alias, canonical_name)` pairs collected from
-    /// shortcodes and emoticons — pass them to
+    /// shortcodes and emoticons - pass them to
     /// [`EmojiMetadataGenerator::with_aliases`](crate::emoji::EmojiMetadataGenerator::with_aliases)
     /// (or another `MetadataGenerator`) so `resolve_alias`/`search` see them.
     ///
