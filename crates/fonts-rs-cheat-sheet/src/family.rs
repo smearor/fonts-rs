@@ -96,11 +96,23 @@ pub trait CheatSheetFamily: 'static {
     /// Optional canonical ordering contract for the family.
     ///
     /// Families with an upstream-curated glyph order (e.g. emoji picker
-    /// ordering) return their [`GlyphOrdering`] implementation here;
-    /// `None` (the default) keeps the alphabetical grid. When `Some`,
-    /// ordering positions override the grid sort, group labels appear
-    /// in the detail sidebar, and a group jump-list is added to the
-    /// top bar.
+    /// ordering) return their [`GlyphOrdering`](fonts_rs_model::GlyphOrdering)
+    /// implementation here;
+    /// `None` (the default) keeps the alphabetical grid.
+    ///
+    /// Opting in enables, per glyph name, in the cheat sheet UI:
+    ///
+    /// - **Picker-order grid sort** via `order_index` (search results
+    ///   and `all_glyphs` in picker order),
+    /// - **group jump-list dropdown** and a **group label** in the
+    ///   detail sidebar via `group_labels`/`group`,
+    /// - **variant collapsing** in the browse grid via
+    ///   `collapse_variants`/`base_of` (variants stay reachable through
+    ///   search) plus a **"Variants" section** and **"Variant of"
+    ///   back-link** in the sidebar via `alternates`/`base_of`,
+    /// - **default-tone picking** via `tone_group`: a chosen alternate
+    ///   position is stored per tone group and the browse grid swaps
+    ///   base cells to that tone.
     fn ordering() -> Option<&'static dyn fonts_rs_model::GlyphOrdering> {
         None
     }

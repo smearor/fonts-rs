@@ -12,7 +12,7 @@
 //! single codepoints.
 //!
 //! Ordering tables (`ORDERING`, `GROUPS`, `GROUP_OF`, `ALTERNATES`,
-//! `BASE_OF`, `SHORTCODES`) are generated from
+//! `BASE_OF`, `SHORTCODES`, `TONE_GROUP`) are generated from
 //! `emoji_17_0_ordering.json`; alternates (skin tones, gender, ZWJ
 //! combos) are linked to their base emoji.
 //!
@@ -36,6 +36,7 @@ include!(concat!(env!("OUT_DIR"), "/ordering.rs"));
 include!(concat!(env!("OUT_DIR"), "/groups.rs"));
 include!(concat!(env!("OUT_DIR"), "/alternates.rs"));
 include!(concat!(env!("OUT_DIR"), "/shortcodes.rs"));
+include!(concat!(env!("OUT_DIR"), "/tone_groups.rs"));
 
 /// Metadata registry for the Blobmoji font family.
 ///
@@ -98,6 +99,19 @@ impl GlyphOrdering for BlobmojiMetadata {
     /// skin-tone sequence), or `None` if `name` is a base glyph.
     fn base_of(&self, name: &str) -> Option<&'static str> {
         BASE_OF.get(name).copied()
+    }
+
+    /// Returns the opaque tone-variant group of a glyph (e.g. for
+    /// default-skin-tone picking).
+    ///
+    /// The generated map is keyed by base names only, so variants
+    /// resolve through [`GlyphOrdering::base_of`]. `None` for glyphs
+    /// without tone variants (`tone_group == 0` upstream is omitted).
+    fn tone_group(&self, name: &str) -> Option<u32> {
+        TONE_GROUP
+            .get(name)
+            .copied()
+            .or_else(|| self.base_of(name).and_then(|base| TONE_GROUP.get(base).copied()))
     }
 }
 
@@ -228,6 +242,25 @@ mod tests {
         }
         // The base itself is not its own alternate.
         assert_eq!(BlobmojiMetadata.base_of(&thumbs_up), None);
+    }
+
+    /// `thumbs-up` carries a tone group (single-person 6-alternate
+    /// shape); the group id resolves for variants through their base
+    /// and stays `None` for plain emoji without tones.
+    #[test]
+    fn tone_group_resolves_via_base() {
+        let thumbs_up = crate::all_emoji()
+            .into_iter()
+            .map(|(_, name)| name)
+            .find(|name| name.ends_with("thumbs-up") || name.ends_with("thumbsup"))
+            .expect("thumbs-up glyph should exist");
+        let group = BlobmojiMetadata.tone_group(&thumbs_up).expect("thumbs-up should have a tone group");
+        assert!(group > 0, "tone group 0 means no tones");
+        for variant in BlobmojiMetadata.alternates(&thumbs_up) {
+            assert_eq!(BlobmojiMetadata.tone_group(variant), Some(group), "variant '{variant}' should share the base's tone group");
+        }
+        let grinning = grinning_face_name();
+        assert_eq!(BlobmojiMetadata.tone_group(&grinning), None, "grinning-face has no tone variants");
     }
 
     #[test]

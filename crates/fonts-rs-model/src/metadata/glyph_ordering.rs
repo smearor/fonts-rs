@@ -7,14 +7,48 @@
 //! obtain it via `CheatSheetFamily::ordering()` and stay agnostic of
 //! whether the family is an emoji font.
 //!
-//! # Examples
+//! # Implementing `GlyphOrdering`
+//!
+//! A family implementation is backed by build-time generated tables
+//! (typically `phf` maps plus static slices emitted by
+//! `fonts-rs-generator`). Required pieces are `order_index`, `group`,
+//! `group_labels`, `groups` and `base_of`; `alternates`, `tone_group`
+//! and `collapse_variants` have defaults.
 //!
 //! ```ignore
 //! impl GlyphOrdering for BlobmojiMetadata {
 //!     fn order_index(&self, name: &str) -> Option<u32> {
 //!         ORDERING.get(name).copied()
 //!     }
-//!     // ...
+//!
+//!     fn group(&self, name: &str) -> Option<GroupLabel> {
+//!         GROUP_OF.get(name).copied().map(GroupLabel::new)
+//!     }
+//!
+//!     fn group_labels(&self) -> &'static [GroupLabel] {
+//!         GROUP_ORDER
+//!     }
+//!
+//!     fn groups(&self) -> &'static [GlyphGroup] {
+//!         GROUPS
+//!     }
+//!
+//!     fn alternates(&self, name: &str) -> &'static [&'static str] {
+//!         ALTERNATES.get(name).copied().unwrap_or_default()
+//!     }
+//!
+//!     fn base_of(&self, name: &str) -> Option<&'static str> {
+//!         BASE_OF.get(name).copied()
+//!     }
+//!
+//!     /// The generated `TONE_GROUP` map is keyed by base names, so
+//!     /// variants resolve through `base_of`.
+//!     fn tone_group(&self, name: &str) -> Option<u32> {
+//!         TONE_GROUP
+//!             .get(name)
+//!             .copied()
+//!             .or_else(|| self.base_of(name).and_then(|b| TONE_GROUP.get(b).copied()))
+//!     }
 //! }
 //! ```
 
@@ -58,6 +92,21 @@ pub trait GlyphOrdering: Sync {
     /// Returns the base glyph name for a variant (e.g. a skin-tone
     /// sequence), or `None` if `name` is a base glyph.
     fn base_of(&self, name: &str) -> Option<&'static str>;
+
+    /// Returns the opaque variant-shape group of a glyph.
+    ///
+    /// Entries sharing a `tone_group` have the same [`alternates`]
+    /// shape, so a chosen position transfers to every base glyph in
+    /// the group - this powers the classic picker feature "set default
+    /// skin tone once, apply everywhere". Returns `None` for glyphs
+    /// without tone variants; implementations should resolve variants
+    /// through their base. Defaults to `None` for families without
+    /// tone data.
+    ///
+    /// [`alternates`]: GlyphOrdering::alternates
+    fn tone_group(&self, _name: &str) -> Option<u32> {
+        None
+    }
 
     /// Whether consumers may collapse variants behind their base
     /// glyph. Defaults to `true` - families with alternates usually

@@ -60,6 +60,27 @@ fn main() {
 }
 ```
 
+## Emoji ordering & metadata
+
+With the **`metadata`** feature, `BlobmojiMetadata` implements
+`GlyphMetadata` + `GlyphOrdering` backed by build-time generated phf
+tables:
+
+- **Keywords & categories** — CLDR annotations and `emoji-test.txt`;
+  `search()`/`keywords()`/`categories()` power filtering beyond name
+  matching.
+- **Picker ordering** — `groups()`/`order_index()`/`group()` follow
+  `googlefonts/emoji-metadata` (`emoji_17_0_ordering.json`): Smileys
+  first, canonical group layout.
+- **Variants** — `alternates()`/`base_of()` link skin-tone, gender and
+  ZWJ sequences to their base emoji; `tone_group()` shares the variant
+  shape across bases for default-tone picking.
+- **Shortcode aliases** — `:smile:` and emoticons resolve via
+  `resolve_alias()` and hit `search()`; `shortcodes(name)` lists them.
+
+The cheat sheet consumes all of this via `CheatSheetFamily::ordering()`
+— picker-order grid, group jump-list, collapsed variants, tone picking.
+
 ## Examples
 
 ```sh

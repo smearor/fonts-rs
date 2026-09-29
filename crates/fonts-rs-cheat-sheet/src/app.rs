@@ -1,7 +1,9 @@
 //! Generic cheat sheet application: grid, search, history, sidebar.
 
 use crate::detail::show_detail;
+use crate::detail_context::DetailContext;
 use crate::family::CheatSheetFamily;
+use crate::tone_picker::TonePicker;
 use fonts_rs_model::CodePoint;
 use fonts_rs_model::GroupLabel;
 use gtk4::Align;
@@ -45,9 +47,8 @@ fn update_nav_buttons<N>(back_btn: &Button, forward_btn: &Button, history: &[His
 /// Navigate to a history entry: search filters the grid, glyph opens the sidebar.
 fn navigate_to<F: CheatSheetFamily>(
     entry: &HistoryEntry<F::Name>,
-    search_entry: &Entry,
+    ctx: &DetailContext,
     sidebar: &Box,
-    content: &Box,
     selected_name: &Rc<RefCell<Option<F::Name>>>,
     selected_cell: &Rc<RefCell<Option<gtk4::Box>>>,
     window: &ApplicationWindow,
@@ -58,8 +59,8 @@ fn navigate_to<F: CheatSheetFamily>(
     }
     match entry {
         HistoryEntry::Search(filter) => {
-            search_entry.set_text(filter);
-            search_entry.set_position(-1);
+            ctx.search_entry.set_text(filter);
+            ctx.search_entry.set_position(-1);
             *selected_name.borrow_mut() = None;
             sidebar.set_visible(false);
             window.set_default_size(460, 800);
@@ -70,7 +71,7 @@ fn navigate_to<F: CheatSheetFamily>(
             sidebar.set_visible(true);
             window.set_default_size(784, 800);
             window.set_size_request(784, -1);
-            show_detail::<F>(content, name, *cp, search_entry);
+            show_detail::<F>(ctx, name, *cp);
         }
     }
 }
@@ -144,6 +145,11 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
     let ordering = F::ordering();
     let group_labels: &'static [GroupLabel] = ordering.map(|o| o.group_labels()).unwrap_or_default();
     let active_group: Rc<RefCell<Option<GroupLabel>>> = Rc::new(RefCell::new(None));
+
+    // Default-tone picker state (tone_group id -> alternate index);
+    // the browse grid swaps base cells to the chosen tone. Session
+    // scoped - persistence is a follow-up.
+    let tone_picker = TonePicker::new();
 
     // --- HeaderBar with Back/Forward history navigation ---
     let header_bar = HeaderBar::builder()
@@ -351,6 +357,7 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
     let icons_for_filter = all_icons.clone();
     let render_grid = {
         let active_group = active_group.clone();
+        let tone_picker = tone_picker.clone();
         move |filter: &str| -> Vec<(CodePoint, F::Name)> {
             // Group jump-list filter: restrict the glyph set to the
             // selected group (None = all groups / ordering disabled).
@@ -366,9 +373,28 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
                 .cloned()
                 .collect();
 
+            // Default-tone swap (browse path only): a base cell whose
+            // tone group has a stored index renders that alternate.
+            // Presentation-only - the search path shows real glyphs.
+            let swap_tone = |(cp, name): (CodePoint, F::Name)| -> (CodePoint, F::Name) {
+                let Some(group) = ordering.and_then(|o| o.tone_group(name.as_ref())) else {
+                    return (cp, name);
+                };
+                let Some(index) = tone_picker.selected(group) else {
+                    return (cp, name);
+                };
+                let Some(&variant) = ordering.and_then(|o| o.alternates(name.as_ref()).get(index)) else {
+                    return (cp, name);
+                };
+                let (Some(variant_name), Some(variant_cp)) = (F::parse_name(variant), F::codepoint(variant)) else {
+                    return (cp, name);
+                };
+                (variant_cp, variant_name)
+            };
+
             let filter_lower = filter.to_lowercase();
             if filter_lower.is_empty() {
-                return base;
+                return base.into_iter().map(swap_tone).collect();
             }
 
             let search_results = F::search(filter);
@@ -422,8 +448,13 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
 
     let grid_clone = grid.clone();
     let sidebar_clone = sidebar.clone();
-    let content_clone = sidebar_content.clone();
     let search_entry_clone = search_entry.clone();
+    // Shared handles for the detail sidebar + tone picking.
+    let detail_ctx = DetailContext {
+        content: sidebar_content.clone(),
+        search_entry: search_entry.clone(),
+        tone_picker: tone_picker.clone(),
+    };
     let selected_name_for_grid = selected_name.clone();
     let selected_cell_for_grid = selected_cell.clone();
     let history_for_grid = history.clone();
@@ -432,6 +463,7 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
     let back_btn_for_grid = back_btn.clone();
     let forward_btn_for_grid = forward_btn.clone();
     let window_for_grid = window.clone();
+    let detail_ctx_for_grid = detail_ctx.clone();
 
     let populate_batch = move |start: usize, end: usize, icons: &[(CodePoint, F::Name)], icon_size: f64, _cols: u32| {
         if start == 0 {
@@ -565,8 +597,6 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
             let name_for_click = name.clone();
             let cp_for_click = *codepoint;
             let sidebar_ref = sidebar_clone.clone();
-            let content_ref = content_clone.clone();
-            let search_entry_ref = search_entry_clone.clone();
             let vbox_ref = vbox.clone();
             let selected_name_ref = selected_name_for_grid.clone();
             let selected_cell_ref = selected_cell_for_grid.clone();
@@ -576,6 +606,7 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
             let back_btn_ref = back_btn_for_grid.clone();
             let forward_btn_ref = forward_btn_for_grid.clone();
             let window_ref = window_for_grid.clone();
+            let detail_ctx_ref = detail_ctx_for_grid.clone();
             let gesture = gtk4::GestureClick::new();
             gesture.connect_released(move |gesture, _n, x, y| {
                 if let Some(widget) = gesture.widget()
@@ -610,7 +641,7 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
                 sidebar_ref.set_visible(true);
                 window_ref.set_default_size(784, 800);
                 window_ref.set_size_request(784, -1);
-                show_detail::<F>(&content_ref, &name_for_click, cp_for_click, &search_entry_ref);
+                show_detail::<F>(&detail_ctx_ref, &name_for_click, cp_for_click);
 
                 // Record icon view in history.
                 if !*suppress_ref.borrow() {
@@ -666,6 +697,19 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
             count_label_ref.set_label(&label);
         }
     };
+
+    // Tone picking re-renders the grid so cell swaps apply
+    // immediately - recompute the filtered list, then repopulate.
+    {
+        let render_grid_for_tones = render_grid.clone();
+        let current_icons_for_tones = current_icons.clone();
+        let refresh_grid_for_tones = refresh_grid.clone();
+        let search_entry_for_tones = search_entry.clone();
+        tone_picker.set_refresh(Rc::new(move || {
+            *current_icons_for_tones.borrow_mut() = render_grid_for_tones(&search_entry_for_tones.text());
+            refresh_grid_for_tones(true);
+        }));
+    }
 
     // Initial population - via render_grid so group/collapse filters apply.
     *current_icons.borrow_mut() = render_grid("");
@@ -739,9 +783,7 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
 
     // --- Back/Forward button handlers ---
     {
-        let search_entry_for_back = search_entry.clone();
         let sidebar_for_back = sidebar.clone();
-        let content_for_back = sidebar_content.clone();
         let selected_name_for_back = selected_name.clone();
         let selected_cell_for_back = selected_cell.clone();
         let history_for_back = history.clone();
@@ -750,6 +792,7 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
         let forward_btn_for_back = forward_btn.clone();
         let back_btn_for_handler = back_btn.clone();
         let window_for_back = window.clone();
+        let detail_ctx_for_back = detail_ctx.clone();
         back_btn.connect_clicked(move |_| {
             let hist = history_for_back.borrow();
             let mut idx = history_index_for_back.borrow_mut();
@@ -761,9 +804,8 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
                 *suppress_for_back.borrow_mut() = true;
                 navigate_to::<F>(
                     &prev,
-                    &search_entry_for_back,
+                    &detail_ctx_for_back,
                     &sidebar_for_back,
-                    &content_for_back,
                     &selected_name_for_back,
                     &selected_cell_for_back,
                     &window_for_back,
@@ -776,9 +818,7 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
         });
     }
     {
-        let search_entry_for_fwd = search_entry.clone();
         let sidebar_for_fwd = sidebar.clone();
-        let content_for_fwd = sidebar_content.clone();
         let selected_name_for_fwd = selected_name.clone();
         let selected_cell_for_fwd = selected_cell.clone();
         let history_for_fwd = history.clone();
@@ -787,6 +827,7 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
         let back_btn_for_fwd = back_btn.clone();
         let forward_btn_for_handler = forward_btn.clone();
         let window_for_fwd = window.clone();
+        let detail_ctx_for_fwd = detail_ctx.clone();
         forward_btn.connect_clicked(move |_| {
             let hist = history_for_fwd.borrow();
             let mut idx = history_index_for_fwd.borrow_mut();
@@ -796,15 +837,7 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
                 drop(idx);
                 drop(hist);
                 *suppress_for_fwd.borrow_mut() = true;
-                navigate_to::<F>(
-                    &next,
-                    &search_entry_for_fwd,
-                    &sidebar_for_fwd,
-                    &content_for_fwd,
-                    &selected_name_for_fwd,
-                    &selected_cell_for_fwd,
-                    &window_for_fwd,
-                );
+                navigate_to::<F>(&next, &detail_ctx_for_fwd, &sidebar_for_fwd, &selected_name_for_fwd, &selected_cell_for_fwd, &window_for_fwd);
                 *suppress_for_fwd.borrow_mut() = false;
                 let hist = history_for_fwd.borrow();
                 let idx = history_index_for_fwd.borrow();

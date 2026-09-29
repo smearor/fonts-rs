@@ -15,7 +15,10 @@ pub use definition::NotoEmojiDefinition;
 pub use fonts_rs_generator::emoji::ANNOTATIONS_FILE;
 pub use fonts_rs_generator::emoji::EMOJI_TEST_FILE;
 pub use fonts_rs_generator::emoji::EmojiMetadataGenerator;
+pub use fonts_rs_generator::emoji::EmojiOrderingGenerator;
+pub use fonts_rs_generator::emoji::ORDERING_FILE;
 pub use fonts_rs_generator::emoji::parse_cldr_annotations;
+pub use fonts_rs_generator::emoji::parse_emoji_ordering;
 pub use fonts_rs_generator::emoji::parse_emoji_test;
 
 // Re-export generic types from the framework for backward compatibility.

@@ -7,7 +7,9 @@
 
 mod app;
 mod detail;
+mod detail_context;
 mod family;
+mod tone_picker;
 
 pub use app::run;
 pub use family::CheatSheetFamily;

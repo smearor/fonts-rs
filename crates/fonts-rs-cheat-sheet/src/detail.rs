@@ -1,11 +1,11 @@
 //! Detail sidebar for the generic cheat sheet.
 
+use crate::detail_context::DetailContext;
 use crate::family::CheatSheetFamily;
 use fonts_rs_model::CodePoint;
 use gtk4::Align;
 use gtk4::Box;
 use gtk4::Button;
-use gtk4::Entry;
 use gtk4::FlowBox;
 use gtk4::Label;
 use gtk4::Orientation;
@@ -15,7 +15,12 @@ use gtk4::WrapMode;
 use gtk4::prelude::*;
 
 /// Populate the sidebar content with details for the given glyph.
-pub(super) fn show_detail<F: CheatSheetFamily>(content: &Box, name: &F::Name, codepoint: CodePoint, search_entry: &Entry) {
+pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Name, codepoint: CodePoint) {
+    let DetailContext {
+        content,
+        search_entry,
+        tone_picker,
+    } = ctx;
     while let Some(child) = content.first_child() {
         content.remove(&child);
     }
@@ -232,9 +237,8 @@ pub(super) fn show_detail<F: CheatSheetFamily>(content: &Box, name: &F::Name, co
                 .halign(Align::Start)
                 .tooltip_text(format!("Open {base}"))
                 .build();
-            let content_ref = content.clone();
-            let search_entry_ref = search_entry.clone();
-            btn.connect_clicked(move |_| show_detail::<F>(&content_ref, &base_name, base_cp, &search_entry_ref));
+            let ctx_ref = ctx.clone();
+            btn.connect_clicked(move |_| show_detail::<F>(&ctx_ref, &base_name, base_cp));
             content.append(&btn);
         }
 
@@ -284,12 +288,45 @@ pub(super) fn show_detail<F: CheatSheetFamily>(content: &Box, name: &F::Name, co
                         .build(),
                 );
                 let btn = Button::builder().child(&cell).css_classes(["flat"]).tooltip_text(variant).build();
-                let content_ref = content.clone();
-                let search_entry_ref = search_entry.clone();
-                btn.connect_clicked(move |_| show_detail::<F>(&content_ref, &variant_name, variant_cp, &search_entry_ref));
+                let ctx_ref = ctx.clone();
+                btn.connect_clicked(move |_| show_detail::<F>(&ctx_ref, &variant_name, variant_cp));
                 var_box.insert(&btn, -1);
             }
             content.append(&var_box);
+        }
+
+        // Default-tone picking: a variant becomes the shared default
+        // of its tone group ("set skin tone once, apply everywhere").
+        // The base glyph has no alternates position - it only offers
+        // the reset while a non-default index is stored.
+        if let Some(group) = ord.tone_group(name.as_ref()) {
+            let picked_index = ord
+                .base_of(name.as_ref())
+                .and_then(|base| ord.alternates(base).iter().position(|v| *v == name.as_ref()));
+            let stored = tone_picker.selected(group);
+            if picked_index.is_some() || stored.is_some() {
+                let is_default = picked_index == stored;
+                let label = if is_default { "Reset default tone" } else { "Set as default tone" };
+                let tone_btn = Button::builder()
+                    .label(label)
+                    .css_classes(["cat-btn"])
+                    .halign(Align::Start)
+                    .margin_top(8)
+                    .tooltip_text("Apply this tone to every glyph in the group")
+                    .build();
+                let ctx_ref = ctx.clone();
+                let name_for_tone = name.clone();
+                tone_btn.connect_clicked(move |_| {
+                    match (picked_index, is_default) {
+                        (Some(index), false) => ctx_ref.tone_picker.select(group, index),
+                        _ => ctx_ref.tone_picker.reset(group),
+                    }
+                    // Re-render the sidebar so the button label
+                    // reflects the new selection state.
+                    show_detail::<F>(&ctx_ref, &name_for_tone, codepoint);
+                });
+                content.append(&tone_btn);
+            }
         }
     }
 
