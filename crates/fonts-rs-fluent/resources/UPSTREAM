@@ -1,0 +1,17 @@
+upstream: https://github.com/microsoft/fluentui-system-icons
+ref:      a563cf9166f4f91aa617557ed272612b7f0a2f72
+release:  1.1.343 (2026-09-25)
+
+artifacts:
+  assets/*/SVG/ic_fluent_*_24_regular.svg -> svg/regular-24/  (2,474 files; flattened — 64 filenames appear under multiple asset dirs upstream)
+  assets/*/SVG/ic_fluent_*_24_filled.svg  -> svg/filled-24/   (2,510 files)
+  fonts/FluentSystemIcons-Regular.ttf     -> fonts/
+  fonts/FluentSystemIcons-Filled.ttf      -> fonts/
+  fonts/FluentSystemIcons-Regular.json    -> metadata/  (name -> codepoint map, 1:1 with TTF cmap)
+  fonts/FluentSystemIcons-Filled.json     -> metadata/
+  LICENSE                                 -> LICENSE
+
+metadata source:
+  @iconify-json/fluent@1.2.59 (unpkg, MIT, tracks upstream 1.1.343)
+    -> metadata/aliases.json  (24px alias renames, kebab -> kebab)
+    -> metadata/hidden.json   (24px deprecated icon names)
