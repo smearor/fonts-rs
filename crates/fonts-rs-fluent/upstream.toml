@@ -1,0 +1,56 @@
+# Upstream sourcing manifest for fonts-rs-fluent (see concepts/planned/REPRODUCABLE.md).
+# Consumed by `cargo xtask sync/check/verify` once the xtask lands.
+
+[upstream]
+repo = "microsoft/fluentui-system-icons"
+ref = "a563cf9166f4f91aa617557ed272612b7f0a2f72"  # release 1.1.343 (2026-09-25); no version tags upstream — pin by SHA
+
+[upstream.license]
+source = "LICENSE"
+target = "resources/LICENSE"
+
+# 24px slices: source is the whole assets/ tree; the pattern selects
+# filenames inside nested `assets/*/SVG/` dirs which are flattened
+# into the target dir (~64 filenames exist under multiple dirs —
+# identical content, dedup is intentional).
+[[artifacts]]
+source = "assets"
+target = "resources/svg/regular-24"
+pattern = "**/ic_fluent_*_24_regular.svg"
+
+[[artifacts]]
+source = "assets"
+target = "resources/svg/filled-24"
+pattern = "**/ic_fluent_*_24_filled.svg"
+
+[[artifacts]]
+source = "fonts/FluentSystemIcons-Regular.ttf"
+target = "resources/fonts/FluentSystemIcons-Regular.ttf"
+
+[[artifacts]]
+source = "fonts/FluentSystemIcons-Filled.ttf"
+target = "resources/fonts/FluentSystemIcons-Filled.ttf"
+
+# Upstream name->codepoint maps (1:1 with the TTF cmaps).
+[[artifacts]]
+source = "fonts/FluentSystemIcons-Regular.json"
+target = "resources/metadata/FluentSystemIcons-Regular.json"
+
+[[artifacts]]
+source = "fonts/FluentSystemIcons-Filled.json"
+target = "resources/metadata/FluentSystemIcons-Filled.json"
+
+# Derived metadata from @iconify-json/fluent (unpkg, MIT).
+# `iconify_aliases` is the shared provider (same as heroicons);
+# `iconify_hidden` is new — same source, emits the deprecated-name list.
+[[metadata]]
+provider = "iconify_aliases"
+output = "resources/metadata/aliases.json"
+with.iconify_set = "fluent"
+with.suffixes = ["-24-regular", "-24-filled"]
+
+[[metadata]]
+provider = "iconify_hidden"
+output = "resources/metadata/hidden.json"
+with.iconify_set = "fluent"
+with.suffixes = ["-24-regular", "-24-filled"]
