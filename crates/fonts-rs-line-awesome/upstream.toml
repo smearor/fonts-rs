@@ -1,0 +1,47 @@
+# Upstream sourcing manifest for fonts-rs-line-awesome (see concepts/planned/REPRODUCABLE.md).
+# Consumed by `cargo xtask sync/check/verify` once the xtask lands.
+
+[upstream]
+repo = "icons8/line-awesome"
+ref = "2bb7870e4d3f3a2d966eea2c94912096621e0662"  # HEAD 2026-07-01; npm 1.3.1; no version tags upstream — pin by SHA
+
+# Line Awesome is dual-licensed MIT OR "Good Boy License"; package.json
+# declares MIT and we vendor under MIT.
+[upstream.license]
+source = "LICENSE.md"
+target = "resources/LICENSE"
+
+# Flat upstream svg/ dir, 1:1 — {name}.svg (regular OR brand) and
+# {name}-solid.svg (solid). Style is encoded in the filename, not the dir.
+[[artifacts]]
+source = "svg"
+target = "resources/svg"
+pattern = "*.svg"
+
+[[artifacts]]
+source = "dist/line-awesome/fonts/la-regular-400.ttf"
+target = "resources/fonts/la-regular-400.ttf"
+
+[[artifacts]]
+source = "dist/line-awesome/fonts/la-solid-900.ttf"
+target = "resources/fonts/la-solid-900.ttf"
+
+[[artifacts]]
+source = "dist/line-awesome/fonts/la-brands-400.ttf"
+target = "resources/fonts/la-brands-400.ttf"
+
+# Bespoke provider: parses dist/line-awesome/scss/_variables.scss
+# ($la-{name}: \fxxx) and joins every SVG file stem with its codepoint
+# via the filename-pairing rule ({stem}-solid -> {stem}). Emits a
+# stem-keyed flat {stem: codepoint} map for CodepointStrategy::FromNameMap.
+[[metadata]]
+provider = "line_awesome_codepoints"
+output = "resources/metadata/codepoints.json"
+
+# Bespoke provider: extracts alias class names from
+# dist/line-awesome/css/line-awesome.css (FA4 .la.la-{name}-o) and
+# dist/font-awesome-line-awesome/css/all.css (fa-{name}). Emits
+# kebab->kebab alias->canonical pairs resolved to file stems.
+[[metadata]]
+provider = "line_awesome_aliases"
+output = "resources/metadata/aliases.json"
