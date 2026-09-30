@@ -22,6 +22,9 @@ type NameResolver<'a> = Box<dyn Fn(&ParsedGlyph) -> Option<String> + 'a>;
 /// Glyph filter predicate over the parsed codepoint sequence.
 type GlyphFilter<'a> = Box<dyn Fn(&[CodePoint]) -> bool + 'a>;
 
+/// Glyph filter predicate over the parsed filename identity.
+type NameFilter<'a> = Box<dyn Fn(&ParsedGlyph) -> bool + 'a>;
+
 /// `GlyphSource` backed by a directory of pre-rendered SVG files.
 ///
 /// Iterates `svg_dir`, resolves each file to a [`ParsedGlyph`] via the
@@ -45,6 +48,9 @@ pub struct SvgDirSource<'a> {
     name_prefix: Option<String>,
     /// Optional predicate for excluding glyphs (e.g. flag emoji).
     filter: Option<GlyphFilter<'a>>,
+    /// Optional predicate for excluding glyphs by parsed name (e.g.
+    /// deprecated/hidden upstream icons).
+    name_filter: Option<NameFilter<'a>>,
     /// Post-processing hooks applied to each SVG, in order.
     post_processors: Vec<Box<dyn SvgPostProcessor>>,
     /// Strategy for assigning [`GlyphDescriptor::code`] values.
@@ -61,6 +67,7 @@ impl<'a> SvgDirSource<'a> {
             name_resolver: None,
             name_prefix: None,
             filter: None,
+            name_filter: None,
             post_processors: Vec::new(),
             codepoint_strategy: CodepointStrategy::default(),
         }
@@ -95,8 +102,23 @@ impl<'a> SvgDirSource<'a> {
     }
 
     /// Sets a glyph filter predicate (e.g. flag-emoji exclusion).
+    ///
+    /// The predicate sees the filename-derived codepoints - it does
+    /// not apply to sources whose files carry no codepoint information
+    /// (use [`name_filter`](Self::name_filter) there).
     pub fn filter(mut self, predicate: impl Fn(&[CodePoint]) -> bool + 'a) -> Self {
         self.filter = Some(Box::new(predicate));
+        self
+    }
+
+    /// Sets a name-based glyph filter predicate (e.g. deprecated/hidden
+    /// upstream icons).
+    ///
+    /// Evaluated on the [`ParsedGlyph`] before name resolution - unlike
+    /// [`filter`](Self::filter), this also works for sources whose
+    /// files carry no codepoint information.
+    pub fn name_filter(mut self, predicate: impl Fn(&ParsedGlyph) -> bool + 'a) -> Self {
+        self.name_filter = Some(Box::new(predicate));
         self
     }
 
@@ -130,6 +152,12 @@ impl GlyphSource for SvgDirSource<'_> {
 
             if let (Some(codepoints), Some(filter)) = (&parsed.codepoints, &self.filter)
                 && !filter(codepoints)
+            {
+                continue;
+            }
+
+            if let Some(name_filter) = &self.name_filter
+                && !name_filter(&parsed)
             {
                 continue;
             }
@@ -248,6 +276,21 @@ mod tests {
             let glyphs = source.glyphs().expect("glyphs");
             assert_eq!(glyphs.len(), 1);
             assert_eq!(glyphs[0].name, "icon");
+        });
+    }
+
+    /// `name_filter` excludes glyphs by parsed name - the only filter
+    /// applicable to files that carry no filename codepoints.
+    #[test]
+    fn name_filter_excludes_glyphs() {
+        with_svg_dir("name_filter", &["add.svg", "flag_pride.svg"], |dir| {
+            let hidden = std::collections::HashSet::from(["flag_pride".to_string()]);
+            let source = SvgDirSource::new(dir)
+                .filename_parser(crate::glyph_source::NameParser)
+                .name_filter(move |parsed| !hidden.contains(&parsed.raw_name));
+            let glyphs = source.glyphs().expect("glyphs");
+            assert_eq!(glyphs.len(), 1);
+            assert_eq!(glyphs[0].name, "add");
         });
     }
 

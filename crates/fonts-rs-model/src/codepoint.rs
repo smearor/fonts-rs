@@ -52,6 +52,18 @@ impl From<char> for CodePoint {
     }
 }
 
+impl TryFrom<u32> for CodePoint {
+    type Error = CodePointParseError;
+
+    /// Converts a `u32` scalar value to a `CodePoint`.
+    ///
+    /// Fails with [`CodePointParseError::InvalidScalar`] for surrogate
+    /// range values (U+D800–U+DFFF) and values above U+10FFFF.
+    fn try_from(value: u32) -> Result<Self, Self::Error> {
+        char::from_u32(value).map(Self).ok_or(CodePointParseError::InvalidScalar)
+    }
+}
+
 impl fmt::Display for CodePoint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:04X}", self.0 as u32)

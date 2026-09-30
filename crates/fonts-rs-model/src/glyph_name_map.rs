@@ -76,20 +76,109 @@ impl FromIterator<(String, CodePoint)> for GlyphNameMap {
 }
 
 impl<'de> Deserialize<'de> for GlyphNameMap {
-    /// Deserializes a SMuFL glyphnames.json map into a [`GlyphNameMap`].
+    /// Deserializes a vendor glyph-name → codepoint map into a [`GlyphNameMap`].
     ///
-    /// The JSON format is: `{ "glyphName": { "codepoint": "U+E050", ... } }`.
-    /// Only the `codepoint` field is extracted; other fields are ignored.
+    /// Accepts the common upstream JSON shapes transparently:
+    ///
+    /// - SMuFL object: `{ "glyphName": { "codepoint": "U+E050", ... } }` —
+    ///   only `codepoint` is extracted, other fields are ignored.
+    /// - Flat integer: `{ "glyphName": 57994 }` (e.g. Fluent System Icons).
+    /// - String: `{ "glyphName": "U+E050" }` or bare hex `"E050"`.
+    /// - Object with raw int: `{ "glyphName": { "codepoint": 57400 } }`.
+    ///
+    /// Key normalization (prefix/suffix stripping, name aliasing) is not
+    /// performed here — that is inherently vendor-specific and belongs in
+    /// the consumer.
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
+        /// A codepoint scalar in either numeric or string form.
         #[derive(Deserialize)]
-        struct Entry {
-            codepoint: CodePoint,
+        #[serde(untagged)]
+        enum Scalar {
+            /// Raw scalar value (e.g. `57994`).
+            Int(u32),
+            /// Hex or `U+` prefixed string, parsed by `CodePoint`.
+            String(CodePoint),
+        }
+
+        /// One `glyphName` entry: bare scalar or `{ "codepoint": ... }` object.
+        #[derive(Deserialize)]
+        #[serde(untagged)]
+        enum Entry {
+            /// The value itself is the codepoint.
+            Scalar(Scalar),
+            /// SMuFL-style object; only `codepoint` is extracted.
+            Object { codepoint: Scalar },
         }
 
         let map: HashMap<String, Entry> = HashMap::deserialize(deserializer)?;
-        Ok(map.into_iter().map(|(name, e)| (name, e.codepoint)).collect())
+        map.into_iter()
+            .map(|(name, entry)| {
+                let scalar = match entry {
+                    Entry::Scalar(scalar) => scalar,
+                    Entry::Object { codepoint } => codepoint,
+                };
+                let codepoint = match scalar {
+                    Scalar::Int(value) => CodePoint::try_from(value).map_err(serde::de::Error::custom)?,
+                    Scalar::String(codepoint) => codepoint,
+                };
+                Ok((name, codepoint))
+            })
+            .collect()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::GlyphNameMap;
+
+    /// SMuFL shape: `{ "name": { "codepoint": "U+E050", ...ignored } }`.
+    #[test]
+    fn deserialize_smufl_object() {
+        let json = r#"{ "accidentalFlat": { "codepoint": "U+E260", "description": "Flat" } }"#;
+        let map: GlyphNameMap = serde_json::from_str(json).unwrap();
+        assert_eq!(map.get("accidentalFlat").unwrap().as_char() as u32, 0xE260);
+    }
+
+    /// Flat integer map: `{ "name": 57994 }` (Fluent System Icons).
+    #[test]
+    fn deserialize_flat_integer() {
+        let json = r#"{ "ic_fluent_add_24_regular": 57994 }"#;
+        let map: GlyphNameMap = serde_json::from_str(json).unwrap();
+        assert_eq!(map.get("ic_fluent_add_24_regular").unwrap().as_char() as u32, 57994);
+    }
+
+    /// Integer values above the Basic Multilingual Plane (PUA-A).
+    #[test]
+    fn deserialize_supplementary_plane() {
+        let json = r#"{ "icon": 984566 }"#; // U+F05F6
+        let map: GlyphNameMap = serde_json::from_str(json).unwrap();
+        assert_eq!(map.get("icon").unwrap().as_char() as u32, 0xF05F6);
+    }
+
+    /// String codepoints with and without the `U+` prefix.
+    #[test]
+    fn deserialize_string_forms() {
+        let json = r#"{ "a": "U+E050", "b": "E051" }"#;
+        let map: GlyphNameMap = serde_json::from_str(json).unwrap();
+        assert_eq!(map.get("a").unwrap().as_char() as u32, 0xE050);
+        assert_eq!(map.get("b").unwrap().as_char() as u32, 0xE051);
+    }
+
+    /// SMuFL variant with a raw integer inside the object.
+    #[test]
+    fn deserialize_object_int_codepoint() {
+        let json = r#"{ "x": { "codepoint": 57400 } }"#;
+        let map: GlyphNameMap = serde_json::from_str(json).unwrap();
+        assert_eq!(map.get("x").unwrap().as_char() as u32, 57400);
+    }
+
+    /// Surrogate-range scalar values are rejected.
+    #[test]
+    fn deserialize_rejects_surrogate() {
+        let json = r#"{ "bad": 55296 }"#; // U+D800
+        assert!(serde_json::from_str::<GlyphNameMap>(json).is_err());
     }
 }

@@ -507,6 +507,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "fonts-rs-fluent"
+version = "0.3.0"
+dependencies = [
+ "ab_glyph",
+ "const_format",
+ "fonts-rs-generator",
+ "fonts-rs-model",
+ "fonts-rs-test",
+ "gio",
+ "glib",
+ "gtk4",
+ "miette",
+ "phf",
+ "serde_json",
+]
+
+[[package]]
+name = "fonts-rs-fluent-cheat-sheet"
+version = "0.3.0"
+dependencies = [
+ "fonts-rs-cheat-sheet",
+ "fonts-rs-fluent",
+ "fonts-rs-model",
+ "gtk4",
+ "miette",
+ "pangocairo",
+]
+
+[[package]]
 name = "fonts-rs-fourteen-segment"
 version = "0.3.0"
 dependencies = [
@@ -605,6 +634,7 @@ dependencies = [
  "pango",
  "phf",
  "serde",
+ "serde_json",
  "thiserror 2.0.20",
 ]
 
