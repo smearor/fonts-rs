@@ -89,9 +89,7 @@ fn build_tables() -> OrderingTables {
 
     // Strip the `la-` prefix and `-symbolic` suffix:
     // `la-heart-solid-symbolic` -> `heart-solid`.
-    let stem_of = |name: &'static str| -> &'static str {
-        name.strip_prefix("la-").and_then(|s| s.strip_suffix("-symbolic")).unwrap_or(name)
-    };
+    let stem_of = |name: &'static str| -> &'static str { name.strip_prefix("la-").and_then(|s| s.strip_suffix("-symbolic")).unwrap_or(name) };
 
     // Regular/solid pairs: `la-{stem}-solid-symbolic` is a variant of
     // `la-{stem}-symbolic` when the plain spelling exists.
