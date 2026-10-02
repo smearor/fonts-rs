@@ -1,73 +1,14 @@
-//! GTK font registration trait.
-//!
-//! Provides the [`GtkFont`] trait for font families with GResource-backed
-//! registration. Each font crate implements this trait on its marker type
-//! via the `impl_gtk_font!` macro in `fonts-rs-generator`.
+//! The [`GtkFont`] trait: GResource-backed font family registration.
 
-use crate::FontError;
 use std::any::TypeId;
 use std::collections::HashMap;
-use std::sync::Arc;
 use std::sync::Mutex;
 use std::sync::OnceLock;
 
-/// Error returned by [`GtkFont::register_glyphs`].
-#[derive(Debug, Clone, thiserror::Error)]
-#[error("failed to register icons GResource: {0}")]
-pub struct RegisterGlyphError(#[from] gio::glib::Error);
-
-/// Error returned by [`GtkFont::register_font`].
-#[derive(Debug, Clone, thiserror::Error)]
-#[error("failed to register font GResource: {0}")]
-pub struct RegisterFontError(#[from] gio::glib::Error);
-
-/// Error returned by [`GtkFont::load_font`].
-#[derive(Debug, Clone, thiserror::Error)]
-pub enum LoadFontError {
-    /// Failed to register the font GResource bundle.
-    #[error("failed to register font GResource: {0}")]
-    RegisterFont(#[from] RegisterFontError),
-    /// Failed to look up the font resource data.
-    #[error("failed to look up font resource: {0}")]
-    ResourceLookup(#[from] gio::glib::Error),
-    /// Failed to write the font to a temporary file.
-    /// Wrapped in `Arc` so `LoadFontError` stays `Clone`.
-    #[error("failed to write font to temp file: {0}")]
-    Io(#[from] Arc<std::io::Error>),
-    /// No font GResource is available for this font family.
-    #[error("no font GResource available for this font family")]
-    NoFontGresource,
-}
-
-impl From<std::io::Error> for LoadFontError {
-    fn from(error: std::io::Error) -> Self {
-        Self::Io(Arc::new(error))
-    }
-}
-
-/// Loads `css` into a `CssProvider` and attaches it to the default
-/// display at application priority.
-///
-/// Shared by every font family's init path - the provider is added on
-/// every call; a duplicate provider is harmless and preserves retry
-/// semantics when no display existed on the first call.
-///
-/// No-op when no display is available (e.g. headless).
-pub fn load_css(css: &str) {
-    let provider = gtk4::CssProvider::new();
-    #[cfg(feature = "v4_12")]
-    {
-        provider.load_from_string(css);
-    }
-    #[cfg(not(feature = "v4_12"))]
-    {
-        #[allow(deprecated)]
-        provider.load_from_data(css);
-    }
-    if let Some(display) = gtk4::gdk::Display::default() {
-        gtk4::style_context_add_provider_for_display(&display, &provider, gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION);
-    }
-}
+use crate::FontError;
+use crate::LoadFontError;
+use crate::RegisterFontError;
+use crate::RegisterGlyphError;
 
 /// Trait for GTK font families with GResource-backed registration.
 ///
@@ -85,6 +26,9 @@ pub fn load_css(css: &str) {
 /// - [`load_font`](Self::load_font): Loads the TTF from the GResource into
 ///   a temp file and returns the path. Returns an error for fonts without
 ///   a TTF GResource.
+/// - [`load_font_from_gresource`](Self::load_font_from_gresource):
+///   Provided helper - shared `load_font()` body for families whose
+///   font GResource bundles one or more TTFs.
 /// - [`ensure_registered`](Self::ensure_registered): Lazy, idempotent
 ///   registration of all the family's GResource bundles, cached per
 ///   family. Called automatically by every capability method.
@@ -169,5 +113,40 @@ pub trait GtkFont: 'static {
         Self::register_glyphs()?;
         Self::register_font()?;
         Ok(())
+    }
+
+    /// Extracts one TTF from the registered font GResource into a
+    /// process-lifetime temp file and returns the cached path.
+    ///
+    /// Shared implementation of the [`load_font`](Self::load_font)
+    /// bodies of multi-TTF families: [`register_font`](Self::register_font)
+    /// must have succeeded already (the caller's `load_font` takes care
+    /// of it). Results are cached per `resource_path`; `temp_tag`
+    /// (typically `env!("CARGO_PKG_NAME")` at the call site) namespaces
+    /// the temp file so faces of different families never collide.
+    ///
+    /// Provided method - implementors are not expected to override it.
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`LoadFontError`] if the resource lookup or the
+    /// temp-file write fails.
+    fn load_font_from_gresource(resource_path: &str, temp_tag: &str) -> Result<&'static std::path::Path, LoadFontError> {
+        static CACHE: OnceLock<Mutex<HashMap<String, &'static std::path::Path>>> = OnceLock::new();
+        let cache = CACHE.get_or_init(|| Mutex::new(HashMap::new()));
+        let mut guard = cache.lock().unwrap_or_else(|e| e.into_inner());
+        if let Some(path) = guard.get(resource_path) {
+            return Ok(path);
+        }
+        let bytes = gio::resources_lookup_data(resource_path, gio::ResourceLookupFlags::NONE)?;
+        let stem = std::path::Path::new(resource_path).file_stem().and_then(|s| s.to_str()).unwrap_or("font");
+        let temp_path = std::env::temp_dir().join(format!("fonts-rs-{temp_tag}-{stem}-{}.ttf", std::process::id()));
+        std::fs::write(&temp_path, bytes.as_ref())?;
+        // Leak the path: the temp file must live for the process
+        // lifetime (pango/ab_glyph read it on demand), so a shared
+        // `&'static Path` cache entry is intentional.
+        let path: &'static std::path::Path = Box::leak(temp_path.into_boxed_path());
+        guard.insert(resource_path.to_string(), path);
+        Ok(path)
     }
 }

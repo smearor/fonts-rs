@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+    <gresource prefix="/io/smearor/fonts/line_awesome">
+        <file alias="la-regular-400.ttf">fonts/la-regular-400.ttf</file>
+        <file alias="la-solid-900.ttf">fonts/la-solid-900.ttf</file>
+        <file alias="la-brands-400.ttf">fonts/la-brands-400.ttf</file>
+    </gresource>
+</gresources>

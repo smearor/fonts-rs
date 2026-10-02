@@ -71,6 +71,7 @@ macro_rules! impl_font_family {
      $(css_font_family = $css_font_family:expr,)*
      $(glyph_prefix = $glyph_prefix:expr,)*
      $(gresource_prefix = $gresource_prefix:expr,)?
+     $(variants = $variants:expr,)?
      capabilities = [$($capability:ident),* $(,)?]
      $(,)?) => {
         impl ::fonts_rs_model::FontFamilyConfig for $marker {
@@ -87,6 +88,7 @@ macro_rules! impl_font_family {
             type Name = $name;
 
             $(const CSS_FONT_FAMILY: &'static str = $css_font_family;)*
+            $(const VARIANTS: &'static [::fonts_rs_model::FontVariant] = $variants;)?
 
             fn glyph_name(ch: impl Into<::fonts_rs_model::CodePoint>) -> Option<Self::Name> {
                 let ch = ch.into().as_char();

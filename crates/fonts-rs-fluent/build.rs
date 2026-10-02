@@ -47,6 +47,7 @@ use fonts_rs_generator::hash_str;
 use fonts_rs_generator::hash_svg_dir;
 use fonts_rs_generator::normalize_to_kebab;
 use fonts_rs_generator::set_font_path_env;
+use fonts_rs_generator::stem_keywords;
 use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_model::FontVariant;
 use fonts_rs_model::GlyphEntry;
@@ -153,38 +154,6 @@ impl MetadataGenerator for FluentMetadataGenerator {
     fn aliases(&self) -> Vec<(String, String)> {
         self.aliases.clone()
     }
-}
-
-/// Pushes `token` as a keyword unless it is empty or pure ASCII digits.
-fn push_keyword(keywords: &mut Vec<String>, token: &str) {
-    if !token.is_empty() && !token.chars().all(|c| c.is_ascii_digit()) {
-        keywords.push(token.to_string());
-    }
-}
-
-/// Splits a kebab-case upstream stem into keyword tokens.
-///
-/// Adjacent single-character tokens merge into one keyword so names
-/// like `i-o-t` and `cellular-3-g` yield `iot` and `3g` instead of
-/// useless one-letter keywords. Pure-digit tokens are dropped
-/// (`music-note-1` -> `music`, `note`) - they are noise in substring
-/// search. Duplicates are removed, order follows first occurrence.
-fn stem_keywords(stem: &str) -> Vec<String> {
-    let mut keywords = Vec::new();
-    let mut short_run = String::new();
-    for token in stem.split('-') {
-        if token.chars().count() == 1 {
-            short_run.push_str(token);
-            continue;
-        }
-        push_keyword(&mut keywords, &short_run);
-        short_run.clear();
-        push_keyword(&mut keywords, token);
-    }
-    push_keyword(&mut keywords, &short_run);
-    let mut seen = HashSet::new();
-    keywords.retain(|keyword| seen.insert(keyword.clone()));
-    keywords
 }
 
 /// Parses `aliases.json` (iconify kebab->kebab rename table) into

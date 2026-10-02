@@ -1,5 +1,6 @@
 //! Generator for phf::Map codepoint lookup tables.
 
+use std::collections::BTreeMap;
 use std::marker::PhantomData;
 use std::path::PathBuf;
 
@@ -39,11 +40,32 @@ where
         output.push_str("use phf::phf_map;\n\n");
 
         // Codepoint -> name map
-        output.push_str(&format!("pub static {}: phf::Map<char, &'static str> = phf_map! {{\n", Naming::FORWARD));
+        //
+        // One phf key per codepoint: sets whose style variants share a
+        // codepoint (Line Awesome regular/solid pairs) would emit
+        // duplicate keys and fail `phf_map!` compilation otherwise. On
+        // collision the canonical name wins - the shortest, with the
+        // lexically largest as tiebreak so the choice is independent
+        // of entry order. `glyph_name()` then resolves a shared
+        // codepoint to e.g. `la-adjust-symbolic`, not the `-solid`
+        // sibling; the reverse map below keeps every exported name
+        // resolvable.
+        let mut forward: BTreeMap<char, &str> = BTreeMap::new();
         for entry in entries {
             let Some(code) = &entry.code else { continue };
-            let ch = code.as_char();
-            output.push_str(&format!("    '\\u{{{:X}}}' => \"{}\",\n", ch as u32, entry.name.as_ref()));
+            forward
+                .entry(code.as_char())
+                .and_modify(|slot| {
+                    let candidate = entry.name.as_ref();
+                    if candidate.len() < slot.len() || (candidate.len() == slot.len() && candidate > *slot) {
+                        *slot = candidate;
+                    }
+                })
+                .or_insert_with(|| entry.name.as_ref());
+        }
+        output.push_str(&format!("pub static {}: phf::Map<char, &'static str> = phf_map! {{\n", Naming::FORWARD));
+        for (ch, name) in &forward {
+            output.push_str(&format!("    '\\u{{{:X}}}' => \"{}\",\n", *ch as u32, name));
         }
         output.push_str("};\n\n");
 
@@ -62,5 +84,33 @@ where
     fn output_path() -> Result<PathBuf, GenerateError> {
         let out_dir = std::env::var("OUT_DIR")?;
         Ok(PathBuf::from(out_dir).join("codemap.rs"))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::CodemapGenerator;
+    use super::DefaultNaming;
+    use super::GlyphGenerator;
+    use fonts_rs_model::CodePoint;
+    use fonts_rs_model::GlyphEntry;
+
+    /// Style-variant pairs share one codepoint (Line Awesome
+    /// `la-adjust` / `la-adjust-solid` -> U+F042): the forward map
+    /// must emit the key exactly once - `phf_map!` rejects duplicates -
+    /// while the reverse map keeps every exported name.
+    #[test]
+    fn shared_codepoints_dedupe_forward_map() {
+        let entries = vec![
+            GlyphEntry::new(Some(CodePoint::from_char('\u{F042}')), "x-adjust-symbolic".to_string(), "/pfx", "icons"),
+            GlyphEntry::new(Some(CodePoint::from_char('\u{F042}')), "x-adjust-solid-symbolic".to_string(), "/pfx", "icons"),
+        ];
+        let output = CodemapGenerator::<DefaultNaming>::generate(&entries).expect("generate");
+        assert_eq!(output.matches("'\\u{F042}' =>").count(), 1, "forward map must not contain a duplicate key");
+        assert!(output.contains("\"x-adjust-solid-symbolic\" => '\\u{F042}'"), "reverse map must keep every exported name");
+        assert!(
+            output.contains("'\\u{F042}' => \"x-adjust-symbolic\""),
+            "canonical (shorter) name should win the shared codepoint"
+        );
     }
 }

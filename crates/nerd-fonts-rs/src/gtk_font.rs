@@ -5,8 +5,6 @@
 //! the TTF files) that is registered alongside the `icons.gresource`
 //! bundle (containing SVG icons).
 
-use std::sync::OnceLock;
-
 use const_format::concatcp;
 use fonts_rs_model::GtkFont;
 use fonts_rs_model::LoadFontError;
@@ -31,18 +29,7 @@ impl GtkFont for NerdFonts {
     }
 
     fn load_font() -> Result<&'static std::path::Path, LoadFontError> {
-        static FONT_TEMP_PATH: OnceLock<std::path::PathBuf> = OnceLock::new();
-
-        if let Some(path) = FONT_TEMP_PATH.get() {
-            return Ok(path);
-        }
-
         <Self as GtkFont>::register_font()?;
-        let bytes = gio::resources_lookup_data(FONT_RESOURCE_PATH, gio::ResourceLookupFlags::NONE)?;
-        let temp_path = std::env::temp_dir().join(format!("{}-{}.ttf", env!("CARGO_PKG_NAME"), std::process::id()));
-        std::fs::write(&temp_path, bytes.as_ref())?;
-
-        let path = FONT_TEMP_PATH.get_or_init(|| temp_path);
-        Ok(path)
+        Self::load_font_from_gresource(FONT_RESOURCE_PATH, env!("CARGO_PKG_NAME"))
     }
 }

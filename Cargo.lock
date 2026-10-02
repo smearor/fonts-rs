@@ -597,6 +597,36 @@ dependencies = [
 ]
 
 [[package]]
+name = "fonts-rs-line-awesome"
+version = "0.3.0"
+dependencies = [
+ "ab_glyph",
+ "const_format",
+ "fonts-rs-generator",
+ "fonts-rs-model",
+ "fonts-rs-test",
+ "gio",
+ "glib",
+ "gtk4",
+ "miette",
+ "pangocairo",
+ "phf",
+ "serde_json",
+]
+
+[[package]]
+name = "fonts-rs-line-awesome-cheat-sheet"
+version = "0.3.0"
+dependencies = [
+ "fonts-rs-cheat-sheet",
+ "fonts-rs-line-awesome",
+ "fonts-rs-model",
+ "gtk4",
+ "miette",
+ "pangocairo",
+]
+
+[[package]]
 name = "fonts-rs-lucide"
 version = "0.3.0"
 dependencies = [

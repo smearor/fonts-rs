@@ -28,7 +28,7 @@ sha256 = "781aa4625cdeb5367372d7ab9229e43d5ba49abfaa8fbd0d2ff81686e26adc86"
 
 [[artifacts]]
 path = "resources/metadata/codepoints.json"
-sha256 = "ae0a63bc1069eeed8761e76e01206463494f4e41fd6b83cdfb019c3161ad7a89"
+sha256 = "02804850357f75d66ad170c8b1c4cbb8d64075bab657d7ced823c36c82a986dc"
 
 [[artifacts]]
 path = "resources/svg/500px.svg"

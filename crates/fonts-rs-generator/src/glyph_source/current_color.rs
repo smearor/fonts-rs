@@ -18,12 +18,29 @@ use quick_xml::events::Event;
 pub struct CurrentColor {
     /// Which paint attributes to rewrite.
     target: PaintTarget,
+    /// Whether to inject the targeted paint attribute on `<svg>`
+    /// elements that carry none - see [`inject_missing`](Self::inject_missing).
+    inject_missing: bool,
 }
 
 impl CurrentColor {
     /// Creates a `CurrentColor` processor for the given paint target.
     pub fn new(target: PaintTarget) -> Self {
-        Self { target }
+        Self { target, inject_missing: false }
+    }
+
+    /// Injects the targeted paint attribute as `currentColor` on
+    /// `<svg>` elements that carry no such attribute.
+    ///
+    /// `fill`/`stroke` are inherited presentation attributes, so one
+    /// attribute on the root covers every descendant path. Needed by
+    /// sets whose paths carry no paint attribute at all (Line Awesome
+    /// renders implicit black upstream) - rewriting alone is a no-op
+    /// there. Elements that declare the attribute (including
+    /// `fill="none"`) are left untouched.
+    pub fn inject_missing(mut self) -> Self {
+        self.inject_missing = true;
+        self
     }
 }
 
@@ -49,9 +66,15 @@ impl CurrentColor {
     fn rewrite_paints(&self, element: &BytesStart) -> Result<BytesStart<'static>, GlyphSourceError> {
         let mut rewritten = element.to_owned();
         rewritten.clear_attributes();
+        let (mut has_fill, mut has_stroke) = (false, false);
         for attribute in element.attributes().with_checks(false) {
             let attribute = attribute.map_err(|error| GlyphSourceError::PostProcess(error.to_string()))?;
             let key = attribute.key.as_ref().to_string();
+            match key.as_str() {
+                "fill" => has_fill = true,
+                "stroke" => has_stroke = true,
+                _ => {}
+            }
             let value = attribute.value.to_string();
             let value = match key.as_str() {
                 "stroke" if self.target.rewrites_stroke() && is_rewritable_paint(&value) => "currentColor".to_string(),
@@ -60,6 +83,14 @@ impl CurrentColor {
                 _ => value,
             };
             rewritten.push_attribute((key.as_str(), value.as_str()));
+        }
+        if self.inject_missing && element.name().as_ref() == "svg" {
+            if self.target.rewrites_fill() && !has_fill {
+                rewritten.push_attribute(("fill", "currentColor"));
+            }
+            if self.target.rewrites_stroke() && !has_stroke {
+                rewritten.push_attribute(("stroke", "currentColor"));
+            }
         }
         Ok(rewritten)
     }
@@ -128,6 +159,45 @@ mod tests {
         let result = CurrentColor::new(PaintTarget::Fill).process(svg).expect("processed");
         assert!(result.contains("fill:currentColor"));
         assert!(result.contains("stroke-width: 2"));
+    }
+
+    #[test]
+    fn injects_fill_on_root_when_missing() {
+        let svg = r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M0 0"/></svg>"#.to_string();
+        let result = CurrentColor::new(PaintTarget::Fill).inject_missing().process(svg).expect("processed");
+        assert!(result.contains("<svg xmlns="), "svg root should be preserved");
+        assert!(result.contains("fill=\"currentColor\""), "missing fill should be injected on the svg root");
+    }
+
+    #[test]
+    fn inject_does_not_duplicate_existing_fill() {
+        let svg = r##"<svg fill="#000"><path d="M0 0"/></svg>"##.to_string();
+        let result = CurrentColor::new(PaintTarget::Fill).inject_missing().process(svg).expect("processed");
+        assert_eq!(result.matches("fill=").count(), 1, "existing fill must be rewritten, not duplicated");
+        assert!(result.contains("fill=\"currentColor\""));
+    }
+
+    #[test]
+    fn inject_respects_fill_none_on_stroke_sets() {
+        let svg = r##"<svg fill="none"><path stroke="#333" d="M0 0"/></svg>"##.to_string();
+        let result = CurrentColor::new(PaintTarget::Stroke).inject_missing().process(svg).expect("processed");
+        assert!(result.contains("fill=\"none\""), "explicit fill=none must survive");
+        assert!(result.contains("stroke=\"currentColor\""), "missing stroke should be injected on the svg root");
+    }
+
+    #[test]
+    fn inject_both_paints_when_targeted() {
+        let svg = r#"<svg><path d="M0 0"/></svg>"#.to_string();
+        let result = CurrentColor::new(PaintTarget::Both).inject_missing().process(svg).expect("processed");
+        assert!(result.contains("fill=\"currentColor\""));
+        assert!(result.contains("stroke=\"currentColor\""));
+    }
+
+    #[test]
+    fn without_inject_missing_root_stays_unpainted() {
+        let svg = r#"<svg viewBox="0 0 32 32"><path d="M0 0"/></svg>"#.to_string();
+        let result = CurrentColor::new(PaintTarget::Fill).process(svg).expect("processed");
+        assert!(!result.contains("currentColor"), "without inject_missing nothing may be added");
     }
 
     #[test]
