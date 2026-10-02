@@ -216,7 +216,11 @@ Available processors:
 - **`NormalizeViewBox`** - normalize the `viewBox` attribute
 - **`CurrentColor(target)`** - rewrite `fill`/`stroke` values to
   `currentColor` (`PaintTarget::Fill`/`Stroke`/`Both`); keeps `none`,
-  `url(…)`, `inherit`
+  `url(…)`, `inherit`. `.inject_missing()` additionally injects the
+  targeted attribute on `<svg>` roots that declare none - needed for
+  sets like Line Awesome whose upstream paths carry no paint
+  attribute at all (rewriting alone would be a no-op, leaving
+  implicit black)
 - **`StripEntityNamespaces`** - strip internal entity namespace
   prefixes
 - **`SymbolicClasses`** - add GTK symbolic classes for stroke-based
