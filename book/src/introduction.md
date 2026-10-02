@@ -92,6 +92,7 @@ graph TD
 | `fonts-rs-lucide` | Lucide Icons | ISC | fontless (SVG-only) |
 | `fonts-rs-heroicons` | Heroicons | MIT | fontless (SVG-only) × outline, solid, mini, micro |
 | `fonts-rs-eva` | Eva Icons | MIT | outline, filled |
+| `fonts-rs-line-awesome` | Line Awesome | MIT (or Good Boy) | regular, solid, brands (multi-TTF) |
 | `nerd-fonts-rs` | Nerd Fonts | MIT | - |
 
 Each icon family ships a companion `*-cheat-sheet` app built on the
