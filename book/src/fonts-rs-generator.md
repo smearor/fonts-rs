@@ -128,6 +128,13 @@ FontBuild::new(&font_path)
   resources dir (no font path). Must be paired with `svg_only()`
 - Hash is computed as FNV-1a of the font file and stored in `resources/.hash`
 
+`CodemapGenerator` tolerates **shared codepoints**: when several
+exported names map to the same codepoint (e.g. Line Awesome
+regular/solid pairs), the forward `char -> name` map emits each
+codepoint exactly once - the canonical (shortest) name wins - while
+the reverse `name -> char` map keeps all names. `phf_map!` rejects
+duplicate keys, so the dedupe is mandatory, not cosmetic.
+
 ### Fontless Builds (`svg_only`)
 
 `FontBuild::svg_only()` creates a builder without a font file - for
