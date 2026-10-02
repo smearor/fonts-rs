@@ -133,7 +133,12 @@ fn build_tables() -> OrderingTables {
         GlyphGroup::new(label, Box::leak(glyphs.into_boxed_slice()))
     });
 
-    OrderingTables { order, base_of, alternates, groups }
+    OrderingTables {
+        order,
+        base_of,
+        alternates,
+        groups,
+    }
 }
 
 impl GlyphOrdering for LineAwesomeMetadata {
