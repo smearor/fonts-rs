@@ -297,6 +297,69 @@ Key points:
 
 See `crates/fonts-rs-lucide/build.rs` for the complete implementation.
 
+### Multi-TTF Webfont Family (One TTF per Style)
+
+Icon sets that ship **one TTF per style** (Font Awesome 5 model -
+e.g. Line Awesome with `la-regular-400`/`la-solid-900`/`la-brands-400`)
+are a hybrid: GResource SVGs from a vendored `svg/` directory plus a
+`font.gresource` bundling **all** faces:
+
+```rust
+let font_path = resources.join("fonts").join("la-solid-900.ttf");
+
+// Per-face paths for ab_glyph/pixel-drawing at runtime:
+set_font_path_env("MYFONT_REGULAR_FONT_PATH", &resources.join("fonts").join("my-regular.ttf"))?;
+set_font_path_env("MYFONT_SOLID_FONT_PATH", &font_path)?;
+
+FontBuild::new(&font_path)
+    .compile_font_gresource()   // NO .gresource_prefix() - see below
+    .extra_hash(format!("{EXPORT_PIPELINE_VERSION}"))
+    .extra_hash(format!("{:016x}", hash_svg_dir(&svg_dir)))
+    .extra_hash(format!("{:016x}", hash_str(&codepoints_json)))
+    .rerun_if_changed(&svg_dir)
+    .rerun_if_changed(resources.join("fonts"))
+    .run(|_font_path, resources_dir| {
+        SvgDirSource::new(&svg_dir)
+            .codepoint_map(&codepoints)
+            .codepoint_strategy(CodepointStrategy::FromNameMap)
+            .post_process(CurrentColor::new(PaintTarget::Fill).inject_missing())
+            .export(&config, resources_dir)
+    })?;
+```
+
+Key differences from a single-TTF family:
+
+- **Static `resources/font.gresource.xml`** - when
+  `compile_font_gresource()` is called *without*
+  `gresource_prefix(...)`, `FontBuild` falls back to the hand-written
+  manifest in `resources/` instead of generating one. The generated
+  manifest covers exactly one TTF; a static manifest can list all
+  faces with aliases.
+- **Manual `GtkFont` impl** - `impl_gtk_font!` cannot express
+  multi-TTF families. Implement it by hand with your own
+  `FONT_RESOURCE_PATH` constant(s) for the bundled faces; the
+  `load_font_from_gresource(path, tag)` helper still collapses the
+  `OnceLock` + temp-extraction body to one call.
+- **Manual `PangoFont::install_pango`** - a three-line override that
+  calls the shared `PangoFont::install_pango_resources(font_map,
+  &RESOURCE_PATHS, crate_name)` helper once per face.
+- **`CurrentColor::inject_missing()`** - required when upstream SVG
+  paths carry *no* paint attribute at all (plain `CurrentColor`
+  rewriting would be a no-op); it injects `fill="currentColor"` on
+  the `<svg>` root. Add a post-export assertion that every emitted
+  SVG actually contains the injected fill.
+- **Shared codepoints** - style pairs (e.g. `adjust` /
+  `adjust-solid`) share one FA5 codepoint. `CodemapGenerator`
+  dedupes the forward `char -> name` map per codepoint (the
+  canonical/shortest name wins) while the reverse `name -> char` map
+  keeps every exported name - `phf_map!` rejects duplicate keys.
+- **`SoftwareRender`** needs a variant enum (`LineAwesomeStyle`) to
+  select the face, since `type Variant = ()` cannot express multiple
+  TTFs.
+
+See `crates/fonts-rs-line-awesome/build.rs` and `src/gtk.rs` for the
+complete implementation.
+
 ## Step 6: Write `family.rs` and `lib.rs`
 
 `family.rs` wires the generated phf maps into the `FontFamily` trait
