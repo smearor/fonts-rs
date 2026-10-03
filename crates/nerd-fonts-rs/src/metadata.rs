@@ -7,14 +7,27 @@
 //! (Font Awesome, Material Design, Devicon, Octicons) when available,
 //! and from icon name segments for other sets.
 //!
+//! [`GlyphOrdering`] groups glyphs by their [`IconSet`] (the cheat
+//! sheet's group dropdown + sidebar section). Nerd Fonts has no variant
+//! or tone structure - icon sets are disjoint namespaces.
+//!
 //! This module is only available when the `metadata` feature is enabled.
+
+use std::collections::HashMap;
+use std::sync::OnceLock;
 
 use fonts_rs_model::GlyphAliasMap;
 use fonts_rs_model::GlyphCategory;
 use fonts_rs_model::GlyphCategoryMap;
+use fonts_rs_model::GlyphGroup;
 use fonts_rs_model::GlyphKeyword;
 use fonts_rs_model::GlyphKeywordMap;
 use fonts_rs_model::GlyphMetadata;
+use fonts_rs_model::GlyphOrdering;
+use fonts_rs_model::GroupLabel;
+use nerd_fonts_model::IconSet;
+
+use crate::icons::codepoint_map::ICONS;
 
 // Include the build-time generated phf::Map constants.
 // The generated code references GlyphKeyword, GlyphCategory, and the Map newtypes.
@@ -40,6 +53,101 @@ impl GlyphMetadata for NerdFontsMetadata {
 
     fn alias_map(&self) -> &GlyphAliasMap {
         &ALIASES
+    }
+}
+
+/// Ordering tables derived once from the generated codepoint map.
+///
+/// Nerd Fonts has no upstream ordering JSON, so the tables are computed
+/// lazily from `ICONS` (all exported names) and `IconSet::detect`
+/// instead of being codegen'd.
+struct OrderingTables {
+    /// Group-major index: sets in alphabetical label order ("Other"
+    /// last), glyphs alphabetical within each set - turns search
+    /// results into a grouped picker.
+    order: HashMap<&'static str, u32>,
+    /// Icon-set label per glyph name.
+    group_of: HashMap<&'static str, GroupLabel>,
+    /// Non-empty sets, alphabetical by label ("Other" last).
+    group_labels: &'static [GroupLabel],
+    /// One group per set with alphabetically sorted glyph names.
+    groups: &'static [GlyphGroup],
+}
+
+/// Returns the process-cached [`OrderingTables`].
+fn tables() -> &'static OrderingTables {
+    static TABLES: OnceLock<OrderingTables> = OnceLock::new();
+    TABLES.get_or_init(build_tables)
+}
+
+/// Builds the ordering tables from the generated codepoint map.
+///
+/// The slices are intentionally leaked: [`GlyphOrdering`] returns
+/// `&'static` references, so the tables live for the process lifetime.
+fn build_tables() -> OrderingTables {
+    let mut by_label: HashMap<&'static str, Vec<&'static str>> = HashMap::new();
+    let mut group_of: HashMap<&'static str, GroupLabel> = HashMap::new();
+    for (_, name) in ICONS.entries() {
+        let label = IconSet::detect(name).label();
+        by_label.entry(label).or_default().push(*name);
+        group_of.insert(*name, GroupLabel::new(label));
+    }
+
+    // Alphabetical by label; "Other" sinks to the end.
+    let mut labels: Vec<&'static str> = by_label.keys().copied().collect();
+    labels.sort_unstable();
+    if let Some(position) = labels.iter().position(|label| *label == IconSet::Other.label()) {
+        let other = labels.remove(position);
+        labels.push(other);
+    }
+
+    let mut order = HashMap::with_capacity(group_of.len());
+    let mut groups = Vec::with_capacity(labels.len());
+    let mut index = 0u32;
+    for &label in &labels {
+        let mut glyphs = by_label.remove(label).unwrap_or_default();
+        glyphs.sort_unstable();
+        for &glyph in &glyphs {
+            order.insert(glyph, index);
+            index += 1;
+        }
+        groups.push(GlyphGroup::new(GroupLabel::new(label), Box::leak(glyphs.into_boxed_slice())));
+    }
+
+    OrderingTables {
+        order,
+        group_of,
+        group_labels: Box::leak(labels.iter().map(|label| GroupLabel::new(label)).collect::<Vec<_>>().into_boxed_slice()),
+        groups: Box::leak(groups.into_boxed_slice()),
+    }
+}
+
+impl GlyphOrdering for NerdFontsMetadata {
+    fn order_index(&self, name: &str) -> Option<u32> {
+        tables().order.get(name).copied()
+    }
+
+    /// Icon set of a glyph: `nf-fa-*` -> "Font Awesome".
+    fn group(&self, name: &str) -> Option<GroupLabel> {
+        tables().group_of.get(name).copied()
+    }
+
+    fn group_labels(&self) -> &'static [GroupLabel] {
+        tables().group_labels
+    }
+
+    fn groups(&self) -> &'static [GlyphGroup] {
+        tables().groups
+    }
+
+    /// Icon sets are disjoint namespaces, not variant pairs - there is
+    /// no base/variant relationship.
+    fn base_of(&self, _name: &str) -> Option<&'static str> {
+        None
+    }
+
+    fn collapse_variants(&self) -> bool {
+        false
     }
 }
 
@@ -188,5 +296,48 @@ mod tests {
         let mut sorted = results.clone();
         sorted.sort_unstable();
         assert_eq!(results, sorted, "search results should be sorted");
+    }
+
+    #[test]
+    fn ordering_group_font_awesome() {
+        let group = NerdFontsMetadata.group("nf-fa-gamepad-symbolic");
+        assert_eq!(group.map(|g| g.as_str().to_string()).as_deref(), Some("Font Awesome"));
+    }
+
+    #[test]
+    fn ordering_group_labels_nonempty() {
+        let labels = NerdFontsMetadata.group_labels();
+        assert!(labels.len() > 10, "expected many icon-set groups, got {}", labels.len());
+        assert!(labels.iter().any(|l| l.as_str() == "Font Awesome"));
+    }
+
+    #[test]
+    fn ordering_groups_cover_all_glyphs() {
+        let total: usize = NerdFontsMetadata.groups().iter().map(|g| g.glyphs.len()).sum();
+        let all = crate::icons::codepoint_map::ICONS.entries().count();
+        assert_eq!(total, all, "groups should partition every glyph");
+    }
+
+    #[test]
+    fn ordering_index_matches_group_order() {
+        // Every glyph in an earlier group sorts before all glyphs of a
+        // later group (group-major ordering).
+        let groups = NerdFontsMetadata.groups();
+        let mut previous_max = None;
+        for group in groups {
+            let indices: Vec<u32> = group.glyphs.iter().filter_map(|name| NerdFontsMetadata.order_index(name)).collect();
+            assert_eq!(indices.len(), group.glyphs.len(), "every group member needs an order_index");
+            if let Some(max) = previous_max {
+                let min = *indices.iter().min().unwrap_or(&0);
+                assert!(min > max, "group {} overlaps the previous range", group.name.as_str());
+            }
+            previous_max = indices.iter().max().copied();
+        }
+    }
+
+    #[test]
+    fn ordering_has_no_variants() {
+        assert_eq!(NerdFontsMetadata.base_of("nf-fa-gamepad-symbolic"), None);
+        assert!(!NerdFontsMetadata.collapse_variants());
     }
 }

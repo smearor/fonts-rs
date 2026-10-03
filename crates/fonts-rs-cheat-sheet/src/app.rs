@@ -385,6 +385,11 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
         if !group_labels.is_empty() {
             let list = ListBox::builder().css_classes(["navigation-sidebar"]).build();
             section_header(&list, "Groups");
+            // "All groups" resets the group filter; identified by its
+            // empty widget name in the activation handler.
+            let all_row = ListBoxRow::new();
+            all_row.set_child(Some(&Label::builder().label("All groups").halign(Align::Start).build()));
+            list.append(&all_row);
             for label in group_labels {
                 let row = ListBoxRow::new();
                 row.set_widget_name(label.as_str());
@@ -955,10 +960,11 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
             let Some(row) = list_for_click.row_at_y(y as i32) else {
                 return;
             };
-            let category = row.widget_name();
-            if category.is_empty() {
+            // Section headers are non-activatable.
+            if !row.is_activatable() {
                 return;
             }
+            let category = row.widget_name();
             let shift = gesture.current_event_state().contains(gtk4::gdk::ModifierType::SHIFT_MASK);
             let current = search_entry_for_list.text();
             if shift && !current.is_empty() {
@@ -983,13 +989,16 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
             let Some(row) = list_for_click.row_at_y(y as i32) else {
                 return;
             };
-            let Some(index) = group_labels.iter().position(|label| label.as_str() == row.widget_name().as_str()) else {
+            // Section headers are non-activatable.
+            if !row.is_activatable() {
                 return;
-            };
-            if dropdown.selected() as usize == index + 1 {
-                dropdown.set_selected(0);
-            } else {
-                dropdown.set_selected(index as u32 + 1);
+            }
+            let index = group_labels.iter().position(|label| label.as_str() == row.widget_name().as_str());
+            match index {
+                // Re-activating the selected group or clicking "All
+                // groups" (empty widget name) resets the filter.
+                Some(index) if dropdown.selected() as usize != index + 1 => dropdown.set_selected(index as u32 + 1),
+                _ => dropdown.set_selected(0),
             }
             list_for_click.unselect_all();
         });

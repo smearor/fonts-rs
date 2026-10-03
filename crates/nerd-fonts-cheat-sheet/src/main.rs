@@ -73,6 +73,13 @@ impl CheatSheetFamily for NerdFontsSheet {
         NerdFontsMetadata.categories(name).iter().map(|c| c.as_str().to_string()).collect()
     }
 
+    /// Icon-set groups (`nf-fa-*`, `nf-md-*`, …) power the sidebar's
+    /// "Groups" section, the jump-list dropdown, and group-major search
+    /// ordering.
+    fn ordering() -> Option<&'static dyn fonts_rs_model::GlyphOrdering> {
+        Some(&NerdFontsMetadata)
+    }
+
     fn alias_display(name: &IconName) -> Option<String> {
         let canonical = NerdFontsMetadata.resolve_alias(name.as_ref())?;
         Some(
