@@ -13,6 +13,7 @@ use gtk4::ScrolledWindow;
 use gtk4::TextView;
 use gtk4::WrapMode;
 use gtk4::prelude::*;
+use libadwaita as adw;
 
 /// Populate the sidebar content with details for the given glyph.
 pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Name, codepoint: CodePoint) {
@@ -20,6 +21,8 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
         content,
         search_entry,
         tone_picker,
+        toasts,
+        ..
     } = ctx;
     while let Some(child) = content.first_child() {
         content.remove(&child);
@@ -66,7 +69,7 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
     let name_row = Box::builder().orientation(Orientation::Horizontal).spacing(8).halign(Align::Fill).build();
     let name_val = Label::builder()
         .label(&display_name)
-        .css_classes(["monospace", "copyable"])
+        .css_classes(["monospace"])
         .halign(Align::Fill)
         .selectable(true)
         .wrap(true)
@@ -77,9 +80,11 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
         .tooltip_text(format!("Copy {}", F::NAME_FIELD_LABEL.to_lowercase()))
         .build();
     let name_for_copy = display_name.clone();
+    let toasts_for_name = toasts.clone();
     name_copy.connect_clicked(move |_| {
         if let Some(display) = gtk4::gdk::Display::default() {
             display.clipboard().set_text(&name_for_copy);
+            toasts_for_name.add_toast(adw::Toast::new("Copied name"));
         }
     });
     name_row.append(&name_val);
@@ -107,7 +112,7 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
             .build()
             .upcast()
     } else {
-        let mut cp_char_classes = vec!["sidebar-codepoint-char", "copyable"];
+        let mut cp_char_classes = vec!["sidebar-codepoint-char"];
         if let Some(class) = F::GLYPH_CSS_CLASS {
             cp_char_classes.insert(0, class);
         }
@@ -124,13 +129,25 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
     content.append(&cp_widget);
 
     // Codepoint hex string (own line).
+    let cp_hex = format!("U+{:04X}", codepoint.as_char() as u32);
+    let cp_hex_row = Box::builder().orientation(Orientation::Horizontal).spacing(8).halign(Align::Center).build();
     let cp_hex_label = Label::builder()
-        .label(format!("U+{:04X}", codepoint.as_char() as u32))
-        .css_classes(["monospace", "sidebar-codepoint-hex", "copyable"])
+        .label(&cp_hex)
+        .css_classes(["monospace", "sidebar-codepoint-hex"])
         .halign(Align::Center)
         .selectable(true)
         .build();
-    content.append(&cp_hex_label);
+    let cp_hex_copy = Button::builder().icon_name("edit-copy-symbolic").tooltip_text("Copy codepoint").build();
+    let toasts_for_hex = toasts.clone();
+    cp_hex_copy.connect_clicked(move |_| {
+        if let Some(display) = gtk4::gdk::Display::default() {
+            display.clipboard().set_text(&cp_hex);
+            toasts_for_hex.add_toast(adw::Toast::new("Copied codepoint"));
+        }
+    });
+    cp_hex_row.append(&cp_hex_label);
+    cp_hex_row.append(&cp_hex_copy);
+    content.append(&cp_hex_row);
 
     // Copy character button.
     let cp_copy = Button::builder()
@@ -140,9 +157,11 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
         .halign(Align::Center)
         .build();
     let cp_char = codepoint.as_char().to_string();
+    let toasts_for_char = toasts.clone();
     cp_copy.connect_clicked(move |_| {
         if let Some(display) = gtk4::gdk::Display::default() {
             display.clipboard().set_text(&cp_char);
+            toasts_for_char.add_toast(adw::Toast::new("Copied character"));
         }
     });
     content.append(&cp_copy);
@@ -359,9 +378,11 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
             .halign(Align::Start)
             .build();
         let svg_xml_for_copy = svg_xml;
+        let toasts_for_svg = toasts.clone();
         svg_copy.connect_clicked(move |_| {
             if let Some(display) = gtk4::gdk::Display::default() {
                 display.clipboard().set_text(&svg_xml_for_copy);
+                toasts_for_svg.add_toast(adw::Toast::new("Copied SVG"));
             }
         });
         content.append(&svg_copy);

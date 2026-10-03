@@ -16,6 +16,7 @@ use gtk4::Label;
 use gtk4::Orientation;
 use gtk4::Scale;
 use gtk4::ScrolledWindow;
+use gtk4::Stack;
 use gtk4::glib;
 use gtk4::prelude::*;
 use libadwaita as adw;
@@ -43,14 +44,12 @@ fn update_nav_buttons<N>(back_btn: &Button, forward_btn: &Button, history: &[His
     forward_btn.set_sensitive(index + 1 < history.len());
 }
 
-/// Navigate to a history entry: search filters the grid, glyph opens the sidebar.
+/// Navigate to a history entry: search filters the grid, glyph pushes the detail page.
 fn navigate_to<F: CheatSheetFamily>(
     entry: &HistoryEntry<F::Name>,
     ctx: &DetailContext,
-    sidebar: &Box,
     selected_name: &Rc<RefCell<Option<F::Name>>>,
     selected_cell: &Rc<RefCell<Option<gtk4::Box>>>,
-    window: &adw::ApplicationWindow,
 ) {
     // Clear previous selection.
     if let Some(old) = selected_cell.borrow_mut().take() {
@@ -61,15 +60,13 @@ fn navigate_to<F: CheatSheetFamily>(
             ctx.search_entry.set_text(filter);
             ctx.search_entry.set_position(-1);
             *selected_name.borrow_mut() = None;
-            sidebar.set_visible(false);
-            window.set_default_size(460, 800);
-            window.set_size_request(460, -1);
+            ctx.detail_stack.set_visible_child_name("empty");
+            ctx.split_view.set_show_content(false);
         }
         HistoryEntry::Icon(name, cp) => {
             *selected_name.borrow_mut() = Some(name.clone());
-            sidebar.set_visible(true);
-            window.set_default_size(784, 800);
-            window.set_size_request(784, -1);
+            ctx.detail_stack.set_visible_child_name("detail");
+            ctx.split_view.set_show_content(true);
             show_detail::<F>(ctx, name, *cp);
         }
     }
@@ -113,22 +110,18 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
     let css = r#"
         .cheat-icon-label { font-size: 42px; }
         .cheat-cell { padding: 10px; border-radius: 8px; min-width: 180px; }
-        .cheat-cell:hover { background-color: rgba(100, 180, 255, 0.15); }
-        .cheat-cell-selected { background-color: rgba(100, 180, 255, 0.30); }
+        .cheat-cell:hover { background-color: alpha(@accent_bg_color, 0.15); }
+        .cheat-cell-selected { background-color: alpha(@accent_bg_color, 0.30); }
         .cheat-meta-flow { background: transparent; }
         .cheat-meta-flow flowboxchild { background: transparent; padding: 0; }
-        .cheat-name, .cheat-cp { -gtk-user-select: text; }
-        .cheat-meta { font-size: 9px; opacity: 0.7; }
-        button.cat-btn { background: rgba(76, 175, 80, 0.3); border-radius: 12px; padding: 2px 8px; font-size: 10px; border: none; box-shadow: none; }
-        button.cat-btn:hover { background: rgba(76, 175, 80, 0.5); }
-        button.kw-btn { background: rgba(255, 152, 0, 0.3); border-radius: 12px; padding: 2px 8px; font-size: 10px; border: none; box-shadow: none; }
-        button.kw-btn:hover { background: rgba(255, 152, 0, 0.5); }
-        .sidebar { background-color: @theme_bg_color; max-width: 300px; }
+        button.cat-btn { background: alpha(@success_bg_color, 0.3); border-radius: 12px; padding: 2px 8px; font-size: 10px; border: none; box-shadow: none; }
+        button.cat-btn:hover { background: alpha(@success_bg_color, 0.5); }
+        button.kw-btn { background: alpha(@warning_bg_color, 0.3); border-radius: 12px; padding: 2px 8px; font-size: 10px; border: none; box-shadow: none; }
+        button.kw-btn:hover { background: alpha(@warning_bg_color, 0.5); }
         .sidebar-title { font-size: 16px; font-weight: bold; }
         .sidebar-subtitle { font-size: 12px; opacity: 0.7; }
         .sidebar-codepoint-char { font-size: 96px; }
         .sidebar-codepoint-hex { font-size: 14px; }
-        .copyable { -gtk-user-select: text; }
     "#;
     let provider = gtk4::CssProvider::new();
     provider.load_from_string(css);
@@ -241,7 +234,8 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
     }
     top_bar.append(&search_entry);
 
-    // Icon size slider.
+    // Icon size slider - kept in the sidebar where it is immediately
+    // visible instead of a preferences dialog.
     let size_box = Box::builder()
         .orientation(Orientation::Horizontal)
         .spacing(8)
@@ -266,9 +260,71 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
     size_box.append(&size_value);
     top_bar.append(&size_box);
 
-    // --- Main layout: horizontal Box (grid | sidebar) ---
-    let main_box = Box::builder().orientation(Orientation::Horizontal).vexpand(true).hexpand(true).build();
-    // --- Left: scrolled icon grid ---
+    // Default skin tone row: buttons render the alternates of a
+    // representative glyph; clicking applies the index as the global
+    // default tone for every tone group. Only shown when the family's
+    // ordering provides tone data.
+    if let Some(ord) = ordering
+        && let Some((_, base)) = all_icons
+            .iter()
+            .find(|(_, name)| ord.tone_group(name.as_ref()).is_some() && !ord.alternates(name.as_ref()).is_empty())
+    {
+        let glyph_preview = |name_str: &str| -> gtk4::Widget {
+            let icon_name = F::parse_name(name_str).and_then(|n| F::glyph_icon_name(&n));
+            if let Some(icon_name) = icon_name {
+                return gtk4::Image::builder().icon_name(&icon_name).pixel_size(18).build().upcast();
+            }
+            let text = F::codepoint(name_str).map(|cp| cp.as_char().to_string()).unwrap_or_else(|| "?".to_string());
+            Label::builder().label(&text).build().upcast()
+        };
+
+        let tone_box = Box::builder()
+            .orientation(Orientation::Horizontal)
+            .spacing(4)
+            .halign(Align::Center)
+            .margin_bottom(4)
+            .build();
+        tone_box.append(&Label::builder().label("Tone:").build());
+
+        // First button shows the base glyph and resets every stored tone.
+        let tone_buttons: Rc<RefCell<Vec<Button>>> = Rc::new(RefCell::new(Vec::new()));
+        let mark_active = |buttons: &Rc<RefCell<Vec<Button>>>, active: usize| {
+            for (i, btn) in buttons.borrow().iter().enumerate() {
+                if i == active {
+                    btn.add_css_class("suggested-action");
+                } else {
+                    btn.remove_css_class("suggested-action");
+                }
+            }
+        };
+        {
+            let buttons = tone_buttons.clone();
+            let picker = tone_picker.clone();
+            let base_btn = Button::builder().child(&glyph_preview(base.as_ref())).tooltip_text("Default tone").build();
+            base_btn.add_css_class("suggested-action");
+            base_btn.connect_clicked(move |_| {
+                picker.reset_all();
+                mark_active(&buttons, 0);
+            });
+            tone_buttons.borrow_mut().push(base_btn.clone());
+            tone_box.append(&base_btn);
+        }
+        for (index, variant) in ord.alternates(base.as_ref()).iter().enumerate() {
+            let buttons = tone_buttons.clone();
+            let picker = tone_picker.clone();
+            let variant_label = F::parse_name(variant).map(|n| F::display_name(&n)).unwrap_or_else(|| variant.to_string());
+            let btn = Button::builder().child(&glyph_preview(variant)).tooltip_text(variant_label).build();
+            btn.connect_clicked(move |_| {
+                picker.set_default(index);
+                mark_active(&buttons, index + 1);
+            });
+            tone_buttons.borrow_mut().push(btn.clone());
+            tone_box.append(&btn);
+        }
+        top_bar.append(&tone_box);
+    }
+
+    // --- Browse page (split-view sidebar): top_bar + scrolled icon grid ---
     let left_box = Box::builder().orientation(Orientation::Vertical).spacing(4).hexpand(true).build();
     left_box.append(&top_bar);
 
@@ -288,49 +344,67 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
 
     scrolled.set_child(Some(&grid));
     left_box.append(&scrolled);
-    main_box.append(&left_box);
 
-    // --- Right: detail sidebar (initially hidden) ---
-    let sidebar = Box::builder()
+    // --- Detail page (split-view content): own HeaderBar so collapsed
+    // mode gains the free back button; Stack swaps placeholder/detail. ---
+    let detail_content = Box::builder()
         .orientation(Orientation::Vertical)
-        .spacing(4)
+        .spacing(12)
         .margin_top(12)
         .margin_bottom(12)
         .margin_start(12)
         .margin_end(12)
-        .css_classes(["sidebar"])
-        .width_request(300)
+        .vexpand(true)
         .build();
+    let detail_scrolled = ScrolledWindow::builder().vexpand(true).child(&detail_content).build();
 
-    // Sidebar header with close button.
-    let sidebar_header = Box::builder().orientation(Orientation::Horizontal).halign(Align::End).build();
+    // Secondary HeaderBar: window controls belong to the main HeaderBar
+    // only - suppress the duplicated minimize/maximize/close buttons.
+    let detail_header = adw::HeaderBar::builder()
+        .show_start_title_buttons(false)
+        .show_end_title_buttons(false)
+        .build();
     let close_btn = Button::builder()
         .icon_name("window-close-symbolic")
         .css_classes(["flat"])
-        .tooltip_text("Close sidebar")
+        .tooltip_text("Close details")
         .build();
-    sidebar_header.append(&close_btn);
-    sidebar.append(&sidebar_header);
+    detail_header.pack_end(&close_btn);
+    let detail_toolbar = adw::ToolbarView::new();
+    detail_toolbar.add_top_bar(&detail_header);
+    detail_toolbar.set_content(Some(&detail_scrolled));
 
-    // Sidebar content area (cleared/repopulated on icon click).
-    let sidebar_content = Box::builder().orientation(Orientation::Vertical).spacing(12).vexpand(true).build();
-    sidebar.append(&sidebar_content);
+    let detail_placeholder = adw::StatusPage::builder()
+        .icon_name("edit-find-symbolic")
+        .title("No icon selected")
+        .description("Choose an icon from the grid to see its details.")
+        .build();
+    let detail_stack = Stack::new();
+    detail_stack.add_named(&detail_placeholder, Some("empty"));
+    detail_stack.add_named(&detail_toolbar, Some("detail"));
+    detail_stack.set_visible_child_name("empty");
 
-    // Initially hidden.
-    sidebar.set_visible(false);
-    main_box.append(&sidebar);
+    let browse_page = adw::NavigationPage::builder().title(F::TITLE).child(&left_box).build();
+    let detail_page = adw::NavigationPage::builder().title("Details").child(&detail_stack).build();
+    let split_view = adw::NavigationSplitView::new();
+    split_view.set_sidebar(Some(&browse_page));
+    split_view.set_content(Some(&detail_page));
+    // The sidebar pane carries the grid - let it take most of the width.
+    split_view.set_sidebar_width_fraction(0.7);
+    split_view.set_min_sidebar_width(240.0);
+    split_view.set_max_sidebar_width(4000.0);
 
     // --- Shared selection state ---
     let selected_name: Rc<RefCell<Option<F::Name>>> = Rc::new(RefCell::new(None));
     let selected_cell: Rc<RefCell<Option<gtk4::Box>>> = Rc::new(RefCell::new(None));
 
-    // --- Close button handler ---
+    // --- Close button handler: back to grid (collapsed) + placeholder ---
     {
-        let sidebar_for_close = sidebar.clone();
-        let content_for_close = sidebar_content.clone();
+        let split_for_close = split_view.clone();
+        let stack_for_close = detail_stack.clone();
+        let content_for_close = detail_content.clone();
         let selected_name_for_close = selected_name.clone();
         let selected_cell_for_close = selected_cell.clone();
-        let window_for_close = window.clone();
         close_btn.connect_clicked(move |_| {
             if let Some(cell) = selected_cell_for_close.borrow_mut().take() {
                 cell.remove_css_class("cheat-cell-selected");
@@ -339,9 +413,8 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
             while let Some(child) = content_for_close.first_child() {
                 content_for_close.remove(&child);
             }
-            sidebar_for_close.set_visible(false);
-            window_for_close.set_default_size(460, 800);
-            window_for_close.set_size_request(460, -1);
+            stack_for_close.set_visible_child_name("empty");
+            split_for_close.set_show_content(false);
         });
     }
 
@@ -444,14 +517,20 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
         }
     };
 
+    // Toast overlay wraps the whole window content; declared early so
+    // the detail context can show copy-feedback toasts.
+    let toast_overlay = adw::ToastOverlay::new();
+
     let grid_clone = grid.clone();
-    let sidebar_clone = sidebar.clone();
     let search_entry_clone = search_entry.clone();
     // Shared handles for the detail sidebar + tone picking.
     let detail_ctx = DetailContext {
-        content: sidebar_content.clone(),
+        content: detail_content.clone(),
         search_entry: search_entry.clone(),
         tone_picker: tone_picker.clone(),
+        split_view: split_view.clone(),
+        detail_stack: detail_stack.clone(),
+        toasts: toast_overlay.clone(),
     };
     let selected_name_for_grid = selected_name.clone();
     let selected_cell_for_grid = selected_cell.clone();
@@ -460,8 +539,8 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
     let suppress_for_grid = suppress_history.clone();
     let back_btn_for_grid = back_btn.clone();
     let forward_btn_for_grid = forward_btn.clone();
-    let window_for_grid = window.clone();
     let detail_ctx_for_grid = detail_ctx.clone();
+    let toasts_for_grid = toast_overlay.clone();
 
     let populate_batch = move |start: usize, end: usize, icons: &[(CodePoint, F::Name)], icon_size: f64, _cols: u32| {
         if start == 0 {
@@ -591,10 +670,9 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
                 vbox.append(&meta_box);
             }
 
-            // Click on card -> open detail sidebar (but not on buttons).
+            // Click on card -> push detail page (but not on buttons).
             let name_for_click = name.clone();
             let cp_for_click = *codepoint;
-            let sidebar_ref = sidebar_clone.clone();
             let vbox_ref = vbox.clone();
             let selected_name_ref = selected_name_for_grid.clone();
             let selected_cell_ref = selected_cell_for_grid.clone();
@@ -603,7 +681,6 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
             let suppress_ref = suppress_for_grid.clone();
             let back_btn_ref = back_btn_for_grid.clone();
             let forward_btn_ref = forward_btn_for_grid.clone();
-            let window_ref = window_for_grid.clone();
             let detail_ctx_ref = detail_ctx_for_grid.clone();
             let gesture = gtk4::GestureClick::new();
             gesture.connect_released(move |gesture, _n, x, y| {
@@ -618,16 +695,15 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
                         current = w.parent();
                     }
                 }
-                // Toggle: if already selected, close sidebar.
+                // Toggle: if already selected, clear the detail page.
                 let already_selected = selected_name_ref.borrow().as_ref().map(|n| n == &name_for_click).unwrap_or(false);
                 if already_selected {
                     if let Some(old) = selected_cell_ref.borrow_mut().take() {
                         old.remove_css_class("cheat-cell-selected");
                     }
                     *selected_name_ref.borrow_mut() = None;
-                    sidebar_ref.set_visible(false);
-                    window_ref.set_default_size(460, 800);
-                    window_ref.set_size_request(460, -1);
+                    detail_ctx_ref.detail_stack.set_visible_child_name("empty");
+                    detail_ctx_ref.split_view.set_show_content(false);
                     return;
                 }
                 if let Some(old) = selected_cell_ref.borrow_mut().take() {
@@ -636,9 +712,8 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
                 *selected_name_ref.borrow_mut() = Some(name_for_click.clone());
                 vbox_ref.add_css_class("cheat-cell-selected");
                 *selected_cell_ref.borrow_mut() = Some(vbox_ref.clone());
-                sidebar_ref.set_visible(true);
-                window_ref.set_default_size(784, 800);
-                window_ref.set_size_request(784, -1);
+                detail_ctx_ref.detail_stack.set_visible_child_name("detail");
+                detail_ctx_ref.split_view.set_show_content(true);
                 show_detail::<F>(&detail_ctx_ref, &name_for_click, cp_for_click);
 
                 // Record icon view in history.
@@ -656,6 +731,19 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
                 }
             });
             vbox.add_controller(gesture);
+
+            // Secondary click copies the display name (cell copy path).
+            let name_for_copy = display_name.clone();
+            let toasts_for_copy = toasts_for_grid.clone();
+            let copy_gesture = gtk4::GestureClick::new();
+            copy_gesture.set_button(gtk4::gdk::BUTTON_SECONDARY);
+            copy_gesture.connect_released(move |_, _, _, _| {
+                if let Some(display) = gtk4::gdk::Display::default() {
+                    display.clipboard().set_text(&name_for_copy);
+                    toasts_for_copy.add_toast(adw::Toast::new("Copied name"));
+                }
+            });
+            vbox.add_controller(copy_gesture);
 
             grid_clone.insert(&vbox, -1);
         }
@@ -758,17 +846,6 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
         });
     }
 
-    // --- Size slider ---
-    let size_value_clone = size_value.clone();
-    let current_icon_size_for_slider = current_icon_size.clone();
-    let refresh_grid_for_size = refresh_grid.clone();
-    size_slider.connect_value_changed(move |slider| {
-        let val = slider.value();
-        size_value_clone.set_label(&format!("{:.0}px", val));
-        *current_icon_size_for_slider.borrow_mut() = val;
-        refresh_grid_for_size(true);
-    });
-
     // --- Lazy loading on scroll ---
     let refresh_grid_for_scroll = refresh_grid.clone();
     scrolled.connect_edge_reached(move |_scrolled, edge| {
@@ -781,7 +858,6 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
 
     // --- Back/Forward button handlers ---
     {
-        let sidebar_for_back = sidebar.clone();
         let selected_name_for_back = selected_name.clone();
         let selected_cell_for_back = selected_cell.clone();
         let history_for_back = history.clone();
@@ -789,7 +865,6 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
         let suppress_for_back = suppress_history.clone();
         let forward_btn_for_back = forward_btn.clone();
         let back_btn_for_handler = back_btn.clone();
-        let window_for_back = window.clone();
         let detail_ctx_for_back = detail_ctx.clone();
         back_btn.connect_clicked(move |_| {
             let hist = history_for_back.borrow();
@@ -800,14 +875,7 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
                 drop(idx);
                 drop(hist);
                 *suppress_for_back.borrow_mut() = true;
-                navigate_to::<F>(
-                    &prev,
-                    &detail_ctx_for_back,
-                    &sidebar_for_back,
-                    &selected_name_for_back,
-                    &selected_cell_for_back,
-                    &window_for_back,
-                );
+                navigate_to::<F>(&prev, &detail_ctx_for_back, &selected_name_for_back, &selected_cell_for_back);
                 *suppress_for_back.borrow_mut() = false;
                 let hist = history_for_back.borrow();
                 let idx = history_index_for_back.borrow();
@@ -816,7 +884,6 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
         });
     }
     {
-        let sidebar_for_fwd = sidebar.clone();
         let selected_name_for_fwd = selected_name.clone();
         let selected_cell_for_fwd = selected_cell.clone();
         let history_for_fwd = history.clone();
@@ -824,7 +891,6 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
         let suppress_for_fwd = suppress_history.clone();
         let back_btn_for_fwd = back_btn.clone();
         let forward_btn_for_handler = forward_btn.clone();
-        let window_for_fwd = window.clone();
         let detail_ctx_for_fwd = detail_ctx.clone();
         forward_btn.connect_clicked(move |_| {
             let hist = history_for_fwd.borrow();
@@ -835,7 +901,7 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
                 drop(idx);
                 drop(hist);
                 *suppress_for_fwd.borrow_mut() = true;
-                navigate_to::<F>(&next, &detail_ctx_for_fwd, &sidebar_for_fwd, &selected_name_for_fwd, &selected_cell_for_fwd, &window_for_fwd);
+                navigate_to::<F>(&next, &detail_ctx_for_fwd, &selected_name_for_fwd, &selected_cell_for_fwd);
                 *suppress_for_fwd.borrow_mut() = false;
                 let hist = history_for_fwd.borrow();
                 let idx = history_index_for_fwd.borrow();
@@ -848,11 +914,27 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
     history.borrow_mut().push(HistoryEntry::Search(String::new()));
     update_nav_buttons(&back_btn, &forward_btn, &history.borrow(), 0);
 
+    // --- Size slider: adjust icon size + refresh the grid ---
+    let size_value_clone = size_value.clone();
+    let current_icon_size_for_slider = current_icon_size.clone();
+    let refresh_grid_for_size = refresh_grid.clone();
+    size_slider.connect_value_changed(move |slider| {
+        let val = slider.value();
+        size_value_clone.set_label(&format!("{:.0}px", val));
+        *current_icon_size_for_slider.borrow_mut() = val;
+        refresh_grid_for_size(true);
+    });
+
+    // Collapse the split view on narrow windows: the detail pane then
+    // covers the grid and its HeaderBar gains an automatic back button.
+    let breakpoint = adw::Breakpoint::new(adw::BreakpointCondition::new_length(adw::BreakpointConditionLengthType::MaxWidth, 800.0, adw::LengthUnit::Sp));
+    breakpoint.add_setter(&split_view, "collapsed", Some(&true.to_value()));
+    window.add_breakpoint(breakpoint);
+
     let toolbar_view = adw::ToolbarView::new();
     toolbar_view.add_top_bar(&header_bar);
-    toolbar_view.set_content(Some(&main_box));
+    toolbar_view.set_content(Some(&split_view));
 
-    let toast_overlay = adw::ToastOverlay::new();
     toast_overlay.set_child(Some(&toolbar_view));
     window.set_content(Some(&toast_overlay));
     window.present();
