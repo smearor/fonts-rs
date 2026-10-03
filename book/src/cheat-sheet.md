@@ -84,6 +84,24 @@ Every copy action shows an `adw::Toast` with per-action wording —
 in the detail view, plus "Copied name" on secondary-click of a grid
 cell. The overlay is shared through `DetailContext::toasts`.
 
+## Ordering-Driven Grid Behavior
+
+When `CheatSheetFamily::ordering()` returns a `GlyphOrdering`, the
+browse grid gains three behaviors:
+
+- **Sort** — glyphs order by `order_index`; variants resolve through
+  `base_of` so each variant sits next to its base. Families without
+  ordering stay alphabetical.
+- **Group filter** — the top-bar `DropDown` (mirrored by the sidebar
+  "Groups" section) restricts the grid to `group(name) == label`;
+  "All groups" clears it.
+- **Variant collapsing** — with `collapse_variants() == true` a
+  variant is hidden in "All groups" whenever its base is visible
+  (emoji tones, dicefont d6 styles, cuernavaca pieces). Style
+  families (line-awesome, fluent, eva, heroicons) return `false` —
+  their variants stay visible; the `base_of`/`alternates` link then
+  only powers the detail sidebar's Variants section and sorting.
+
 ## Search- and History Model
 
 - The search `Entry` (primary `edit-find-symbolic` icon, secondary
