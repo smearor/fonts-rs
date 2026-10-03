@@ -415,6 +415,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "fonts-rs-bravura-cheat-sheet"
+version = "0.3.0"
+dependencies = [
+ "fonts-rs-bravura",
+ "fonts-rs-cheat-sheet",
+ "fonts-rs-model",
+ "gtk4",
+ "miette",
+ "pangocairo",
+]
+
+[[package]]
 name = "fonts-rs-cheat-sheet"
 version = "0.3.0"
 dependencies = [
@@ -442,6 +454,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "fonts-rs-cuernavaca-cheat-sheet"
+version = "0.3.0"
+dependencies = [
+ "fonts-rs-cheat-sheet",
+ "fonts-rs-cuernavaca",
+ "fonts-rs-model",
+ "gtk4",
+ "miette",
+ "pangocairo",
+]
+
+[[package]]
 name = "fonts-rs-dicefont"
 version = "0.3.0"
 dependencies = [
@@ -456,6 +480,18 @@ dependencies = [
  "miette",
  "phf",
  "tracing",
+]
+
+[[package]]
+name = "fonts-rs-dicefont-cheat-sheet"
+version = "0.3.0"
+dependencies = [
+ "fonts-rs-cheat-sheet",
+ "fonts-rs-dicefont",
+ "fonts-rs-model",
+ "gtk4",
+ "miette",
+ "pangocairo",
 ]
 
 [[package]]
@@ -475,6 +511,18 @@ dependencies = [
  "pango",
  "phf",
  "tracing",
+]
+
+[[package]]
+name = "fonts-rs-doto-cheat-sheet"
+version = "0.3.0"
+dependencies = [
+ "fonts-rs-cheat-sheet",
+ "fonts-rs-doto",
+ "fonts-rs-model",
+ "gtk4",
+ "miette",
+ "pangocairo",
 ]
 
 [[package]]
@@ -551,6 +599,18 @@ dependencies = [
  "miette",
  "phf",
  "tracing",
+]
+
+[[package]]
+name = "fonts-rs-fourteen-segment-cheat-sheet"
+version = "0.3.0"
+dependencies = [
+ "fonts-rs-cheat-sheet",
+ "fonts-rs-fourteen-segment",
+ "fonts-rs-model",
+ "gtk4",
+ "miette",
+ "pangocairo",
 ]
 
 [[package]]
@@ -744,6 +804,18 @@ dependencies = [
  "miette",
  "phf",
  "tracing",
+]
+
+[[package]]
+name = "fonts-rs-seven-segment-cheat-sheet"
+version = "0.3.0"
+dependencies = [
+ "fonts-rs-cheat-sheet",
+ "fonts-rs-model",
+ "fonts-rs-seven-segment",
+ "gtk4",
+ "miette",
+ "pangocairo",
 ]
 
 [[package]]
