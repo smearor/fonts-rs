@@ -72,7 +72,6 @@ pub fn all_emoji() -> Vec<(CodePoint, String)> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use fonts_rs_model::IconThemeFont;
 
     /// `glyph_name` must resolve emoji codepoints to variant-prefixed
     /// icon names, and `glyph_svg` must return the colored vector
