@@ -26,6 +26,7 @@ use libadwaita as adw;
 use libadwaita::prelude::*;
 use miette::IntoDiagnostic;
 use miette::Result;
+use std::cell::Cell;
 use std::cell::RefCell;
 use std::collections::BTreeMap;
 use std::rc::Rc;
@@ -46,6 +47,39 @@ enum HistoryEntry<N> {
 fn update_nav_buttons<N>(back_btn: &Button, forward_btn: &Button, history: &[HistoryEntry<N>], index: usize) {
     back_btn.set_sensitive(index > 0);
     forward_btn.set_sensitive(index + 1 < history.len());
+}
+
+/// Builds the logarithmic icon-size scale (16–512px).
+///
+/// The slider runs in log2 space (4.0..9.0), so small sizes get the
+/// same travel as large ones and the marks spread evenly across the
+/// range. `digits(-1)` keeps the full precision - the value is only
+/// rounded for display. `value()` yields log2(px); callers map it
+/// back via `2^value`.
+pub(super) fn icon_size_scale(initial: f64, width: i32) -> Scale {
+    let slider = Scale::builder()
+        .orientation(Orientation::Horizontal)
+        .adjustment(&gtk4::Adjustment::new(initial.log2(), 4.0, 9.0, 0.05, 0.5, 0.0))
+        .width_request(width)
+        .halign(Align::Center)
+        .draw_value(false)
+        .digits(-1)
+        .build();
+    // Marks at the log2 position of each typical icon size.
+    for (size, label) in [
+        (16.0_f64, "16"),
+        (24.0, "24"),
+        (32.0, "32"),
+        (48.0, "48"),
+        (64.0, "64"),
+        (96.0, "96"),
+        (128.0, "128"),
+        (256.0, "256"),
+        (512.0, "512"),
+    ] {
+        slider.add_mark(size.log2(), gtk4::PositionType::Bottom, Some(label));
+    }
+    slider
 }
 
 /// Navigate to a history entry: search filters the grid, glyph pushes the detail page.
@@ -248,32 +282,7 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
         .build();
     let size_label = Label::builder().label("Icon size:").build();
     let size_value = Label::builder().label("42px").css_classes(["monospace"]).build();
-    // Logarithmic scale: the slider runs in log2 space (4.0..9.0 for
-    // 16..512px), so small sizes get the same travel as large ones and
-    // the marks spread evenly across the range. `digits(-1)` keeps the
-    // full precision - the value is only rounded for display.
-    let size_slider = Scale::builder()
-        .orientation(Orientation::Horizontal)
-        .adjustment(&gtk4::Adjustment::new(42.0_f64.log2(), 4.0, 9.0, 0.05, 0.5, 0.0))
-        .width_request(640)
-        .halign(Align::Center)
-        .draw_value(false)
-        .digits(-1)
-        .build();
-    // Marks at the log2 position of each typical icon size.
-    for (size, label) in [
-        (16.0_f64, "16"),
-        (24.0, "24"),
-        (32.0, "32"),
-        (48.0, "48"),
-        (64.0, "64"),
-        (96.0, "96"),
-        (128.0, "128"),
-        (256.0, "256"),
-        (512.0, "512"),
-    ] {
-        size_slider.add_mark(size.log2(), gtk4::PositionType::Bottom, Some(label));
-    }
+    let size_slider = icon_size_scale(42.0, 480);
     size_box.append(&size_label);
     size_box.append(&size_slider);
     size_box.append(&size_value);
@@ -646,6 +655,7 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
         detail_stack: detail_stack.clone(),
         toasts: toast_overlay.clone(),
         category_split: category_split.clone(),
+        detail_icon_size: Rc::new(Cell::new(96.0)),
     };
     let selected_name_for_grid = selected_name.clone();
     let selected_cell_for_grid = selected_cell.clone();

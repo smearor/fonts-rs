@@ -10,6 +10,7 @@ mod detail;
 mod detail_context;
 mod family;
 mod tone_picker;
+mod xml_highlight;
 
 pub use app::run;
 pub use family::CheatSheetFamily;

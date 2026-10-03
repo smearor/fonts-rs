@@ -5,6 +5,8 @@ use gtk4::Box;
 use gtk4::Entry;
 use gtk4::Stack;
 use libadwaita as adw;
+use std::cell::Cell;
+use std::rc::Rc;
 
 /// Handles a detail view needs beyond the glyph itself.
 ///
@@ -31,4 +33,7 @@ pub(super) struct DetailContext {
     /// reveal it when collapsed. `None` for families without a
     /// categories/groups axis.
     pub category_split: Option<adw::OverlaySplitView>,
+    /// Codepoint preview size in px - shared across detail views so
+    /// the size slider keeps its position while navigating glyphs.
+    pub detail_icon_size: Rc<Cell<f64>>,
 }

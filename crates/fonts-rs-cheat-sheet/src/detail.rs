@@ -1,7 +1,9 @@
 //! Detail sidebar for the generic cheat sheet.
 
+use crate::app::icon_size_scale;
 use crate::detail_context::DetailContext;
 use crate::family::CheatSheetFamily;
+use crate::xml_highlight;
 use fonts_rs_model::CodePoint;
 use gtk4::Align;
 use gtk4::Box;
@@ -12,6 +14,8 @@ use gtk4::Orientation;
 use gtk4::ScrolledWindow;
 use gtk4::TextView;
 use gtk4::WrapMode;
+use gtk4::pango::AttrFloat;
+use gtk4::pango::AttrList;
 use gtk4::prelude::*;
 use libadwaita as adw;
 
@@ -23,8 +27,21 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
         tone_picker,
         toasts,
         category_split,
+        detail_icon_size,
         ..
     } = ctx;
+    let detail_size = detail_icon_size.get();
+
+    // Maps the log2 slider value back to a whole-pixel icon size.
+    let log2_to_px = |value: f64| 2.0_f64.powf(value).round();
+
+    // Scales the codepoint preview label via a Pango size attribute
+    // relative to its 96px CSS base (`.sidebar-codepoint-char`).
+    let scale_attrs = |px: f64| {
+        let attrs = AttrList::new();
+        attrs.insert(AttrFloat::new_scale(px / 96.0));
+        attrs
+    };
     while let Some(child) = content.first_child() {
         content.remove(&child);
     }
@@ -108,7 +125,7 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
     let cp_widget: gtk4::Widget = if let Some(icon_name) = F::glyph_icon_name(name) {
         gtk4::Image::builder()
             .icon_name(&icon_name)
-            .pixel_size(96)
+            .pixel_size(detail_size.round() as i32)
             .halign(Align::Center)
             .build()
             .upcast()
@@ -117,16 +134,44 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
         if let Some(class) = F::GLYPH_CSS_CLASS {
             cp_char_classes.insert(0, class);
         }
-        Label::builder()
+        let cp_label = Label::builder()
             .label(codepoint.as_char().to_string())
             .css_classes(cp_char_classes)
             .halign(Align::Center)
             .selectable(true)
             .wrap(true)
             .width_request(200)
-            .build()
-            .upcast()
+            .build();
+        cp_label.set_attributes(Some(&scale_attrs(detail_size)));
+        cp_label.upcast()
     };
+
+    // Preview size slider (log2 scale like the grid slider) - the
+    // chosen size persists across detail views via the context. It
+    // sits *above* the preview: resizing the icon grows it downward
+    // instead of shifting the slider up and down.
+    let detail_size_box = Box::builder().orientation(Orientation::Horizontal).spacing(8).halign(Align::Center).build();
+    let detail_size_value = Label::builder()
+        .label(format!("{detail_size:.0}px"))
+        .css_classes(["monospace"])
+        .build();
+    let detail_slider = icon_size_scale(detail_size, 260);
+    let cp_widget_for_size = cp_widget.clone();
+    let detail_size_value_ref = detail_size_value.clone();
+    let detail_icon_size_ref = detail_icon_size.clone();
+    detail_slider.connect_value_changed(move |slider| {
+        let px = log2_to_px(slider.value());
+        if let Some(image) = cp_widget_for_size.downcast_ref::<gtk4::Image>() {
+            image.set_pixel_size(px as i32);
+        } else if let Some(label) = cp_widget_for_size.downcast_ref::<Label>() {
+            label.set_attributes(Some(&scale_attrs(px)));
+        }
+        detail_size_value_ref.set_label(&format!("{px:.0}px"));
+        detail_icon_size_ref.set(px);
+    });
+    detail_size_box.append(&detail_slider);
+    detail_size_box.append(&detail_size_value);
+    content.append(&detail_size_box);
     content.append(&cp_widget);
 
     // Codepoint hex string (own line).
@@ -373,14 +418,29 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
             .build();
         content.append(&svg_heading);
 
-        let text_view = TextView::builder().editable(false).css_classes(["monospace"]).wrap_mode(WrapMode::Char).build();
-        text_view.buffer().set_text(&svg_xml);
+        let text_view = TextView::builder()
+            .editable(false)
+            .css_classes(["monospace"])
+            .wrap_mode(WrapMode::Char)
+            .margin_top(8)
+            .margin_bottom(8)
+            .margin_start(10)
+            .margin_end(10)
+            .build();
+        let svg_buffer = text_view.buffer();
+        svg_buffer.set_text(&svg_xml);
+        xml_highlight::apply(&svg_buffer, &svg_xml, adw::StyleManager::default().is_dark());
 
+        // `.card` separates the code block from the rest of the
+        // sidebar; propagate_natural_height lets it grow with the
+        // content up to the cap instead of claiming fixed space.
         let scrolled = ScrolledWindow::builder()
+            .css_classes(["card"])
             .hexpand(true)
             .vexpand(true)
-            .min_content_height(150)
+            .min_content_height(80)
             .max_content_height(300)
+            .propagate_natural_height(true)
             .child(&text_view)
             .build();
         content.append(&scrolled);
