@@ -7,20 +7,19 @@ use crate::tone_picker::TonePicker;
 use fonts_rs_model::CodePoint;
 use fonts_rs_model::GroupLabel;
 use gtk4::Align;
-use gtk4::Application;
-use gtk4::ApplicationWindow;
 use gtk4::Box;
 use gtk4::Button;
 use gtk4::DropDown;
 use gtk4::Entry;
 use gtk4::FlowBox;
-use gtk4::HeaderBar;
 use gtk4::Label;
 use gtk4::Orientation;
 use gtk4::Scale;
 use gtk4::ScrolledWindow;
 use gtk4::glib;
 use gtk4::prelude::*;
+use libadwaita as adw;
+use libadwaita::prelude::*;
 use miette::IntoDiagnostic;
 use miette::Result;
 use std::cell::RefCell;
@@ -51,7 +50,7 @@ fn navigate_to<F: CheatSheetFamily>(
     sidebar: &Box,
     selected_name: &Rc<RefCell<Option<F::Name>>>,
     selected_cell: &Rc<RefCell<Option<gtk4::Box>>>,
-    window: &ApplicationWindow,
+    window: &adw::ApplicationWindow,
 ) {
     // Clear previous selection.
     if let Some(old) = selected_cell.borrow_mut().take() {
@@ -88,13 +87,13 @@ pub fn run<F: CheatSheetFamily>() -> Result<glib::ExitCode> {
     gtk4::init().into_diagnostic()?;
     F::init()?;
 
-    let app = Application::builder().application_id(F::APP_ID).build();
+    let app = adw::Application::builder().application_id(F::APP_ID).build();
     app.connect_activate(build_ui::<F>);
     Ok(app.run())
 }
 
-fn build_ui<F: CheatSheetFamily>(app: &Application) {
-    let window = ApplicationWindow::builder()
+fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
+    let window = adw::ApplicationWindow::builder()
         .application(app)
         .title(F::TITLE)
         .default_width(1280)
@@ -151,10 +150,9 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
     // scoped - persistence is a follow-up.
     let tone_picker = TonePicker::new();
 
-    // --- HeaderBar with Back/Forward history navigation ---
-    let header_bar = HeaderBar::builder()
-        .title_widget(&gtk4::Label::new(Some(F::TITLE)))
-        .show_title_buttons(true)
+    // --- AdwHeaderBar with WindowTitle + Back/Forward history ---
+    let header_bar = adw::HeaderBar::builder()
+        .title_widget(&adw::WindowTitle::builder().title(F::TITLE).subtitle(format!("{total} {}", F::NOUN)).build())
         .build();
 
     let back_btn = Button::builder()
@@ -850,7 +848,12 @@ fn build_ui<F: CheatSheetFamily>(app: &Application) {
     history.borrow_mut().push(HistoryEntry::Search(String::new()));
     update_nav_buttons(&back_btn, &forward_btn, &history.borrow(), 0);
 
-    window.set_titlebar(Some(&header_bar));
-    window.set_child(Some(&main_box));
+    let toolbar_view = adw::ToolbarView::new();
+    toolbar_view.add_top_bar(&header_bar);
+    toolbar_view.set_content(Some(&main_box));
+
+    let toast_overlay = adw::ToastOverlay::new();
+    toast_overlay.set_child(Some(&toolbar_view));
+    window.set_content(Some(&toast_overlay));
     window.present();
 }
