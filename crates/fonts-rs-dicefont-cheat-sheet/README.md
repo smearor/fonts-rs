@@ -11,6 +11,8 @@ their names and codepoints, serving as a reference and demo for the
 ## Features
 
 - **`gtk`** (default) - GTK4 application
+- **`metadata`** (default) - Die-type categories
+  (d2/d4/d6/d8/d10/d12/d20/fudge) for the category sidebar and search
 
 ## Usage
 

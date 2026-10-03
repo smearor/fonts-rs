@@ -6,7 +6,10 @@
 //! Click a glyph to open a detail sidebar.
 //!
 //! The UI lives in `fonts-rs-cheat-sheet`; this binary only supplies
-//! the Dicefont hooks via [`CheatSheetFamily`].
+//! the Dicefont hooks via [`CheatSheetFamily`]. With the `metadata`
+//! feature (default), glyphs are grouped into die-type categories
+//! (d2, d4, d6, d8, d10, d12, d20, fudge) for the category sidebar
+//! and search.
 //!
 //! Run with:
 //! ```sh
@@ -17,7 +20,11 @@ use fonts_rs_cheat_sheet::CheatSheetFamily;
 use fonts_rs_cheat_sheet::FamilyKind;
 use fonts_rs_dicefont::Dicefont;
 use fonts_rs_dicefont::DicefontName;
+#[cfg(feature = "metadata")]
+use fonts_rs_dicefont::metadata::DicefontMetadata;
 use fonts_rs_model::CodePoint;
+#[cfg(feature = "metadata")]
+use fonts_rs_model::GlyphMetadata;
 use gtk4::glib;
 use miette::IntoDiagnostic;
 use miette::Result;
@@ -29,7 +36,7 @@ impl CheatSheetFamily for DicefontSheet {
     const TITLE: &'static str = "Dicefont - Cheat Sheet";
     const NOUN: &'static str = "glyphs";
     const APP_ID: &'static str = "io.smearor.fonts_rs.dicefont_cheat_sheet";
-    const SEARCH_PLACEHOLDER: &'static str = "Search by glyph name (e.g. 'dicefont-d6-1', 'dicefont-d20-20')...";
+    const SEARCH_PLACEHOLDER: &'static str = "Search by name or category (e.g. 'dicefont-d6-1', 'd20')...";
     const GLYPH_CSS_CLASS: Option<&'static str> = Some("dicefont-icon");
     const FAMILY_NAME: &'static str = "Dicefont";
     const FAMILY_KIND: FamilyKind = FamilyKind::SpecialFont;
@@ -69,18 +76,36 @@ impl CheatSheetFamily for DicefontSheet {
         "Dicefont".to_string()
     }
 
-    /// No metadata module - the generic supplement still matches
-    /// names, hex codepoints, and characters.
-    fn search(_query: &str) -> Vec<String> {
-        Vec::new()
+    fn search(query: &str) -> Vec<String> {
+        #[cfg(feature = "metadata")]
+        {
+            DicefontMetadata.search(query).iter().map(|s| s.to_string()).collect()
+        }
+        #[cfg(not(feature = "metadata"))]
+        {
+            let _ = query;
+            Vec::new()
+        }
     }
 
     fn keywords(_name: &DicefontName) -> Vec<String> {
         Vec::new()
     }
 
-    fn categories(_name: &DicefontName) -> Vec<String> {
-        Vec::new()
+    /// Die-type categories (d2, d4, d6, d8, d10, d12, d20, fudge)
+    /// come from the `metadata` feature - derived from the glyph
+    /// names at build time since Dicefont ships no upstream
+    /// category source.
+    fn categories(name: &DicefontName) -> Vec<String> {
+        #[cfg(feature = "metadata")]
+        {
+            DicefontMetadata.categories(name).iter().map(|c| c.as_str().to_string()).collect()
+        }
+        #[cfg(not(feature = "metadata"))]
+        {
+            let _ = name;
+            Vec::new()
+        }
     }
 
     fn glyph_svg(name: &DicefontName) -> Option<String> {

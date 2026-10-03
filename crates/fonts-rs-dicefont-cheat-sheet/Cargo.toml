@@ -13,9 +13,10 @@ description = "Dicefont cheat sheet application"
 publish = true
 
 [features]
-default = ["gtk"]
+default = ["gtk", "metadata"]
 
 gtk = ["fonts-rs-dicefont/gtk"]
+metadata = ["fonts-rs-dicefont/metadata"]
 
 [dependencies]
 fonts-rs-cheat-sheet.workspace = true

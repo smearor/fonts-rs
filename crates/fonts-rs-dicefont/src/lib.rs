@@ -39,6 +39,9 @@ pub mod gtk;
 #[cfg(feature = "render")]
 pub mod fonts;
 
+#[cfg(feature = "metadata")]
+pub mod metadata;
+
 // Re-export key types
 pub use definition::DicefontConfig;
 #[cfg(feature = "gtk")]

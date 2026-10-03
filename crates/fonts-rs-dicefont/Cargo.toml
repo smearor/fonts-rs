@@ -29,6 +29,10 @@ gtk = ["dep:gtk4", "dep:gio", "fonts-rs-generator/gtk"]
 render = ["dep:ab_glyph", "fonts-rs-model/render"]
 embed-fonts = []
 
+# Glyph metadata: die-type categories (d4/d6/d10/d12/d20) for search
+# functionality - derived from the glyph names, no upstream source
+metadata = []
+
 [dependencies]
 fonts-rs-generator.workspace = true
 fonts-rs-model.workspace = true
@@ -44,6 +48,7 @@ fonts-rs-generator.workspace = true
 fonts-rs-model.workspace = true
 const_format.workspace = true
 miette.workspace = true
+serde_json.workspace = true
 
 [lints]
 workspace = true
