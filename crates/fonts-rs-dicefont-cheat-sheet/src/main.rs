@@ -9,7 +9,9 @@
 //! the Dicefont hooks via [`CheatSheetFamily`]. With the `metadata`
 //! feature (default), glyphs are grouped into die-type categories
 //! (d2, d4, d6, d8, d10, d12, d20, fudge) for the category sidebar
-//! and search.
+//! and search, and the four d6 styles collapse behind the
+//! `solid-small-dot-d6` base style with variant links in the detail
+//! sidebar.
 //!
 //! Run with:
 //! ```sh
@@ -105,6 +107,19 @@ impl CheatSheetFamily for DicefontSheet {
         {
             let _ = name;
             Vec::new()
+        }
+    }
+
+    /// Die-type groups and d6 style variants: `solid-small-dot-d6`
+    /// is the base style, the other three d6 styles link onto it.
+    fn ordering() -> Option<&'static dyn fonts_rs_model::GlyphOrdering> {
+        #[cfg(feature = "metadata")]
+        {
+            Some(&DicefontMetadata)
+        }
+        #[cfg(not(feature = "metadata"))]
+        {
+            None
         }
     }
 

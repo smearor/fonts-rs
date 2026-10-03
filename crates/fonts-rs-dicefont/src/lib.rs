@@ -101,4 +101,36 @@ mod tests {
             assert!((0xF000..=0xFFFF).contains(&cp), "codepoint U+{cp:04X} should be in the Private Use Area");
         }
     }
+
+    /// The four d6 styles per face form a variant set: `solid-small-dot`
+    /// is the base, the other three link onto it.
+    #[cfg(feature = "metadata")]
+    #[test]
+    fn metadata_d6_style_variants() {
+        use fonts_rs_model::GlyphOrdering;
+        let base = "dicefont-solid-small-dot-d6-3";
+        assert_eq!(metadata::DicefontMetadata.alternates(base), ["dicefont-d6-3", "dicefont-dot-d6-3", "dicefont-small-dot-d6-3"].as_slice());
+        assert_eq!(metadata::DicefontMetadata.base_of("dicefont-dot-d6-3"), Some(base));
+        assert!(metadata::DicefontMetadata.base_of(base).is_none());
+        // Bare die glyphs without a face suffix stay standalone.
+        assert!(metadata::DicefontMetadata.base_of("dicefont-d6").is_none());
+        assert!(metadata::DicefontMetadata.base_of("dicefont-d20-4").is_none());
+    }
+
+    /// Die-type groups cover every glyph; the canonical order lists
+    /// faces ascending within each die.
+    #[cfg(feature = "metadata")]
+    #[test]
+    fn metadata_groups_and_order() {
+        use fonts_rs_model::GlyphOrdering;
+        let labels: Vec<&str> = metadata::DicefontMetadata.group_labels().iter().map(|l| l.as_str()).collect();
+        assert_eq!(labels, ["d2", "d4", "d6", "d8", "d10", "d12", "d20", "fudge"]);
+        assert_eq!(metadata::DicefontMetadata.group("dicefont-f-minus").map(|g| g.as_str()), Some("fudge"));
+        // d2 faces order before d4 faces (pip-count order, not name order).
+        let d2 = metadata::DicefontMetadata.order_index("dicefont-d2-2").unwrap();
+        let d4 = metadata::DicefontMetadata.order_index("dicefont-d4-1").unwrap();
+        assert!(d2 < d4, "d2 must sort before d4");
+        // Variants resolve to their base's position.
+        assert!(metadata::DicefontMetadata.order_index("dicefont-dot-d6-3").is_none());
+    }
 }
