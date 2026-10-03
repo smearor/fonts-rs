@@ -19,6 +19,7 @@
 //! ```
 
 use fonts_rs_cheat_sheet::CheatSheetFamily;
+use fonts_rs_cheat_sheet::FamilyKind;
 use fonts_rs_heroicons::Heroicons;
 use fonts_rs_heroicons::HeroiconsIconName;
 #[cfg(feature = "metadata")]
@@ -39,6 +40,9 @@ impl CheatSheetFamily for HeroiconsSheet {
     const APP_ID: &'static str = "io.smearor.fonts_rs.heroicons_cheat_sheet";
     const SEARCH_PLACEHOLDER: &'static str = "Search by name, keyword, or codepoint (e.g. 'star', 'glitter', 'EA01')...";
     const NAME_FIELD_LABEL: &'static str = "Icon Name";
+    const FAMILY_NAME: &'static str = "Heroicons";
+    const FAMILY_KIND: FamilyKind = FamilyKind::IconSet;
+    const LICENSE: &'static str = "MIT";
 
     type Name = HeroiconsIconName;
 

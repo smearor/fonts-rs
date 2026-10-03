@@ -14,6 +14,7 @@
 //! ```
 
 use fonts_rs_cheat_sheet::CheatSheetFamily;
+use fonts_rs_cheat_sheet::FamilyKind;
 use fonts_rs_model::GlyphMetadata;
 use gtk4::glib;
 use miette::IntoDiagnostic;
@@ -34,6 +35,9 @@ impl CheatSheetFamily for NerdFontsSheet {
     const SEARCH_PLACEHOLDER: &'static str = "Search by name, keyword, or category (e.g. 'gamepad', 'folder', 'Childhood')...";
     const GLYPH_CSS_CLASS: Option<&'static str> = Some("nerd-icon");
     const NAME_FIELD_LABEL: &'static str = "CSS Class";
+    const FAMILY_NAME: &'static str = "Nerd Fonts";
+    const FAMILY_KIND: FamilyKind = FamilyKind::IconFont;
+    const LICENSE: &'static str = "MIT / OFL-1.1";
 
     type Name = IconName;
 

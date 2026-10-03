@@ -24,6 +24,7 @@
 //! ```
 
 use fonts_rs_cheat_sheet::CheatSheetFamily;
+use fonts_rs_cheat_sheet::FamilyKind;
 use fonts_rs_line_awesome::LineAwesome;
 use fonts_rs_line_awesome::LineAwesomeIconName;
 #[cfg(feature = "metadata")]
@@ -46,6 +47,9 @@ impl CheatSheetFamily for LineAwesomeSheet {
     const SEARCH_PLACEHOLDER: &'static str = "Search by name, keyword, alias, style, or codepoint (e.g. 'home', 'address-book-o', 'F0001')...";
     const GLYPH_CSS_CLASS: Option<&'static str> = Some("la-icon");
     const NAME_FIELD_LABEL: &'static str = "Icon Name";
+    const FAMILY_NAME: &'static str = "Line Awesome";
+    const FAMILY_KIND: FamilyKind = FamilyKind::IconSet;
+    const LICENSE: &'static str = "MIT or Good Boy License";
 
     type Name = LineAwesomeIconName;
 

@@ -9,8 +9,10 @@ mod app;
 mod detail;
 mod detail_context;
 mod family;
+mod family_kind;
 mod tone_picker;
 mod xml_highlight;
 
 pub use app::run;
 pub use family::CheatSheetFamily;
+pub use family_kind::FamilyKind;

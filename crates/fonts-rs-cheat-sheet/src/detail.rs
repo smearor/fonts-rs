@@ -75,6 +75,23 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
         content.append(&group_label);
     }
 
+    // Family section: which font or icon set the glyph ships in.
+    let family_heading = Label::builder()
+        .label("Family")
+        .css_classes(["heading"])
+        .halign(Align::Start)
+        .margin_top(8)
+        .build();
+    content.append(&family_heading);
+    for (field, value) in [("Name", F::FAMILY_NAME), ("Type", F::FAMILY_KIND.as_str()), ("License", F::LICENSE)] {
+        let field_row = Box::builder().orientation(Orientation::Horizontal).spacing(8).build();
+        let field_label = Label::builder().label(field).css_classes(["dim-label"]).width_chars(8).xalign(0.0).build();
+        let value_label = Label::builder().label(value).halign(Align::Start).selectable(true).build();
+        field_row.append(&field_label);
+        field_row.append(&value_label);
+        content.append(&field_row);
+    }
+
     // Name section (CSS class name for icon fonts, glyph name otherwise).
     let name_heading = Label::builder()
         .label(F::NAME_FIELD_LABEL)
@@ -84,11 +101,21 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
         .build();
     content.append(&name_heading);
 
-    let name_row = Box::builder().orientation(Orientation::Horizontal).spacing(8).halign(Align::Fill).build();
+    let name_row = Box::builder()
+        .orientation(Orientation::Horizontal)
+        .spacing(8)
+        .halign(Align::Fill)
+        .css_classes(["card"])
+        .margin_top(4)
+        .margin_bottom(4)
+        .margin_start(10)
+        .margin_end(6)
+        .build();
     let name_val = Label::builder()
         .label(&display_name)
         .css_classes(["monospace"])
-        .halign(Align::Fill)
+        .hexpand(true)
+        .xalign(0.0)
         .selectable(true)
         .wrap(true)
         .max_width_chars(20)
@@ -176,11 +203,20 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
 
     // Codepoint hex string (own line).
     let cp_hex = format!("U+{:04X}", codepoint.as_char() as u32);
-    let cp_hex_row = Box::builder().orientation(Orientation::Horizontal).spacing(8).halign(Align::Center).build();
+    let cp_hex_row = Box::builder()
+        .orientation(Orientation::Horizontal)
+        .spacing(8)
+        .halign(Align::Fill)
+        .css_classes(["card"])
+        .margin_top(4)
+        .margin_bottom(4)
+        .margin_start(10)
+        .margin_end(6)
+        .build();
     let cp_hex_label = Label::builder()
         .label(&cp_hex)
         .css_classes(["monospace", "sidebar-codepoint-hex"])
-        .halign(Align::Center)
+        .hexpand(true)
         .selectable(true)
         .build();
     let cp_hex_copy = Button::builder().icon_name("edit-copy-symbolic").tooltip_text("Copy codepoint").build();

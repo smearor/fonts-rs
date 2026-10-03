@@ -14,6 +14,7 @@
 //! ```
 
 use fonts_rs_cheat_sheet::CheatSheetFamily;
+use fonts_rs_cheat_sheet::FamilyKind;
 use fonts_rs_model::CodePoint;
 use fonts_rs_tabler::Tabler;
 use fonts_rs_tabler::TablerIconName;
@@ -36,6 +37,9 @@ impl CheatSheetFamily for TablerSheet {
     const SEARCH_PLACEHOLDER: &'static str = "Search by name, keyword, or category (e.g. 'home', 'arrow', 'Development')...";
     const GLYPH_CSS_CLASS: Option<&'static str> = Some("tabler-icon");
     const NAME_FIELD_LABEL: &'static str = "Icon Name";
+    const FAMILY_NAME: &'static str = "Tabler Icons";
+    const FAMILY_KIND: FamilyKind = FamilyKind::IconSet;
+    const LICENSE: &'static str = "MIT";
 
     type Name = TablerIconName;
 

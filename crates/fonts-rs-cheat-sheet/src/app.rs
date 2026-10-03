@@ -374,41 +374,67 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
     left_box.append(&scrolled);
 
     // --- Category sidebar: OverlaySplitView wrapping a sectioned list
-    // (Groups + Categories) left of the browse content. `None` when the
-    // family exposes neither axis; row activation is wired below once
-    // `render_grid`/`refresh_grid` exist. ---
+    // (Groups + Categories + Tags) left of the browse content. `None`
+    // when the family exposes neither axis; row activation is wired
+    // below once `render_grid`/`refresh_grid` exist. ---
     let mut category_counts: BTreeMap<String, u32> = BTreeMap::new();
+    let mut tag_counts: BTreeMap<String, u32> = BTreeMap::new();
     for (_, name) in &all_icons {
         for category in F::categories(name) {
             *category_counts.entry(category).or_default() += 1;
+        }
+        for tag in F::keywords(name) {
+            *tag_counts.entry(tag).or_default() += 1;
         }
     }
 
     let mut group_list: Option<ListBox> = None;
     let mut category_list: Option<ListBox> = None;
-    let category_split = if category_counts.is_empty() && group_labels.is_empty() {
+    let mut tag_list: Option<ListBox> = None;
+    let category_split = if category_counts.is_empty() && tag_counts.is_empty() && group_labels.is_empty() {
         None
     } else {
         let sidebar_box = Box::builder()
             .orientation(Orientation::Vertical)
-            .spacing(4)
+            .spacing(10)
             .margin_top(8)
             .margin_bottom(8)
             .margin_start(8)
             .margin_end(8)
+            .vexpand(true)
             .build();
 
-        let section_header = |list: &ListBox, title: &str| {
-            let row = ListBoxRow::new();
-            row.set_activatable(false);
-            row.set_selectable(false);
-            row.set_child(Some(&Label::builder().label(title).css_classes(["heading"]).halign(Align::Start).build()));
-            list.append(&row);
+        // Each section is a collapsible Expander (accordion) whose list
+        // scrolls internally past the height cap. The box sits directly
+        // in the split sidebar (no outer scroll) so it fills the full
+        // height and vexpand on an open Expander stretches its section
+        // to the bottom. The Expander label replaces the old in-list
+        // section header.
+        let wrap_section = |title: &str, list: &ListBox, expanded: bool| {
+            let title_label = Label::builder().label(title).css_classes(["title-4"]).halign(Align::Start).build();
+            // The expander appends its child into an internal vertical
+            // GtkBox - without vexpand the scrolled window would keep
+            // its capped natural height and never stretch.
+            let list_scrolled = ScrolledWindow::builder()
+                .propagate_natural_height(true)
+                .max_content_height(280)
+                .vexpand(true)
+                .child(list)
+                .build();
+            let expander = gtk4::Expander::builder()
+                .label_widget(&title_label)
+                .expanded(expanded)
+                .vexpand(expanded)
+                .child(&list_scrolled)
+                .build();
+            // Expanded sections share the remaining sidebar height and
+            // stretch to the bottom; collapsed ones stay header-sized.
+            expander.connect_expanded_notify(|expander| expander.set_vexpand(expander.is_expanded()));
+            sidebar_box.append(&expander);
         };
 
         if !group_labels.is_empty() {
             let list = ListBox::builder().css_classes(["navigation-sidebar"]).build();
-            section_header(&list, "Groups");
             // "All groups" resets the group filter; identified by its
             // empty widget name in the activation handler.
             let all_row = ListBoxRow::new();
@@ -420,30 +446,40 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
                 row.set_child(Some(&Label::builder().label(label.as_str()).halign(Align::Start).build()));
                 list.append(&row);
             }
-            sidebar_box.append(&list);
+            wrap_section("Groups", &list, true);
             group_list = Some(list);
         }
-        if !category_counts.is_empty() {
+        // Categories and tags share the same list shape - BTreeMap
+        // iterates in key order, so rows come out alphabetically sorted.
+        let counts_section = |counts: &BTreeMap<String, u32>| {
             let list = ListBox::builder().css_classes(["navigation-sidebar"]).build();
-            section_header(&list, "Categories");
-            for (category, count) in &category_counts {
+            for (item, count) in counts {
                 let row = ListBoxRow::new();
-                row.set_widget_name(category);
-                row.set_child(Some(&Label::builder().label(format!("{category} ({count})")).halign(Align::Start).build()));
+                row.set_widget_name(item);
+                row.set_child(Some(&Label::builder().label(format!("{item} ({count})")).halign(Align::Start).build()));
                 list.append(&row);
             }
-            sidebar_box.append(&list);
+            list
+        };
+        if !category_counts.is_empty() {
+            let list = counts_section(&category_counts);
+            wrap_section("Categories", &list, true);
             category_list = Some(list);
         }
+        if !tag_counts.is_empty() {
+            // The tag axis is usually the longest - start collapsed.
+            let list = counts_section(&tag_counts);
+            wrap_section("Tags", &list, false);
+            tag_list = Some(list);
+        }
 
-        let sidebar_scrolled = ScrolledWindow::builder().min_content_width(200).vexpand(true).child(&sidebar_box).build();
         let split = adw::OverlaySplitView::builder()
             .sidebar_position(gtk4::PackType::Start)
             .show_sidebar(true)
             .min_sidebar_width(200.0)
             .max_sidebar_width(320.0)
             .build();
-        split.set_sidebar(Some(&sidebar_scrolled));
+        split.set_sidebar(Some(&sidebar_box));
         split.set_content(Some(&left_box));
         Some(split)
     };
@@ -979,11 +1015,11 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
     }
 
     // --- Category sidebar row activation ---
-    // Category rows: click replaces the search text, Shift+click appends
-    // (space-separated AND), clicking the active row clears the search.
-    // A GestureClick on the list (instead of `row-activated`) gives the
-    // event modifiers for the Shift detection.
-    if let Some(list) = category_list {
+    // Category/tag rows: click replaces the search text, Shift+click
+    // appends (space-separated AND), clicking the active row clears
+    // the search. A GestureClick on the list (instead of
+    // `row-activated`) gives the event modifiers for Shift detection.
+    let wire_search_list = |list: &ListBox| {
         let search_entry_for_list = search_entry.clone();
         let list_for_click = list.clone();
         let click = gtk4::GestureClick::new();
@@ -996,19 +1032,25 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
             if !row.is_activatable() {
                 return;
             }
-            let category = row.widget_name();
+            let item = row.widget_name();
             let shift = gesture.current_event_state().contains(gtk4::gdk::ModifierType::SHIFT_MASK);
             let current = search_entry_for_list.text();
             if shift && !current.is_empty() {
-                search_entry_for_list.set_text(&format!("{current} {category}"));
-            } else if !shift && current.as_str() == category.as_str() {
+                search_entry_for_list.set_text(&format!("{current} {item}"));
+            } else if !shift && current.as_str() == item.as_str() {
                 search_entry_for_list.set_text("");
                 list_for_click.unselect_all();
             } else {
-                search_entry_for_list.set_text(&category);
+                search_entry_for_list.set_text(&item);
             }
         });
         list.add_controller(click);
+    };
+    if let Some(list) = category_list {
+        wire_search_list(&list);
+    }
+    if let Some(list) = tag_list {
+        wire_search_list(&list);
     }
     // Group rows mirror the dropdown: route through `set_selected` so the
     // active_group + re-render logic stays in one place. Activating the

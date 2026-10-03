@@ -14,6 +14,7 @@
 //! ```
 
 use fonts_rs_cheat_sheet::CheatSheetFamily;
+use fonts_rs_cheat_sheet::FamilyKind;
 use fonts_rs_model::CodePoint;
 use fonts_rs_model::GlyphOrdering;
 use fonts_rs_noto_emoji::NotoEmoji;
@@ -35,6 +36,9 @@ impl CheatSheetFamily for NotoEmojiSheet {
     const NOUN: &'static str = "emoji";
     const APP_ID: &'static str = "io.smearor.fonts_rs.noto_emoji_cheat_sheet";
     const SEARCH_PLACEHOLDER: &'static str = "Search by name, keyword, or category (e.g. 'face', 'fire', 'Smileys')...";
+    const FAMILY_NAME: &'static str = "Noto Emoji";
+    const FAMILY_KIND: FamilyKind = FamilyKind::Emoji;
+    const LICENSE: &'static str = "OFL-1.1";
 
     type Name = String;
 

@@ -21,6 +21,7 @@
 //! ```
 
 use fonts_rs_cheat_sheet::CheatSheetFamily;
+use fonts_rs_cheat_sheet::FamilyKind;
 use fonts_rs_fluent::Fluent;
 use fonts_rs_fluent::FluentIconName;
 #[cfg(feature = "metadata")]
@@ -43,6 +44,9 @@ impl CheatSheetFamily for FluentSheet {
     const SEARCH_PLACEHOLDER: &'static str = "Search by name, keyword, alias, or codepoint (e.g. 'home', 'wand', 'F0001')...";
     const GLYPH_CSS_CLASS: Option<&'static str> = Some("fluent-icon");
     const NAME_FIELD_LABEL: &'static str = "Icon Name";
+    const FAMILY_NAME: &'static str = "Fluent UI System Icons";
+    const FAMILY_KIND: FamilyKind = FamilyKind::IconSet;
+    const LICENSE: &'static str = "MIT";
 
     type Name = FluentIconName;
 

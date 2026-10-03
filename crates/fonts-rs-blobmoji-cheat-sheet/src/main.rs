@@ -15,6 +15,7 @@
 use fonts_rs_blobmoji::Blobmoji;
 use fonts_rs_blobmoji::BlobmojiName;
 use fonts_rs_cheat_sheet::CheatSheetFamily;
+use fonts_rs_cheat_sheet::FamilyKind;
 use fonts_rs_model::CodePoint;
 use fonts_rs_model::GlyphOrdering;
 use gtk4::glib;
@@ -35,6 +36,9 @@ impl CheatSheetFamily for BlobmojiSheet {
     const APP_ID: &'static str = "io.smearor.fonts_rs.blobmoji_cheat_sheet";
     const SEARCH_PLACEHOLDER: &'static str = "Search by name (e.g. 'grinning', 'cat', 'flag')...";
     const NAME_FIELD_LABEL: &'static str = "Emoji Name";
+    const FAMILY_NAME: &'static str = "Blobmoji";
+    const FAMILY_KIND: FamilyKind = FamilyKind::Emoji;
+    const LICENSE: &'static str = "OFL-1.1";
 
     type Name = BlobmojiName;
 

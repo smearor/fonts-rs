@@ -16,6 +16,7 @@
 //! ```
 
 use fonts_rs_cheat_sheet::CheatSheetFamily;
+use fonts_rs_cheat_sheet::FamilyKind;
 use fonts_rs_eva::Eva;
 use fonts_rs_eva::EvaIconName;
 #[cfg(feature = "metadata")]
@@ -37,6 +38,9 @@ impl CheatSheetFamily for EvaSheet {
     const SEARCH_PLACEHOLDER: &'static str = "Search by name, keyword, or codepoint (e.g. 'home', 'alarm', 'EA01')...";
     const GLYPH_CSS_CLASS: Option<&'static str> = Some("eva-icon");
     const NAME_FIELD_LABEL: &'static str = "Icon Name";
+    const FAMILY_NAME: &'static str = "Eva Icons";
+    const FAMILY_KIND: FamilyKind = FamilyKind::IconSet;
+    const LICENSE: &'static str = "MIT";
 
     type Name = EvaIconName;
 

@@ -1,5 +1,6 @@
 //! Per-family hooks for the generic cheat sheet.
 
+use crate::family_kind::FamilyKind;
 use fonts_rs_model::CodePoint;
 use std::fmt::Display;
 
@@ -45,6 +46,18 @@ pub trait CheatSheetFamily: 'static {
     /// Label of the name field in the detail sidebar
     /// (e.g. `"CSS Class"` for icon fonts, `"Glyph Name"` otherwise).
     const NAME_FIELD_LABEL: &'static str = "Glyph Name";
+
+    /// Display name of the font or icon set itself (e.g. `"Eva
+    /// Icons"`) - shown in the "Family" section of the detail sidebar.
+    const FAMILY_NAME: &'static str;
+
+    /// What kind of glyph source the family is - a general font, an
+    /// icon set, an emoji font or a special-purpose font.
+    const FAMILY_KIND: FamilyKind;
+
+    /// License of the bundled font or icon set (e.g. `"MIT"`,
+    /// `"OFL-1.1"`); list all options when dual-licensed.
+    const LICENSE: &'static str;
 
     /// The glyph name type - `IconName` for icon fonts, `String` or
     /// `GlyphName<F>` for other families.
