@@ -109,7 +109,10 @@ mod tests {
     fn metadata_d6_style_variants() {
         use fonts_rs_model::GlyphOrdering;
         let base = "dicefont-solid-small-dot-d6-3";
-        assert_eq!(metadata::DicefontMetadata.alternates(base), ["dicefont-d6-3", "dicefont-dot-d6-3", "dicefont-small-dot-d6-3"].as_slice());
+        assert_eq!(
+            metadata::DicefontMetadata.alternates(base),
+            ["dicefont-d6-3", "dicefont-dot-d6-3", "dicefont-small-dot-d6-3"].as_slice()
+        );
         assert_eq!(metadata::DicefontMetadata.base_of("dicefont-dot-d6-3"), Some(base));
         assert!(metadata::DicefontMetadata.base_of(base).is_none());
         // Bare die glyphs without a face suffix stay standalone.

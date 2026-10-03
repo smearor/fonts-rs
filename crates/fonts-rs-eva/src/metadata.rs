@@ -119,7 +119,13 @@ fn build_tables() -> OrderingTables {
         .into_boxed_slice(),
     );
 
-    OrderingTables { order, group_of, base_of, alternates_of, groups }
+    OrderingTables {
+        order,
+        group_of,
+        base_of,
+        alternates_of,
+        groups,
+    }
 }
 
 impl GlyphOrdering for EvaMetadata {

@@ -13,9 +13,10 @@ description = "Chess Cuernavaca cheat sheet application"
 publish = true
 
 [features]
-default = ["gtk"]
+default = ["gtk", "metadata"]
 
 gtk = ["fonts-rs-cuernavaca/gtk"]
+metadata = ["fonts-rs-cuernavaca/metadata"]
 
 [dependencies]
 fonts-rs-cheat-sheet.workspace = true

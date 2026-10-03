@@ -70,17 +70,15 @@ impl<S: GlyphSource> GlyphSource for CombinedSource<S> {
         let mut codes = HashSet::with_capacity(descriptors.len());
         for descriptor in &descriptors {
             if !names.insert(&descriptor.name) {
-                return Err(GlyphSourceError::PostProcess(format!(
-                    "combined sources produced duplicate glyph name '{}'",
-                    descriptor.name
-                )));
+                return Err(GlyphSourceError::PostProcess(format!("combined sources produced duplicate glyph name '{}'", descriptor.name)));
             }
             if let Some(code) = descriptor.code
                 && !codes.insert(code.as_char())
             {
                 return Err(GlyphSourceError::PostProcess(format!(
                     "combined sources produced duplicate codepoint U+{:04X} ('{}')",
-                    code.as_char() as u32, descriptor.name
+                    code.as_char() as u32,
+                    descriptor.name
                 )));
             }
         }

@@ -69,7 +69,11 @@ impl PuaAllocator {
     fn from_range(range: CodePointRange) -> Self {
         let start = range.start().as_char() as u32;
         let end = range.end().as_char() as u32;
-        Self { occupied: HashSet::new(), range, len: end.saturating_sub(start) + 1 }
+        Self {
+            occupied: HashSet::new(),
+            range,
+            len: end.saturating_sub(start) + 1,
+        }
     }
 
     /// Returns the deterministic codepoint for `name`.

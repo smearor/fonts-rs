@@ -594,7 +594,8 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
             let is_collapsed_variant = |name: &F::Name| {
                 collapse
                     && ordering.is_some_and(|o| {
-                        o.base_of(name.as_ref()).is_some_and(|base_name| F::parse_name(base_name).is_some_and(|base| in_group(&base)))
+                        o.base_of(name.as_ref())
+                            .is_some_and(|base_name| F::parse_name(base_name).is_some_and(|base| in_group(&base)))
                     })
             };
             let base: Vec<(CodePoint, F::Name)> = icons_for_filter

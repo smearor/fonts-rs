@@ -142,7 +142,10 @@ mod tests {
     #[test]
     fn fluent_add_symbolic_resolves() {
         assert!(Fluent::codepoint("fluent-add-symbolic").is_some(), "codepoint('fluent-add-symbolic') should resolve");
-        assert!(Fluent::codepoint("fluent-filled-add-symbolic").is_some(), "codepoint('fluent-filled-add-symbolic') should resolve");
+        assert!(
+            Fluent::codepoint("fluent-filled-add-symbolic").is_some(),
+            "codepoint('fluent-filled-add-symbolic') should resolve"
+        );
     }
 
     /// Every codepoint falls inside a declared `CODEPOINT_RANGES`
@@ -152,9 +155,7 @@ mod tests {
         for (codepoint, name) in all_icons() {
             let scalar = codepoint.as_char() as u32;
             assert!(
-                (0xE000..=0xF8FF).contains(&scalar)
-                    || (0xF0000..=0xF0DFF).contains(&scalar)
-                    || (0x100000..=0x10FFFD).contains(&scalar),
+                (0xE000..=0xF8FF).contains(&scalar) || (0xF0000..=0xF0DFF).contains(&scalar) || (0x100000..=0x10FFFD).contains(&scalar),
                 "icon '{name}' codepoint U+{scalar:04X} outside declared ranges"
             );
         }
@@ -277,6 +278,9 @@ mod tests {
     fn metadata_search_finds_via_alias() {
         use fonts_rs_model::GlyphMetadata;
         let results = metadata::FluentMetadata.search("magic-wand");
-        assert!(results.contains(&"fluent-wand-symbolic"), "search for 'magic-wand' should find 'fluent-wand-symbolic', got: {results:?}");
+        assert!(
+            results.contains(&"fluent-wand-symbolic"),
+            "search for 'magic-wand' should find 'fluent-wand-symbolic', got: {results:?}"
+        );
     }
 }

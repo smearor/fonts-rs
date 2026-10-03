@@ -92,9 +92,7 @@ pub trait GlyphMetadata {
             if results.contains(&glyph_name) {
                 continue;
             }
-            if glyph_name.to_lowercase().contains(&query)
-                || categories.iter().any(|cat| cat.as_str().to_lowercase().contains(&query))
-            {
+            if glyph_name.to_lowercase().contains(&query) || categories.iter().any(|cat| cat.as_str().to_lowercase().contains(&query)) {
                 results.push(glyph_name);
             }
         }

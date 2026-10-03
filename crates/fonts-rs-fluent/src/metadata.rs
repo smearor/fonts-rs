@@ -96,7 +96,11 @@ fn build_tables() -> OrderingTables {
     let mut regular: Vec<&'static str> = Vec::new();
     let mut filled: Vec<&'static str> = Vec::new();
     for (&name, _) in REVERSE_GLYPHS.entries() {
-        if name.starts_with(FILLED_PREFIX) { filled.push(name) } else { regular.push(name) }
+        if name.starts_with(FILLED_PREFIX) {
+            filled.push(name)
+        } else {
+            regular.push(name)
+        }
     }
     regular.sort_unstable();
     filled.sort_unstable();
@@ -129,7 +133,13 @@ fn build_tables() -> OrderingTables {
         .into_boxed_slice(),
     );
 
-    OrderingTables { order, group_of, base_of, alternates_of, groups }
+    OrderingTables {
+        order,
+        group_of,
+        base_of,
+        alternates_of,
+        groups,
+    }
 }
 
 impl GlyphOrdering for FluentMetadata {

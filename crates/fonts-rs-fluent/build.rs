@@ -139,7 +139,11 @@ impl MetadataGenerator for FluentMetadataGenerator {
     /// Every glyph gets its style as category - upstream ships no
     /// categories, so the style is the only label.
     fn categories_for(&self, entry: &GlyphEntry<String>) -> Vec<String> {
-        vec![if entry.name.starts_with("fluent-filled-") { "filled".to_string() } else { "regular".to_string() }]
+        vec![if entry.name.starts_with("fluent-filled-") {
+            "filled".to_string()
+        } else {
+            "regular".to_string()
+        }]
     }
 
     fn aliases(&self) -> Vec<(String, String)> {

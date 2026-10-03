@@ -29,6 +29,11 @@ gtk = ["dep:gtk4", "dep:gio", "fonts-rs-generator/gtk"]
 render = ["dep:ab_glyph", "fonts-rs-model/render"]
 embed-fonts = []
 
+# Glyph metadata: piece categories (king/queen/rook/bishop/knight/pawn)
+# and style-variant ordering - derived from the glyph names, no
+# upstream source
+metadata = []
+
 [dependencies]
 fonts-rs-generator.workspace = true
 fonts-rs-model.workspace = true
@@ -44,6 +49,7 @@ fonts-rs-generator.workspace = true
 fonts-rs-model.workspace = true
 const_format.workspace = true
 miette.workspace = true
+serde_json.workspace = true
 
 [lints]
 workspace = true

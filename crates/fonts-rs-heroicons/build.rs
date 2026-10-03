@@ -125,11 +125,14 @@ impl HeroiconsMetadataGenerator {
     /// unsuffixed default style).
     fn style_label(glyph_name: &str) -> &'static str {
         let stem = Self::upstream_keyless_stem(glyph_name);
-        STYLES.iter().find(|style| stem.ends_with(&format!("-{style}"))).map_or("outline", |style| match *style {
-            "solid" => "solid",
-            "mini" => "mini",
-            _ => "micro",
-        })
+        STYLES
+            .iter()
+            .find(|style| stem.ends_with(&format!("-{style}")))
+            .map_or("outline", |style| match *style {
+                "solid" => "solid",
+                "mini" => "mini",
+                _ => "micro",
+            })
     }
 
     /// Stem without `heroicons-` prefix and `-symbolic` suffix.

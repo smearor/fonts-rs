@@ -95,7 +95,9 @@ fn die_label(name: &'static str) -> Option<&'static str> {
 /// Returns the canonical rank of a glyph's die type, `usize::MAX`
 /// for unlabeled names.
 fn die_rank(name: &'static str) -> usize {
-    die_label(name).and_then(|label| DIE_LABELS.iter().position(|l| *l == label)).unwrap_or(usize::MAX)
+    die_label(name)
+        .and_then(|label| DIE_LABELS.iter().position(|l| *l == label))
+        .unwrap_or(usize::MAX)
 }
 
 /// Returns the face number suffix of a glyph name, `0` for names
@@ -176,10 +178,18 @@ fn build_tables() -> OrderingTables {
         }
     }
 
-    let alternates_of: HashMap<&'static str, &'static [&'static str]> =
-        alternates_of.into_iter().map(|(base, alts)| (base, Box::leak(alts.into_boxed_slice()) as &'static [&'static str])).collect();
+    let alternates_of: HashMap<&'static str, &'static [&'static str]> = alternates_of
+        .into_iter()
+        .map(|(base, alts)| (base, Box::leak(alts.into_boxed_slice()) as &'static [&'static str]))
+        .collect();
 
-    OrderingTables { order, group_of, base_of, alternates_of, groups: Box::leak(groups_vec.into_boxed_slice()) }
+    OrderingTables {
+        order,
+        group_of,
+        base_of,
+        alternates_of,
+        groups: Box::leak(groups_vec.into_boxed_slice()),
+    }
 }
 
 impl GlyphOrdering for DicefontMetadata {

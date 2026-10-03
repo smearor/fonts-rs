@@ -450,6 +450,7 @@ dependencies = [
  "gtk4",
  "miette",
  "phf",
+ "serde_json",
  "tracing",
 ]
 

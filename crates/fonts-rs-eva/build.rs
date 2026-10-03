@@ -115,7 +115,11 @@ impl MetadataGenerator for EvaMetadataGenerator {
     /// Every glyph gets its style as category ("fill" / "outline") -
     /// upstream ships no categories, so the style is the only label.
     fn categories_for(&self, entry: &GlyphEntry<String>) -> Vec<String> {
-        vec![if Self::upstream_key(&entry.name).ends_with("-outline") { "outline".to_string() } else { "fill".to_string() }]
+        vec![if Self::upstream_key(&entry.name).ends_with("-outline") {
+            "outline".to_string()
+        } else {
+            "fill".to_string()
+        }]
     }
 }
 

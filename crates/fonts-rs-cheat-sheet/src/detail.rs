@@ -178,10 +178,7 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
     // sits *above* the preview: resizing the icon grows it downward
     // instead of shifting the slider up and down.
     let detail_size_box = Box::builder().orientation(Orientation::Horizontal).spacing(8).halign(Align::Center).build();
-    let detail_size_value = Label::builder()
-        .label(format!("{detail_size:.0}px"))
-        .css_classes(["monospace"])
-        .build();
+    let detail_size_value = Label::builder().label(format!("{detail_size:.0}px")).css_classes(["monospace"]).build();
     let detail_slider = icon_size_scale(detail_size, 260);
     let cp_widget_for_size = cp_widget.clone();
     let detail_size_value_ref = detail_size_value.clone();

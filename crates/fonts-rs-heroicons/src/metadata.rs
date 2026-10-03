@@ -140,7 +140,13 @@ fn build_tables() -> OrderingTables {
         .map(|(base, names)| (base, Box::leak(names.into_boxed_slice()) as &'static [&'static str]))
         .collect();
 
-    OrderingTables { order, group_of, base_of, alternates_of, groups: Box::leak(groups.into_boxed_slice()) }
+    OrderingTables {
+        order,
+        group_of,
+        base_of,
+        alternates_of,
+        groups: Box::leak(groups.into_boxed_slice()),
+    }
 }
 
 impl GlyphOrdering for HeroiconsMetadata {
@@ -207,10 +213,7 @@ mod tests {
 
     #[test]
     fn ordering_base_of_pairs_variant() {
-        assert_eq!(
-            HeroiconsMetadata.base_of("heroicons-bell-solid-symbolic"),
-            Some("heroicons-bell-symbolic")
-        );
+        assert_eq!(HeroiconsMetadata.base_of("heroicons-bell-solid-symbolic"), Some("heroicons-bell-symbolic"));
     }
 
     #[test]
