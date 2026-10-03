@@ -12,9 +12,11 @@ use crate::glyph_source::pua_allocator::PuaAllocator;
 use crate::glyph_source::source::GlyphSource;
 use fonts_rs_model::CodePoint;
 use fonts_rs_model::GlyphNameMap;
+use std::cell::RefCell;
 use std::collections::HashSet;
 use std::fs;
 use std::path::PathBuf;
+use std::rc::Rc;
 
 /// Semantic name resolver: maps a parsed glyph to its display name.
 type NameResolver<'a> = Box<dyn Fn(&ParsedGlyph) -> Option<String> + 'a>;
@@ -55,6 +57,14 @@ pub struct SvgDirSource<'a> {
     post_processors: Vec<Box<dyn SvgPostProcessor>>,
     /// Strategy for assigning [`GlyphDescriptor::code`] values.
     codepoint_strategy: CodepointStrategy,
+    /// Optional salt mixed into the [`CodepointStrategy::HashedPua`]
+    /// input, for combined sources giving each style directory its own
+    /// codepoint namespace.
+    pua_salt: Option<String>,
+    /// Optional shared PUA allocator for [`CodepointStrategy::HashedPua`]
+    /// (and `FromFilename` sequence allocation), for combined sources
+    /// resolving hash collisions across style directories.
+    pua_allocator: Option<Rc<RefCell<PuaAllocator>>>,
 }
 
 impl<'a> SvgDirSource<'a> {
@@ -70,6 +80,8 @@ impl<'a> SvgDirSource<'a> {
             name_filter: None,
             post_processors: Vec::new(),
             codepoint_strategy: CodepointStrategy::default(),
+            pua_salt: None,
+            pua_allocator: None,
         }
     }
 
@@ -133,6 +145,32 @@ impl<'a> SvgDirSource<'a> {
         self.codepoint_strategy = strategy;
         self
     }
+
+    /// Mixes `salt` into the [`CodepointStrategy::HashedPua`] hash input
+    /// (`{salt}:{raw_name}`).
+    ///
+    /// Use for style directories merged via
+    /// [`CombinedSource`](crate::glyph_source::CombinedSource): the
+    /// default style keeps unsalted (stable) codepoints while every
+    /// additional style hashes into its own namespace, so the same
+    /// upstream icon cannot collide across styles.
+    pub fn pua_salt(mut self, salt: impl Into<String>) -> Self {
+        self.pua_salt = Some(salt.into());
+        self
+    }
+
+    /// Shares `allocator` with sibling sources inside a
+    /// [`CombinedSource`](crate::glyph_source::CombinedSource).
+    ///
+    /// Without this, each source allocates into its own namespace:
+    /// different salted inputs can still hash onto a slot another
+    /// source already took, and no probing resolves across sources.
+    /// Sharing the allocator gives combined sources the same linear
+    /// probing a single source gets.
+    pub fn pua_allocator(mut self, allocator: Rc<RefCell<PuaAllocator>>) -> Self {
+        self.pua_allocator = Some(allocator);
+        self
+    }
 }
 
 impl GlyphSource for SvgDirSource<'_> {
@@ -143,7 +181,15 @@ impl GlyphSource for SvgDirSource<'_> {
         let mut paths = fs::read_dir(&self.svg_dir)?.collect::<Result<Vec<_>, _>>()?;
         paths.sort_by_key(|entry| entry.file_name());
 
-        let mut allocator = PuaAllocator::new();
+        // Shared allocator for combined sources; a per-source
+        // allocator otherwise. The borrow spans the whole loop -
+        // `resolve_codepoint` never re-enters `glyphs`.
+        let mut owned_allocator = PuaAllocator::new();
+        let mut shared_allocator = self.pua_allocator.as_ref().map(|a| a.borrow_mut());
+        let allocator: &mut PuaAllocator = match &mut shared_allocator {
+            Some(guard) => guard,
+            None => &mut owned_allocator,
+        };
         let mut seen_names = HashSet::new();
         let mut descriptors = Vec::new();
         for dir_entry in paths {
@@ -181,7 +227,7 @@ impl GlyphSource for SvgDirSource<'_> {
             }
 
             descriptors.push(GlyphDescriptor {
-                code: self.resolve_codepoint(&parsed, &mut allocator)?,
+                code: self.resolve_codepoint(&parsed, &mut *allocator)?,
                 name,
                 source_key: filename,
                 sequence: parsed.codepoints.filter(|codepoints| codepoints.len() > 1),
@@ -215,7 +261,13 @@ impl SvgDirSource<'_> {
                 None => Ok(None),
             },
             CodepointStrategy::FromNameMap => Ok(self.codepoint_map.and_then(|map| map.get(&parsed.raw_name).copied())),
-            CodepointStrategy::HashedPua => allocator.allocate(&parsed.raw_name).map(Some),
+            CodepointStrategy::HashedPua => {
+                let input = match &self.pua_salt {
+                    Some(salt) => format!("{salt}:{}", parsed.raw_name),
+                    None => parsed.raw_name.clone(),
+                };
+                allocator.allocate(&input).map(Some)
+            }
             CodepointStrategy::None => Ok(None),
         }
     }

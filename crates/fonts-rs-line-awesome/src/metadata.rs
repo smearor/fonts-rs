@@ -169,4 +169,12 @@ impl GlyphOrdering for LineAwesomeMetadata {
     fn base_of(&self, name: &str) -> Option<&'static str> {
         tables().base_of.get(name).copied()
     }
+
+    /// All styles are first-class browse content - a whole style is
+    /// not a hideable variant (unlike emoji skin tones). The pair
+    /// link still powers the detail sidebar's Variants section and
+    /// keeps solid glyphs sorted next to their regular base.
+    fn collapse_variants(&self) -> bool {
+        false
+    }
 }

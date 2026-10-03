@@ -85,13 +85,17 @@ pub trait GlyphMetadata {
             }
         }
 
-        // Include glyphs that have no keywords but match by name
-        for (glyph_name, _) in self.category_map().iter() {
-            if !results.contains(&glyph_name) {
-                let name_lower = glyph_name.to_lowercase();
-                if name_lower.contains(&query) {
-                    results.push(glyph_name);
-                }
+        // Include glyphs that have no keywords - match by name or
+        // category (style labels like "fill" never appear in the
+        // glyph name, so a name-only check would hide them).
+        for (glyph_name, categories) in self.category_map().iter() {
+            if results.contains(&glyph_name) {
+                continue;
+            }
+            if glyph_name.to_lowercase().contains(&query)
+                || categories.iter().any(|cat| cat.as_str().to_lowercase().contains(&query))
+            {
+                results.push(glyph_name);
             }
         }
 
@@ -124,6 +128,7 @@ mod tests {
     static TEST_CAT_MAP: GlyphCategoryMap = GlyphCategoryMap(phf::phf_map! {
         "nf-fa-gamepad-symbolic" => TEST_CATEGORIES,
         "nf-fa-star-symbolic" => &[GlyphCategory::new("Childhood"), GlyphCategory::new("Shapes")],
+        "nf-fa-circle-symbolic" => &[GlyphCategory::new("Shapes")],
     });
 
     static TEST_ALIAS_MAP: GlyphAliasMap = GlyphAliasMap(phf::phf_map! {
@@ -252,6 +257,16 @@ mod tests {
         let results = md.search("Childhood");
         assert!(results.contains(&"nf-fa-gamepad-symbolic"));
         assert!(results.contains(&"nf-fa-star-symbolic"));
+    }
+
+    /// Glyphs without a keyword entry must still match via their
+    /// category - e.g. style labels like "fill" that never appear in
+    /// the glyph name itself.
+    #[test]
+    fn search_by_category_without_keywords() {
+        let md = TestMetadata;
+        let results = md.search("Shapes");
+        assert!(results.contains(&"nf-fa-circle-symbolic"));
     }
 
     #[test]

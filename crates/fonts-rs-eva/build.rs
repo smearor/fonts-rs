@@ -1,36 +1,34 @@
 // build.rs: Eva Icons build - pre-rendered SVGs + webfont TTF.
 //
-// The variant (fill | outline) is selected by Cargo feature; default is
-// `fill`. Both variants share a single TTF (`Eva-Icons.ttf`) whose fill
-// and outline glyphs live at different codepoints - the feature selects
-// the codepoint set and the `resources/svg/{variant}` artwork. Glyph
-// names are variant-independent (`eva-{name}-symbolic`): the upstream
-// `-outline` filename/CSS suffix is stripped by the name resolver.
-// Codepoints come from the upstream stylesheet
-// `resources/metadata/eva-icons.css` (`content: "\eXXX"` rules).
+// Both upstream styles are exported in one build via `CombinedSource`:
+// `resources/svg/fill` -> `eva-{name}-symbolic`,
+// `resources/svg/outline` -> `eva-{name}-outline-symbolic` (the
+// upstream `-outline` filename/CSS suffix is kept as the name suffix).
+// Both styles share the single `Eva-Icons.ttf`; its fill and outline
+// glyphs live at different codepoints, resolved per glyph from the
+// upstream stylesheet `resources/metadata/eva-icons.css`
+// (`content: "\eXXX"` rules).
 //
 // Keyword metadata comes from upstream `icons-tags.ts` (the search tags
 // powering the official eva-icons.com cheat sheet), vendored as
-// `resources/metadata/icons-tags.json`. Eva ships no categories or
-// aliases - only keywords are populated.
+// `resources/metadata/icons-tags.json`. Style categories ("fill" /
+// "outline") are derived from the glyph name; Eva ships no aliases.
 
 use std::path::Path;
 
 use fonts_rs_generator::CodepointStrategy;
+use fonts_rs_generator::CombinedSource;
 use fonts_rs_generator::ExportConfig;
 use fonts_rs_generator::FontBuild;
-use fonts_rs_generator::FontVariantExt;
 use fonts_rs_generator::GlyphSource;
 use fonts_rs_generator::MetadataGenerator;
 use fonts_rs_generator::SvgDirSource;
-use fonts_rs_generator::VariantList;
 use fonts_rs_generator::build_constants;
 use fonts_rs_generator::hash_str;
 use fonts_rs_generator::hash_svg_dir;
 use fonts_rs_generator::set_font_path_env;
 use fonts_rs_model::CodePoint;
 use fonts_rs_model::FontFamilyConfig;
-use fonts_rs_model::FontVariant;
 use fonts_rs_model::GlyphEntry;
 use fonts_rs_model::GlyphNameMap;
 
@@ -38,12 +36,6 @@ use fonts_rs_model::GlyphNameMap;
 mod definition;
 
 use definition::EvaConfig;
-
-/// Both variants are realized by the same TTF - upstream ships a single
-/// `Eva-Icons.ttf` where fill and outline glyphs occupy different
-/// codepoints. The variant only selects which codepoint set and SVG
-/// directory the export uses.
-const VARIANTS: VariantList<EvaConfig> = VariantList::new(&[FontVariant::file("fill", "Eva-Icons"), FontVariant::file("outline", "Eva-Icons")]);
 
 /// Export pipeline version.
 ///
@@ -96,33 +88,41 @@ struct EvaMetadataGenerator {
     tags: serde_json::Map<String, serde_json::Value>,
 }
 
+impl EvaMetadataGenerator {
+    /// Returns the upstream icon name for a glyph name by stripping
+    /// the `eva-` prefix and `-symbolic` suffix; outline glyphs keep
+    /// their `-outline` marker so `icons-tags.json` lookups hit the
+    /// upstream outline entries.
+    fn upstream_key(glyph_name: &str) -> &str {
+        glyph_name
+            .strip_prefix("eva-")
+            .and_then(|name| name.strip_suffix("-symbolic"))
+            .unwrap_or(glyph_name)
+    }
+}
+
 impl MetadataGenerator for EvaMetadataGenerator {
     type Name = String;
 
     fn keywords_for(&self, entry: &GlyphEntry<String>) -> Vec<String> {
-        let upstream = entry
-            .name
-            .strip_prefix("eva-")
-            .and_then(|name| name.strip_suffix("-symbolic"))
-            .unwrap_or(&entry.name);
         self.tags
-            .get(upstream)
+            .get(Self::upstream_key(&entry.name))
             .and_then(serde_json::Value::as_array)
             .map(|tags| tags.iter().filter_map(|tag| tag.as_str().map(String::from)).collect())
             .unwrap_or_default()
     }
 
-    fn categories_for(&self, _entry: &GlyphEntry<String>) -> Vec<String> {
-        Vec::new()
+    /// Every glyph gets its style as category ("fill" / "outline") -
+    /// upstream ships no categories, so the style is the only label.
+    fn categories_for(&self, entry: &GlyphEntry<String>) -> Vec<String> {
+        vec![if Self::upstream_key(&entry.name).ends_with("-outline") { "outline".to_string() } else { "fill".to_string() }]
     }
 }
 
 fn main() -> miette::Result<()> {
-    let entry = VARIANTS.detect_and_get_active_variant(0)?;
-    let font_path = entry.font_path()?;
-    let variant = entry.as_str().to_string();
+    let font_path = Path::new(build_constants::RESOURCES_DIR).join("Eva-Icons.ttf");
 
-    eprintln!("build.rs: active variant: {variant} -> {}", font_path.display());
+    eprintln!("build.rs: combined fill+outline export -> {}", font_path.display());
 
     // Set TTF path for pixel-drawing (ab_glyph) at runtime.
     set_font_path_env("EVA_FONT_PATH", &font_path)?;
@@ -134,10 +134,13 @@ fn main() -> miette::Result<()> {
     let codepoint_map = parse_codepoint_map(&css);
     eprintln!("build.rs: {} codepoints in eva-icons.css", codepoint_map.len());
 
-    let svg_dir = Path::new(build_constants::RESOURCES_DIR).join("svg").join(&variant);
+    let fill_dir = Path::new(build_constants::RESOURCES_DIR).join("svg").join("fill");
+    let outline_dir = Path::new(build_constants::RESOURCES_DIR).join("svg").join("outline");
 
-    // GResource SVGs: copy/rename pre-rendered SVGs from
-    // resources/svg/{variant}/ using upstream icon names. Runs inside
+    // GResource SVGs: copy/rename pre-rendered SVGs from both style
+    // directories into one export. The `-outline` filename suffix
+    // stays in the glyph name (`eva-{name}-outline-symbolic`), so
+    // fill and outline partition the namespace. Runs inside
     // FontBuild's export closure so metadata.json and
     // icons.gresource.xml land in OUT_DIR where the GResource
     // compilation and code generation expect them.
@@ -145,27 +148,32 @@ fn main() -> miette::Result<()> {
     FontBuild::new(&font_path)
         .compile_font_gresource()
         .gresource_prefix(EvaConfig::GRESOURCE_PREFIX)
-        .extra_hash(variant)
         .extra_hash(EXPORT_PIPELINE_VERSION.to_string())
-        .extra_hash(format!("{:016x}", hash_svg_dir(&svg_dir)))
+        .extra_hash(format!("{:016x}", hash_svg_dir(&fill_dir)))
+        .extra_hash(format!("{:016x}", hash_svg_dir(&outline_dir)))
         .extra_hash(format!("{:016x}", hash_str(&css)))
         .extra_hash(format!("{:016x}", hash_str(&tags_json)))
         .run(|_font_path, resources_dir| {
-            SvgDirSource::new(&svg_dir)
-                .codepoint_strategy(CodepointStrategy::FromNameMap)
-                .codepoint_map(&codepoint_map)
-                // Strip the upstream `-outline` suffix so glyph names
-                // stay variant-independent (`eva-{name}-symbolic`).
-                .name_resolver(|parsed| Some(format!("{}-symbolic", parsed.raw_name.strip_suffix("-outline").unwrap_or(parsed.raw_name.as_str()))))
-                .name_prefix(EvaConfig::FONT_FAMILY_NAME)
+            let source = |dir: &Path| {
+                SvgDirSource::new(dir)
+                    .codepoint_strategy(CodepointStrategy::FromNameMap)
+                    .codepoint_map(&codepoint_map)
+                    .name_resolver(|parsed| Some(format!("{}-symbolic", parsed.raw_name)))
+                    .name_prefix(EvaConfig::FONT_FAMILY_NAME)
+            };
+            CombinedSource::new()
+                // More specific marker first: outline names contain
+                // "-outline", every name contains "eva-".
+                .source("-outline", source(&outline_dir))
+                .source("eva-", source(&fill_dir))
                 .export(&config, resources_dir)
         })
         .map_err(|e| miette::miette!("{e}"))?;
 
-    // Generate metadata (keywords only - Eva ships no categories or
+    // Generate metadata (keywords + style categories - Eva ships no
     // aliases) if enabled.
     if std::env::var("CARGO_FEATURE_METADATA").is_ok() {
-        eprintln!("build.rs: generating icon metadata (keywords)...");
+        eprintln!("build.rs: generating icon metadata (keywords + style categories)...");
 
         let tags_value: serde_json::Value = serde_json::from_str(&tags_json).map_err(|e| miette::miette!("Failed to parse icons-tags.json: {e}"))?;
         let tags = tags_value.as_object().cloned().unwrap_or_default();

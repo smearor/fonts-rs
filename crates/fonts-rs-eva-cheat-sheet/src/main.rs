@@ -94,9 +94,28 @@ impl CheatSheetFamily for EvaSheet {
         }
     }
 
-    /// Eva ships no categories upstream.
-    fn categories(_name: &EvaIconName) -> Vec<String> {
-        Vec::new()
+    fn categories(name: &EvaIconName) -> Vec<String> {
+        #[cfg(feature = "metadata")]
+        {
+            EvaMetadata.categories(name).iter().map(|c| c.as_str().to_string()).collect()
+        }
+        #[cfg(not(feature = "metadata"))]
+        {
+            let _ = name;
+            Vec::new()
+        }
+    }
+
+    /// Fill/outline style groups and fill->outline variant collapsing.
+    fn ordering() -> Option<&'static dyn fonts_rs_model::GlyphOrdering> {
+        #[cfg(feature = "metadata")]
+        {
+            Some(&EvaMetadata)
+        }
+        #[cfg(not(feature = "metadata"))]
+        {
+            None
+        }
     }
 
     fn glyph_svg(name: &EvaIconName) -> Option<String> {

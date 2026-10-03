@@ -47,10 +47,11 @@ Opting in enables:
   browse grid follow the curated order.
 - **Group jump-list dropdown** plus a **group label** in the detail
   sidebar via `group_labels`/`group`.
-- **Variant collapsing** via `collapse_variants`/`base_of` — the browse
-  grid shows base glyphs only; variants stay reachable through search
-  and the sidebar's **"Variants" section** / **"Variant of"**
-  back-link via `alternates`/`base_of`.
+- **Variant collapsing** via `collapse_variants`/`base_of` — families
+  opt in to hide variants behind their base in the browse grid (emoji
+  skin tones do; style families do not - a whole style is first-class
+  content). Pairs stay linked through the sidebar's **"Variants"
+  section** / **"Variant of"** back-link via `alternates`/`base_of`.
 - **Default-tone picking** via `tone_group` — a variant detail offers
   "Set as default tone"; the chosen alternate index is stored per tone
   group (`TonePicker`) and `render_grid` swaps every base cell in the

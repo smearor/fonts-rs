@@ -26,15 +26,8 @@ default = ["gtk"]
 
 gtk = ["dep:gtk4", "dep:gio", "fonts-rs-generator/gtk"]
 
-# Each feature selects one icon variant: outline (default, 24x24
-# stroke-based), solid (24x24 filled), mini (20x20 filled) or micro
-# (16x16 filled). If none is active, build.rs defaults to `outline`.
-outline = []
-solid = []
-mini = []
-micro = []
-
-# Icon metadata: keywords (heroicons.com search) and aliases for search
+# Icon metadata: keywords (heroicons.com search), style categories and
+# aliases for search
 metadata = []
 
 [dependencies]

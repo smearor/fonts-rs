@@ -96,8 +96,29 @@ impl CheatSheetFamily for HeroiconsSheet {
         }
     }
 
-    fn categories(_name: &HeroiconsIconName) -> Vec<String> {
-        Vec::new()
+    fn categories(name: &HeroiconsIconName) -> Vec<String> {
+        #[cfg(feature = "metadata")]
+        {
+            HeroiconsMetadata.categories(name).iter().map(|c| c.as_str().to_string()).collect()
+        }
+        #[cfg(not(feature = "metadata"))]
+        {
+            let _ = name;
+            Vec::new()
+        }
+    }
+
+    /// Style groups (outline/solid/mini/micro) and outline-base
+    /// variant collapsing.
+    fn ordering() -> Option<&'static dyn fonts_rs_model::GlyphOrdering> {
+        #[cfg(feature = "metadata")]
+        {
+            Some(&HeroiconsMetadata)
+        }
+        #[cfg(not(feature = "metadata"))]
+        {
+            None
+        }
     }
 
     /// Resolves Heroicons v1 alias names to their v2 canonical names

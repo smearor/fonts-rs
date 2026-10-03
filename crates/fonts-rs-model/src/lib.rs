@@ -70,6 +70,7 @@ pub use codepoint_name_map::CodePointNameMap;
 pub use codepoint_range::ASCII_PRINTABLE_RANGE;
 pub use codepoint_range::BMP_RANGE;
 pub use codepoint_range::CodePointRange;
+pub use codepoint_range::PUA_B_RANGE;
 pub use codepoint_range::PUA_RANGE;
 pub use codepoint_range::SUPPLEMENTARY_PUA_RANGE;
 #[cfg(feature = "gtk")]

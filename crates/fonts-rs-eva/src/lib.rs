@@ -1,8 +1,10 @@
 //! Eva Icons font integration for GTK 4 and pixel-drawing.
 //!
 //! Provides icon name resolution, GResource registration, and codepoint
-//! lookup for the Eva Icons font family - ~490 icons in a `fill`
-//! (default) and an `outline` variant sharing a single webfont TTF.
+//! lookup for the Eva Icons font family - both upstream styles in one
+//! export: ~490 `fill` icons (`eva-{name}-symbolic`) plus ~490
+//! `outline` icons (`eva-{name}-outline-symbolic`), sharing the single
+//! webfont TTF's codepoint space.
 //!
 //! Keyword metadata (`metadata` feature) is sourced from upstream
 //! `icons-tags.json` - the search tags powering the official
@@ -75,9 +77,9 @@ pub fn all_icons() -> Vec<(CodePoint, String)> {
 mod tests {
     use super::*;
 
-    /// Returns the first icon name in the active variant's glyph map.
+    /// Returns the first icon name in the glyph map.
     ///
-    /// The fill and outline variants ship slightly different icon sets,
+    /// The fill and outline styles ship slightly different icon sets,
     /// so tests must derive names from the map instead of hardcoding
     /// them.
     fn first_icon_name() -> String {
@@ -86,7 +88,7 @@ mod tests {
 
     /// `codepoint`/`glyph_name` must round-trip for exported icons -
     /// the chain behind icon theme lookup and the cheat sheet.
-    /// Codepoints differ between variants, so the test derives them
+    /// Codepoints differ between styles, so the test derives them
     /// from the name instead of hardcoding values.
     #[test]
     fn codepoint_glyph_name_round_trip() {
@@ -117,14 +119,26 @@ mod tests {
         }
     }
 
-    /// The outline variant strips the upstream `-outline` suffix, so
-    /// names stay variant-independent - no exported name may contain
-    /// `-outline-symbolic`.
+    /// The combined export names every icon after its style:
+    /// `eva-{name}-symbolic` (fill) or `eva-{name}-outline-symbolic`
+    /// (outline) - and both styles must be present.
     #[test]
-    fn icon_names_are_variant_independent() {
+    fn icon_names_carry_their_style() {
+        let mut fill = 0usize;
+        let mut outline = 0usize;
         for (_, name) in all_icons() {
-            assert!(!name.ends_with("-outline-symbolic"), "glyph name '{name}' should be variant-independent");
+            if let Some(stem) = name.strip_prefix("eva-").and_then(|n| n.strip_suffix("-symbolic")) {
+                if stem.ends_with("-outline") {
+                    outline += 1;
+                } else {
+                    fill += 1;
+                }
+            } else {
+                panic!("glyph name '{name}' does not match eva-*-symbolic");
+            }
         }
+        assert!(fill > 0, "expected fill icons (eva-*-symbolic)");
+        assert!(outline > 0, "expected outline icons (eva-*-outline-symbolic)");
     }
 
     /// Metadata search must find icons by keyword - e.g. upstream tags

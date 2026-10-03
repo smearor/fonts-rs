@@ -104,12 +104,17 @@ mod tests {
         assert_eq!(resolved.as_ref(), name);
     }
 
-    /// All codepoints are hashed PUA allocations (U+E000–U+F8FF) -
-    /// Heroicons has no upstream codepoint table.
+    /// All codepoints are hashed PUA allocations - outline in the BMP
+    /// PUA (U+E000–U+F8FF), the other styles in PUA-B
+    /// (U+100000–U+10FFFD). Heroicons has no upstream codepoint table.
     #[test]
     fn codepoints_are_pua() {
         for (codepoint, name) in all_icons() {
-            assert!(('\u{E000}'..='\u{F8FF}').contains(&codepoint.as_char()), "icon '{name}' codepoint {codepoint:?} outside PUA");
+            let scalar = codepoint.as_char() as u32;
+            assert!(
+                (0xE000..=0xF8FF).contains(&scalar) || (0x100000..=0x10FFFD).contains(&scalar),
+                "icon '{name}' codepoint U+{scalar:04X} outside PUA"
+            );
         }
     }
 
@@ -164,8 +169,8 @@ mod tests {
     /// produce a stroke outline, not a filled blob. GTK applies symbolic
     /// recoloring to `-symbolic` icon names; if it overrode `fill="none"`
     /// the star shape would fill solid (high pixel coverage instead of
-    /// low). Outline variant only - filled variants are solid by design.
-    #[cfg(all(feature = "gtk", feature = "outline"))]
+    /// low). Outline style only - the filled styles are solid by design.
+    #[cfg(feature = "gtk")]
     #[test]
     fn icon_theme_renders_outline_not_filled() {
         use gtk4::prelude::*;

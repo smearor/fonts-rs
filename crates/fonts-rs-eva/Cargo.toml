@@ -30,13 +30,8 @@ gtk = ["dep:gtk4", "dep:gio", "fonts-rs-generator/gtk"]
 render = ["dep:ab_glyph", "fonts-rs-model/render"]
 embed-fonts = []
 
-# Each feature selects one variant: fill (default) or outline.
-# If none is active, build.rs defaults to `fill`.
-fill = []
-outline = []
-
-# Icon metadata: keywords for search functionality (categories and
-# aliases are absent upstream — only keywords are populated)
+# Icon metadata: keywords + style categories for search functionality
+# (aliases are absent upstream)
 metadata = []
 
 [dependencies]

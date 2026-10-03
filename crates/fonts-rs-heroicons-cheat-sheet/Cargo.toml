@@ -18,11 +18,6 @@ default = ["gtk", "metadata"]
 gtk = ["fonts-rs-heroicons/gtk"]
 metadata = ["fonts-rs-heroicons/metadata"]
 
-# Icon variant passed through to fonts-rs-heroicons (default: outline).
-outline = ["fonts-rs-heroicons/outline"]
-solid = ["fonts-rs-heroicons/solid"]
-mini = ["fonts-rs-heroicons/mini"]
-micro = ["fonts-rs-heroicons/micro"]
 
 [dependencies]
 fonts-rs-cheat-sheet.workspace = true

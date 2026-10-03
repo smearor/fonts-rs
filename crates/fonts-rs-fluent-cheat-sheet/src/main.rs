@@ -117,6 +117,19 @@ impl CheatSheetFamily for FluentSheet {
         }
     }
 
+    /// Regular/filled style groups and regular->filled pair
+    /// collapsing.
+    fn ordering() -> Option<&'static dyn fonts_rs_model::GlyphOrdering> {
+        #[cfg(feature = "metadata")]
+        {
+            Some(&FluentMetadata)
+        }
+        #[cfg(not(feature = "metadata"))]
+        {
+            None
+        }
+    }
+
     /// Resolves iconify alias names to their canonical Fluent names
     /// (e.g. `fluent-arrow-down-square-symbolic` ->
     /// `fluent-arrow-square-down-symbolic`).

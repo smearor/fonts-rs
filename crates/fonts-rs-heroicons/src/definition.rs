@@ -10,9 +10,14 @@ use fonts_rs_model::CodePointRange;
 use fonts_rs_model::FontFamilyConfig;
 use fonts_rs_model::GRESOURCE_BASE_PREFIX;
 
-/// Heroicons codepoint range: hashed PUA allocations
-/// (U+E000–U+F8FF, `CodepointStrategy::HashedPua`).
-const HEROICONS_RANGES: &[CodePointRange] = &[CodePointRange::new(CodePoint::from_char('\u{E000}'), CodePoint::from_char('\u{F8FF}'))];
+/// Heroicons codepoint ranges: hashed PUA allocations
+/// (`CodepointStrategy::HashedPua`). The outline style keeps its
+/// legacy BMP PUA arena (U+E000–U+F8FF); the other styles share a
+/// salted PUA-B allocator (U+100000–U+10FFFD).
+const HEROICONS_RANGES: &[CodePointRange] = &[
+    CodePointRange::new(CodePoint::from_char('\u{E000}'), CodePoint::from_char('\u{F8FF}')),
+    CodePointRange::new(CodePoint::from_char('\u{100000}'), CodePoint::from_char('\u{10FFFD}')),
+];
 
 /// Configuration for the Heroicons font family.
 ///

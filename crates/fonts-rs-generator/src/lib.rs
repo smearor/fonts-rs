@@ -50,6 +50,7 @@ pub use generator::metadata_generator::MetadataGenerator;
 pub use generator::metadata_generator::escape_str;
 pub use generator::rust_constants::RustConstantsGenerator;
 pub use glyph_source::CodepointStrategy;
+pub use glyph_source::CombinedSource;
 pub use glyph_source::CurrentColor;
 pub use glyph_source::EmojiUFilenameParser;
 pub use glyph_source::FontFileSource;

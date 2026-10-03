@@ -1,16 +1,17 @@
 //! Fluent UI System Icons integration for GTK 4.
 //!
-//! Hybrid family: pre-rendered upstream SVGs ship in the icon GResource
-//! (symbolic-recolorable via `currentColor`) and the matching
-//! `FluentSystemIcons-{Regular,Filled}.ttf` webfont ships for `pango`,
-//! `html` (@font-face) and `render` (pixel-drawing). Codepoints are the
-//! real upstream codepoints from the vendored `FluentSystemIcons-*.json`
-//! maps - including the ~26% allocated in Supplementary PUA-A
-//! (U+F0000–U+F0D9F).
+//! Hybrid family: pre-rendered upstream SVGs of both styles ship in
+//! the icon GResource (symbolic-recolorable via `currentColor`) and
+//! the `FluentSystemIcons-Regular.ttf` webfont ships for `pango`,
+//! `html` (@font-face) and `render` (pixel-drawing). Regular
+//! codepoints are the real upstream values; filled codepoints are
+//! hashed into Supplementary PUA-B (upstream allocates both styles
+//! into the same PUA space), stable per icon name.
 //!
-//! Two variants are available via Cargo features: `regular` (default)
-//! and `filled`. Icon names are `fluent-{name}-symbolic` for the
-//! regular variant and `fluent-filled-{name}-symbolic` for `filled`.
+//! Both styles export in one build: `fluent-{name}-symbolic` for
+//! regular, `fluent-filled-{name}-symbolic` for filled. Filled
+//! glyphs render via the icon theme / SVG path only - the bundled
+//! TTF covers regular.
 //!
 //! Deprecated upstream icons (`hidden.json`: `flag-pride`,
 //! `text-color-accent`) are excluded from the export. The `metadata`
@@ -97,34 +98,31 @@ mod tests {
         assert!(count > 0, "Fluent should export at least one glyph");
     }
 
-    /// The export must cover the vendored 24px slice minus the
-    /// deprecated `hidden.json` icons - regular: 2,474 glyphs (both
-    /// hidden icons are filled-only files), filled: 2,508 (2,510 - 2).
+    /// The export must cover both vendored 24px slices minus the
+    /// deprecated `hidden.json` icons: 2,474 regular + 2,508 filled
+    /// (2,510 - 2 hidden filled-only files) = 4,982 glyphs.
     #[test]
     fn glyph_count_matches_vendored_slice() {
-        let expected = if cfg!(feature = "filled") { 2508 } else { 2474 };
-        assert_eq!(Fluent::glyph_count(), expected);
+        assert_eq!(Fluent::glyph_count(), 4982);
     }
 
     /// Deprecated upstream icons (`hidden.json`: `flag-pride`,
     /// `text-color-accent`) are excluded from the export. Both are
-    /// filled-only files, so this is the discriminating assertion for
-    /// the `filled` variant.
+    /// filled-only files - checked against the filled name form.
     #[test]
     fn hidden_icons_are_excluded() {
         for hidden in ["flag-pride", "text-color-accent"] {
-            let name = format!("{}-{hidden}-symbolic", variant::GLYPH_PREFIX);
+            let name = format!("fluent-filled-{hidden}-symbolic");
             assert!(Fluent::codepoint(&name).is_none(), "hidden icon '{name}' should not be exported");
         }
     }
 
-    /// All exported names carry the variant prefix (`fluent-` or
-    /// `fluent-filled-`).
+    /// All exported names carry the `fluent-` prefix (regular) or
+    /// the `fluent-filled-` style infix.
     #[test]
     fn all_icon_names_start_with_variant_prefix() {
-        let prefix = format!("{}-", variant::GLYPH_PREFIX);
         for (_, name) in all_icons() {
-            assert!(name.starts_with(&prefix), "icon name '{name}' should start with '{prefix}'");
+            assert!(name.starts_with("fluent-"), "icon name '{name}' should start with 'fluent-'");
         }
     }
 
@@ -138,22 +136,25 @@ mod tests {
         assert_eq!(resolved.as_ref(), name);
     }
 
-    /// `fluent-add-symbolic` (`fluent-filled-add-symbolic` for the
-    /// `filled` variant) resolves a real upstream codepoint.
+    /// `fluent-add-symbolic` resolves a real upstream codepoint and
+    /// its filled pair `fluent-filled-add-symbolic` resolves a
+    /// hashed PUA-B codepoint.
     #[test]
     fn fluent_add_symbolic_resolves() {
-        let name = format!("{}-add-symbolic", variant::GLYPH_PREFIX);
-        assert!(Fluent::codepoint(&name).is_some(), "codepoint('{name}') should resolve");
+        assert!(Fluent::codepoint("fluent-add-symbolic").is_some(), "codepoint('fluent-add-symbolic') should resolve");
+        assert!(Fluent::codepoint("fluent-filled-add-symbolic").is_some(), "codepoint('fluent-filled-add-symbolic') should resolve");
     }
 
     /// Every codepoint falls inside a declared `CODEPOINT_RANGES`
-    /// interval (BMP PUA or the Supplementary PUA-A tail).
+    /// interval (BMP PUA, the PUA-A tail, or PUA-B for filled).
     #[test]
     fn codepoints_within_declared_ranges() {
         for (codepoint, name) in all_icons() {
             let scalar = codepoint.as_char() as u32;
             assert!(
-                (0xE000..=0xF8FF).contains(&scalar) || (0xF0000..=0xF0DFF).contains(&scalar),
+                (0xE000..=0xF8FF).contains(&scalar)
+                    || (0xF0000..=0xF0DFF).contains(&scalar)
+                    || (0x100000..=0x10FFFD).contains(&scalar),
                 "icon '{name}' codepoint U+{scalar:04X} outside declared ranges"
             );
         }
@@ -175,8 +176,7 @@ mod tests {
     #[test]
     fn metadata_keywords_filename_derived() {
         use fonts_rs_model::GlyphMetadata;
-        let name = format!("{}-arrow-down-symbolic", variant::GLYPH_PREFIX);
-        let keywords = metadata::FluentMetadata.keywords(&name);
+        let keywords = metadata::FluentMetadata.keywords("fluent-arrow-down-symbolic");
         assert!(keywords.iter().any(|kw| kw.as_str() == "arrow"), "expected 'arrow' keyword, got: {keywords:?}");
         assert!(keywords.iter().any(|kw| kw.as_str() == "down"), "expected 'down' keyword, got: {keywords:?}");
     }
@@ -190,7 +190,7 @@ mod tests {
         use crate::FluentIconName;
 
         Fluent::ensure_registered().expect("gresource registration should succeed");
-        let name = format!("{}-checkmark-symbolic", variant::GLYPH_PREFIX);
+        let name = "fluent-checkmark-symbolic".to_string();
         let parsed = FluentIconName::parse(&name).expect("icon name should parse");
         let svg = Fluent::glyph_svg(&parsed).expect("glyph_svg should resolve");
         assert!(svg.contains("currentColor"), "{name}: expected fill=\"currentColor\" in GResource SVG");
@@ -214,7 +214,7 @@ mod tests {
         let display = gtk4::gdk::Display::default().expect("display after gtk4::init");
         Fluent::install_icon_theme(&display).expect("icon theme registration should succeed");
         let theme = gtk4::IconTheme::for_display(&display);
-        let name = format!("{}-checkmark-symbolic", variant::GLYPH_PREFIX);
+        let name = "fluent-checkmark-symbolic".to_string();
         assert!(theme.has_icon(&name), "{name} should resolve in the icon theme");
         let icon = theme.lookup_icon(&name, &[], 96, 1, gtk4::TextDirection::None, gtk4::IconLookupFlags::empty());
         assert!(icon.is_symbolic(), "{name}: expected symbolic paintable (currentColor follows theme color)");
@@ -264,11 +264,10 @@ mod tests {
     #[test]
     fn metadata_resolves_alias() {
         use fonts_rs_model::GlyphMetadata;
-        let prefix = variant::GLYPH_PREFIX;
-        let alias = format!("{prefix}-arrow-down-square-symbolic");
-        let canonical = format!("{prefix}-arrow-square-down-symbolic");
+        let alias = "fluent-arrow-down-square-symbolic";
+        let canonical = "fluent-arrow-square-down-symbolic";
         let resolved = metadata::FluentMetadata.resolve_alias(&alias).expect("alias should resolve");
-        assert_eq!(resolved, canonical.as_str());
+        assert_eq!(resolved, canonical);
     }
 
     /// Search finds icons via the alias table: `magic-wand` is an
@@ -278,7 +277,6 @@ mod tests {
     fn metadata_search_finds_via_alias() {
         use fonts_rs_model::GlyphMetadata;
         let results = metadata::FluentMetadata.search("magic-wand");
-        let wand = format!("{}-wand-symbolic", variant::GLYPH_PREFIX);
-        assert!(results.contains(&wand.as_str()), "search for 'magic-wand' should find '{wand}', got: {results:?}");
+        assert!(results.contains(&"fluent-wand-symbolic"), "search for 'magic-wand' should find 'fluent-wand-symbolic', got: {results:?}");
     }
 }

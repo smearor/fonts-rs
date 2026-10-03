@@ -12,40 +12,38 @@ use fonts_rs_model::GRESOURCE_BASE_PREFIX;
 
 /// Fluent UI System Icons codepoint ranges.
 ///
-/// The upstream codepoint map spans two disjoint Private Use Areas:
-/// the BMP PUA (`U+E000`–`U+F8FF`) for the majority of icons and the
-/// Supplementary PUA-A tail (`U+F0000`–`U+F0D9F`, ~26% of the map).
-/// Both ranges must be probed for the reverse cmap.
+/// The combined export spans three Private Use Areas: the BMP PUA
+/// (`U+E000`–`U+F8FF`) holds the regular map's bulk, Supplementary
+/// PUA-A (`U+F0000`–`U+F0DFF`) its ~26% tail, and Supplementary PUA-B
+/// (`U+100000`–`U+10FFFD`) the hashed filled codepoints (upstream
+/// allocates both fonts into the same space, so filled cannot reuse
+/// its map). All ranges must be probed for the reverse cmap.
 const FLUENT_RANGES: &[CodePointRange] = &[
     CodePointRange::new(CodePoint::from_char('\u{E000}'), CodePoint::from_char('\u{F8FF}')),
     CodePointRange::new(CodePoint::from_char('\u{F0000}'), CodePoint::from_char('\u{F0DFF}')),
+    CodePointRange::new(CodePoint::from_char('\u{100000}'), CodePoint::from_char('\u{10FFFD}')),
 ];
 
 /// Configuration for the Fluent UI System Icons font family.
 ///
-/// Hybrid set: bundled `FluentSystemIcons-{Regular,Filled}.ttf` webfonts
-/// for `pango`, `html` (@font-face) and `render` (pixel-drawing), plus
-/// pre-rendered SVGs for the GResource icon theme. Codepoints come from
-/// the vendored upstream `FluentSystemIcons-*.json` maps.
+/// Hybrid set: bundled `FluentSystemIcons-Regular.ttf` webfont for
+/// `pango`, `html` (@font-face) and `render` (pixel-drawing), plus
+/// pre-rendered SVGs of *both* styles (regular + filled) for the
+/// GResource icon theme. Regular codepoints come from the vendored
+/// upstream map; filled codepoints are hashed into PUA-B (upstream
+/// allocates both fonts into the same PUA space).
 pub struct FluentConfig;
 
-/// Family name inside the bundled TTF's name table - variant-aware
-/// because the two upstream webfonts declare different families.
+/// Family name inside the bundled TTF's name table.
 ///
-/// Used as `CSS_FONT_FAMILY` so Pango/`font-family` resolution and
-/// `@font-face` pages reference the name the TTF actually exposes;
-/// the display name `"Fluent UI System Icons"` would never match.
-///
-/// `dead_code`: unused in the `build.rs` context (`#[path]` include).
-#[cfg(feature = "filled")]
-#[allow(dead_code)]
-pub const TTF_FAMILY_NAME: &str = "FluentSystemIcons-Filled";
-
-/// Family name inside the bundled TTF's name table (regular variant).
-/// See the `filled` variant above for the semantic.
+/// The combined build ships only the regular webfont - the filled
+/// style renders via the icon theme / SVG path (its codepoints are
+/// shifted, not the real upstream values). Used as `CSS_FONT_FAMILY`
+/// so Pango/`font-family` resolution and `@font-face` pages reference
+/// the name the TTF actually exposes; the display name `"Fluent UI
+/// System Icons"` would never match.
 ///
 /// `dead_code`: unused in the `build.rs` context (`#[path]` include).
-#[cfg(not(feature = "filled"))]
 #[allow(dead_code)]
 pub const TTF_FAMILY_NAME: &str = "FluentSystemIcons-Regular";
 

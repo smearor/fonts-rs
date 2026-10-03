@@ -31,13 +31,8 @@ gtk = ["dep:gtk4", "dep:gio", "fonts-rs-generator/gtk"]
 render = ["dep:ab_glyph", "fonts-rs-model/render"]
 embed-fonts = []
 
-# Each feature selects one style variant.
-# If none is active, build.rs defaults to `regular`.
-regular = []
-filled = []
-
-# Icon metadata: filename-derived keywords + iconify aliases,
-# exposed via `metadata::FluentMetadata` (GlyphMetadata).
+# Icon metadata: filename-derived keywords, style categories and
+# iconify aliases, exposed via `metadata::FluentMetadata` (GlyphMetadata).
 metadata = []
 
 [dependencies]

@@ -51,5 +51,11 @@ pub const BMP_RANGE: CodePointRange = CodePointRange::from_char('\u{0000}', '\u{
 /// Private Use Area (BMP): U+E000 through U+F8FF.
 pub const PUA_RANGE: CodePointRange = CodePointRange::from_char('\u{E000}', '\u{F8FF}');
 
+/// Supplementary Private Use Area-B: U+100000 through U+10FFFD.
+///
+/// The last two plane codepoints (U+10FFFE, U+10FFFF) are
+/// noncharacters and excluded.
+pub const PUA_B_RANGE: CodePointRange = CodePointRange::from_char('\u{100000}', '\u{10FFFD}');
+
 /// Supplementary Private Use Area: U+F0001 through U+10FFFF.
 pub const SUPPLEMENTARY_PUA_RANGE: CodePointRange = CodePointRange::from_char('\u{F0001}', '\u{10FFFF}');

@@ -294,9 +294,17 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
                         .build()
                         .upcast()
                 } else {
+                    // The variant char needs the family font class,
+                    // otherwise Pango falls back to any installed font
+                    // covering the PUA codepoint and draws an
+                    // unrelated glyph.
+                    let mut variant_classes = vec!["cheat-icon-label"];
+                    if let Some(class) = F::GLYPH_CSS_CLASS {
+                        variant_classes.insert(0, class);
+                    }
                     Label::builder()
                         .label(variant_cp.as_char().to_string())
-                        .css_classes(["cheat-icon-label"])
+                        .css_classes(variant_classes)
                         .halign(Align::Center)
                         .build()
                         .upcast()

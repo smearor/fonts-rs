@@ -248,17 +248,32 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
         .build();
     let size_label = Label::builder().label("Icon size:").build();
     let size_value = Label::builder().label("42px").css_classes(["monospace"]).build();
+    // Logarithmic scale: the slider runs in log2 space (4.0..9.0 for
+    // 16..512px), so small sizes get the same travel as large ones and
+    // the marks spread evenly across the range. `digits(-1)` keeps the
+    // full precision - the value is only rounded for display.
     let size_slider = Scale::builder()
         .orientation(Orientation::Horizontal)
-        .adjustment(&gtk4::Adjustment::new(42.0, 16.0, 128.0, 2.0, 8.0, 0.0))
-        .width_request(200)
+        .adjustment(&gtk4::Adjustment::new(42.0_f64.log2(), 4.0, 9.0, 0.05, 0.5, 0.0))
+        .width_request(640)
         .halign(Align::Center)
         .draw_value(false)
+        .digits(-1)
         .build();
-    size_slider.add_mark(16.0, gtk4::PositionType::Bottom, Some("16"));
-    size_slider.add_mark(32.0, gtk4::PositionType::Bottom, Some("32"));
-    size_slider.add_mark(64.0, gtk4::PositionType::Bottom, Some("64"));
-    size_slider.add_mark(128.0, gtk4::PositionType::Bottom, Some("128"));
+    // Marks at the log2 position of each typical icon size.
+    for (size, label) in [
+        (16.0_f64, "16"),
+        (24.0, "24"),
+        (32.0, "32"),
+        (48.0, "48"),
+        (64.0, "64"),
+        (96.0, "96"),
+        (128.0, "128"),
+        (256.0, "256"),
+        (512.0, "512"),
+    ] {
+        size_slider.add_mark(size.log2(), gtk4::PositionType::Bottom, Some(label));
+    }
     size_box.append(&size_label);
     size_box.append(&size_slider);
     size_box.append(&size_value);
@@ -526,13 +541,20 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
             // selected group (None = all groups / ordering disabled).
             let group = *active_group.borrow();
             let in_group = |name: &F::Name| group.is_none_or(|label| ordering.is_some_and(|o| o.group(name.as_ref()) == Some(label)));
-            // Variant collapsing: browsing shows base glyphs only; the
-            // search path keeps variants reachable.
+            // Variant collapsing: browsing hides variants whose base is
+            // itself displayed (search keeps them reachable). With a
+            // style group selected the bases live in another group, so
+            // the group's variants must stay visible.
             let collapse = ordering.is_some_and(|o| o.collapse_variants());
-            let is_variant = |name: &F::Name| ordering.is_some_and(|o| o.base_of(name.as_ref()).is_some());
+            let is_collapsed_variant = |name: &F::Name| {
+                collapse
+                    && ordering.is_some_and(|o| {
+                        o.base_of(name.as_ref()).is_some_and(|base_name| F::parse_name(base_name).is_some_and(|base| in_group(&base)))
+                    })
+            };
             let base: Vec<(CodePoint, F::Name)> = icons_for_filter
                 .iter()
-                .filter(|(_, name)| in_group(name) && !(collapse && is_variant(name)))
+                .filter(|(_, name)| in_group(name) && !is_collapsed_variant(name))
                 .cloned()
                 .collect();
 
@@ -1078,8 +1100,8 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
     let current_icon_size_for_slider = current_icon_size.clone();
     let refresh_grid_for_size = refresh_grid.clone();
     size_slider.connect_value_changed(move |slider| {
-        let val = slider.value();
-        size_value_clone.set_label(&format!("{:.0}px", val));
+        let val = 2.0_f64.powf(slider.value()).round();
+        size_value_clone.set_label(&format!("{val:.0}px"));
         *current_icon_size_for_slider.borrow_mut() = val;
         refresh_grid_for_size(true);
     });

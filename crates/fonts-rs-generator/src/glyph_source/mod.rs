@@ -11,6 +11,7 @@
 //! [`CodepointStrategy`] for codepoint assignment.
 
 pub mod codepoint_strategy;
+pub mod combined_source;
 pub mod current_color;
 pub mod descriptor;
 pub mod emoji_u_parser;
@@ -30,6 +31,7 @@ pub mod svg_dir_source;
 pub mod symbolic_classes;
 
 pub use codepoint_strategy::CodepointStrategy;
+pub use combined_source::CombinedSource;
 pub use current_color::CurrentColor;
 pub use descriptor::GlyphDescriptor;
 pub use emoji_u_parser::EmojiUFilenameParser;

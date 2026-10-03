@@ -107,9 +107,10 @@ pub trait CheatSheetFamily: 'static {
     /// - **group jump-list dropdown** and a **group label** in the
     ///   detail sidebar via `group_labels`/`group`,
     /// - **variant collapsing** in the browse grid via
-    ///   `collapse_variants`/`base_of` (variants stay reachable through
-    ///   search) plus a **"Variants" section** and **"Variant of"
-    ///   back-link** in the sidebar via `alternates`/`base_of`,
+    ///   `collapse_variants`/`base_of` (opt-in per family - emoji
+    ///   tones collapse, style families do not) plus a **"Variants"
+    ///   section** and **"Variant of"** back-link in the sidebar via
+    ///   `alternates`/`base_of`,
     /// - **default-tone picking** via `tone_group`: a chosen alternate
     ///   position is stored per tone group and the browse grid swaps
     ///   base cells to that tone.
