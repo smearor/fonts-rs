@@ -13,10 +13,13 @@ use gtk4::DropDown;
 use gtk4::Entry;
 use gtk4::FlowBox;
 use gtk4::Label;
+use gtk4::ListBox;
+use gtk4::ListBoxRow;
 use gtk4::Orientation;
 use gtk4::Scale;
 use gtk4::ScrolledWindow;
 use gtk4::Stack;
+use gtk4::ToggleButton;
 use gtk4::glib;
 use gtk4::prelude::*;
 use libadwaita as adw;
@@ -24,6 +27,7 @@ use libadwaita::prelude::*;
 use miette::IntoDiagnostic;
 use miette::Result;
 use std::cell::RefCell;
+use std::collections::BTreeMap;
 use std::rc::Rc;
 
 /// Shared list of currently displayed glyphs.
@@ -345,6 +349,88 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
     scrolled.set_child(Some(&grid));
     left_box.append(&scrolled);
 
+    // --- Category sidebar: OverlaySplitView wrapping a sectioned list
+    // (Groups + Categories) left of the browse content. `None` when the
+    // family exposes neither axis; row activation is wired below once
+    // `render_grid`/`refresh_grid` exist. ---
+    let mut category_counts: BTreeMap<String, u32> = BTreeMap::new();
+    for (_, name) in &all_icons {
+        for category in F::categories(name) {
+            *category_counts.entry(category).or_default() += 1;
+        }
+    }
+
+    let mut group_list: Option<ListBox> = None;
+    let mut category_list: Option<ListBox> = None;
+    let category_split = if category_counts.is_empty() && group_labels.is_empty() {
+        None
+    } else {
+        let sidebar_box = Box::builder()
+            .orientation(Orientation::Vertical)
+            .spacing(4)
+            .margin_top(8)
+            .margin_bottom(8)
+            .margin_start(8)
+            .margin_end(8)
+            .build();
+
+        let section_header = |list: &ListBox, title: &str| {
+            let row = ListBoxRow::new();
+            row.set_activatable(false);
+            row.set_selectable(false);
+            row.set_child(Some(&Label::builder().label(title).css_classes(["heading"]).halign(Align::Start).build()));
+            list.append(&row);
+        };
+
+        if !group_labels.is_empty() {
+            let list = ListBox::builder().css_classes(["navigation-sidebar"]).build();
+            section_header(&list, "Groups");
+            for label in group_labels {
+                let row = ListBoxRow::new();
+                row.set_widget_name(label.as_str());
+                row.set_child(Some(&Label::builder().label(label.as_str()).halign(Align::Start).build()));
+                list.append(&row);
+            }
+            sidebar_box.append(&list);
+            group_list = Some(list);
+        }
+        if !category_counts.is_empty() {
+            let list = ListBox::builder().css_classes(["navigation-sidebar"]).build();
+            section_header(&list, "Categories");
+            for (category, count) in &category_counts {
+                let row = ListBoxRow::new();
+                row.set_widget_name(category);
+                row.set_child(Some(&Label::builder().label(format!("{category} ({count})")).halign(Align::Start).build()));
+                list.append(&row);
+            }
+            sidebar_box.append(&list);
+            category_list = Some(list);
+        }
+
+        let sidebar_scrolled = ScrolledWindow::builder().min_content_width(200).vexpand(true).child(&sidebar_box).build();
+        let split = adw::OverlaySplitView::builder()
+            .sidebar_position(gtk4::PackType::Start)
+            .show_sidebar(true)
+            .min_sidebar_width(200.0)
+            .max_sidebar_width(320.0)
+            .build();
+        split.set_sidebar(Some(&sidebar_scrolled));
+        split.set_content(Some(&left_box));
+        Some(split)
+    };
+
+    // HeaderBar toggle for the category sidebar, bidirectionally bound
+    // so swipes/dismiss and the button stay in sync.
+    if let Some(split) = &category_split {
+        let sidebar_toggle = ToggleButton::builder().icon_name("sidebar-show-symbolic").tooltip_text("Categories").build();
+        split
+            .bind_property("show-sidebar", &sidebar_toggle, "active")
+            .bidirectional()
+            .sync_create()
+            .build();
+        header_bar.pack_start(&sidebar_toggle);
+    }
+
     // --- Detail page (split-view content): own HeaderBar so collapsed
     // mode gains the free back button; Stack swaps placeholder/detail. ---
     let detail_content = Box::builder()
@@ -360,10 +446,7 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
 
     // Secondary HeaderBar: window controls belong to the main HeaderBar
     // only - suppress the duplicated minimize/maximize/close buttons.
-    let detail_header = adw::HeaderBar::builder()
-        .show_start_title_buttons(false)
-        .show_end_title_buttons(false)
-        .build();
+    let detail_header = adw::HeaderBar::builder().show_start_title_buttons(false).show_end_title_buttons(false).build();
     let close_btn = Button::builder()
         .icon_name("window-close-symbolic")
         .css_classes(["flat"])
@@ -384,7 +467,11 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
     detail_stack.add_named(&detail_toolbar, Some("detail"));
     detail_stack.set_visible_child_name("empty");
 
-    let browse_page = adw::NavigationPage::builder().title(F::TITLE).child(&left_box).build();
+    let browse_widget: gtk4::Widget = match &category_split {
+        Some(split) => split.clone().upcast(),
+        None => left_box.clone().upcast(),
+    };
+    let browse_page = adw::NavigationPage::builder().title(F::TITLE).child(&browse_widget).build();
     let detail_page = adw::NavigationPage::builder().title("Details").child(&detail_stack).build();
     let split_view = adw::NavigationSplitView::new();
     split_view.set_sidebar(Some(&browse_page));
@@ -531,6 +618,7 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
         split_view: split_view.clone(),
         detail_stack: detail_stack.clone(),
         toasts: toast_overlay.clone(),
+        category_split: category_split.clone(),
     };
     let selected_name_for_grid = selected_name.clone();
     let selected_cell_for_grid = selected_cell.clone();
@@ -541,6 +629,7 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
     let forward_btn_for_grid = forward_btn.clone();
     let detail_ctx_for_grid = detail_ctx.clone();
     let toasts_for_grid = toast_overlay.clone();
+    let category_split_for_grid = category_split.clone();
 
     let populate_batch = move |start: usize, end: usize, icons: &[(CodePoint, F::Name)], icon_size: f64, _cols: u32| {
         if start == 0 {
@@ -618,8 +707,13 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
                     let btn = Button::builder().label(cat_label).css_classes(["cat-btn"]).build();
                     let search_entry_ref = search_entry_clone.clone();
                     let cat_label = cat_label.clone();
+                    let split_ref = category_split_for_grid.clone();
                     btn.connect_clicked(move |_| {
                         search_entry_ref.set_text(&cat_label);
+                        // Reveal the axis the user just filtered by.
+                        if let Some(split) = &split_ref {
+                            split.set_show_sidebar(true);
+                        }
                     });
                     cat_flow.insert(&btn, -1);
                 }
@@ -832,6 +926,7 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
     });
 
     // --- Group jump-list ---
+    let group_dropdown_widget = group_dropdown.clone();
     if let Some(dropdown) = group_dropdown.take() {
         let active_group_for_dropdown = active_group.clone();
         let render_grid_for_dropdown = render_grid.clone();
@@ -844,6 +939,61 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
             *current_icons_for_dropdown.borrow_mut() = render_grid_for_dropdown(&search_entry_for_dropdown.text());
             refresh_grid_for_dropdown(true);
         });
+    }
+
+    // --- Category sidebar row activation ---
+    // Category rows: click replaces the search text, Shift+click appends
+    // (space-separated AND), clicking the active row clears the search.
+    // A GestureClick on the list (instead of `row-activated`) gives the
+    // event modifiers for the Shift detection.
+    if let Some(list) = category_list {
+        let search_entry_for_list = search_entry.clone();
+        let list_for_click = list.clone();
+        let click = gtk4::GestureClick::new();
+        click.set_button(gtk4::gdk::BUTTON_PRIMARY);
+        click.connect_released(move |gesture, _, _, y| {
+            let Some(row) = list_for_click.row_at_y(y as i32) else {
+                return;
+            };
+            let category = row.widget_name();
+            if category.is_empty() {
+                return;
+            }
+            let shift = gesture.current_event_state().contains(gtk4::gdk::ModifierType::SHIFT_MASK);
+            let current = search_entry_for_list.text();
+            if shift && !current.is_empty() {
+                search_entry_for_list.set_text(&format!("{current} {category}"));
+            } else if !shift && current.as_str() == category.as_str() {
+                search_entry_for_list.set_text("");
+                list_for_click.unselect_all();
+            } else {
+                search_entry_for_list.set_text(&category);
+            }
+        });
+        list.add_controller(click);
+    }
+    // Group rows mirror the dropdown: route through `set_selected` so the
+    // active_group + re-render logic stays in one place. Activating the
+    // selected group falls back to "All groups" (index 0).
+    if let (Some(list), Some(dropdown)) = (group_list, group_dropdown_widget) {
+        let list_for_click = list.clone();
+        let click = gtk4::GestureClick::new();
+        click.set_button(gtk4::gdk::BUTTON_PRIMARY);
+        click.connect_released(move |_, _, _, y| {
+            let Some(row) = list_for_click.row_at_y(y as i32) else {
+                return;
+            };
+            let Some(index) = group_labels.iter().position(|label| label.as_str() == row.widget_name().as_str()) else {
+                return;
+            };
+            if dropdown.selected() as usize == index + 1 {
+                dropdown.set_selected(0);
+            } else {
+                dropdown.set_selected(index as u32 + 1);
+            }
+            list_for_click.unselect_all();
+        });
+        list.add_controller(click);
     }
 
     // --- Lazy loading on scroll ---

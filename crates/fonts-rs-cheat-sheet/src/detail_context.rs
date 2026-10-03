@@ -27,4 +27,8 @@ pub(super) struct DetailContext {
     pub detail_stack: Stack,
     /// Overlay for copy-feedback toasts.
     pub toasts: adw::ToastOverlay,
+    /// Category sidebar inside the browse page; category-pill clicks
+    /// reveal it when collapsed. `None` for families without a
+    /// categories/groups axis.
+    pub category_split: Option<adw::OverlaySplitView>,
 }

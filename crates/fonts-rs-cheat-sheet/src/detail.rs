@@ -22,6 +22,7 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
         search_entry,
         tone_picker,
         toasts,
+        category_split,
         ..
     } = ctx;
     while let Some(child) = content.first_child() {
@@ -227,8 +228,13 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
             let btn = Button::builder().label(cat_label).css_classes(["cat-btn"]).build();
             let search_entry_ref = search_entry.clone();
             let cat_label = cat_label.clone();
+            let split_ref = category_split.clone();
             btn.connect_clicked(move |_| {
                 search_entry_ref.set_text(&cat_label);
+                // Reveal the axis the user just filtered by.
+                if let Some(split) = &split_ref {
+                    split.set_show_sidebar(true);
+                }
             });
             cat_box.insert(&btn, -1);
         }
