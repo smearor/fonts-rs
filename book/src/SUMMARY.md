@@ -12,5 +12,6 @@
 - [Font Loading](./font-loading.md)
 - [CSS Generation](./css-generation.md)
 - [GTK Integration](./gtk-integration.md)
+- [Cheat Sheet Apps](./cheat-sheet.md)
 - [Web CSS](./web-css.md)
 - [Platform Notes](./platform-notes.md)
