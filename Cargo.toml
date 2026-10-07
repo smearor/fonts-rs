@@ -41,6 +41,7 @@ members = [
     "crates/nerd-fonts-cheat-sheet",
     "crates/fonts-rs-cheat-sheet",
     "crates/fonts-rs-test",
+    "xtask",
 ]
 resolver = "2"
 
@@ -128,3 +129,8 @@ tracing = "0.1"
 
 # Base64 encoding
 base64 = "0.22"
+
+# Upstream vendoring (xtask)
+toml = "0.9"
+sha2 = "0.10"
+globset = "0.4"

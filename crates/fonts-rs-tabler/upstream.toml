@@ -1,0 +1,40 @@
+# Upstream sourcing manifest for fonts-rs-tabler (see concepts/planned/REPRODUCABLE.md).
+# Consumed by `cargo xtask sync/check/verify`.
+
+[upstream]
+repo = "tabler/tabler-icons"
+ref = "v3.48.0"  # tag; vendored 2026-09-26
+
+[upstream.license]
+source = "LICENSE"
+target = "resources/LICENSE"
+
+[[artifacts]]
+source = "icons/outline"
+target = "resources/svg/outline"
+pattern = "*.svg"
+
+[[artifacts]]
+source = "icons/filled"
+target = "resources/svg/filled"
+pattern = "*.svg"
+
+# aliases.json ships verbatim at the repo root.
+[[artifacts]]
+source = "aliases.json"
+target = "resources/metadata/aliases.json"
+
+# icons.json and the TTFs are npm build artifacts — they exist in the
+# published packages but not in the git checkout, so they are fetched
+# verbatim from unpkg (immutable version pin = the tag above).
+[[artifacts]]
+url = "https://unpkg.com/@tabler/icons@3.48.0/icons.json"
+target = "resources/metadata/icons.json"
+
+[[artifacts]]
+url = "https://unpkg.com/@tabler/icons-webfont@3.48.0/dist/fonts/tabler-icons.ttf"
+target = "resources/tabler-icons.ttf"
+
+[[artifacts]]
+url = "https://unpkg.com/@tabler/icons-webfont@3.48.0/dist/fonts/tabler-icons-filled.ttf"
+target = "resources/tabler-icons-filled.ttf"

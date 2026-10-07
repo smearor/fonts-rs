@@ -354,8 +354,8 @@
   "caret-up"
  ],
  "chevron-up-down": [
-  "option",
-  "select"
+  "select",
+  "option"
  ],
  "circle-stack": [
   "collection",

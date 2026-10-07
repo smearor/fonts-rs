@@ -4,12 +4,16 @@
 [upstream]
 repo = "icons8/line-awesome"
 ref = "2bb7870e4d3f3a2d966eea2c94912096621e0662"  # HEAD 2026-07-01; npm 1.3.1; no version tags upstream — pin by SHA
+# Provider inputs: the metadata providers parse these checkout files.
+sparse = [
+  "dist/line-awesome/scss/_variables.scss",
+  "dist/line-awesome/css/line-awesome.css",
+  "dist/font-awesome-line-awesome/css/all.css",
+]
 
-# Line Awesome is dual-licensed MIT OR "Good Boy License"; package.json
-# declares MIT and we vendor under MIT.
-[upstream.license]
-source = "LICENSE.md"
-target = "resources/LICENSE"
+# resources/LICENSE is curated, not vendored: upstream LICENSE.md only
+# ships the "Good Boy License" while the pack is dual-licensed MIT OR
+# GBL — the committed file keeps the MIT text (we distribute under MIT).
 
 # Flat upstream svg/ dir, 1:1 — {name}.svg (regular OR brand) and
 # {name}-solid.svg (solid). Style is encoded in the filename, not the dir.

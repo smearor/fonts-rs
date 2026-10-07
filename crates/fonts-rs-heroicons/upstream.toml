@@ -1,0 +1,47 @@
+# Upstream sourcing manifest for fonts-rs-heroicons (see concepts/planned/REPRODUCABLE.md).
+# Consumed by `cargo xtask sync/check/verify`.
+
+[upstream]
+repo = "tailwindlabs/heroicons"
+ref = "616b7a4dbbf3d011760af8066262cd5c6b3868f3"  # master 2026-10-01 (v2.2.0 + gift alignment fix, #1348)
+
+[upstream.license]
+source = "LICENSE"
+target = "resources/LICENSE"
+
+# SVG-only icon set: all four styles ship under optimized/ with the
+# style encoded in the directory name.
+[[artifacts]]
+source = "optimized/24/outline"
+target = "resources/svg/outline"
+pattern = "*.svg"
+
+[[artifacts]]
+source = "optimized/24/solid"
+target = "resources/svg/solid"
+pattern = "*.svg"
+
+[[artifacts]]
+source = "optimized/20/solid"
+target = "resources/svg/mini"
+pattern = "*.svg"
+
+[[artifacts]]
+source = "optimized/16/solid"
+target = "resources/svg/micro"
+pattern = "*.svg"
+
+# Search keywords used by heroicons.com, extracted from the site's JS
+# bundle (the website source is not public).
+[[metadata]]
+provider = "heroicons_keywords"
+output = "resources/metadata/keywords.json"
+
+# Heroicons v1 -> v2 canonical name map, derived from the iconify
+# heroicons set's alias table. Style variants carry a suffix in
+# iconify names (outline is the bare name).
+[[metadata]]
+provider = "iconify_aliases"
+output = "resources/metadata/aliases.json"
+with.iconify_set = "heroicons"
+with.suffixes = ["-16-solid", "-20-solid", "-solid"]

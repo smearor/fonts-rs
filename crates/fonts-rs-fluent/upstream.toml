@@ -9,19 +9,19 @@ ref = "a563cf9166f4f91aa617557ed272612b7f0a2f72"  # release 1.1.343 (2026-09-25)
 source = "LICENSE"
 target = "resources/LICENSE"
 
-# 24px slices: source is the whole assets/ tree; the pattern selects
-# filenames inside nested `assets/*/SVG/` dirs which are flattened
-# into the target dir (~64 filenames exist under multiple dirs —
-# identical content, dedup is intentional).
+# 24px slices: `assets/<Name>/SVG/` holds the default variant; nested
+# `assets/<Name>/<locale>/SVG/` dirs carry localized/RTL alternates
+# which we deliberately do not vendor. The single-level `*/SVG/` glob
+# selects only the default; files are flattened into the target dir.
 [[artifacts]]
 source = "assets"
 target = "resources/svg/regular-24"
-pattern = "**/ic_fluent_*_24_regular.svg"
+pattern = "*/SVG/ic_fluent_*_24_regular.svg"
 
 [[artifacts]]
 source = "assets"
 target = "resources/svg/filled-24"
-pattern = "**/ic_fluent_*_24_filled.svg"
+pattern = "*/SVG/ic_fluent_*_24_filled.svg"
 
 [[artifacts]]
 source = "fonts/FluentSystemIcons-Regular.ttf"
@@ -40,17 +40,14 @@ target = "resources/metadata/FluentSystemIcons-Regular.json"
 source = "fonts/FluentSystemIcons-Filled.json"
 target = "resources/metadata/FluentSystemIcons-Filled.json"
 
-# Derived metadata from @iconify-json/fluent (unpkg, MIT).
-# `iconify_aliases` is the shared provider (same as heroicons);
-# `iconify_hidden` is new — same source, emits the deprecated-name list.
+# Derived metadata from @iconify-json/fluent (unpkg, MIT): fluent
+# ships aliases for multiple sizes; only 24px variants are vendored,
+# so aliases for other sizes and aliases onto hidden icons are dropped.
 [[metadata]]
 provider = "iconify_aliases"
 output = "resources/metadata/aliases.json"
 with.iconify_set = "fluent"
 with.suffixes = ["-24-regular", "-24-filled"]
 
-[[metadata]]
-provider = "iconify_hidden"
-output = "resources/metadata/hidden.json"
-with.iconify_set = "fluent"
-with.suffixes = ["-24-regular", "-24-filled"]
+# resources/metadata/hidden.json is a curated exclusion list (see the
+# `exclude` keys above) — hand-maintained, not generated.

@@ -1,0 +1,34 @@
+# Upstream sourcing manifest for fonts-rs-lucide (see concepts/planned/REPRODUCABLE.md).
+# Consumed by `cargo xtask sync/check/verify`.
+
+[upstream]
+repo = "lucide-icons/lucide"
+ref = "66d8f9fc394b8530377e5f6112f0b8908ba01280"  # HEAD 2026-09-24; vendored 2026-09-26
+# Provider inputs: per-icon and per-category JSON metadata.
+sparse = [
+  "icons/*.json",
+  "categories/*.json",
+]
+
+[upstream.license]
+source = "LICENSE"
+target = "resources/LICENSE"
+
+[[artifacts]]
+source = "icons"
+target = "resources/svg"
+pattern = "*.svg"
+
+# Merged from the per-icon icons/*.json files; upstream also carries
+# $schema/contributors/use-cases fields which the vendored file drops.
+[[metadata]]
+provider = "lucide_metadata"
+output = "resources/metadata/icons.json"
+with.source = "icons"
+with.fields = ["tags", "categories"]
+
+[[metadata]]
+provider = "lucide_metadata"
+output = "resources/metadata/categories.json"
+with.source = "categories"
+with.fields = ["title", "icon"]
