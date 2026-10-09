@@ -12,8 +12,10 @@ use std::str::FromStr;
 /// The `upstream.toml` sourcing manifest of a vendored crate.
 #[derive(Debug, Deserialize)]
 pub struct Manifest {
-    /// Git upstream all artifacts are vendored from.
-    pub upstream: Upstream,
+    /// Git upstream artifacts are vendored from. Optional: crates
+    /// sourced purely from `url` artifacts (release assets, pinned
+    /// raw-file URLs, API endpoints) omit `[upstream]` entirely.
+    pub upstream: Option<Upstream>,
     /// `[[artifacts]]` copy entries.
     #[serde(default)]
     pub artifacts: Vec<Artifact>,
@@ -36,21 +38,23 @@ impl Manifest {
     /// Validates the manifest: repo format, relative paths, unique
     /// targets and compilable glob patterns.
     pub fn validate(&self) -> miette::Result<()> {
-        if self.upstream.repo.is_empty() {
-            return Err(miette!("upstream.repo must not be empty"));
-        }
-        if !self.upstream.repo.contains("://") && !self.upstream.repo.starts_with("git@") {
-            let segments: Vec<&str> = self.upstream.repo.split('/').collect();
-            if segments.len() != 2 || segments.iter().any(|s| s.is_empty()) {
-                return Err(miette!("upstream.repo '{}' is not a URL and not an 'owner/name' shorthand", self.upstream.repo));
+        if let Some(upstream) = &self.upstream {
+            if upstream.repo.is_empty() {
+                return Err(miette!("upstream.repo must not be empty"));
             }
-        }
-        if self.upstream.git_ref.is_empty() {
-            return Err(miette!("upstream.ref must not be empty"));
-        }
-        if let Some(license) = &self.upstream.license {
-            check_relative("upstream.license.source", &license.source)?;
-            check_relative("upstream.license.target", &license.target)?;
+            if !upstream.repo.contains("://") && !upstream.repo.starts_with("git@") {
+                let segments: Vec<&str> = upstream.repo.split('/').collect();
+                if segments.len() != 2 || segments.iter().any(|s| s.is_empty()) {
+                    return Err(miette!("upstream.repo '{}' is not a URL and not an 'owner/name' shorthand", upstream.repo));
+                }
+            }
+            if upstream.git_ref.is_empty() {
+                return Err(miette!("upstream.ref must not be empty"));
+            }
+            if let Some(license) = &upstream.license {
+                check_relative("upstream.license.source", &license.source)?;
+                check_relative("upstream.license.target", &license.target)?;
+            }
         }
         for artifact in &self.artifacts {
             if let Some(source) = &artifact.source {
@@ -68,7 +72,7 @@ impl Manifest {
             check_relative("metadata.output", &spec.output)?;
         }
         let mut targets = HashSet::new();
-        if let Some(license) = &self.upstream.license {
+        if let Some(license) = self.upstream.as_ref().and_then(|upstream| upstream.license.as_ref()) {
             targets.insert(license.target.as_str());
         }
         for artifact in &self.artifacts {
@@ -124,8 +128,9 @@ mod tests {
         "#
         .parse()
         .unwrap();
-        assert_eq!(manifest.upstream.repo, "tailwindlabs/heroicons");
-        assert_eq!(manifest.upstream.git_ref, "v2.2.0");
+        let upstream = manifest.upstream.as_ref().unwrap();
+        assert_eq!(upstream.repo, "tailwindlabs/heroicons");
+        assert_eq!(upstream.git_ref, "v2.2.0");
         manifest.validate().unwrap();
     }
 

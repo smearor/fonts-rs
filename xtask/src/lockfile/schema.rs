@@ -15,8 +15,9 @@ pub const LOCKFILE_NAME: &str = "upstream.lock";
 /// reproducible verification.
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Lockfile {
-    /// Resolved upstream coordinates.
-    pub upstream: LockedUpstream,
+    /// Resolved upstream coordinates; absent for URL-only manifests.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub upstream: Option<LockedUpstream>,
     /// Every vendored file with its content hash, in manifest order.
     #[serde(default)]
     pub artifacts: Vec<LockedArtifact>,
@@ -58,11 +59,11 @@ mod tests {
     #[test]
     fn lockfile_round_trip() {
         let lockfile = Lockfile {
-            upstream: LockedUpstream {
+            upstream: Some(LockedUpstream {
                 repo: "tailwindlabs/heroicons".to_string(),
                 git_ref: "v2.2.0".to_string(),
                 commit: "abc123".to_string(),
-            },
+            }),
             artifacts: vec![
                 LockedArtifact {
                     target: "resources/LICENSE".to_string(),
@@ -83,7 +84,7 @@ mod tests {
         };
         let text = toml::to_string_pretty(&lockfile).unwrap();
         let parsed: Lockfile = toml::from_str(&text).unwrap();
-        assert_eq!(parsed.upstream.commit, "abc123");
+        assert_eq!(parsed.upstream.unwrap().commit, "abc123");
         assert_eq!(parsed.artifacts.len(), 2);
         assert_eq!(parsed.artifacts[1].source, "provider:iconify_aliases");
         assert_eq!(parsed.inputs[0].provider, "iconify_aliases");

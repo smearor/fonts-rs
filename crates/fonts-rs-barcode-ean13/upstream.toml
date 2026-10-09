@@ -1,0 +1,17 @@
+# Upstream sourcing manifest for fonts-rs-barcode-ean13 (see concepts/planned/REPRODUCABLE.md).
+# Consumed by `cargo xtask sync/check/verify`.
+#
+# No [upstream] section: every resource is vendored from a URL.
+# Not vendored (curated, no upstream source): resources/.gitignore,
+# resources/barcode-ean13.png.
+
+# Libre Barcode EAN13 Text vendored from the Google Fonts
+# repository, pinned to a commit (main drifts). The OFL text is
+# vendored under the local name LICENSE.txt.
+[[artifacts]]
+url = "https://raw.githubusercontent.com/google/fonts/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/librebarcodeean13text/LibreBarcodeEAN13Text-Regular.ttf"
+target = "resources/LibreBarcodeEAN13Text-Regular.ttf"
+
+[[artifacts]]
+url = "https://raw.githubusercontent.com/google/fonts/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/librebarcodeean13text/OFL.txt"
+target = "resources/LICENSE.txt"

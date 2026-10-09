@@ -1,0 +1,27 @@
+# Upstream sourcing manifest for fonts-rs-bravura (see concepts/planned/REPRODUCABLE.md).
+# Consumed by `cargo xtask sync/check/verify`.
+#
+# No [upstream] section: every resource is vendored from a URL —
+# Bravura release assets plus the SMuFL metadata snapshot.
+# Not vendored (curated, no upstream source):
+#   resources/music-sheet.png and resources/.gitignore.
+
+# Bravura OTF + SMuFL font metadata + license from the 1.482
+# release assets (byte-identical to the vendored files).
+[[artifacts]]
+url = "https://github.com/steinbergmedia/bravura/releases/download/bravura-1.482/Bravura.otf"
+target = "resources/Bravura.otf"
+
+[[artifacts]]
+url = "https://github.com/steinbergmedia/bravura/releases/download/bravura-1.482/Bravura.json"
+target = "resources/Bravura.json"
+
+[[artifacts]]
+url = "https://github.com/steinbergmedia/bravura/releases/download/bravura-1.482/OFL.txt"
+target = "resources/OFL.txt"
+
+# SMuFL glyph name registry from the spec repository, pinned to the
+# gh-pages commit matching the vendored snapshot (branch drifts).
+[[artifacts]]
+url = "https://raw.githubusercontent.com/w3c/smufl/f9d12b22ea89978720ba9defb2f4df67fabd8564/metadata/glyphnames.json"
+target = "resources/glyphnames.json"

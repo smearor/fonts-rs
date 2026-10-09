@@ -50,8 +50,7 @@ pub fn icon_classes(css: &str, prefix: &str) -> Vec<(String, u32)> {
         let Some(class) = selector
             .split(['.', ',', ' ', '\t', '\n'])
             .filter_map(|token| token.split(':').next())
-            .filter(|token| token.starts_with(prefix))
-            .next_back()
+            .rfind(|token| token.starts_with(prefix))
         else {
             continue;
         };
@@ -80,10 +79,10 @@ pub fn svg_stems(dir: &Path) -> miette::Result<BTreeSet<String>> {
     for entry in std::fs::read_dir(dir).into_diagnostic()? {
         let entry = entry.into_diagnostic()?;
         let path = entry.path();
-        if path.extension().is_some_and(|ext| ext == "svg") {
-            if let Some(stem) = path.file_stem() {
-                stems.insert(stem.to_string_lossy().into_owned());
-            }
+        if path.extension().is_some_and(|ext| ext == "svg")
+            && let Some(stem) = path.file_stem()
+        {
+            stems.insert(stem.to_string_lossy().into_owned());
         }
     }
     Ok(stems)

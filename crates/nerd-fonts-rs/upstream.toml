@@ -1,0 +1,53 @@
+# Upstream sourcing manifest for nerd-fonts-rs (see concepts/planned/REPRODUCABLE.md).
+# Consumed by `cargo xtask sync/check/verify`.
+#
+# No [upstream] section: every resource is vendored from a URL —
+# release asset zip, pinned raw-file URLs and one live API endpoint.
+# Not vendored (curated, no upstream source):
+#   resources/font-face.css, resources/nerd-fonts.gresource.xml,
+#   resources/cheat-sheet.png and resources/JetBrainsMonoNLNerdFont/
+#   (the .woff2 set is hand-generated; its LICENSE is curated).
+
+# SymbolsNerdFont TTFs + license from the v3.4.0 release asset zip
+# (members sit at the zip root).
+[[artifacts]]
+url = "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/NerdFontsSymbolsOnly.zip"
+source = "SymbolsNerdFont-Regular.ttf"
+target = "resources/NerdFontsSymbolsOnly/SymbolsNerdFont-Regular.ttf"
+
+[[artifacts]]
+url = "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/NerdFontsSymbolsOnly.zip"
+source = "SymbolsNerdFontMono-Regular.ttf"
+target = "resources/NerdFontsSymbolsOnly/SymbolsNerdFontMono-Regular.ttf"
+
+[[artifacts]]
+url = "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/NerdFontsSymbolsOnly.zip"
+source = "LICENSE"
+target = "resources/NerdFontsSymbolsOnly/LICENSE"
+
+# Devicon icon metadata, pinned to the v2.17.0 tag.
+[[artifacts]]
+url = "https://raw.githubusercontent.com/devicons/devicon/v2.17.0/devicon.json"
+target = "resources/metadata/devicon.json"
+
+# Octicons keyword metadata, pinned to the commit matching the
+# vendored snapshot (upstream later moved the file).
+[[artifacts]]
+url = "https://raw.githubusercontent.com/primer/octicons/6220ff87f3ddd923b05ffdac7e2d9cb714213205/keywords.json"
+target = "resources/metadata/octicons-keywords.json"
+
+# Font Awesome 5.15.4 metadata — the vendored files carry the FA5
+# schema ('4.4' change versions, no aliases section), not FA6.
+[[artifacts]]
+url = "https://raw.githubusercontent.com/FortAwesome/Font-Awesome/5.15.4/metadata/icons.yml"
+target = "resources/metadata/fontawesome/icons.yml"
+
+[[artifacts]]
+url = "https://raw.githubusercontent.com/FortAwesome/Font-Awesome/5.15.4/metadata/categories.yml"
+target = "resources/metadata/fontawesome/categories.yml"
+
+# Material Design icon metadata from the (unversioned) Google Fonts
+# endpoint. Upstream drifts — a sync re-vendors the current snapshot.
+[[artifacts]]
+url = "https://fonts.google.com/metadata/icons"
+target = "resources/metadata/materialdesign-icons.json"

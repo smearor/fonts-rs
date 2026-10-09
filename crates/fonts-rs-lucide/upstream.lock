@@ -9295,7 +9295,7 @@ source = "zoom-out.svg"
 
 [[artifacts]]
 target = "resources/metadata/icons.json"
-sha256 = "5a4855f02aa478f409526b20da34959ca1e5885023bfb9629ad437560de26944"
+sha256 = "3a1b24e8cb251805af535a7a8e6970d81850b7972a7b811024e808fe86799d43"
 source = "provider:lucide_metadata"
 
 [[artifacts]]

@@ -17,19 +17,27 @@ pub trait Provider {
 
 /// Everything a provider needs for one `[[metadata]]` invocation.
 pub struct ProviderContext<'a> {
-    /// Root of the upstream sparse checkout.
-    pub checkout: &'a Path,
+    /// Root of the upstream sparse checkout; `None` when the manifest
+    /// has no git `[upstream]` (URL-only vendoring).
+    pub checkout: Option<&'a Path>,
     /// The `with.*` parameter table.
     pub with: &'a Table,
     /// Shared per-sync HTTP fetch cache.
     pub fetch: &'a FetchCache,
 }
 
-impl ProviderContext<'_> {
+impl<'a> ProviderContext<'a> {
     /// Fetches `url` via the shared cache (one request per URL per
     /// sync, regardless of how many providers need it).
     pub fn http_get(&self, url: &str) -> miette::Result<Vec<u8>> {
         self.fetch.get(url)
+    }
+
+    /// The upstream checkout root. Fails for manifests without a git
+    /// `[upstream]` section — such providers must source purely via
+    /// `http_get`/`with` inputs.
+    pub fn checkout(&self) -> miette::Result<&'a Path> {
+        self.checkout.ok_or_else(|| miette!("provider requires a git [upstream] checkout"))
     }
 }
 

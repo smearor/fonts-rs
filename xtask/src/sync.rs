@@ -31,41 +31,60 @@ pub fn sync(package: &str) -> miette::Result<()> {
     let crate_dir = crate_dir(package)?;
     let manifest = Manifest::load(&crate_dir.join(MANIFEST_NAME))?;
 
-    let git = GitSource::new(&manifest.upstream.repo, manifest.upstream.repo_url());
-    let commit = git.resolve(&manifest.upstream.git_ref)?;
-    eprintln!("{}: {} -> {commit}", manifest.upstream.repo, manifest.upstream.git_ref);
+    // Git upstream is optional: manifests made purely of `url`
+    // artifacts have no checkout at all.
+    let mut upstream_context = None;
+    if let Some(upstream) = &manifest.upstream {
+        let git = GitSource::new(&upstream.repo, upstream.repo_url());
+        let commit = git.resolve(&upstream.git_ref)?;
+        eprintln!("{}: {} -> {commit}", upstream.repo, upstream.git_ref);
 
-    let sparse = sparse_paths(
-        manifest
-            .artifacts
-            .iter()
-            .filter_map(|artifact| artifact.source.clone().map(|source| (source, artifact.pattern.clone(), artifact.exclude.clone()))),
-        manifest
-            .upstream
-            .license
-            .iter()
-            .map(|license| license.source.clone())
-            .chain(manifest.upstream.sparse.iter().cloned()),
-    );
-    let source = git.checkout(&commit, &sparse)?;
-    eprintln!("{}: {}", if source.cache_hit { "cache hit" } else { "fetched" }, source.checkout.display());
+        let sparse = sparse_paths(
+            manifest.artifacts.iter().filter(|artifact| artifact.url.is_none()).filter_map(|artifact| {
+                artifact
+                    .source
+                    .clone()
+                    .map(|source| (source, artifact.pattern.clone(), artifact.exclude.clone()))
+            }),
+            upstream
+                .license
+                .iter()
+                .map(|license| license.source.clone())
+                .chain(upstream.sparse.iter().cloned()),
+        );
+        let source = git.checkout(&commit, &sparse)?;
+        eprintln!("{}: {}", if source.cache_hit { "cache hit" } else { "fetched" }, source.checkout.display());
+        upstream_context = Some((upstream, commit, source));
+    }
+    let upstream = upstream_context;
+    let checkout_path = upstream.as_ref().map(|(_, _, source)| source.checkout.clone());
 
     let fetch = FetchCache::default();
     let mut artifacts = Vec::new();
     let mut materialized: HashMap<String, (String, String)> = HashMap::new();
 
-    if let Some(license) = &manifest.upstream.license {
+    if let Some((upstream, _, source)) = &upstream
+        && let Some(license) = &upstream.license
+    {
         copy_file(&source.checkout, &crate_dir, &license.source, &license.target, &mut artifacts, &mut materialized)?;
     }
+    let empty_checkout = PathBuf::new();
     for artifact in &manifest.artifacts {
-        materialize(&source.checkout, &crate_dir, artifact, &fetch, &mut artifacts, &mut materialized)?;
+        materialize(
+            checkout_path.as_deref().unwrap_or(&empty_checkout),
+            &crate_dir,
+            artifact,
+            &fetch,
+            &mut artifacts,
+            &mut materialized,
+        )?;
     }
 
     let mut inputs: Vec<LockedInput> = Vec::new();
     for spec in &manifest.metadata {
         let provider = resolve_provider(&spec.provider)?;
         let context = ProviderContext {
-            checkout: &source.checkout,
+            checkout: checkout_path.as_deref(),
             with: &spec.with,
             fetch: &fetch,
         };
@@ -87,11 +106,11 @@ pub fn sync(package: &str) -> miette::Result<()> {
     inputs.dedup_by(|a, b| a.url == b.url);
 
     let lockfile = Lockfile {
-        upstream: LockedUpstream {
-            repo: manifest.upstream.repo.clone(),
-            git_ref: manifest.upstream.git_ref.clone(),
-            commit: commit.clone(),
-        },
+        upstream: upstream.map(|(upstream, commit, _)| LockedUpstream {
+            repo: upstream.repo.clone(),
+            git_ref: upstream.git_ref.clone(),
+            commit,
+        }),
         artifacts,
         inputs,
     };
@@ -137,13 +156,15 @@ fn materialize(
     materialized: &mut HashMap<String, (String, String)>,
 ) -> miette::Result<()> {
     if let Some(url) = &artifact.url {
-        if artifact.source.is_some() {
-            return Err(miette!("Artifact sets both 'source' and 'url' - choose one"));
-        }
-        if artifact.pattern.is_some() || !artifact.exclude.is_empty() {
-            return Err(miette!("Artifact '{url}': 'pattern'/'exclude' only apply to checkout sources"));
-        }
-        return fetch_url(crate_dir, artifact, url, fetch, artifacts, materialized);
+        return match &artifact.source {
+            None => {
+                if artifact.pattern.is_some() || !artifact.exclude.is_empty() {
+                    return Err(miette!("Artifact '{url}': 'pattern'/'exclude' need a 'source' path inside the archive"));
+                }
+                fetch_url(crate_dir, artifact, url, fetch, artifacts, materialized)
+            }
+            Some(source) => materialize_archive(crate_dir, artifact, url, source, fetch, artifacts, materialized),
+        };
     }
     let Some(source_path) = &artifact.source else {
         return Err(miette!("Artifact '{}' needs 'source' or 'url'", artifact.target));
@@ -188,13 +209,7 @@ fn materialize(
 
 /// Recursively collects `(checkout-relative path, absolute path)`
 /// pairs matching `glob` but not `excludes` below `dir`.
-fn collect_matching(
-    root: &Path,
-    dir: &Path,
-    glob: &globset::GlobSet,
-    excludes: &globset::GlobSet,
-    files: &mut Vec<(String, PathBuf)>,
-) -> miette::Result<()> {
+fn collect_matching(root: &Path, dir: &Path, glob: &globset::GlobSet, excludes: &globset::GlobSet, files: &mut Vec<(String, PathBuf)>) -> miette::Result<()> {
     for entry in std::fs::read_dir(dir).into_diagnostic()? {
         let entry = entry.into_diagnostic()?;
         let path = entry.path();
@@ -206,6 +221,98 @@ fn collect_matching(
                 files.push((relative, path));
             }
         }
+    }
+    Ok(())
+}
+
+/// Materializes a `url`+`source` artifact: fetches an archive
+/// (`.tgz`/`.tar.gz`/`.zip`) and extracts `source` — a member file
+/// for 1:1 copies, or a member directory globbed with
+/// `pattern`/`exclude` and flattened into `target` like a checkout
+/// directory. Provenance is `url#member`.
+fn materialize_archive(
+    crate_dir: &Path,
+    artifact: &crate::manifest::Artifact,
+    url: &str,
+    source: &str,
+    fetch: &FetchCache,
+    artifacts: &mut Vec<LockedArtifact>,
+    materialized: &mut HashMap<String, (String, String)>,
+) -> miette::Result<()> {
+    let body = fetch.get(url)?;
+
+    let pattern = artifact.pattern.as_deref().unwrap_or("**/*");
+    let mut builder = GlobSetBuilder::new();
+    builder.add(Glob::new(pattern).map_err(|e| miette!("Invalid pattern '{pattern}': {e}"))?);
+    let glob = builder.build().into_diagnostic()?;
+    let mut exclude_builder = GlobSetBuilder::new();
+    for exclude in &artifact.exclude {
+        exclude_builder.add(Glob::new(exclude).map_err(|e| miette!("Invalid exclude glob '{exclude}': {e}"))?);
+    }
+    let excludes = exclude_builder.build().into_diagnostic()?;
+    let prefix = format!("{}/", source.trim_end_matches('/'));
+
+    let mut emit = |member: &str, content: &[u8]| -> miette::Result<bool> {
+        let target = if member == source {
+            artifact.target.clone()
+        } else if let Some(relative) = member.strip_prefix(&prefix) {
+            if !glob.is_match(relative) || excludes.is_match(relative) {
+                return Ok(false);
+            }
+            let Some(basename) = std::path::Path::new(relative).file_name() else {
+                return Ok(false);
+            };
+            format!("{}/{}", artifact.target.trim_end_matches('/'), basename.to_string_lossy())
+        } else {
+            return Ok(false);
+        };
+        let provenance = format!("{url}#{member}");
+        let sha = sha256_hex(content);
+        if dedup_target(materialized, &provenance, &target, &sha)? {
+            write_file(&crate_dir.join(&target), content)?;
+        }
+        artifacts.push(LockedArtifact {
+            target,
+            sha256: sha,
+            source: provenance,
+        });
+        Ok(true)
+    };
+
+    let mut matched = 0usize;
+    if url.ends_with(".tgz") || url.ends_with(".tar.gz") {
+        let mut archive = tar::Archive::new(flate2::read::GzDecoder::new(body.as_slice()));
+        for entry in archive.entries().into_diagnostic()? {
+            let mut entry = entry.into_diagnostic()?;
+            if !entry.header().entry_type().is_file() {
+                continue;
+            }
+            let member = entry.path().into_diagnostic()?.to_string_lossy().into_owned();
+            let mut content = Vec::new();
+            std::io::Read::read_to_end(&mut entry, &mut content).into_diagnostic()?;
+            if emit(&member, &content)? {
+                matched += 1;
+            }
+        }
+    } else if url.ends_with(".zip") {
+        let mut archive = zip::ZipArchive::new(std::io::Cursor::new(body)).into_diagnostic()?;
+        for index in 0..archive.len() {
+            let mut entry = archive.by_index(index).into_diagnostic()?;
+            if entry.is_dir() {
+                continue;
+            }
+            let member = entry.name().to_string();
+            let mut content = Vec::new();
+            std::io::Read::read_to_end(&mut entry, &mut content).into_diagnostic()?;
+            if emit(&member, &content)? {
+                matched += 1;
+            }
+        }
+    } else {
+        return Err(miette!("Artifact '{url}': only .tgz/.tar.gz/.zip archives are supported"));
+    }
+    if matched == 0 {
+        return Err(miette!("Artifact '{url}#{source}': no archive members matched"));
     }
     Ok(())
 }
@@ -256,12 +363,7 @@ fn copy_dedup(
 /// `true` when the caller must write the file, `false` when an
 /// identical artifact already materialized there; conflicting
 /// content for the same target is an error.
-fn dedup_target(
-    materialized: &mut HashMap<String, (String, String)>,
-    source: &str,
-    target: &str,
-    sha: &str,
-) -> miette::Result<bool> {
+fn dedup_target(materialized: &mut HashMap<String, (String, String)>, source: &str, target: &str, sha: &str) -> miette::Result<bool> {
     if let Some((first_source, first_sha)) = materialized.get(target) {
         if first_sha != sha {
             return Err(miette!("Artifacts '{first_source}' and '{source}' both map to '{target}' with different content"));

@@ -1,0 +1,37 @@
+# Upstream sourcing manifest for fonts-rs-redacted (see concepts/planned/REPRODUCABLE.md).
+# Consumed by `cargo xtask sync/check/verify`.
+#
+# No [upstream] section: every resource is vendored from a URL.
+# Not vendored (curated, no upstream source): resources/.gitignore,
+# resources/newspaper-redacted-wireframe.png.
+
+# Static Redacted and Redacted Script fonts from the Google Fonts
+# repository, pinned to a commit (main drifts).
+[[artifacts]]
+url = "https://raw.githubusercontent.com/google/fonts/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/redacted/Redacted-Regular.ttf"
+target = "resources/Redacted-Regular.ttf"
+
+[[artifacts]]
+url = "https://raw.githubusercontent.com/google/fonts/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/redactedscript/RedactedScript-Bold.ttf"
+target = "resources/RedactedScript-Bold.ttf"
+
+[[artifacts]]
+url = "https://raw.githubusercontent.com/google/fonts/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/redactedscript/RedactedScript-Light.ttf"
+target = "resources/RedactedScript-Light.ttf"
+
+[[artifacts]]
+url = "https://raw.githubusercontent.com/google/fonts/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/redactedscript/RedactedScript-Regular.ttf"
+target = "resources/RedactedScript-Regular.ttf"
+
+# Google Fonts only ships the static Redacted-Regular; the variable
+# Redacted[wght].ttf comes from the upstream repository, pinned to
+# the commit referenced by ofl/redacted/upstream_info.md.
+[[artifacts]]
+url = "https://raw.githubusercontent.com/christiannaths/redacted-font/c86d607ca8531631aeff4d3aacb44de05a2ed523/Redacted/fonts/variable/Redacted%5Bwght%5D.ttf"
+target = "resources/Redacted-wght.ttf"
+
+# OFL text (identical in ofl/redacted and ofl/redactedscript),
+# vendored under the local name Redacted-OFL.txt.
+[[artifacts]]
+url = "https://raw.githubusercontent.com/google/fonts/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/redacted/OFL.txt"
+target = "resources/Redacted-OFL.txt"

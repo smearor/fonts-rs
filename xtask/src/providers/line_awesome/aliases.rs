@@ -25,13 +25,14 @@ impl Provider for LineAwesomeAliases {
     }
 
     fn generate(&self, context: &ProviderContext) -> miette::Result<ProviderOutput> {
-        let scss = std::fs::read_to_string(context.checkout.join(source::VARIABLES_SCSS))
+        let checkout = context.checkout()?;
+        let scss = std::fs::read_to_string(checkout.join(source::VARIABLES_SCSS))
             .into_diagnostic()
             .map_err(|e| e.wrap_err("line_awesome_aliases: failed to read _variables.scss"))?;
-        let line_awesome_css = std::fs::read_to_string(context.checkout.join(source::LINE_AWESOME_CSS))
+        let line_awesome_css = std::fs::read_to_string(checkout.join(source::LINE_AWESOME_CSS))
             .into_diagnostic()
             .map_err(|e| e.wrap_err("line_awesome_aliases: failed to read line-awesome.css"))?;
-        let font_awesome_css = std::fs::read_to_string(context.checkout.join(source::FONT_AWESOME_CSS))
+        let font_awesome_css = std::fs::read_to_string(checkout.join(source::FONT_AWESOME_CSS))
             .into_diagnostic()
             .map_err(|e| e.wrap_err("line_awesome_aliases: failed to read all.css"))?;
 
@@ -40,7 +41,7 @@ impl Provider for LineAwesomeAliases {
         for (name, codepoint) in &variables {
             canonical_names.insert(*codepoint, name.clone());
         }
-        let stems = source::svg_stems(&context.checkout.join(source::SVG_DIR))?;
+        let stems = source::svg_stems(&checkout.join(source::SVG_DIR))?;
 
         let mut aliases = BTreeMap::new();
         let classes = source::icon_classes(&line_awesome_css, "la-")

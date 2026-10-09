@@ -1,4 +1,5 @@
 mod copy;
+mod eva_metadata;
 mod heroicons_keywords;
 mod iconify_aliases;
 mod line_awesome;
@@ -17,6 +18,7 @@ use miette::miette;
 pub fn resolve_provider(name: &str) -> miette::Result<Box<dyn Provider>> {
     match name {
         "copy" => Ok(Box::new(copy::Copy)),
+        "eva_metadata" => Ok(Box::new(eva_metadata::EvaMetadata)),
         "heroicons_keywords" => Ok(Box::new(heroicons_keywords::HeroiconsKeywords)),
         "iconify_aliases" => Ok(Box::new(iconify_aliases::IconifyAliases)),
         "line_awesome_aliases" => Ok(Box::new(line_awesome::LineAwesomeAliases)),
@@ -35,6 +37,7 @@ mod tests {
     fn provider_registry() {
         for name in [
             "copy",
+            "eva_metadata",
             "heroicons_keywords",
             "iconify_aliases",
             "line_awesome_aliases",

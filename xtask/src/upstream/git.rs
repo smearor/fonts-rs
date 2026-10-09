@@ -137,10 +137,7 @@ fn run_git(dir: Option<&Path>, args: &[&str]) -> miette::Result<String> {
 /// `extra` covers license sources and explicit `sparse` entries.
 /// Artifact `exclude` globs become `!`-negated patterns so excluded
 /// blobs are not checked out either.
-pub fn sparse_paths(
-    artifacts: impl Iterator<Item = (String, Option<String>, Vec<String>)>,
-    extra: impl Iterator<Item = String>,
-) -> Vec<String> {
+pub fn sparse_paths(artifacts: impl Iterator<Item = (String, Option<String>, Vec<String>)>, extra: impl Iterator<Item = String>) -> Vec<String> {
     let mut paths: Vec<String> = artifacts
         .flat_map(|(source, pattern, excludes)| {
             let source = source.trim_end_matches('/').to_string();
@@ -148,11 +145,7 @@ pub fn sparse_paths(
                 Some(pattern) => format!("{source}/{pattern}"),
                 None => source.clone(),
             };
-            std::iter::once(include).chain(
-                excludes
-                    .into_iter()
-                    .map(move |exclude| format!("!{source}/{exclude}")),
-            )
+            std::iter::once(include).chain(excludes.into_iter().map(move |exclude| format!("!{source}/{exclude}")))
         })
         .chain(extra)
         .collect();
@@ -179,11 +172,7 @@ mod tests {
     fn sparse_paths_combine_source_pattern_and_excludes() {
         let paths = sparse_paths(
             [
-                (
-                    "optimized/24/outline".to_string(),
-                    Some("*.svg".to_string()),
-                    Vec::new(),
-                ),
+                ("optimized/24/outline".to_string(), Some("*.svg".to_string()), Vec::new()),
                 (
                     "assets".to_string(),
                     Some("*/SVG/ic_fluent_*_24_regular.svg".to_string()),

@@ -1,0 +1,23 @@
+# Upstream sourcing manifest for fonts-rs-fourteen-segment (see concepts/planned/REPRODUCABLE.md).
+# Consumed by `cargo xtask sync/check/verify`.
+#
+# No [upstream] section: every resource is vendored from a URL.
+# Not vendored (curated, no upstream source): resources/.gitignore,
+# resources/dseg-14-marquee.png.
+
+# DSEG14 TTFs from the v0.46 release zip. The previously vendored
+# fonts were a local FontForge rebuild of the same v0.46 sources
+# (only head/name build-date differed); sync now vendors the
+# official release bytes.
+[[artifacts]]
+url = "https://github.com/keshikan/DSEG/releases/download/v0.46/fonts-DSEG_v046.zip"
+source = "fonts-DSEG_v046"
+target = "resources"
+pattern = "DSEG14*/*.ttf"
+
+# DSEG OFL license text — the vendored copy matches the v0.50beta1
+# wording (2020, https); the v0.46 zip still ships the 2017 wording.
+# Pinned to the release tag.
+[[artifacts]]
+url = "https://raw.githubusercontent.com/keshikan/DSEG/v0.50beta1/DSEG-LICENSE.txt"
+target = "resources/DSEG14Classic-LICENSE.txt"

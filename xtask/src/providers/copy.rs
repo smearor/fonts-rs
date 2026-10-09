@@ -15,7 +15,7 @@ impl Provider for Copy {
 
     fn generate(&self, context: &ProviderContext) -> miette::Result<ProviderOutput> {
         let source = required_string(context.with, "source", self.name())?;
-        let path = context.checkout.join(&source);
+        let path = context.checkout()?.join(&source);
         let content = std::fs::read(&path)
             .into_diagnostic()
             .map_err(|e| e.wrap_err(format!("copy provider: failed to read {source}")))?;

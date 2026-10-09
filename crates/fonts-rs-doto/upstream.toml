@@ -1,0 +1,17 @@
+# Upstream sourcing manifest for fonts-rs-doto (see concepts/planned/REPRODUCABLE.md).
+# Consumed by `cargo xtask sync/check/verify`.
+#
+# No [upstream] section: every resource is vendored from a URL.
+# Not vendored (curated, no upstream source): resources/.gitignore,
+# resources/dot-matrix-marquee.png.
+
+# Doto variable font (ROND+wght axes) from the Google Fonts
+# repository, pinned to a commit (main drifts). Vendored under the
+# local name Doto.ttf; the OFL text becomes Doto-OFL.txt.
+[[artifacts]]
+url = "https://raw.githubusercontent.com/google/fonts/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/doto/Doto%5BROND,wght%5D.ttf"
+target = "resources/Doto.ttf"
+
+[[artifacts]]
+url = "https://raw.githubusercontent.com/google/fonts/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/doto/OFL.txt"
+target = "resources/Doto-OFL.txt"

@@ -19,11 +19,12 @@ impl Provider for LineAwesomeCodepoints {
     }
 
     fn generate(&self, context: &ProviderContext) -> miette::Result<ProviderOutput> {
-        let scss = std::fs::read_to_string(context.checkout.join(source::VARIABLES_SCSS))
+        let checkout = context.checkout()?;
+        let scss = std::fs::read_to_string(checkout.join(source::VARIABLES_SCSS))
             .into_diagnostic()
             .map_err(|e| e.wrap_err("line_awesome_codepoints: failed to read _variables.scss"))?;
         let variables = source::parse_variables(&scss)?;
-        let stems = source::svg_stems(&context.checkout.join(source::SVG_DIR))?;
+        let stems = source::svg_stems(&checkout.join(source::SVG_DIR))?;
 
         let mut codepoints = BTreeMap::new();
         for stem in stems {

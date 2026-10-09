@@ -1,0 +1,44 @@
+# Upstream sourcing manifest for fonts-rs-eva (see concepts/planned/REPRODUCABLE.md).
+# Consumed by `cargo xtask sync/check/verify`.
+
+[upstream]
+repo = "akveo/eva-icons"
+ref = "70d2471ff88ab1385d3310b93a406243377b53d5"  # master HEAD; last upstream activity 2023-03
+# Provider input: the icons-tags.ts TypeScript source.
+sparse = [
+  "src/app/@core/data/service/icons/icons-tags.ts",
+]
+
+[upstream.license]
+source = "LICENSE.txt"
+target = "resources/LICENSE"
+
+# The vendored SVGs/CSS/TTF are the optimized npm package artifacts
+# (upstream git only carries unprocessed sources) — extracted from
+# the published eva-icons tarball.
+[[artifacts]]
+url = "https://registry.npmjs.org/eva-icons/-/eva-icons-1.1.3.tgz"
+source = "package/fill/svg"
+target = "resources/svg/fill"
+pattern = "*.svg"
+
+[[artifacts]]
+url = "https://registry.npmjs.org/eva-icons/-/eva-icons-1.1.3.tgz"
+source = "package/outline/svg"
+target = "resources/svg/outline"
+pattern = "*.svg"
+
+[[artifacts]]
+url = "https://registry.npmjs.org/eva-icons/-/eva-icons-1.1.3.tgz"
+source = "package/style/eva-icons.css"
+target = "resources/metadata/eva-icons.css"
+
+[[artifacts]]
+url = "https://registry.npmjs.org/eva-icons/-/eva-icons-1.1.3.tgz"
+source = "package/style/fonts/Eva-Icons.ttf"
+target = "resources/Eva-Icons.ttf"
+
+[[metadata]]
+provider = "eva_metadata"
+output = "resources/metadata/icons-tags.json"
+with.source = "src/app/@core/data/service/icons/icons-tags.ts"
