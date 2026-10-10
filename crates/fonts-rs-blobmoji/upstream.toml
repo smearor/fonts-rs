@@ -1,0 +1,48 @@
+# Upstream sourcing manifest for fonts-rs-blobmoji (see concepts/planned/REPRODUCABLE.md).
+# Consumed by `cargo xtask sync/check/verify`.
+#
+# [upstream]: DavidBerdik/blobmoji2 (Blobmoji font fork with the
+# original Noto naming), pinned to the compiled Blobmoji 17 commit
+# (blobmoji-master drifts).
+# Not vendored (curated, no upstream source): resources/.gitignore.
+
+[upstream]
+repo = "DavidBerdik/blobmoji2"
+ref = "3a1be353fde25aee4743a80f94d6702dc7dd97da"
+
+[upstream.license]
+source = "fonts/LICENSE"
+target = "resources/OFL.txt"
+
+# Blobmoji CBDT and COLRv1 fonts (upstream uses the Noto file names).
+[[artifacts]]
+source = "fonts"
+target = "resources"
+pattern = "Noto*.ttf"
+exclude = ["NotoColorEmoji-flagsonly.ttf", "NotoColorEmoji-emojicompat.ttf", "NotoColorEmoji.tmpl.ttf", "NotoColorEmoji_WindowsCompatible*.ttf", "Noto-COLRv1-emojicompat.ttf"]
+
+# Blob artwork SVGs (emoji_u*.svg).
+[[artifacts]]
+source = "svg"
+target = "resources/svg"
+pattern = "*.svg"
+
+# Emoji 17.0 keyboard/display test data (UTS #51).
+[[artifacts]]
+url = "https://www.unicode.org/Public/17.0.0/emoji/emoji-test.txt"
+target = "resources/metadata/emoji-test.txt"
+
+# CLDR 48 annotations (English names + keywords).
+[[artifacts]]
+url = "https://raw.githubusercontent.com/unicode-org/cldr-json/4d06be52b51bb2f75688d0abe55c52a66afed790/cldr-json/cldr-annotations-full/annotations/en/annotations.json"
+target = "resources/metadata/annotations.json"
+
+# CLDR 48 derived annotations (multi-codepoint sequences).
+[[artifacts]]
+url = "https://raw.githubusercontent.com/unicode-org/cldr-json/4d06be52b51bb2f75688d0abe55c52a66afed790/cldr-json/cldr-annotations-derived-full/annotationsDerived/en/annotations.json"
+target = "resources/metadata/annotations-derived.json"
+
+# Emoji 17.0 picker ordering/shortcodes (googlefonts/emoji-metadata).
+[[artifacts]]
+url = "https://raw.githubusercontent.com/googlefonts/emoji-metadata/173b9b26e8fcbcbe64e1ecbf073a21a96b95c6b1/emoji_17_0_ordering.json"
+target = "resources/metadata/emoji_17_0_ordering.json"
