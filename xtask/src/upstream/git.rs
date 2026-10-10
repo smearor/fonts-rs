@@ -1,6 +1,9 @@
+use crate::git_ref::GitRef;
+use crate::git_repository::GitRepository;
 use crate::upstream::ResolvedSource;
 use crate::upstream::cache_root;
 use crate::upstream::repo_key;
+use crate::url::Url;
 use miette::IntoDiagnostic;
 use miette::miette;
 use std::path::Path;
@@ -10,22 +13,25 @@ use std::process::Command;
 /// commit-keyed sparse checkouts under the cache root.
 pub struct GitSource {
     /// Repository spec as declared in the manifest.
-    repo: String,
+    repo: GitRepository,
     /// Remote URL derived from `repo`.
-    url: String,
+    url: Url,
 }
 
 impl GitSource {
     /// Creates a backend for `repo` (`owner/name` shorthand, URL or
-    /// SSH remote).
-    pub fn new(repo: &str, url: String) -> Self {
-        Self { repo: repo.to_string(), url }
+    /// SSH remote); the remote URL is derived from the repo spec.
+    pub fn new(repo: &GitRepository) -> Self {
+        Self {
+            repo: repo.clone(),
+            url: repo.remote_url(),
+        }
     }
 
     /// Resolves `git_ref` (tag, branch, `HEAD` or a full commit SHA)
     /// to a commit SHA via `git ls-remote`.
-    pub fn resolve(&self, git_ref: &str) -> miette::Result<String> {
-        if is_commit_sha(git_ref) {
+    pub fn resolve(&self, git_ref: &GitRef) -> miette::Result<String> {
+        if git_ref.is_commit_sha() {
             return Ok(git_ref.to_string());
         }
         let output = git(&["ls-remote", &self.url, &format!("{git_ref}^{{}}"), git_ref])?;
@@ -46,6 +52,54 @@ impl GitSource {
             .or(branch)
             .map(str::to_string)
             .ok_or_else(|| miette!("Ref '{git_ref}' not found on {}", self.url))
+    }
+
+    /// Resolves the remote's default HEAD via `git ls-remote <url> HEAD`.
+    pub fn default_head(&self) -> miette::Result<String> {
+        let output = git(&["ls-remote", &self.url, "HEAD"])?;
+        output
+            .lines()
+            .next()
+            .and_then(|line| line.split('\t').next())
+            .map(str::to_string)
+            .ok_or_else(|| miette!("No HEAD advertised by {}", self.url))
+    }
+
+    /// Whether `git_ref` names a tag on the remote.
+    pub fn is_tag(&self, git_ref: &GitRef) -> miette::Result<bool> {
+        Ok(!git(&["ls-remote", &self.url, &format!("refs/tags/{git_ref}")])?.trim().is_empty())
+    }
+
+    /// The newest version-like tag (`v?\d+.\d+...`) on the remote,
+    /// compared by numeric components. Non-version tags (pre-releases,
+    /// named tags) are ignored; `^{}` deref lines are skipped.
+    pub fn latest_tag(&self) -> miette::Result<GitRef> {
+        let output = git(&["ls-remote", "--tags", &self.url])?;
+        output
+            .lines()
+            .filter_map(|line| line.split('\t').nth(1))
+            .filter_map(|name| name.strip_prefix("refs/tags/"))
+            .filter(|name| !name.ends_with("^{}"))
+            .filter_map(|name| version_key(name).map(|key| (key, name)))
+            .max_by(|(a, _), (b, _)| a.cmp(b))
+            .map(|(_, name)| GitRef::from(name))
+            .ok_or_else(|| miette!("No version tags found on {}", self.url))
+    }
+
+    /// The re-pin target for `git_ref`: tag pins track the newest
+    /// version tag, commit pins track the default HEAD; floating
+    /// branch refs have no update target. Returns `(new_ref, commit)`.
+    pub fn update_target(&self, git_ref: &GitRef) -> miette::Result<Option<(GitRef, String)>> {
+        if !git_ref.is_commit_sha() && self.is_tag(git_ref)? {
+            let tag = self.latest_tag()?;
+            let commit = self.resolve(&tag)?;
+            return Ok(Some((tag, commit)));
+        }
+        if git_ref.is_commit_sha() {
+            let head = self.default_head()?;
+            return Ok(Some((GitRef::from(head.clone()), head)));
+        }
+        Ok(None)
     }
 
     /// Ensures a sparse checkout of `commit` exists in the cache and
@@ -101,8 +155,17 @@ impl GitSource {
 }
 
 /// Whether `value` looks like a full 40-hex commit SHA.
-fn is_commit_sha(value: &str) -> bool {
+pub(crate) fn is_commit_sha(value: &str) -> bool {
     value.len() == 40 && value.chars().all(|c| c.is_ascii_hexdigit())
+}
+
+/// Version key for tag sorting: `vX.Y.Z...` → `[X, Y, Z]`; `None`
+/// for non-numeric tags (pre-releases, named tags). Requires at
+/// least a major.minor pair so `v1` does not outrank real releases.
+fn version_key(tag: &str) -> Option<Vec<u64>> {
+    let tag = tag.strip_prefix('v').unwrap_or(tag);
+    let parts: Option<Vec<u64>> = tag.split('.').map(|part| part.parse().ok()).collect();
+    parts.filter(|parts| parts.len() >= 2)
 }
 
 /// Runs `git` with `args` outside a repository and returns stdout.
@@ -157,6 +220,16 @@ pub fn sparse_paths(artifacts: impl Iterator<Item = (String, Option<String>, Vec
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// Parses dotted version tags; rejects pre-releases and majors.
+    #[test]
+    fn version_key_parsing() {
+        assert_eq!(version_key("v3.48.0"), Some(vec![3, 48, 0]));
+        assert_eq!(version_key("5.15.4"), Some(vec![5, 15, 4]));
+        assert_eq!(version_key("v0.50beta1"), None);
+        assert_eq!(version_key("release-2024"), None);
+        assert_eq!(version_key("v1"), None);
+    }
 
     /// Recognizes full SHAs and rejects refs.
     #[test]

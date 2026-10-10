@@ -9,24 +9,30 @@
 mod check;
 mod cli;
 mod fetch;
+mod git_ref;
+mod git_repository;
 mod json;
+mod layout;
 mod lockfile;
 mod manifest;
-mod paths;
 mod providers;
 mod sha256;
 mod sync;
 mod upstream;
+mod url;
 mod verify;
 
 use crate::cli::Cli;
 use crate::cli::Command;
+use crate::layout::Crate;
+use crate::layout::Package;
+use crate::layout::Workspace;
 use clap::Parser;
 
 fn main() -> miette::Result<()> {
     match Cli::parse().command {
-        Command::Sync { package } => sync::sync(&package),
-        Command::Check { package } => check::check(&package),
-        Command::Verify { package } => verify::verify(&package),
+        Command::Sync { package, update } => Crate::load(Package::from(package))?.sync(update),
+        Command::Check { package, json } => Workspace::load(package.map(Package::from))?.check(json),
+        Command::Verify { package } => Workspace::load(package.map(Package::from))?.verify(),
     }
 }

@@ -60,8 +60,8 @@ mod tests {
     fn lockfile_round_trip() {
         let lockfile = Lockfile {
             upstream: Some(LockedUpstream {
-                repo: "tailwindlabs/heroicons".to_string(),
-                git_ref: "v2.2.0".to_string(),
+                repo: crate::git_repository::GitRepository::from("tailwindlabs/heroicons"),
+                git_ref: crate::git_ref::GitRef::from("v2.2.0"),
                 commit: "abc123".to_string(),
             }),
             artifacts: vec![

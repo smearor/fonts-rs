@@ -1,11 +1,11 @@
 use crate::fetch::FetchCache;
+use crate::layout::Crate;
 use crate::lockfile::LOCKFILE_NAME;
 use crate::lockfile::LockedArtifact;
 use crate::lockfile::LockedInput;
 use crate::lockfile::LockedUpstream;
 use crate::lockfile::Lockfile;
 use crate::manifest::Manifest;
-use crate::paths::crate_dir;
 use crate::providers::ProviderContext;
 use crate::providers::resolve_provider;
 use crate::sha256::sha256_file;
@@ -24,101 +24,145 @@ use std::path::PathBuf;
 /// Manifest file name looked up in each vendored crate.
 const MANIFEST_NAME: &str = "upstream.toml";
 
-/// Runs `cargo xtask sync -p <package>`: resolves the manifest ref,
-/// ensures the cached checkout, materializes artifacts, runs
-/// metadata providers and writes `upstream.lock`.
-pub fn sync(package: &str) -> miette::Result<()> {
-    let crate_dir = crate_dir(package)?;
-    let manifest = Manifest::load(&crate_dir.join(MANIFEST_NAME))?;
+impl Crate {
+    /// Runs `cargo xtask sync -p <package>`: resolves the manifest
+    /// ref, ensures the cached checkout, materializes artifacts,
+    /// runs metadata providers and writes `upstream.lock`. With
+    /// `update`, re-pins `ref` to the latest upstream state first
+    /// (newest version tag for tag pins, default HEAD for commit
+    /// pins; floating branch refs need no rewrite) and persists the
+    /// new pin in `upstream.toml`.
+    pub fn sync(&self, update: bool) -> miette::Result<()> {
+        let crate_dir = self.dir.clone();
+        let manifest_path = crate_dir.join(MANIFEST_NAME);
+        let mut manifest = Manifest::load(&manifest_path)?;
 
-    // Git upstream is optional: manifests made purely of `url`
-    // artifacts have no checkout at all.
-    let mut upstream_context = None;
-    if let Some(upstream) = &manifest.upstream {
-        let git = GitSource::new(&upstream.repo, upstream.repo_url());
-        let commit = git.resolve(&upstream.git_ref)?;
-        eprintln!("{}: {} -> {commit}", upstream.repo, upstream.git_ref);
+        // Git upstream is optional: manifests made purely of `url`
+        // artifacts have no checkout at all.
+        let mut upstream_context = None;
+        if let Some(upstream) = &mut manifest.upstream {
+            let git = GitSource::new(&upstream.repo);
+            if update
+                && let Some((new_ref, _)) = git.update_target(&upstream.git_ref)?
+                && new_ref != upstream.git_ref
+            {
+                eprintln!("{}: {} -> {new_ref} (re-pinned)", upstream.repo, upstream.git_ref);
+                rewrite_manifest_ref(&manifest_path, &upstream.git_ref, &new_ref)?;
+                upstream.git_ref = new_ref;
+            }
+            let commit = git.resolve(&upstream.git_ref)?;
+            eprintln!("{}: {} -> {commit}", upstream.repo, upstream.git_ref);
 
-        let sparse = sparse_paths(
-            manifest.artifacts.iter().filter(|artifact| artifact.url.is_none()).filter_map(|artifact| {
-                artifact
-                    .source
-                    .clone()
-                    .map(|source| (source, artifact.pattern.clone(), artifact.exclude.clone()))
+            let sparse = sparse_paths(
+                manifest.artifacts.iter().filter(|artifact| artifact.url.is_none()).filter_map(|artifact| {
+                    artifact
+                        .source
+                        .clone()
+                        .map(|source| (source, artifact.pattern.clone(), artifact.exclude.clone()))
+                }),
+                upstream
+                    .license
+                    .iter()
+                    .map(|license| license.source.clone())
+                    .chain(upstream.sparse.iter().cloned()),
+            );
+            let source = git.checkout(&commit, &sparse)?;
+            eprintln!("{}: {}", if source.cache_hit { "cache hit" } else { "fetched" }, source.checkout.display());
+            upstream_context = Some((upstream, commit, source));
+        }
+        let upstream = upstream_context;
+        let checkout_path = upstream.as_ref().map(|(_, _, source)| source.checkout.clone());
+
+        let fetch = FetchCache::default();
+        let mut artifacts = Vec::new();
+        let mut materialized: HashMap<String, (String, String)> = HashMap::new();
+
+        if let Some((upstream, _, source)) = &upstream
+            && let Some(license) = &upstream.license
+        {
+            copy_file(&source.checkout, &crate_dir, &license.source, &license.target, &mut artifacts, &mut materialized)?;
+        }
+        let empty_checkout = PathBuf::new();
+        for artifact in &manifest.artifacts {
+            materialize(
+                checkout_path.as_deref().unwrap_or(&empty_checkout),
+                &crate_dir,
+                artifact,
+                &fetch,
+                &mut artifacts,
+                &mut materialized,
+            )?;
+        }
+
+        let mut inputs: Vec<LockedInput> = Vec::new();
+        for spec in &manifest.metadata {
+            let provider = resolve_provider(&spec.provider)?;
+            let context = ProviderContext {
+                checkout: checkout_path.as_deref(),
+                with: &spec.with,
+                fetch: &fetch,
+            };
+            let output = provider
+                .generate(&context)
+                .map_err(|e| e.wrap_err(format!("Provider '{}' failed", spec.provider)))?;
+            let target = crate_dir.join(&spec.output);
+            write_file(&target, &output.content)?;
+            artifacts.push(LockedArtifact {
+                target: spec.output.clone(),
+                sha256: sha256_hex(&output.content),
+                source: format!("provider:{}", spec.provider),
+            });
+            inputs.extend(output.inputs);
+            eprintln!("provider {} -> {}", spec.provider, spec.output);
+        }
+
+        inputs.sort_by(|a, b| a.url.cmp(&b.url));
+        inputs.dedup_by(|a, b| a.url == b.url);
+
+        let lockfile = Lockfile {
+            upstream: upstream.map(|(upstream, commit, _)| LockedUpstream {
+                repo: upstream.repo.clone(),
+                git_ref: upstream.git_ref.clone(),
+                commit,
             }),
-            upstream
-                .license
-                .iter()
-                .map(|license| license.source.clone())
-                .chain(upstream.sparse.iter().cloned()),
-        );
-        let source = git.checkout(&commit, &sparse)?;
-        eprintln!("{}: {}", if source.cache_hit { "cache hit" } else { "fetched" }, source.checkout.display());
-        upstream_context = Some((upstream, commit, source));
-    }
-    let upstream = upstream_context;
-    let checkout_path = upstream.as_ref().map(|(_, _, source)| source.checkout.clone());
-
-    let fetch = FetchCache::default();
-    let mut artifacts = Vec::new();
-    let mut materialized: HashMap<String, (String, String)> = HashMap::new();
-
-    if let Some((upstream, _, source)) = &upstream
-        && let Some(license) = &upstream.license
-    {
-        copy_file(&source.checkout, &crate_dir, &license.source, &license.target, &mut artifacts, &mut materialized)?;
-    }
-    let empty_checkout = PathBuf::new();
-    for artifact in &manifest.artifacts {
-        materialize(
-            checkout_path.as_deref().unwrap_or(&empty_checkout),
-            &crate_dir,
-            artifact,
-            &fetch,
-            &mut artifacts,
-            &mut materialized,
-        )?;
-    }
-
-    let mut inputs: Vec<LockedInput> = Vec::new();
-    for spec in &manifest.metadata {
-        let provider = resolve_provider(&spec.provider)?;
-        let context = ProviderContext {
-            checkout: checkout_path.as_deref(),
-            with: &spec.with,
-            fetch: &fetch,
+            artifacts,
+            inputs,
         };
-        let output = provider
-            .generate(&context)
-            .map_err(|e| e.wrap_err(format!("Provider '{}' failed", spec.provider)))?;
-        let target = crate_dir.join(&spec.output);
-        write_file(&target, &output.content)?;
-        artifacts.push(LockedArtifact {
-            target: spec.output.clone(),
-            sha256: sha256_hex(&output.content),
-            source: format!("provider:{}", spec.provider),
-        });
-        inputs.extend(output.inputs);
-        eprintln!("provider {} -> {}", spec.provider, spec.output);
+
+        remove_stale(&crate_dir, &lockfile)?;
+        lockfile.save(&crate_dir.join(LOCKFILE_NAME))?;
+        eprintln!("wrote {} ({} artifacts, {} inputs)", LOCKFILE_NAME, lockfile.artifacts.len(), lockfile.inputs.len());
+        Ok(())
     }
+}
 
-    inputs.sort_by(|a, b| a.url.cmp(&b.url));
-    inputs.dedup_by(|a, b| a.url == b.url);
-
-    let lockfile = Lockfile {
-        upstream: upstream.map(|(upstream, commit, _)| LockedUpstream {
-            repo: upstream.repo.clone(),
-            git_ref: upstream.git_ref.clone(),
-            commit,
-        }),
-        artifacts,
-        inputs,
-    };
-
-    remove_stale(&crate_dir, &lockfile)?;
-    lockfile.save(&crate_dir.join(LOCKFILE_NAME))?;
-    eprintln!("wrote {} ({} artifacts, {} inputs)", LOCKFILE_NAME, lockfile.artifacts.len(), lockfile.inputs.len());
-    Ok(())
+/// Rewrites `ref = "<old>"` to `ref = "<new>"` in `upstream.toml`,
+/// replacing the whole line (stale pin annotations are dropped — the
+/// bump is reviewed in the commit diff anyway).
+fn rewrite_manifest_ref(manifest_path: &Path, old_ref: &str, new_ref: &str) -> miette::Result<()> {
+    let text = std::fs::read_to_string(manifest_path).into_diagnostic()?;
+    let mut replaced = false;
+    let lines: Vec<String> = text
+        .lines()
+        .map(|line| {
+            if !replaced && line.trim_start().starts_with("ref =") && line.contains(&format!("\"{old_ref}\"")) {
+                replaced = true;
+                format!("ref = \"{new_ref}\"")
+            } else {
+                line.to_string()
+            }
+        })
+        .collect();
+    if !replaced {
+        return Err(miette!("ref = \"{old_ref}\" not found in {}", manifest_path.display()));
+    }
+    let mut body = lines.join("\n");
+    if text.ends_with('\n') {
+        body.push('\n');
+    }
+    std::fs::write(manifest_path, body)
+        .into_diagnostic()
+        .map_err(|e| e.wrap_err(format!("Failed to write {}", manifest_path.display())))
 }
 
 /// Copies `source` (checkout-relative file) to `target`
@@ -411,6 +455,31 @@ fn remove_stale(crate_dir: &Path, lockfile: &Lockfile) -> miette::Result<()> {
 
 #[cfg(test)]
 mod tests {
+    /// Rewrites the ref line and drops its stale annotation.
+    #[test]
+    fn rewrites_manifest_ref() {
+        let dir = std::env::temp_dir().join("xtask-test-rewrite-ref");
+        std::fs::create_dir_all(&dir).unwrap();
+        let manifest = dir.join("upstream.toml");
+        std::fs::write(&manifest, "[upstream]\nrepo = \"a/b\"\nref = \"v1.0.0\"  # tag; vendored 2020-01-01\n").unwrap();
+        rewrite_manifest_ref(&manifest, "v1.0.0", "v1.1.0").unwrap();
+        let text = std::fs::read_to_string(&manifest).unwrap();
+        assert!(text.contains("ref = \"v1.1.0\"\n"), "got: {text}");
+        assert!(!text.contains("vendored 2020-01-01"), "stale comment kept: {text}");
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    /// Missing refs surface as errors, not silent no-ops.
+    #[test]
+    fn rewrite_manifest_ref_fails_on_absent_ref() {
+        let dir = std::env::temp_dir().join("xtask-test-rewrite-ref-missing");
+        std::fs::create_dir_all(&dir).unwrap();
+        let manifest = dir.join("upstream.toml");
+        std::fs::write(&manifest, "[upstream]\nrepo = \"a/b\"\nref = \"v1.0.0\"\n").unwrap();
+        assert!(rewrite_manifest_ref(&manifest, "v9.9.9", "v1.1.0").is_err());
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
     use super::*;
 
     /// Flattened copies dedup identical content and reject conflicts.
