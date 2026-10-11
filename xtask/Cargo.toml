@@ -22,5 +22,8 @@ toml.workspace = true
 zip.workspace = true
 tracing.workspace = true
 
+[dev-dependencies]
+tempfile.workspace = true
+
 [lints]
 workspace = true
