@@ -86,7 +86,7 @@ nerd-fonts-model = { version = "0.4.0", path = "crates/nerd-fonts-model" }
 nerd-fonts-generator = { version = "0.4.0", path = "crates/nerd-fonts-generator" }
 nerd-fonts-rs = { version = "0.4.0", path = "crates/nerd-fonts-rs" }
 fonts-rs-cheat-sheet = { version = "0.4.0", path = "crates/fonts-rs-cheat-sheet" }
-fonts-rs-test = { version = "0.4.0", path = "crates/fonts-rs-test" }
+fonts-rs-test = { path = "crates/fonts-rs-test" }
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
