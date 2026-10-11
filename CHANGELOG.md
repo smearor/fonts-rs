@@ -11,19 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **New font families**: `fonts-rs-tabler`, `fonts-rs-blobmoji`, `fonts-rs-eva`, `fonts-rs-lucide`, `fonts-rs-heroicons`, `fonts-rs-fluent`, `fonts-rs-line-awesome`
-- **Cheat sheets for every font family**: shared `fonts-rs-cheat-sheet` base crate plus per-family applications
+- **New Font Families**: `fonts-rs-tabler`, `fonts-rs-blobmoji`, `fonts-rs-eva`, `fonts-rs-lucide`, `fonts-rs-heroicons`, `fonts-rs-fluent`, `fonts-rs-line-awesome`
+- **Cheat Sheets for every font family**: shared `fonts-rs-cheat-sheet` base crate plus per-family applications
 - **`GlyphSource` abstraction**: `GlyphDescriptor`/`ParsedGlyph` glyph identity, `FontFileSource` (TTF probing) and `SvgDirSource` (directory of pre-rendered SVGs) with filename parsers (`NameParser`, `EmojiUFilenameParser`), `name_resolver`, `name_prefix`, `filter`/`name_filter`, and per-glyph post-processors
 - **`CombinedSource`**: merges multiple `GlyphSource`s into one export with name-marker `svg_for` routing and duplicate name/codepoint detection
-- **Codepoint strategies**: `CodepointStrategy::{FromFilename, FromNameMap, HashedPua, None}` for `SvgDirSource`; deterministic `PuaAllocator` (hash-of-name + linear probing) with `pua_salt` namespaces and a shared allocator for combined sources
-- **SVG post-processors**: `CurrentColor` with `inject_missing` mode (injects `fill="currentColor"` when upstream paths carry no paint attribute), `SymbolicClasses` (GTK symbolic style classes), `Optimize`
+- **Codepoint Strategies**: `CodepointStrategy::{FromFilename, FromNameMap, HashedPua, None}` for `SvgDirSource`; deterministic `PuaAllocator` (hash-of-name + linear probing) with `pua_salt` namespaces and a shared allocator for combined sources
+- **SVG Post-Processors**: `CurrentColor` with `inject_missing` mode (injects `fill="currentColor"` when upstream paths carry no paint attribute), `SymbolicClasses` (GTK symbolic style classes), `Optimize`
 - **`GlyphOrdering` trait**: glyph group tables, `base_of`/`alternates` style-variant sets, `collapse_variants()`, skin-tone groups, lazy `OnceLock` metadata tables
-- **Emoji font support**: multi-codepoint sequences (ZWJ, keycaps) with PUA-backed `GlyphDescriptor::sequence`, bitmap strike blitting into the RGB buffer, skin-tone grouping and tone picker
-- **Icon set support**: families without a font (SVG-only, icon-theme usage)
-- **Capability system**: `FontFamily` core trait with feature-based render modes and a font-family generator macro emitting marker, definition, glyphs and capabilities; new `impl_font_loader!` arms
+- **Emoji Font Support**: multi-codepoint sequences (ZWJ, keycaps) with PUA-backed `GlyphDescriptor::sequence`, bitmap strike blitting into the RGB buffer, skin-tone grouping and tone picker
+- **Icon Set Support**: families without a font (SVG-only, icon-theme usage)
+- **Capability System**: `FontFamily` core trait with feature-based render modes and a font-family generator macro emitting marker, definition, glyphs and capabilities; new `impl_font_loader!` arms
 - **`fonts-rs-test`**: shared test-suite crate extracted from per-family test code
 - **Reproducible vendoring (`xtask`)**: `upstream.toml` manifests, `upstream.lock` with per-artifact SHA-256 pinning, `cargo xtask sync`/`check`/`verify`
-- **Cheat sheet UI**: libadwaita migration, category + group sidebar, tag browser, font metadata display (family name, kind, license), icon-set group selection, style-family ordering, variant/variant-of links, SVG source view with syntax highlighting
+- **Cheat Sheet User Interface**: libadwaita migration, category + group sidebar, tag browser, font metadata display (family name, kind, license), icon-set group selection, style-family ordering, variant/variant-of links, SVG source view with syntax highlighting
 
 ### Changed
 
