@@ -102,8 +102,8 @@ thiserror = "2.0"
 miette = "7.6"
 
 # Font parsing
-skrifa = "0.47"
-read-fonts = "0.44"
+skrifa = "0.48"
+read-fonts = "0.45"
 font-types = "0.12"
 ab_glyph = "0.2"
 woff2-patched = "0.4"
@@ -128,12 +128,12 @@ phf = { version = "0.14", features = ["macros"] }
 tracing = "0.1"
 
 # Base64 encoding
-base64 = "0.22"
+base64 = "0.23"
 
 # Upstream vendoring (xtask)
-toml = "0.9"
-sha2 = "0.10"
+toml = "1.1.8"
+sha2 = "0.11"
 globset = "0.4"
 tar = "0.4"
 flate2 = "1"
-zip = { version = "2", default-features = false, features = ["deflate"] }
+zip = { version = "9.0.1", default-features = false, features = ["deflate"] }

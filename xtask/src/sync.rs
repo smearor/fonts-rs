@@ -345,7 +345,7 @@ fn materialize_archive(
             if entry.is_dir() {
                 continue;
             }
-            let member = entry.name().to_string();
+            let member = entry.name().into_diagnostic()?.into_owned();
             let mut content = Vec::new();
             std::io::Read::read_to_end(&mut entry, &mut content).into_diagnostic()?;
             if emit(&member, &content)? {
