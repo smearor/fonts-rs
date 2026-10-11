@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-11
+
+### Added
+
+- **New font families**: `fonts-rs-tabler`, `fonts-rs-blobmoji`, `fonts-rs-eva`, `fonts-rs-lucide`, `fonts-rs-heroicons`, `fonts-rs-fluent`, `fonts-rs-line-awesome`
+- **Cheat sheets for every font family**: shared `fonts-rs-cheat-sheet` base crate plus per-family applications
+- **`GlyphSource` abstraction**: `GlyphDescriptor`/`ParsedGlyph` glyph identity, `FontFileSource` (TTF probing) and `SvgDirSource` (directory of pre-rendered SVGs) with filename parsers (`NameParser`, `EmojiUFilenameParser`), `name_resolver`, `name_prefix`, `filter`/`name_filter`, and per-glyph post-processors
+- **`CombinedSource`**: merges multiple `GlyphSource`s into one export with name-marker `svg_for` routing and duplicate name/codepoint detection
+- **Codepoint strategies**: `CodepointStrategy::{FromFilename, FromNameMap, HashedPua, None}` for `SvgDirSource`; deterministic `PuaAllocator` (hash-of-name + linear probing) with `pua_salt` namespaces and a shared allocator for combined sources
+- **SVG post-processors**: `CurrentColor` with `inject_missing` mode (injects `fill="currentColor"` when upstream paths carry no paint attribute), `SymbolicClasses` (GTK symbolic style classes), `Optimize`
+- **`GlyphOrdering` trait**: glyph group tables, `base_of`/`alternates` style-variant sets, `collapse_variants()`, skin-tone groups, lazy `OnceLock` metadata tables
+- **Emoji font support**: multi-codepoint sequences (ZWJ, keycaps) with PUA-backed `GlyphDescriptor::sequence`, bitmap strike blitting into the RGB buffer, skin-tone grouping and tone picker
+- **Icon set support**: families without a font (SVG-only, icon-theme usage)
+- **Capability system**: `FontFamily` core trait with feature-based render modes and a font-family generator macro emitting marker, definition, glyphs and capabilities; new `impl_font_loader!` arms
+- **`fonts-rs-test`**: shared test-suite crate extracted from per-family test code
+- **Reproducible vendoring (`xtask`)**: `upstream.toml` manifests, `upstream.lock` with per-artifact SHA-256 pinning, `cargo xtask sync`/`check`/`verify`
+- **Cheat sheet UI**: libadwaita migration, category + group sidebar, tag browser, font metadata display (family name, kind, license), icon-set group selection, style-family ordering, variant/variant-of links, SVG source view with syntax highlighting
+
+### Changed
+
+- **Modular glyph-source machinery** in `fonts-rs-generator`
+- **`HtmlExport` split into two traits**: `HtmlSvgExport` (per-glyph SVG) and `HtmlExport` (document assembly) with `svg_only`/`run_svg` entry points - breaking API change
+- **Ergonomic API**: unified icon-name handling and `Path`-based APIs across family crates; `nerd-fonts-*` config/icon-name refactor
+- **Build hashing**: refactored hash helpers with support for multiple `extra_hash` inputs (`hash_svg_dir`, `hash_str`)
+- **Variant build isolation**: per-variant output naming avoids collisions when compiling with different variant features
+- **`CodemapGenerator`**: forward `phf` map dedupes shared codepoints so style-variant pairs (e.g. Line Awesome regular/solid) compile; reverse map keeps every exported name
+
+### Fixed
+
+- **GTK symbolic recoloring**: `SymbolicClasses` post-processor fixes lucide and tabler icon rendering in cheat sheets
+
 ## [0.3.0] - 2026-09-14
 
 ### Changed
