@@ -29,8 +29,8 @@ impl IconMetadataSource for FaMetadata {
         let categories_yaml = std::fs::read_to_string(&categories_path)?;
         let icons_yaml = std::fs::read_to_string(&icons_path)?;
 
-        let categories: HashMap<String, FaCategories> = serde_yaml::from_str(&categories_yaml)?;
-        let icons: HashMap<String, FaIconEntry> = serde_yaml::from_str(&icons_yaml)?;
+        let categories: HashMap<String, FaCategories> = serde_saphyr::from_str(&categories_yaml)?;
+        let icons: HashMap<String, FaIconEntry> = serde_saphyr::from_str(&icons_yaml)?;
 
         let mut mapping = MetadataMapping::new();
         for cat in categories.values() {
