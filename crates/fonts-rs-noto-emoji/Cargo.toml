@@ -33,7 +33,7 @@ embed-fonts = []
 #   mono (NotoEmoji-Regular) or color (COLRv1) / bitmap (CBDT) x flags
 # If none is active, build.rs defaults to `color-flags`.
 # `renderable` is a marker for variants with visible ab_glyph output
-# (mono silhouettes, bitmap color) — don't enable it directly.
+# (mono silhouettes, bitmap color) - don't enable it directly.
 renderable = []
 mono = ["renderable"]
 color-flags = []

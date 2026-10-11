@@ -1,4 +1,4 @@
-# Upstream sourcing manifest for fonts-rs-dicefont (see concepts/planned/REPRODUCABLE.md).
+# Upstream sourcing manifest for fonts-rs-dicefont
 # Consumed by `cargo xtask sync/check/verify`.
 #
 # No [upstream] section: every resource is vendored from a URL.
@@ -13,7 +13,7 @@ url = "https://raw.githubusercontent.com/fponticelli/dicefont/8f84f12832953f1e86
 target = "resources/dicefont.ttf"
 
 # The vendored OFL text is byte-identical to the Doto OFL
-# (google/fonts ofl/doto/OFL.txt) — it was copied from there
+# (google/fonts ofl/doto/OFL.txt) - it was copied from there
 # because DiceFont upstream ships no license file.
 [[artifacts]]
 url = "https://raw.githubusercontent.com/google/fonts/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/doto/OFL.txt"

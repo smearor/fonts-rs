@@ -143,6 +143,17 @@ This workspace bundles font files from third-party projects. See
 [NOTICE](./NOTICE) for licensing details. Font files retain their original
 licenses (OFL-1.1 for most fonts, MIT for Nerd Fonts).
 
+## Reproducible Upstream Sourcing
+
+Vendored assets are not copied by hand: each crate declares its upstream
+in `upstream.toml` and `cargo xtask sync` materializes `resources/` plus
+a content-hashed `upstream.lock`. `cargo xtask verify` — a CI gate on
+every pull request — re-hashes the committed tree against the lock, and
+a scheduled `cargo xtask check` reports upstream drift. Bumping a family
+to a new upstream release is `cargo xtask sync -p <crate> --update` plus
+a normal diff review. See the
+[Upstream Sourcing](./book/src/upstream-sourcing.md) chapter in the book.
+
 ## Contributing
 
 Contributions are welcome. Please read the

@@ -7,6 +7,7 @@
   - [`fonts-rs-generator`](./fonts-rs-generator.md)
 - [Build Patterns](./build-patterns.md)
 - [Adding a Font Family](./adding-font-family.md)
+- [Upstream Sourcing](./upstream-sourcing.md)
 - [Glyph Resolution](./icon-resolution.md)
 - [Glyph Export](./icon-export.md)
 - [Font Loading](./font-loading.md)

@@ -1,10 +1,10 @@
-# Upstream sourcing manifest for fonts-rs-cuernavaca (see concepts/planned/REPRODUCABLE.md).
+# Upstream sourcing manifest for fonts-rs-cuernavaca
 # Consumed by `cargo xtask sync/check/verify`.
 #
 # No [upstream] section: every resource is vendored from a URL.
 # Not vendored (curated, no upstream source): resources/.gitignore,
 # resources/chess-board.png, resources/COPYING.md (locally added
-# OFL text — upstream ships no license file; the font itself is
+# OFL text - upstream ships no license file; the font itself is
 # effectively public domain per the repo README).
 
 # ChessCuernavaca TTF from samboy/ChessGraphics, pinned to a

@@ -1,4 +1,4 @@
-# Upstream sourcing manifest for fonts-rs-lucide (see concepts/planned/REPRODUCABLE.md).
+# Upstream sourcing manifest for fonts-rs-lucide
 # Consumed by `cargo xtask sync/check/verify`.
 
 [upstream]

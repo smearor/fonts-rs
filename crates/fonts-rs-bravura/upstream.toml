@@ -1,7 +1,7 @@
-# Upstream sourcing manifest for fonts-rs-bravura (see concepts/planned/REPRODUCABLE.md).
+# Upstream sourcing manifest for fonts-rs-bravura
 # Consumed by `cargo xtask sync/check/verify`.
 #
-# No [upstream] section: every resource is vendored from a URL —
+# No [upstream] section: every resource is vendored from a URL -
 # Bravura release assets plus the SMuFL metadata snapshot.
 # Not vendored (curated, no upstream source):
 #   resources/music-sheet.png and resources/.gitignore.

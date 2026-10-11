@@ -1,4 +1,4 @@
-# Upstream sourcing manifest for fonts-rs-fourteen-segment (see concepts/planned/REPRODUCABLE.md).
+# Upstream sourcing manifest for fonts-rs-fourteen-segment
 # Consumed by `cargo xtask sync/check/verify`.
 #
 # No [upstream] section: every resource is vendored from a URL.
@@ -15,7 +15,7 @@ source = "fonts-DSEG_v046"
 target = "resources"
 pattern = "DSEG14*/*.ttf"
 
-# DSEG OFL license text — the vendored copy matches the v0.50beta1
+# DSEG OFL license text - the vendored copy matches the v0.50beta1
 # wording (2020, https); the v0.46 zip still ships the 2017 wording.
 # Pinned to the release tag.
 [[artifacts]]

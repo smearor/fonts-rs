@@ -6,11 +6,11 @@ rust-version.workspace = true
 authors.workspace = true
 repository.workspace = true
 homepage.workspace = true
-description = "Lucide Icons integration for GTK 4 — fontless SVG-only icon set"
+description = "Lucide Icons integration for GTK 4 - fontless SVG-only icon set"
 publish = true
 
 # Lucide Icons are licensed under the ISC License (Feather-derived
-# icons under MIT) — see resources/LICENSE.
+# icons under MIT) - see resources/LICENSE.
 license-file = "resources/LICENSE"
 
 include = [

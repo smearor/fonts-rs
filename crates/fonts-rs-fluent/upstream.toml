@@ -1,9 +1,9 @@
-# Upstream sourcing manifest for fonts-rs-fluent (see concepts/planned/REPRODUCABLE.md).
-# Consumed by `cargo xtask sync/check/verify` once the xtask lands.
+# Upstream sourcing manifest for fonts-rs-fluent
+# Consumed by `cargo xtask sync/check/verify`.
 
 [upstream]
 repo = "microsoft/fluentui-system-icons"
-ref = "a563cf9166f4f91aa617557ed272612b7f0a2f72"  # release 1.1.343 (2026-09-25); no version tags upstream — pin by SHA
+ref = "a563cf9166f4f91aa617557ed272612b7f0a2f72"  # release 1.1.343 (2026-09-25); no version tags upstream - pin by SHA
 
 [upstream.license]
 source = "LICENSE"
@@ -50,4 +50,4 @@ with.iconify_set = "fluent"
 with.suffixes = ["-24-regular", "-24-filled"]
 
 # resources/metadata/hidden.json is a curated exclusion list (see the
-# `exclude` keys above) — hand-maintained, not generated.
+# `exclude` keys above) - hand-maintained, not generated.

@@ -1,9 +1,9 @@
-# Upstream sourcing manifest for fonts-rs-line-awesome (see concepts/planned/REPRODUCABLE.md).
-# Consumed by `cargo xtask sync/check/verify` once the xtask lands.
+# Upstream sourcing manifest for fonts-rs-line-awesome
+# Consumed by `cargo xtask sync/check/verify`.
 
 [upstream]
 repo = "icons8/line-awesome"
-ref = "2bb7870e4d3f3a2d966eea2c94912096621e0662"  # HEAD 2026-07-01; npm 1.3.1; no version tags upstream — pin by SHA
+ref = "2bb7870e4d3f3a2d966eea2c94912096621e0662"  # HEAD 2026-07-01; npm 1.3.1; no version tags upstream - pin by SHA
 # Provider inputs: the metadata providers parse these checkout files.
 sparse = [
   "dist/line-awesome/scss/_variables.scss",
@@ -13,9 +13,9 @@ sparse = [
 
 # resources/LICENSE is curated, not vendored: upstream LICENSE.md only
 # ships the "Good Boy License" while the pack is dual-licensed MIT OR
-# GBL — the committed file keeps the MIT text (we distribute under MIT).
+# GBL - the committed file keeps the MIT text (we distribute under MIT).
 
-# Flat upstream svg/ dir, 1:1 — {name}.svg (regular OR brand) and
+# Flat upstream svg/ dir, 1:1 - {name}.svg (regular OR brand) and
 # {name}-solid.svg (solid). Style is encoded in the filename, not the dir.
 [[artifacts]]
 source = "svg"

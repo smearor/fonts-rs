@@ -1,7 +1,7 @@
-# Upstream sourcing manifest for nerd-fonts-rs (see concepts/planned/REPRODUCABLE.md).
+# Upstream sourcing manifest for nerd-fonts-rs
 # Consumed by `cargo xtask sync/check/verify`.
 #
-# No [upstream] section: every resource is vendored from a URL —
+# No [upstream] section: every resource is vendored from a URL -
 # release asset zip, pinned raw-file URLs and one live API endpoint.
 # Not vendored (curated, no upstream source):
 #   resources/font-face.css, resources/nerd-fonts.gresource.xml,
@@ -36,7 +36,7 @@ target = "resources/metadata/devicon.json"
 url = "https://raw.githubusercontent.com/primer/octicons/6220ff87f3ddd923b05ffdac7e2d9cb714213205/keywords.json"
 target = "resources/metadata/octicons-keywords.json"
 
-# Font Awesome 5.15.4 metadata — the vendored files carry the FA5
+# Font Awesome 5.15.4 metadata - the vendored files carry the FA5
 # schema ('4.4' change versions, no aliases section), not FA6.
 [[artifacts]]
 url = "https://raw.githubusercontent.com/FortAwesome/Font-Awesome/5.15.4/metadata/icons.yml"
@@ -47,7 +47,7 @@ url = "https://raw.githubusercontent.com/FortAwesome/Font-Awesome/5.15.4/metadat
 target = "resources/metadata/fontawesome/categories.yml"
 
 # Material Design icon metadata from the (unversioned) Google Fonts
-# endpoint. Upstream drifts — a sync re-vendors the current snapshot.
+# endpoint. Upstream drifts - a sync re-vendors the current snapshot.
 [[artifacts]]
 url = "https://fonts.google.com/metadata/icons"
 target = "resources/metadata/materialdesign-icons.json"

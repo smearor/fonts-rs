@@ -1,4 +1,4 @@
-# Upstream sourcing manifest for fonts-rs-tabler (see concepts/planned/REPRODUCABLE.md).
+# Upstream sourcing manifest for fonts-rs-tabler
 # Consumed by `cargo xtask sync/check/verify`.
 
 [upstream]
@@ -24,7 +24,7 @@ pattern = "*.svg"
 source = "aliases.json"
 target = "resources/metadata/aliases.json"
 
-# icons.json and the TTFs are npm build artifacts — they exist in the
+# icons.json and the TTFs are npm build artifacts - they exist in the
 # published packages but not in the git checkout, so they are fetched
 # verbatim from unpkg (immutable version pin = the tag above).
 [[artifacts]]

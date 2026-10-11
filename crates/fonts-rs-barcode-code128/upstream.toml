@@ -1,4 +1,4 @@
-# Upstream sourcing manifest for fonts-rs-barcode-code128 (see concepts/planned/REPRODUCABLE.md).
+# Upstream sourcing manifest for fonts-rs-barcode-code128
 # Consumed by `cargo xtask sync/check/verify`.
 #
 # No [upstream] section: every resource is vendored from a URL.

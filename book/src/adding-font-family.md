@@ -36,15 +36,48 @@ crates/fonts-rs-{name}/
     └── fonts.rs       (optional)
 ```
 
-## Step 2: Bundle the Font File
+## Step 2: Vendor the Upstream Assets
 
-Place the TTF/OTF font file and its license into `resources/`:
+Everything under `resources/` that comes from an upstream project is
+**vendored, not copied by hand**: write `upstream.toml` first, then let
+`cargo xtask sync -p fonts-rs-{name}` materialize it. The manifest
+declares where each file comes from (a pinned git ref or an immutable
+URL); `sync` produces `resources/` plus `upstream.lock`, and both are
+committed:
+
+```toml
+# crates/fonts-rs-{name}/upstream.toml
+[upstream]
+repo = "myproject/myfont"     # owner/name shorthand or git URL
+ref = "v1.2.3"                # tag, branch or commit SHA
+
+[upstream.license]
+source = "OFL.txt"
+target = "resources/OFL.txt"
+
+[[artifacts]]
+url = "https://github.com/myproject/myfont/releases/download/v1.2.3/MyFont-Regular.ttf"
+target = "resources/MyFont-Regular.ttf"
+```
+
+```bash
+cargo xtask sync -p fonts-rs-{name}    # writes resources/ + upstream.lock
+cargo xtask verify -p fonts-rs-{name}  # sanity check
+```
+
+Result:
 
 ```
 resources/
 ├── MyFont-Regular.ttf
 └── OFL.txt            (or appropriate license)
 ```
+
+Curated files without an upstream source may live in `resources/` too —
+`verify` warns about them (no lock entry) but accepts them. See the
+[Upstream Sourcing](./upstream-sourcing.md) chapter for the full
+`upstream.toml` schema, provider-generated metadata (`[[metadata]]`)
+and the update-bump procedure (`sync --update`).
 
 ## Step 3: Write `definition.rs`
 

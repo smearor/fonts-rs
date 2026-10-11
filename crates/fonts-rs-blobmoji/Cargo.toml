@@ -34,14 +34,14 @@ embed-fonts = []
 #   color (COLRv1) x flags (with vs without)
 # If none is active, build.rs defaults to `color-flags`.
 # `renderable` is a marker for variants with visible ab_glyph output
-# (the CBDT bitmap strikes) — don't enable it directly.
+# (the CBDT bitmap strikes) - don't enable it directly.
 renderable = []
 color-flags = []
 color-noflags = []
 bitmap-flags = ["renderable"]
 bitmap-noflags = ["renderable"]
 
-# Emoji metadata (keywords/categories) — reserved, not yet generated.
+# Emoji metadata (keywords/categories) - reserved, not yet generated.
 metadata = []
 
 [dependencies]
