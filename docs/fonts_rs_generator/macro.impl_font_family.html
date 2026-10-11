@@ -33,7 +33,7 @@
     </span>capabilities = [icon_theme, pango, html],
 );</code></pre></div>
 <p><code>css_font_family</code> is optional: it overrides
-<a href="::fonts_rs_model::FontFamily::CSS_FONT_FAMILY"><code>FontFamily::CSS_FONT_FAMILY</code></a>
+<a href="../fonts_rs_model/font_family/trait.FontFamily.html#associatedconstant.CSS_FONT_FAMILY" title="associated constant fonts_rs_model::font_family::FontFamily::CSS_FONT_FAMILY"><code>FontFamily::CSS_FONT_FAMILY</code></a>
 when the TTF’s family name differs from <code>FAMILY_DISPLAY_NAME</code>.</p>
 <h2 id="emitted-items"><a class="doc-anchor" href="#emitted-items">§</a>Emitted items</h2>
 <ul>
@@ -44,9 +44,9 @@ via the <code>$glyphs</code> (<code>phf::Map&lt;char, &amp;'static str&gt;</code
 (<code>phf::Map&lt;&amp;'static str, char&gt;</code>) maps.</li>
 <li>One empty impl per declared capability - all capability methods
 are trait defaults. Valid capabilities: <code>icon_theme</code>
-(<a href="::fonts_rs_model::IconThemeFont"><code>IconThemeFont</code></a>), <code>pango</code>
-(<a href="::fonts_rs_model::PangoFont"><code>PangoFont</code></a>), <code>html</code>
-(<a href="::fonts_rs_model::HtmlExport"><code>HtmlExport</code></a>).</li>
+(<a href="../fonts_rs_model/icon_theme_font/trait.IconThemeFont.html" title="trait fonts_rs_model::icon_theme_font::IconThemeFont"><code>IconThemeFont</code></a>), <code>pango</code>
+(<a href="../fonts_rs_model/pango_font/trait.PangoFont.html" title="trait fonts_rs_model::pango_font::PangoFont"><code>PangoFont</code></a>), <code>html</code>
+(<a href="../fonts_rs_model/html_export/trait.HtmlExport.html" title="trait fonts_rs_model::html_export::HtmlExport"><code>HtmlExport</code></a>).</li>
 <li>Inherent forwarding methods for every declared capability plus
 <code>install()</code>/<code>ensure_registered()</code>, so concrete call sites need no
 trait import.</li>
