@@ -170,12 +170,17 @@ fn main() -> miette::Result<()> {
 
     eprintln!("build.rs: active variant: {} -> {}", entry, font_path.display());
 
-    // Expose the active variant's bitmap capability as a cfg - cargo
-    // feature cfgs cannot see the build-time default variant, so tests
-    // gate on this instead.
+    // Expose the active variant's rasterization capability as cfgs -
+    // cargo feature cfgs cannot see the build-time default variant
+    // (under --all-features the fallback variant wins), so tests gate
+    // on these instead.
     println!("cargo::rustc-check-cfg=cfg(noto_emoji_bitmap)");
+    println!("cargo::rustc-check-cfg=cfg(noto_emoji_mono)");
     if entry.as_str().starts_with("bitmap") {
         println!("cargo:rustc-cfg=noto_emoji_bitmap");
+    }
+    if entry.as_str() == "mono" {
+        println!("cargo:rustc-cfg=noto_emoji_mono");
     }
 
     // Set TTF path for pixel-drawing (ab_glyph) at runtime.

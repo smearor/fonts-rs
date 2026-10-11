@@ -122,8 +122,12 @@ mod tests {
 
     /// `render_text` must produce white silhouettes for the `mono`
     /// variant: `NotoEmoji-Regular` carries real `glyf` outlines, so
-    /// the outline path must light up pixels.
-    #[cfg(all(feature = "gtk", feature = "render", feature = "mono"))]
+    /// the outline path must light up pixels. Gated on the
+    /// build-time `noto_emoji_mono` cfg like `noto_emoji_bitmap` -
+    /// under `--all-features` the `mono` feature is set while the
+    /// active variant falls back to the COLRv1 default, which has
+    /// empty outlines.
+    #[cfg(all(feature = "gtk", feature = "render", noto_emoji_mono))]
     #[test]
     fn render_text_draws_mono_outlines() {
         let font = NotoEmoji::font().expect("NOTO_EMOJI_FONT_PATH TTF should load via ab_glyph");
