@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-32bca81d.js";
+            window.path_to_searchindex_js = "searchindex-2160d189.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-cbc065de.js"></script>
+        <script src="toc-8e28fbde.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -329,50 +329,62 @@ fn main() -&gt; miette::Result&lt;()&gt; {
 <li><code>export_glyphs_by_name_map()</code> - uses external name→codepoint mapping</li>
 <li>No <code>extra_hash</code> needed (no variant selection)</li>
 </ul>
-<h2 id="librs---runtime-api"><a class="header" href="#librs---runtime-api"><code>lib.rs</code> - Runtime API</a></h2>
-<p>Each font family crate has a <code>lib.rs</code> with the following structure:</p>
+<h2 id="librs--familyrs---runtime-api"><a class="header" href="#librs--familyrs---runtime-api"><code>lib.rs</code> + <code>family.rs</code> - Runtime API</a></h2>
+<p>Each font family crate wires the generated phf maps into the <code>FontFamily</code>
+trait via <code>impl_font_family!</code> in <code>family.rs</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// family.rs
+use crate::codepoint_map;
+use crate::definition::DotoConfig;
+use crate::naming::Doto;
+use crate::naming::DotoName;
+use crate::variant;
+
+fonts_rs_generator::impl_font_family!(
+    Doto,
+    DotoConfig,
+    glyphs = codepoint_map::GLYPHS,
+    reverse = codepoint_map::REVERSE_GLYPHS,
+    name = DotoName,
+    glyph_prefix = variant::GLYPH_PREFIX,
+    capabilities = [icon_theme, pango, html],
+);
+<span class="boring">}</span></code></pre>
+<p>The macro emits the <code>FontFamily</code> impl (<code>codepoint</code>, <code>glyph_name</code>,
+<code>all_glyphs</code>, <code>glyph_count</code>), the declared capability impls, and
+inherent forwarders so callers write <code>Doto::codepoint("x")</code> without
+importing the trait.</p>
+<p>Valid capability names: <code>icon_theme</code> (<code>IconThemeFont</code> - <code>GtkIconTheme</code>
+registration + <code>glyph_svg</code>/<code>compose_svg</code>), <code>pango</code> (<code>PangoFont</code>),
+<code>html_svg</code> (<code>HtmlSvgExport</code> - inline-SVG HTML export), <code>html</code>
+(<code>HtmlExport</code> - <code>@font-face</code> HTML export on top of <code>html_svg</code>).
+Fontless icon sets declare only <code>[icon_theme, html_svg]</code> - there is no
+TTF for pango or font-face export. <code>SoftwareRender</code> is not a capability
+here; it is emitted by <code>impl_font_loader!</code>.</p>
+<p><code>lib.rs</code> ties everything together:</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>pub mod codepoint_map;   // include!(concat!(env!("OUT_DIR"), "/codemap.rs"))
 pub mod constants;       // include!(concat!(env!("OUT_DIR"), "/icons.rs"))
-pub mod naming;          // FontFamily marker + GlyphName&lt;F&gt; type alias
+pub mod definition;      // FontFamilyConfig implementation
+mod family;              // impl_font_family! invocation
+pub mod naming;          // FontFamilyMarker + GlyphName&lt;F&gt; type alias
 pub mod variant;         // include!(concat!(env!("OUT_DIR"), "/variant.rs"))
 
-#[cfg(feature = "render")]
-pub mod fonts;          // impl_font_loader!(env: "FONT_PATH")
+#[cfg(feature = "gtk")]
+pub mod gtk;             // GtkFont impl (register_glyphs/register_font/load_font)
 
-use fonts_rs_model::CodePoint;
+#[cfg(feature = "render")]
+pub mod fonts;           // impl_font_loader!(env: "FONT_PATH")
 
 // Re-export key types
-pub use naming::DotoName;
-
-// GResource registration (gtk feature)
+pub use definition::DotoConfig;
 #[cfg(feature = "gtk")]
-pub fn register_glyphs() -&gt; Result&lt;(), gio::glib::Error&gt; {
-    gio::resources_register_include!("icons.gresource")?;
-    Ok(())
-}
-
-// Codepoint lookup
-pub trait GlyphNameExt {
-    fn codepoint(&amp;self) -&gt; Option&lt;CodePoint&gt;;
-}
-
-impl GlyphNameExt for DotoName {
-    fn codepoint(&amp;self) -&gt; Option&lt;CodePoint&gt; {
-        let key = self.as_ref();
-        if let Some(ch) = codepoint_map::REVERSE_GLYPHS.get(key).copied() {
-            return Some(CodePoint::from(ch));
-        }
-        let full = format!("{}-{}", variant::GLYPH_PREFIX, key);
-        codepoint_map::REVERSE_GLYPHS.get(&amp;full).copied().map(CodePoint::from)
-    }
-}
-
-// Iterator over all glyphs
-pub fn all_glyphs() -&gt; impl Iterator&lt;Item = (char, &amp;'static str)&gt; {
-    codepoint_map::GLYPHS.entries().map(|(c, name)| (*c, *name))
-}
+pub use fonts_rs_model::GtkFont;
+pub use fonts_rs_model::prelude;
+pub use naming::Doto;
+pub use naming::DotoName;
 <span class="boring">}</span></code></pre>
 <h3 id="generated-modules"><a class="header" href="#generated-modules">Generated Modules</a></h3>
 <p>Three modules are generated by <code>build.rs</code> into <code>OUT_DIR</code>:</p>
@@ -385,13 +397,13 @@ pub fn all_glyphs() -&gt; impl Iterator&lt;Item = (char, &amp;'static str)&gt; {
 <h3 id="namingrs---font-family-marker"><a class="header" href="#namingrs---font-family-marker"><code>naming.rs</code> - Font Family Marker</a></h3>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>use fonts_rs_model::FontFamily;
+</span>use fonts_rs_model::FontFamilyMarker;
 use fonts_rs_model::GlyphName;
 use fonts_rs_model::sealed;
 
 pub enum Doto {}
 
-impl FontFamily for Doto {}
+impl FontFamilyMarker for Doto {}
 impl sealed::Sealed for Doto {}
 
 pub type DotoName = GlyphName&lt;Doto&gt;;

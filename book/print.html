@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-32bca81d.js";
+            window.path_to_searchindex_js = "searchindex-2160d189.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-cbc065de.js"></script>
+        <script src="toc-8e28fbde.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -265,11 +265,19 @@ functionality (e.g. Noto Emoji CLDR annotations)</li>
 <tr><td><code>fonts-rs-redacted</code></td><td>Redacted</td><td>OFL-1.1</td><td>-</td></tr>
 <tr><td><code>fonts-rs-dicefont</code></td><td>DiceFont</td><td>OFL-1.1</td><td>-</td></tr>
 <tr><td><code>fonts-rs-cuernavaca</code></td><td>Cuernavaca</td><td>OFL-1.1</td><td>-</td></tr>
-<tr><td><code>fonts-rs-noto-emoji</code></td><td>Noto Emoji</td><td>OFL-1.1</td><td>-</td></tr>
+<tr><td><code>fonts-rs-noto-emoji</code></td><td>Noto Emoji</td><td>OFL-1.1</td><td>COLRv1/bitmap × flags</td></tr>
+<tr><td><code>fonts-rs-blobmoji</code></td><td>Blobmoji</td><td>OFL-1.1</td><td>COLRv1/bitmap × flags</td></tr>
+<tr><td><code>fonts-rs-tabler</code></td><td>Tabler Icons</td><td>MIT</td><td>outline, filled</td></tr>
+<tr><td><code>fonts-rs-lucide</code></td><td>Lucide Icons</td><td>ISC</td><td>fontless (SVG-only)</td></tr>
+<tr><td><code>fonts-rs-heroicons</code></td><td>Heroicons</td><td>MIT</td><td>fontless (SVG-only) × outline, solid, mini, micro</td></tr>
+<tr><td><code>fonts-rs-eva</code></td><td>Eva Icons</td><td>MIT</td><td>outline, filled</td></tr>
+<tr><td><code>fonts-rs-line-awesome</code></td><td>Line Awesome</td><td>MIT (or Good Boy)</td><td>regular, solid, brands (multi-TTF)</td></tr>
 <tr><td><code>nerd-fonts-rs</code></td><td>Nerd Fonts</td><td>MIT</td><td>-</td></tr>
 </tbody>
 </table>
 </div>
+<p>Each icon family ships a companion <code>*-cheat-sheet</code> app built on the
+generic <code>fonts-rs-cheat-sheet</code> crate.</p>
 <h2 id="license"><a class="header" href="#license">License</a></h2>
 <p>MIT for framework code. Font files retain their original licenses (OFL-1.1
 for most fonts, MIT for Nerd Fonts). See <a href="https://github.com/smearor/fonts-rs/blob/main/LICENSE">LICENSE</a>.</p>
@@ -344,30 +352,27 @@ nerd-fonts-rs = { version = "0.1", features = ["metadata"] }
 </code></pre>
 <h2 id="quick-start"><a class="header" href="#quick-start">Quick Start</a></h2>
 <h3 id="font-family-crate-eg-doto"><a class="header" href="#font-family-crate-eg-doto">Font Family Crate (e.g. Doto)</a></h3>
-<pre class="playground"><code class="language-rust">use fonts_rs_doto::register_glyphs;
-use fonts_rs_doto::GlyphNameExt;
-use fonts_rs_doto::DotoName;
+<pre class="playground"><code class="language-rust">use fonts_rs_doto::Doto;
 
 fn main() {
-    // Register GResource (gtk feature)
-    register_glyphs().unwrap();
+    // Register GResource + install font (gtk feature)
+    Doto::install().unwrap();
 
     // Look up a glyph by name
-    let name = DotoName::new("doto-a".to_string());
-    if let Some(codepoint) = name.codepoint() {
-        println!("Glyph codepoint: U+{:04X}", codepoint as u32);
+    if let Some(codepoint) = Doto::codepoint("doto-a") {
+        println!("Glyph codepoint: U+{:04X}", codepoint.as_char() as u32);
     }
 }</code></pre>
 <h3 id="nerd-fonts-nerd-fonts-rs"><a class="header" href="#nerd-fonts-nerd-fonts-rs">Nerd Fonts (nerd-fonts-rs)</a></h3>
-<pre class="playground"><code class="language-rust">use nerd_fonts_rs::{init, resolve_icon_codepoint};
+<pre class="playground"><code class="language-rust">use nerd_fonts_rs::NerdFonts;
 
 fn main() {
     // Call once at startup
-    init(None);
+    nerd_fonts_rs::init().unwrap();
 
     // Resolve an icon name to its Unicode codepoint
-    if let Some(c) = resolve_icon_codepoint("nf-fa-gamepad") {
-        println!("Gamepad icon: U+{:04X}", c as u32);
+    if let Some(c) = NerdFonts::codepoint("nf-fa-gamepad") {
+        println!("Gamepad icon: U+{:04X}", c.as_char() as u32);
     }
 }</code></pre>
 <h2 id="running-tests"><a class="header" href="#running-tests">Running Tests</a></h2>
@@ -382,17 +387,17 @@ browser, or run <code>mdbook serve</code> for live preview during development.</
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="architecture"><a class="header" href="#architecture">Architecture</a></h1>
 <h2 id="workspace-structure"><a class="header" href="#workspace-structure">Workspace Structure</a></h2>
-<p>The workspace is organized into 19 crates across three layers:</p>
+<p>The workspace is organized into four layers:</p>
 <div class="table-wrapper">
 <table>
 <thead>
 <tr><th>Layer</th><th>Crates</th><th>Role</th></tr>
 </thead>
 <tbody>
-<tr><td>Generic framework</td><td><code>fonts-rs-model</code>, <code>fonts-rs-generator</code></td><td>Shared types and build pipeline</td></tr>
-<tr><td>Font families</td><td><code>fonts-rs-doto</code>, <code>fonts-rs-bravura</code>, … (10 crates)</td><td>One crate per font family</td></tr>
+<tr><td>Generic framework</td><td><code>fonts-rs-model</code>, <code>fonts-rs-generator</code>, <code>fonts-rs-test</code></td><td>Shared types, build pipeline, test fixtures</td></tr>
+<tr><td>Font families</td><td><code>fonts-rs-doto</code>, <code>fonts-rs-bravura</code>, <code>fonts-rs-tabler</code>, <code>fonts-rs-lucide</code>, …</td><td>One crate per font/icon family</td></tr>
 <tr><td>Nerd Fonts</td><td><code>nerd-fonts-model</code>, <code>nerd-fonts-generator</code>, <code>nerd-fonts-rs</code></td><td>Nerd Fonts-specific integration</td></tr>
-<tr><td>Applications</td><td><code>nerd-fonts-cheat-sheet</code>, <code>fonts-rs-noto-emoji-cheat-sheet</code></td><td>Demo / cheat sheet apps</td></tr>
+<tr><td>Applications</td><td><code>fonts-rs-cheat-sheet</code> + <code>*-cheat-sheet</code> crates</td><td>Generic cheat sheet library + per-family apps</td></tr>
 </tbody>
 </table>
 </div>
@@ -410,17 +415,33 @@ browser, or run <code>mdbook serve</code> for live preview during development.</
     Gen --&gt; Bravura
     Model --&gt; Seven["fonts-rs-seven-segment"]
     Gen --&gt; Seven
+    Model --&gt; Tabler["fonts-rs-tabler"]
+    Gen --&gt; Tabler
+    Model --&gt; Lucide["fonts-rs-lucide (fontless)"]
+    Gen --&gt; Lucide
+    Model --&gt; Heroicons["fonts-rs-heroicons (fontless)"]
+    Gen --&gt; Heroicons
 
     NotoGen --&gt; NotoEmoji["fonts-rs-noto-emoji"]
     NFGen --&gt; NFRs["nerd-fonts-rs"]
     Model --&gt; NFRs
 
+    CheatSheet["fonts-rs-cheat-sheet (generic)"]
     NotoEmoji --&gt; NotoCS["fonts-rs-noto-emoji-cheat-sheet"]
+    Lucide --&gt; LucideCS["fonts-rs-lucide-cheat-sheet"]
+    Heroicons --&gt; HeroiconsCS["fonts-rs-heroicons-cheat-sheet"]
     NFRs --&gt; NFCS["nerd-fonts-cheat-sheet"]
+    CheatSheet --&gt; NotoCS
+    CheatSheet --&gt; LucideCS
+    CheatSheet --&gt; HeroiconsCS
+    CheatSheet --&gt; NFCS
 </pre>
 
 <h2 id="build-pipeline"><a class="header" href="#build-pipeline">Build Pipeline</a></h2>
-<p>Each font family crate follows the same build pipeline via <code>FontBuild</code>:</p>
+<p>Each font family crate follows the same build pipeline via <code>FontBuild</code>.
+Fontless icon sets (Lucide, Heroicons) use <code>FontBuild::svg_only()</code> + <code>run_svg()</code> -
+same artifacts, but the input is an SVG directory and change detection
+relies entirely on <code>extra_hash</code> components:</p>
 <pre class="mermaid">flowchart TD
     Font["Font file (TTF/OTF)"] --&gt; Hash["FNV-1a hash"]
     Hash --&gt; Check{"Hash changed?"}
@@ -463,9 +484,10 @@ variant changes even if the font file is unchanged.</p>
 │   ├── {license}.txt   # Font license
 │   └── icons.gresource.xml  # Generated by build.rs
 └── src/
-    ├── lib.rs          # Runtime API (register_glyphs, all_glyphs, GlyphNameExt)
+    ├── lib.rs          # Crate root: module wiring + re-exports
+    ├── family.rs       # impl_font_family! - FontFamily + capability impls
     ├── definition.rs   # FontFamilyConfig implementation
-    ├── naming.rs       # FontFamily marker enum + GlyphName&lt;F&gt; type alias
+    ├── naming.rs       # FontFamilyMarker enum + GlyphName&lt;F&gt; type alias
     ├── variant.rs      # include!(OUT_DIR/variant.rs)
     ├── codepoint_map.rs # include!(OUT_DIR/codemap.rs)
     ├── constants.rs    # include!(OUT_DIR/icons.rs)
@@ -494,8 +516,10 @@ all exported SVG glyph files</li>
 <li><strong><code>font.gresource</code></strong> (optional) from <code>resources/font.gresource.xml</code> -
 contains the font file itself for GResource-based font loading</li>
 </ol>
-<p>At runtime, <code>register_glyphs()</code> registers the GResource bundle via
-<code>gio::resources_register_include!("icons.gresource")</code>.</p>
+<p>At runtime, <code>MyFont::install()</code> registers the GResource bundle via
+<code>gio::resources_register_include!("icons.gresource")</code> and loads the TTF.
+Registration is lazy and idempotent via <code>GtkFont::ensure_registered()</code> -
+glyph accessors call it automatically.</p>
 <h2 id="initialization-flow"><a class="header" href="#initialization-flow">Initialization Flow</a></h2>
 <pre class="mermaid">sequenceDiagram
     participant App as Application
@@ -503,13 +527,13 @@ contains the font file itself for GResource-based font loading</li>
     participant GResource as GResource
     participant CSS as CssProvider
 
-    App-&gt;&gt;Crate: register_glyphs()
+    App-&gt;&gt;Crate: MyFont::install()
     Crate-&gt;&gt;GResource: resources_register_include!("icons.gresource")
     GResource--&gt;&gt;Crate: OK
     Crate--&gt;&gt;App: Ready
 
     Note over App,CSS: For Nerd Fonts (nerd-fonts-rs only)
-    App-&gt;&gt;Crate: init(base_dir)
+    App-&gt;&gt;Crate: init()
     Crate-&gt;&gt;GResource: Register font + icon GResources
     Crate-&gt;&gt;CSS: Load font_face_css() into CssProvider
     Crate-&gt;&gt;CSS: Add provider to default display
@@ -522,14 +546,14 @@ contains the font file itself for GResource-based font loading</li>
 all <code>fonts-rs-*</code> crates. These types are the foundation of the modular fonts
 framework, enabling any font family crate to use the same build pipeline
 without Nerd Fonts dependencies.</p>
-<h2 id="fontfamily-marker-trait"><a class="header" href="#fontfamily-marker-trait"><code>FontFamily</code> (Marker Trait)</a></h2>
+<h2 id="fontfamilymarker-marker-trait"><a class="header" href="#fontfamilymarker-marker-trait"><code>FontFamilyMarker</code> (Marker Trait)</a></h2>
 <p>A sealed marker trait that identifies each font family at compile time.
-Each font family crate defines a zero-sized enum implementing <code>FontFamily</code>
-and the private <code>Sealed</code> trait. This prevents external crates from defining
-their own font family markers.</p>
+Each font family crate defines a zero-sized enum implementing
+<code>FontFamilyMarker</code> and the private <code>Sealed</code> trait. This prevents external
+crates from defining their own font family markers.</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>pub trait FontFamily: sealed::Sealed {}
+</span>pub trait FontFamilyMarker: sealed::Sealed {}
 <span class="boring">}</span></code></pre>
 <p>Used as the phantom type parameter in <code>GlyphName&lt;F&gt;</code>, so that
 <code>GlyphName&lt;Doto&gt;</code> and <code>GlyphName&lt;SevenSegment&gt;</code> are distinct types at
@@ -537,14 +561,36 @@ compile time - preventing mix-ups between font families.</p>
 <h3 id="example"><a class="header" href="#example">Example</a></h3>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>use fonts_rs_model::FontFamily;
+</span>use fonts_rs_model::FontFamilyMarker;
 use fonts_rs_model::sealed;
 
 pub enum Doto {}
 
-impl FontFamily for Doto {}
+impl FontFamilyMarker for Doto {}
 impl sealed::Sealed for Doto {}
 <span class="boring">}</span></code></pre>
+<h2 id="fontfamily-core-trait"><a class="header" href="#fontfamily-core-trait"><code>FontFamily</code> (Core Trait)</a></h2>
+<p>The runtime glyph API implemented by each font family marker type -
+typically via <code>impl_font_family!</code> in <code>family.rs</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait FontFamily: FontFamilyMarker + FontFamilyConfig {
+    type Name: AsRef&lt;str&gt; + FromStr;
+    const VARIANTS: &amp;'static [FontVariant] = &amp;[];
+
+    fn glyph_name(ch: impl Into&lt;CodePoint&gt;) -&gt; Option&lt;Self::Name&gt;;
+    fn codepoint(name: impl AsRef&lt;str&gt;) -&gt; Option&lt;CodePoint&gt;;
+    fn all_glyphs() -&gt; impl Iterator&lt;Item = (CodePoint, Self::Name)&gt;;
+    fn glyph_count() -&gt; usize { Self::all_glyphs().count() }
+}
+<span class="boring">}</span></code></pre>
+<p>The lookup methods are generic: <code>codepoint</code> accepts <code>&amp;str</code>, <code>String</code>,
+and the typed <code>Self::Name</code> (<code>GlyphName&lt;F&gt;</code> / <code>IconName</code>) via <code>AsRef&lt;str&gt;</code>;
+<code>glyph_name</code> accepts <code>char</code> and <code>CodePoint</code> via <code>Into&lt;CodePoint&gt;</code>.
+<code>all_glyphs</code> yields the typed <code>Self::Name</code> - use <code>name.as_ref()</code> when
+plain <code>&amp;str</code> access is enough.</p>
+<p>The macro also emits inherent forwarders, so callers write
+<code>Doto::codepoint("doto-a")</code> without importing the trait.</p>
 <h2 id="fontfamilyconfig-trait"><a class="header" href="#fontfamilyconfig-trait"><code>FontFamilyConfig</code> (Trait)</a></h2>
 <p>Base configuration for all font families. Provides compile-time constants
 for GResource prefixes, icon context directories, and codepoint ranges.
@@ -558,10 +604,12 @@ Used by both <code>FontDefinition</code> (type-safe glyph names) and <code>Expor
     const GRESOURCE_PREFIX: &amp;'static str;
     const ICONS_CONTEXT: &amp;'static str = ICONS_CONTEXT_GLYPHS;
     const CODEPOINT_RANGES: &amp;[CodePointRange] = &amp;[BMP_RANGE];
+    const ICON_PREFIX: &amp;'static str = "";
 
     fn icons_dir(output_dir: &amp;Path) -&gt; PathBuf { ... }
     fn prepare_icons_dir(output_dir: &amp;Path) -&gt; std::io::Result&lt;PathBuf&gt; { ... }
     fn icons_resource_prefix() -&gt; String { ... }
+    fn is_valid_icon_name(name: &amp;str) -&gt; bool { ... }
 }
 <span class="boring">}</span></code></pre>
 <h3 id="constants"><a class="header" href="#constants">Constants</a></h3>
@@ -576,6 +624,8 @@ Used by both <code>FontDefinition</code> (type-safe glyph names) and <code>Expor
 override e.g. <code>"emoji"</code> for Noto Emoji</li>
 <li><strong><code>CODEPOINT_RANGES</code></strong>: Unicode ranges for reverse cmap probing -
 default BMP, override e.g. <code>ASCII_PRINTABLE_RANGE</code> for barcode fonts</li>
+<li><strong><code>ICON_PREFIX</code></strong>: Icon name prefix for icon fonts (e.g. <code>"nf-"</code> for
+Nerd Fonts, <code>"tabler-"</code> for Tabler). Empty for non-icon families.</li>
 </ul>
 <h3 id="methods"><a class="header" href="#methods">Methods</a></h3>
 <ul>
@@ -583,6 +633,14 @@ default BMP, override e.g. <code>ASCII_PRINTABLE_RANGE</code> for barcode fonts<
 recreates it (avoids stale SVGs from previous builds)</li>
 <li><strong><code>icons_dir</code></strong>: Returns the path to <code>scalable/{context}/</code> within the
 output directory</li>
+<li><strong><code>icons_resource_prefix</code></strong>: Returns
+<code>{GRESOURCE_PREFIX}/scalable/{ICONS_CONTEXT}</code> - the canonical resource
+layout for icon-theme glyphs. Every family ships SVGs at
+<code>{prefix}/scalable/{context}/{name}.svg</code>; override only when upstream
+assets demand a different layout.</li>
+<li><strong><code>is_valid_icon_name</code></strong>: Validation hook used by <code>IconName&lt;F&gt;</code> -
+default accepts names starting with <code>ICON_PREFIX</code>; multi-set fonts
+override it (Nerd Fonts delegates to <code>IconSet</code> prefix detection).</li>
 </ul>
 <h2 id="fontdefinition-trait"><a class="header" href="#fontdefinition-trait"><code>FontDefinition</code> (Trait)</a></h2>
 <p>Extends <code>FontFamilyConfig</code> with type-safe glyph name processing and a
@@ -592,7 +650,7 @@ PostScript glyph names (e.g. Barcode, Seven-Segment).</p>
 </span><span class="boring">fn main() {
 </span>pub trait FontDefinition: FontFamilyConfig {
     type Name: AsRef&lt;str&gt; + Clone + Ord + Serialize + for&lt;'a&gt; Deserialize&lt;'a&gt;;
-    type Family: FontFamily;
+    type Family: FontFamilyMarker;
 
     fn normalize_name(raw_glyph_name: &amp;str) -&gt; Option&lt;Self::Name&gt;;
     fn should_skip(raw_glyph_name: &amp;str) -&gt; bool { ... }
@@ -727,7 +785,7 @@ the <code>ExportConfig</code> pipeline, <code>IconName</code> for Nerd Fonts</li
 <p>Phantom-typed glyph name newtype:</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>pub struct GlyphName&lt;F: FontFamily&gt; {
+</span>pub struct GlyphName&lt;F: FontFamilyMarker&gt; {
     name: String,
     _marker: PhantomData&lt;F&gt;,
 }
@@ -739,6 +797,181 @@ the <code>ExportConfig</code> pipeline, <code>IconName</code> for Nerd Fonts</li
 </span><span class="boring">fn main() {
 </span>pub type DotoName = GlyphName&lt;Doto&gt;;
 <span class="boring">}</span></code></pre>
+<h2 id="iconnamef"><a class="header" href="#iconnamef"><code>IconName&lt;F&gt;</code></a></h2>
+<p>Phantom-typed GTK icon name for icon font families - the icon-font
+counterpart of <code>GlyphName&lt;F&gt;</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct IconName&lt;F: FontFamilyConfig&gt; {
+    name: String,
+    _marker: PhantomData&lt;F&gt;,
+}
+<span class="boring">}</span></code></pre>
+<p>Normalizes raw glyph names to the canonical <code>{ICON_PREFIX}{kebab}-symbolic</code>
+form (lowercase, <code>_</code> → <code>-</code>, <code>-symbolic</code> suffix) and validates via
+<code>F::is_valid_icon_name</code>. Implements <code>AsRef&lt;str&gt;</code>, <code>Display</code>, <code>FromStr</code>,
+<code>Serialize</code>, <code>Deserialize</code>, <code>Hash</code>, <code>Eq</code>, <code>Ord</code> - all without bounds on <code>F</code>.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// nerd-fonts-model
+pub type IconName = fonts_rs_model::IconName&lt;NerdFontsConfig&gt;;
+<span class="boring">}</span></code></pre>
+<p>Key methods: <code>IconName::parse</code> (accepts <code>nf-fa-x</code>, <code>nf-fa-x-symbolic</code>,
+<code>fa-x</code>), <code>from_glyph_name</code>, <code>css_class_name</code> (name without <code>-symbolic</code>),
+<code>icon_set</code> (delegates to <code>F: IconSetDetect</code> when implemented).</p>
+<h2 id="iconsetdetect-trait"><a class="header" href="#iconsetdetect-trait"><code>IconSetDetect</code> (Trait)</a></h2>
+<p>Optional capability for multi-set icon fonts - detects which icon set a
+name belongs to:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait IconSetDetect {
+    type IconSet;
+    fn detect_icon_set(icon_name: &amp;str) -&gt; Self::IconSet;
+}
+<span class="boring">}</span></code></pre>
+<p>Nerd Fonts implements it with its <code>IconSet</code> enum; single-set icon fonts
+simply don’t implement it. <code>IconName::icon_set</code> is only available when
+<code>F: IconSetDetect</code>.</p>
+<h2 id="glyph-metadata-glyphmetadata"><a class="header" href="#glyph-metadata-glyphmetadata">Glyph Metadata (<code>GlyphMetadata</code>)</a></h2>
+<p>Search metadata behind each family’s <code>metadata</code> feature: keywords,
+categories, and aliases as compile-time <code>phf</code> maps generated by a
+<code>MetadataGenerator</code> in <code>build.rs</code> (see
+<a href="#fonts-rs-generator---build-time-pipeline">fonts-rs-generator</a>).</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait GlyphMetadata: Sync {
+    fn keyword_map(&amp;self) -&gt; &amp;GlyphKeywordMap;
+    fn category_map(&amp;self) -&gt; &amp;GlyphCategoryMap;
+    fn keywords(&amp;self, glyph_name: impl AsRef&lt;str&gt;) -&gt; &amp;'static [GlyphKeyword];
+    fn categories(&amp;self, glyph_name: impl AsRef&lt;str&gt;) -&gt; &amp;'static [GlyphCategory];
+    fn aliases(&amp;self) -&gt; &amp;'static [(String, String)] { &amp;[] }
+    fn search(&amp;self, query: &amp;str) -&gt; Vec&lt;&amp;'static str&gt; { ... }
+}
+<span class="boring">}</span></code></pre>
+<ul>
+<li><code>categories()</code> is a <strong>filter axis</strong> - a glyph may carry several
+categories; they render as pills in the cheat sheet.</li>
+<li><code>search()</code> matches names, keywords, categories, and aliases
+case-insensitively; families without upstream keywords (dicefont,
+cuernavaca) still get name+category search.</li>
+</ul>
+<h2 id="glyph-ordering-glyphordering"><a class="header" href="#glyph-ordering-glyphordering">Glyph Ordering (<code>GlyphOrdering</code>)</a></h2>
+<p>Optional canonical ordering contract - the generic form of the emoji
+picker ordering. Consumers obtain <code>Option&lt;&amp;'static dyn GlyphOrdering&gt;</code>
+via <code>CheatSheetFamily::ordering()</code> and stay family-agnostic:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait GlyphOrdering: Sync {
+    fn order_index(&amp;self, name: &amp;str) -&gt; Option&lt;u32&gt;;     // canonical position, bases only
+    fn group(&amp;self, name: &amp;str) -&gt; Option&lt;GroupLabel&gt;;    // label per glyph, variants included
+    fn group_labels(&amp;self) -&gt; &amp;'static [GroupLabel];      // jump-list order
+    fn groups(&amp;self) -&gt; &amp;'static [GlyphGroup];            // picker layout per group
+    fn alternates(&amp;self, name: &amp;str) -&gt; &amp;'static [&amp;'static str] { &amp;[] }
+    fn base_of(&amp;self, name: &amp;str) -&gt; Option&lt;&amp;'static str&gt;; // variant -&gt; base
+    fn tone_group(&amp;self, name: &amp;str) -&gt; Option&lt;u32&gt; { None }
+    fn collapse_variants(&amp;self) -&gt; bool { true }
+}
+<span class="boring">}</span></code></pre>
+<ul>
+<li><strong><code>order_index</code></strong> numbers only base/standalone glyphs; variants sort
+next to their base via <code>base_of</code>.</li>
+<li><strong><code>group</code>/<code>group_labels</code>/<code>groups</code></strong> partition the glyphs (each glyph
+in exactly one group - unlike categories) and drive the group
+drop-down plus the sidebar “Groups” section.</li>
+<li><strong><code>base_of</code>/<code>alternates</code></strong> link variants (skin tones, styles,
+upside-down pieces) to their base glyph; the pair powers the detail
+sidebar’s “Variants”/“Variant of” section.</li>
+<li><strong><code>collapse_variants</code></strong> - <code>true</code> lets the browse grid hide variants
+behind their base (emoji tones, dicefont styles, cuernavaca pieces).
+Style families (line-awesome, fluent, eva, heroicons) return <code>false</code>:
+collapsing would hide an entire style from the “All groups” view;
+the <code>base_of</code>/<code>alternates</code> link still applies for variant links and
+sorting.</li>
+<li><strong><code>tone_group</code></strong> - emoji-only: entries sharing a group have the same
+alternates shape, so one default-tone choice applies everywhere.</li>
+</ul>
+<h3 id="table-sources"><a class="header" href="#table-sources">Table sources</a></h3>
+<p>Everything is <code>'static</code> - two proven sources:</p>
+<ul>
+<li><strong>Codegen’d <code>phf</code> maps</strong> (emoji): <code>EmojiOrderingGenerator</code> reads
+<code>emoji_*_ordering.json</code> in <code>build.rs</code> and emits <code>ORDERING</code>,
+<code>GROUP_OF</code>, <code>ALTERNATES</code>, <code>BASE_OF</code>, <code>TONE_GROUP</code>, <code>GROUPS</code>.</li>
+<li><strong>Lazy derivation</strong> (no upstream ordering file): a <code>OnceLock</code>-cached
+<code>OrderingTables</code> struct built once from <code>REVERSE_GLYPHS</code> (all
+exported names) plus a small static rule table - the
+line-awesome/nerd-fonts pattern, also used by dicefont and
+cuernavaca. Group assignment, <code>base_of</code>/<code>alternates</code> links, and the
+canonical index all derive from name parsing at first use.</li>
+</ul>
+<h2 id="capability-traits"><a class="header" href="#capability-traits">Capability Traits</a></h2>
+<p>Optional capabilities are declared per family in <code>impl_font_family!</code>
+(<code>capabilities = [...]</code>); each emits an empty impl whose methods are
+trait defaults built on <code>FontFamily</code> + <code>GtkFont</code>. Valid capability
+names: <code>icon_theme</code>, <code>pango</code>, <code>html_svg</code>, <code>html</code>.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait IconThemeFont: FontFamily + GtkFont {
+    fn install_icon_theme(display: &amp;gtk4::gdk::Display) -&gt; Result&lt;(), FontError&gt;;
+    fn icon_theme_path() -&gt; String;
+    fn glyph_svg(name: impl AsRef&lt;str&gt;) -&gt; Option&lt;String&gt;;
+    fn compose_svg(text: &amp;str, glyph_height: f64) -&gt; String;
+}
+<span class="boring">}</span></code></pre>
+<ul>
+<li><strong><code>icon_theme</code></strong> ([<code>IconThemeFont</code>]): registers the glyph GResource
+and adds <code>icons_resource_prefix()</code> to the display’s <code>GtkIconTheme</code>, so
+<code>gtk4::Image::from_icon_name()</code> resolves family glyphs. <code>glyph_svg</code>
+returns one glyph’s SVG document, <code>compose_svg</code> lays out text as a
+single side-by-side SVG. Works for fontless families too - everything
+routes through the GResource.</li>
+<li><strong><code>pango</code></strong> ([<code>PangoFont</code>]): text shaping/measurement via the bundled
+TTF - not available for fontless sets.</li>
+</ul>
+<h2 id="html-export-htmlsvgexport--htmlexport"><a class="header" href="#html-export-htmlsvgexport--htmlexport">HTML Export (<code>HtmlSvgExport</code> + <code>HtmlExport</code>)</a></h2>
+<p>HTML export is split into two traits so fontless families can
+participate:</p>
+<ul>
+<li><strong><code>HtmlSvgExport: IconThemeFont</code></strong> - the <code>html_svg</code> capability.
+Provides <code>html()</code> returning an <code>HtmlBuilder&lt;F&gt;</code> whose <code>render()</code> /
+<code>write()</code> produce a self-contained page of inline <code>&lt;svg&gt;</code> elements
+(no TTF needed - Lucide, Tabler-level support).</li>
+<li><strong><code>HtmlExport: HtmlSvgExport</code></strong> - the <code>html</code> capability.
+Additionally embeds the TTF via <code>css_font_face()</code> (<code>@font-face</code> with
+base64 data URI) and unlocks <code>render_font_face()</code> /
+<code>write_font_face()</code> on the builder. Requires a loadable font.</li>
+</ul>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait HtmlSvgExport: IconThemeFont {
+    fn html() -&gt; HtmlBuilder&lt;Self&gt; { HtmlBuilder::new() }
+}
+
+pub trait HtmlExport: HtmlSvgExport {
+    fn css_font_face() -&gt; Result&lt;String, FontError&gt; { ... }
+}
+<span class="boring">}</span></code></pre>
+<h3 id="htmlbuilderf"><a class="header" href="#htmlbuilderf"><code>HtmlBuilder&lt;F&gt;</code></a></h3>
+<p>Fluent builder (<code>html()</code> entry point). <code>F</code> is a phantom marker - no
+value is stored.</p>
+<ul>
+<li><strong><code>title(s)</code></strong> - page title (default <code>F::FAMILY_DISPLAY_NAME</code>)</li>
+<li><strong><code>glyphs(codepoints)</code></strong> - restrict the inline-SVG grid (default: all)</li>
+<li><strong><code>render()</code> / <code>write(path)</code></strong> - inline-SVG page (any <code>IconThemeFont</code>)</li>
+<li><strong><code>sample_text(s)</code> / <code>css_class(s)</code></strong> - <code>@font-face</code> mode options</li>
+<li><strong><code>render_font_face()</code> / <code>write_font_face(path)</code></strong> - <code>@font-face</code>
+page (<code>HtmlExport</code> families only)</li>
+</ul>
+<h2 id="icon-css-helpers"><a class="header" href="#icon-css-helpers">Icon CSS helpers</a></h2>
+<ul>
+<li><strong><code>icon_css::&lt;F&gt;()</code></strong> (<code>fonts-rs-model</code>, <code>gtk</code> feature): generates the
+GTK CSS class rule <code>.{ICON_PREFIX}* { font-family: ... }</code> used by
+family init paths.</li>
+<li><strong><code>load_css(css)</code></strong> (<code>fonts-rs-model</code>, <code>gtk</code> feature): loads a
+<code>CssProvider</code> onto the default display at application priority.</li>
+<li><strong><code>web_icon_css_rules(icons, class_prefix)</code></strong> (<code>fonts-rs-generator</code>):
+emits per-icon <code>.prefix-name:before { content: "\xxxx" }</code> rules for
+web CSS generators.</li>
+</ul>
 <h2 id="fontfile"><a class="header" href="#fontfile"><code>FontFile</code></a></h2>
 <p>A font file name without extension, e.g. <code>"DSEG7Classic-Regular"</code>, <code>"Doto"</code>.
 Wraps a <code>&amp;'static str</code> for type-safe font file references in build scripts.</p>
@@ -854,8 +1087,135 @@ re-export on variant change even if the font file is unchanged</li>
 <li><strong><code>run</code></strong>: Export closure + default code generation
 (<code>CodemapGenerator</code> + <code>RustConstantsGenerator</code>)</li>
 <li><strong><code>run_with</code></strong>: Export closure + custom code generation closure</li>
+<li><strong><code>run_svg</code></strong>: Fontless variant - export closure receives only the
+resources dir (no font path). Must be paired with <code>svg_only()</code></li>
 <li>Hash is computed as FNV-1a of the font file and stored in <code>resources/.hash</code></li>
 </ul>
+<p><code>CodemapGenerator</code> tolerates <strong>shared codepoints</strong>: when several
+exported names map to the same codepoint (e.g. Line Awesome
+regular/solid pairs), the forward <code>char -&gt; name</code> map emits each
+codepoint exactly once - the canonical (shortest) name wins - while
+the reverse <code>name -&gt; char</code> map keeps all names. <code>phf_map!</code> rejects
+duplicate keys, so the dedupe is mandatory, not cosmetic.</p>
+<h3 id="fontless-builds-svg_only"><a class="header" href="#fontless-builds-svg_only">Fontless Builds (<code>svg_only</code>)</a></h3>
+<p><code>FontBuild::svg_only()</code> creates a builder without a font file - for
+icon sets that ship only SVGs (Lucide). Change detection then relies
+entirely on <code>extra_hash</code> components; callers must hash every input
+that affects the export:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>FontBuild::svg_only()
+    .extra_hash(EXPORT_PIPELINE_VERSION.to_string())
+    .extra_hash(format!("{:016x}", hash_svg_dir(&amp;svg_dir)))
+    .extra_hash(format!("{:016x}", hash_str(&amp;icons_json)))
+    .rerun_if_changed(&amp;svg_dir)
+    .run_svg(|resources_dir| {
+        SvgDirSource::new(&amp;svg_dir)
+            .codepoint_strategy(CodepointStrategy::HashedPua)
+            .name_resolver(|parsed| Some(format!("{}-symbolic", parsed.raw_name)))
+            .name_prefix(LucideConfig::FONT_FAMILY_NAME)
+            .post_process(SymbolicClasses)
+            .export(&amp;config, resources_dir)
+    })
+<span class="boring">}</span></code></pre>
+<ul>
+<li><strong><code>EXPORT_PIPELINE_VERSION</code></strong>: a manual constant in <code>build.rs</code> that is
+mixed into the hash. Bump it whenever the export pipeline itself
+changes (naming, layout, post-processors) - otherwise a matching
+hash would reuse a stale export.</li>
+<li><strong><code>hash_svg_dir</code> / <code>hash_str</code></strong>: hash helpers for non-font inputs.</li>
+</ul>
+<h2 id="glyphsource-abstraction"><a class="header" href="#glyphsource-abstraction"><code>GlyphSource</code> (Abstraction)</a></h2>
+<p><code>GlyphSource</code> decouples glyph identity and artwork from the export
+pipeline. Two implementations feed the shared <code>export</code> runner:</p>
+<ul>
+<li><strong><code>FontFileSource</code></strong> - extracts outlines from TTF/OTF via <code>skrifa</code></li>
+<li><strong><code>SvgDirSource</code></strong> - consumes a directory of pre-rendered SVGs</li>
+</ul>
+<p>Both emit identical artifacts (<code>metadata.json</code>, <code>icons.gresource.xml</code>,
+SVG files under <code>scalable/{context}/</code>).</p>
+<h3 id="svgdirsource-builder-methods"><a class="header" href="#svgdirsource-builder-methods"><code>SvgDirSource</code> Builder Methods</a></h3>
+<ul>
+<li><strong><code>filename_parser</code></strong> - <code>NameParser</code> (default, plain <code>{name}.svg</code>) or
+<code>EmojiUFilenameParser</code> (<code>emoji_u{cp}.svg</code>)</li>
+<li><strong><code>codepoint_strategy</code></strong> - how <code>GlyphDescriptor::code</code> is assigned</li>
+<li><strong><code>codepoint_map</code></strong> - name→codepoint map for <code>FromNameMap</code></li>
+<li><strong><code>name_resolver</code></strong> - parsed glyph → semantic name (falls back to the
+raw filename stem, kebab-normalized; name collisions get a
+deterministic suffix)</li>
+<li><strong><code>name_prefix</code></strong> - prepend <code>{prefix}-</code> to every resolved name</li>
+<li><strong><code>filter</code></strong> - drop glyphs by codepoint sequence (e.g. flag emoji)</li>
+<li><strong><code>post_process</code></strong> - add an <code>SvgPostProcessor</code>, applied in order</li>
+</ul>
+<h3 id="codepointstrategy"><a class="header" href="#codepointstrategy"><code>CodepointStrategy</code></a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Variant</th><th>Use case</th></tr>
+</thead>
+<tbody>
+<tr><td><code>FromFilename</code></td><td>Emoji codepoints in the filename; multi-codepoint sequences get a stable PUA allocation</td></tr>
+<tr><td><code>FromNameMap</code></td><td>Upstream name→codepoint table (<code>GlyphNameMap</code>, e.g. Tabler)</td></tr>
+<tr><td><code>HashedPua</code></td><td>Fontless sets - deterministic PUA codepoint via hash-of-name (Lucide)</td></tr>
+<tr><td><code>None</code> (default)</td><td>Icon-theme-only usage; <code>GtkIconTheme</code> resolves names → SVG directly</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="svgpostprocessor"><a class="header" href="#svgpostprocessor"><code>SvgPostProcessor</code></a></h2>
+<p>Trait for transforming each SVG before it is written to the output
+directory (<code>SvgDirSource::post_process</code>). Implementations should be
+XML-aware via <code>quick-xml</code> - naive string replacement would also match
+paint attributes inside comments or metadata.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait SvgPostProcessor {
+    fn process(&amp;self, svg: String) -&gt; Result&lt;String, GlyphSourceError&gt;;
+}
+<span class="boring">}</span></code></pre>
+<p>Available processors:</p>
+<ul>
+<li><strong><code>Optimize</code></strong> - whitespace/structure cleanup</li>
+<li><strong><code>NormalizeViewBox</code></strong> - normalize the <code>viewBox</code> attribute</li>
+<li><strong><code>CurrentColor(target)</code></strong> - rewrite <code>fill</code>/<code>stroke</code> values to
+<code>currentColor</code> (<code>PaintTarget::Fill</code>/<code>Stroke</code>/<code>Both</code>); keeps <code>none</code>,
+<code>url(…)</code>, <code>inherit</code>. <code>.inject_missing()</code> additionally injects the
+targeted attribute on <code>&lt;svg&gt;</code> roots that declare none - needed for
+sets like Line Awesome whose upstream paths carry no paint
+attribute at all (rewriting alone would be a no-op, leaving
+implicit black)</li>
+<li><strong><code>StripEntityNamespaces</code></strong> - strip internal entity namespace
+prefixes</li>
+<li><strong><code>SymbolicClasses</code></strong> - add GTK symbolic classes for stroke-based
+icon sets (see below)</li>
+</ul>
+<h3 id="symbolicclasses---symbolic-recoloring-for-stroke-based-sets"><a class="header" href="#symbolicclasses---symbolic-recoloring-for-stroke-based-sets"><code>SymbolicClasses</code> - Symbolic Recoloring for Stroke-Based Sets</a></h3>
+<p>GTK’s symbolic icon recoloring ignores <code>fill</code>/<code>stroke</code> attributes:
+paints are derived from <code>class</code> tokens (<code>transparent-fill</code>,
+<code>foreground-fill</code>, <code>foreground-stroke</code>, <code>success-*</code>, <code>warning-*</code>,
+<code>error-*</code>). Stroke-based sets (Lucide, Tabler outline) authored with
+<code>fill="none"</code> + <code>stroke="currentColor"</code> therefore render as solid
+blobs under <code>*-symbolic</code> names: every shape is filled with the
+foreground color, swallowing the stroked details.</p>
+<p><code>SymbolicClasses</code> maps each shape element’s <em>effective</em> <code>fill</code>/<code>stroke</code>
+(including values inherited from ancestor <code>&lt;svg&gt;</code>/<code>&lt;g&gt;</code> elements) onto
+symbolic classes:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Effective paint</th><th>Emitted class</th></tr>
+</thead>
+<tbody>
+<tr><td><code>fill="none"</code></td><td><code>transparent-fill</code></td></tr>
+<tr><td>any other fill / unset</td><td><code>foreground-fill</code></td></tr>
+<tr><td>visible <code>stroke</code></td><td><code>foreground-stroke</code></td></tr>
+<tr><td><code>stroke="none"</code> / unset</td><td><em>(no stroke class → not stroked)</em></td></tr>
+</tbody>
+</table>
+</div>
+<p>Original attributes are kept, so non-symbolic consumers (HTML export,
+<code>glyph_svg</code>, <code>compose_svg</code>) are unaffected. Stroke classes require
+<strong>GTK ≥ 4.20</strong> (or GTK 3 ≥ 3.24.50); on older versions stroke-based
+symbolic icons fall back to fill-only rendering.</p>
 <h2 id="impl_font_loader-macro"><a class="header" href="#impl_font_loader-macro"><code>impl_font_loader!</code> Macro</a></h2>
 <p>Generates a <code>font() -&gt; Option&lt;&amp;'static ab_glyph::FontVec&gt;</code> function that
 loads a TTF font file and caches it in a <code>OnceLock</code>.</p>
@@ -1086,50 +1446,62 @@ fn main() -&gt; miette::Result&lt;()&gt; {
 <li><code>export_glyphs_by_name_map()</code> - uses external name→codepoint mapping</li>
 <li>No <code>extra_hash</code> needed (no variant selection)</li>
 </ul>
-<h2 id="librs---runtime-api"><a class="header" href="#librs---runtime-api"><code>lib.rs</code> - Runtime API</a></h2>
-<p>Each font family crate has a <code>lib.rs</code> with the following structure:</p>
+<h2 id="librs--familyrs---runtime-api"><a class="header" href="#librs--familyrs---runtime-api"><code>lib.rs</code> + <code>family.rs</code> - Runtime API</a></h2>
+<p>Each font family crate wires the generated phf maps into the <code>FontFamily</code>
+trait via <code>impl_font_family!</code> in <code>family.rs</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// family.rs
+use crate::codepoint_map;
+use crate::definition::DotoConfig;
+use crate::naming::Doto;
+use crate::naming::DotoName;
+use crate::variant;
+
+fonts_rs_generator::impl_font_family!(
+    Doto,
+    DotoConfig,
+    glyphs = codepoint_map::GLYPHS,
+    reverse = codepoint_map::REVERSE_GLYPHS,
+    name = DotoName,
+    glyph_prefix = variant::GLYPH_PREFIX,
+    capabilities = [icon_theme, pango, html],
+);
+<span class="boring">}</span></code></pre>
+<p>The macro emits the <code>FontFamily</code> impl (<code>codepoint</code>, <code>glyph_name</code>,
+<code>all_glyphs</code>, <code>glyph_count</code>), the declared capability impls, and
+inherent forwarders so callers write <code>Doto::codepoint("x")</code> without
+importing the trait.</p>
+<p>Valid capability names: <code>icon_theme</code> (<code>IconThemeFont</code> - <code>GtkIconTheme</code>
+registration + <code>glyph_svg</code>/<code>compose_svg</code>), <code>pango</code> (<code>PangoFont</code>),
+<code>html_svg</code> (<code>HtmlSvgExport</code> - inline-SVG HTML export), <code>html</code>
+(<code>HtmlExport</code> - <code>@font-face</code> HTML export on top of <code>html_svg</code>).
+Fontless icon sets declare only <code>[icon_theme, html_svg]</code> - there is no
+TTF for pango or font-face export. <code>SoftwareRender</code> is not a capability
+here; it is emitted by <code>impl_font_loader!</code>.</p>
+<p><code>lib.rs</code> ties everything together:</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>pub mod codepoint_map;   // include!(concat!(env!("OUT_DIR"), "/codemap.rs"))
 pub mod constants;       // include!(concat!(env!("OUT_DIR"), "/icons.rs"))
-pub mod naming;          // FontFamily marker + GlyphName&lt;F&gt; type alias
+pub mod definition;      // FontFamilyConfig implementation
+mod family;              // impl_font_family! invocation
+pub mod naming;          // FontFamilyMarker + GlyphName&lt;F&gt; type alias
 pub mod variant;         // include!(concat!(env!("OUT_DIR"), "/variant.rs"))
 
-#[cfg(feature = "render")]
-pub mod fonts;          // impl_font_loader!(env: "FONT_PATH")
+#[cfg(feature = "gtk")]
+pub mod gtk;             // GtkFont impl (register_glyphs/register_font/load_font)
 
-use fonts_rs_model::CodePoint;
+#[cfg(feature = "render")]
+pub mod fonts;           // impl_font_loader!(env: "FONT_PATH")
 
 // Re-export key types
-pub use naming::DotoName;
-
-// GResource registration (gtk feature)
+pub use definition::DotoConfig;
 #[cfg(feature = "gtk")]
-pub fn register_glyphs() -&gt; Result&lt;(), gio::glib::Error&gt; {
-    gio::resources_register_include!("icons.gresource")?;
-    Ok(())
-}
-
-// Codepoint lookup
-pub trait GlyphNameExt {
-    fn codepoint(&amp;self) -&gt; Option&lt;CodePoint&gt;;
-}
-
-impl GlyphNameExt for DotoName {
-    fn codepoint(&amp;self) -&gt; Option&lt;CodePoint&gt; {
-        let key = self.as_ref();
-        if let Some(ch) = codepoint_map::REVERSE_GLYPHS.get(key).copied() {
-            return Some(CodePoint::from(ch));
-        }
-        let full = format!("{}-{}", variant::GLYPH_PREFIX, key);
-        codepoint_map::REVERSE_GLYPHS.get(&amp;full).copied().map(CodePoint::from)
-    }
-}
-
-// Iterator over all glyphs
-pub fn all_glyphs() -&gt; impl Iterator&lt;Item = (char, &amp;'static str)&gt; {
-    codepoint_map::GLYPHS.entries().map(|(c, name)| (*c, *name))
-}
+pub use fonts_rs_model::GtkFont;
+pub use fonts_rs_model::prelude;
+pub use naming::Doto;
+pub use naming::DotoName;
 <span class="boring">}</span></code></pre>
 <h3 id="generated-modules"><a class="header" href="#generated-modules">Generated Modules</a></h3>
 <p>Three modules are generated by <code>build.rs</code> into <code>OUT_DIR</code>:</p>
@@ -1142,13 +1514,13 @@ pub fn all_glyphs() -&gt; impl Iterator&lt;Item = (char, &amp;'static str)&gt; {
 <h3 id="namingrs---font-family-marker"><a class="header" href="#namingrs---font-family-marker"><code>naming.rs</code> - Font Family Marker</a></h3>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>use fonts_rs_model::FontFamily;
+</span>use fonts_rs_model::FontFamilyMarker;
 use fonts_rs_model::GlyphName;
 use fonts_rs_model::sealed;
 
 pub enum Doto {}
 
-impl FontFamily for Doto {}
+impl FontFamilyMarker for Doto {}
 impl sealed::Sealed for Doto {}
 
 pub type DotoName = GlyphName&lt;Doto&gt;;
@@ -1203,12 +1575,39 @@ ecosystem, providing:</p>
     ├── constants.rs
     └── fonts.rs       (optional)
 </code></pre>
-<h2 id="step-2-bundle-the-font-file"><a class="header" href="#step-2-bundle-the-font-file">Step 2: Bundle the Font File</a></h2>
-<p>Place the TTF/OTF font file and its license into <code>resources/</code>:</p>
+<h2 id="step-2-vendor-the-upstream-assets"><a class="header" href="#step-2-vendor-the-upstream-assets">Step 2: Vendor the Upstream Assets</a></h2>
+<p>Everything under <code>resources/</code> that comes from an upstream project is
+<strong>vendored, not copied by hand</strong>: write <code>upstream.toml</code> first, then let
+<code>cargo xtask sync -p fonts-rs-{name}</code> materialize it. The manifest
+declares where each file comes from (a pinned git ref or an immutable
+URL); <code>sync</code> produces <code>resources/</code> plus <code>upstream.lock</code>, and both are
+committed:</p>
+<pre><code class="language-toml"># crates/fonts-rs-{name}/upstream.toml
+[upstream]
+repo = "myproject/myfont"     # owner/name shorthand or git URL
+ref = "v1.2.3"                # tag, branch or commit SHA
+
+[upstream.license]
+source = "OFL.txt"
+target = "resources/OFL.txt"
+
+[[artifacts]]
+url = "https://github.com/myproject/myfont/releases/download/v1.2.3/MyFont-Regular.ttf"
+target = "resources/MyFont-Regular.ttf"
+</code></pre>
+<pre><code class="language-bash">cargo xtask sync -p fonts-rs-{name}    # writes resources/ + upstream.lock
+cargo xtask verify -p fonts-rs-{name}  # sanity check
+</code></pre>
+<p>Result:</p>
 <pre><code>resources/
 ├── MyFont-Regular.ttf
 └── OFL.txt            (or appropriate license)
 </code></pre>
+<p>Curated files without an upstream source may live in <code>resources/</code> too -
+<code>verify</code> warns about them (no lock entry) but accepts them. See the
+<a href="#upstream-sourcing">Upstream Sourcing</a> chapter for the full
+<code>upstream.toml</code> schema, provider-generated metadata (<code>[[metadata]]</code>)
+and the update-bump procedure (<code>sync --update</code>).</p>
 <h2 id="step-3-write-definitionrs"><a class="header" href="#step-3-write-definitionrs">Step 3: Write <code>definition.rs</code></a></h2>
 <p>Implement <code>FontFamilyConfig</code> with the family’s constants:</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
@@ -1237,12 +1636,12 @@ impl FontFamilyConfig for MyFontConfig {
 <li><code>PUA_RANGE</code> - SMuFL music fonts, icon fonts in the Private Use Area</li>
 </ul>
 <h2 id="step-4-write-namingrs"><a class="header" href="#step-4-write-namingrs">Step 4: Write <code>naming.rs</code></a></h2>
-<p>Define the <code>FontFamily</code> marker enum and <code>GlyphName&lt;F&gt;</code> type alias:</p>
+<p>Define the <code>FontFamilyMarker</code> enum and <code>GlyphName&lt;F&gt;</code> type alias:</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>//! Font family marker type for MyFont.
 
-use fonts_rs_model::FontFamily;
+use fonts_rs_model::FontFamilyMarker;
 use fonts_rs_model::GlyphName;
 use fonts_rs_model::sealed;
 
@@ -1250,7 +1649,7 @@ use fonts_rs_model::sealed;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum MyFont {}
 
-impl FontFamily for MyFont {}
+impl FontFamilyMarker for MyFont {}
 impl sealed::Sealed for MyFont {}
 
 /// Convenience type alias for MyFont glyph names.
@@ -1345,53 +1744,216 @@ FontBuild::new(&amp;font_path)
     })
     .map_err(|e| miette::miette!("{e}"))?;
 <span class="boring">}</span></code></pre>
-<h2 id="step-6-write-librs"><a class="header" href="#step-6-write-librs">Step 6: Write <code>lib.rs</code></a></h2>
+<h3 id="pre-rendered-svgs-hybrid"><a class="header" href="#pre-rendered-svgs-hybrid">Pre-rendered SVGs (Hybrid)</a></h3>
+<p>If the upstream project ships full-color source SVGs (e.g. Blobmoji,
+Tabler Icons), use <code>SvgDirSource</code> for the GResource and bundle the TTF
+separately for <code>pixel-drawing</code>. Glyph names come from an external name
+map or a <code>name_resolver</code> closure; codepoints come from the filename or a
+<code>GlyphNameMap</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use fonts_rs_generator::CodepointStrategy;
+use fonts_rs_generator::ExportConfig;
+use fonts_rs_generator::FontBuild;
+use fonts_rs_generator::GlyphSource;
+use fonts_rs_generator::SvgDirSource;
+use fonts_rs_generator::build_constants;
+
+let config = ExportConfig::&lt;MyFontConfig&gt;::with_variant(*entry);
+let svg_dir = Path::new(build_constants::RESOURCES_DIR).join("svg");
+
+FontBuild::new(&amp;font_path)
+    .compile_font_gresource()
+    .gresource_prefix(MyFontConfig::GRESOURCE_PREFIX)
+    .extra_hash(format!("{}-{:016x}", entry.as_str(), hash_svg_dir(&amp;svg_dir)))
+    .run(|_font_path, resources_dir| {
+        SvgDirSource::new(&amp;svg_dir)
+            .filename_parser(EmojiUFilenameParser)       // or default NameParser
+            .codepoint_strategy(CodepointStrategy::FromFilename) // or FromNameMap
+            .name_resolver(move |parsed| /* map to semantic name */ { todo!() })
+            .name_prefix(&amp;glyph_name_prefix)
+            .filter(move |codepoints| /* e.g. drop flags for *-noflags */ true)
+            .export(&amp;config, resources_dir)
+    })
+    .map_err(|e| miette::miette!("{e}"))?;
+<span class="boring">}</span></code></pre>
+<p>Key points:</p>
+<ul>
+<li><strong><code>SvgDirSource</code></strong> iterates <code>resources/svg/</code> - no TTF outline
+extraction. The SVGs are the final artwork (full color).</li>
+<li><strong><code>filename_parser</code></strong> maps filenames to codepoints
+(<code>EmojiUFilenameParser</code> for <code>emoji_u{cp}.svg</code>, <code>NameParser</code> for plain
+<code>{name}.svg</code> like Tabler).</li>
+<li><strong><code>codepoint_strategy</code></strong> assigns codepoints: <code>FromFilename</code> (emoji
+codepoints in the filename) or <code>FromNameMap</code> (external
+<code>GlyphNameMap</code>, e.g. Tabler’s <code>icons.json</code> unicode values).</li>
+<li><strong><code>name_resolver</code></strong> maps parsed filenames to semantic names (e.g. CLDR
+<code>tts</code> names for emoji, <code>format!("{name}-symbolic")</code> for icons).</li>
+<li><strong><code>filter</code></strong> drops glyphs per variant (e.g. flag emoji for
+<code>*-noflags</code>).</li>
+<li><strong><code>extra_hash</code></strong> must cover the SVG directory - the default hash only
+covers the TTF file, so SVG changes would not trigger a re-export.</li>
+</ul>
+<p>See <code>crates/fonts-rs-blobmoji/build.rs</code> (CLDR name map + flag filter)
+and <code>crates/fonts-rs-tabler/build.rs</code> (<code>FromNameMap</code> + metadata) for
+complete implementations.</p>
+<h3 id="fontless-svg-only-icon-set"><a class="header" href="#fontless-svg-only-icon-set">Fontless SVG-Only Icon Set</a></h3>
+<p>Icon sets that ship only SVGs - no TTF at all (e.g. Lucide) - use
+<code>FontBuild::svg_only()</code> + <code>run_svg()</code>. There is no font file to hash,
+so change detection relies entirely on <code>extra_hash</code> components: hash
+the SVG directory, metadata files, and a manual
+<code>EXPORT_PIPELINE_VERSION</code> constant (bump it when the export pipeline
+itself changes - naming, post-processors):</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>const EXPORT_PIPELINE_VERSION: u32 = 1;
+
+FontBuild::svg_only()
+    .extra_hash(EXPORT_PIPELINE_VERSION.to_string())
+    .extra_hash(format!("{:016x}", hash_svg_dir(&amp;svg_dir)))
+    .extra_hash(format!("{:016x}", hash_str(&amp;icons_json)))
+    .rerun_if_changed(&amp;svg_dir)
+    .run_svg(|resources_dir| {
+        SvgDirSource::new(&amp;svg_dir)
+            .codepoint_strategy(CodepointStrategy::HashedPua)
+            .name_resolver(|parsed| Some(format!("{}-symbolic", parsed.raw_name)))
+            .name_prefix(MyFontConfig::FONT_FAMILY_NAME)
+            .post_process(SymbolicClasses)   // stroke-based sets: symbolic classes
+            .export(&amp;config, resources_dir)
+    })
+    .map_err(|e| miette::miette!("{e}"))?;
+<span class="boring">}</span></code></pre>
+<p>Key points:</p>
+<ul>
+<li><strong><code>CodepointStrategy::HashedPua</code></strong> allocates a stable PUA codepoint
+per glyph via hash-of-name - needed because the <code>phf</code> maps require
+unique codepoints and upstream ships none.</li>
+<li><strong><code>post_process(SymbolicClasses)</code></strong> adds GTK symbolic classes to
+stroke-based SVGs. Without it, <code>*-symbolic</code> icons render as solid
+blobs - GTK’s symbolic recoloring ignores <code>fill="none"</code> and fills
+every shape. Requires GTK ≥ 4.20 for stroke rendering.</li>
+<li>No <code>set_font_path_env</code>, no <code>font.gresource</code>, no <code>render</code>/<code>pango</code>
+capability - <code>lib.rs</code> declares only <code>[icon_theme, html_svg]</code>.</li>
+</ul>
+<p>See <code>crates/fonts-rs-lucide/build.rs</code> for the complete implementation.</p>
+<h3 id="multi-ttf-webfont-family-one-ttf-per-style"><a class="header" href="#multi-ttf-webfont-family-one-ttf-per-style">Multi-TTF Webfont Family (One TTF per Style)</a></h3>
+<p>Icon sets that ship <strong>one TTF per style</strong> (Font Awesome 5 model -
+e.g. Line Awesome with <code>la-regular-400</code>/<code>la-solid-900</code>/<code>la-brands-400</code>)
+are a hybrid: GResource SVGs from a vendored <code>svg/</code> directory plus a
+<code>font.gresource</code> bundling <strong>all</strong> faces:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let font_path = resources.join("fonts").join("la-solid-900.ttf");
+
+// Per-face paths for ab_glyph/pixel-drawing at runtime:
+set_font_path_env("MYFONT_REGULAR_FONT_PATH", &amp;resources.join("fonts").join("my-regular.ttf"))?;
+set_font_path_env("MYFONT_SOLID_FONT_PATH", &amp;font_path)?;
+
+FontBuild::new(&amp;font_path)
+    .compile_font_gresource()   // NO .gresource_prefix() - see below
+    .extra_hash(format!("{EXPORT_PIPELINE_VERSION}"))
+    .extra_hash(format!("{:016x}", hash_svg_dir(&amp;svg_dir)))
+    .extra_hash(format!("{:016x}", hash_str(&amp;codepoints_json)))
+    .rerun_if_changed(&amp;svg_dir)
+    .rerun_if_changed(resources.join("fonts"))
+    .run(|_font_path, resources_dir| {
+        SvgDirSource::new(&amp;svg_dir)
+            .codepoint_map(&amp;codepoints)
+            .codepoint_strategy(CodepointStrategy::FromNameMap)
+            .post_process(CurrentColor::new(PaintTarget::Fill).inject_missing())
+            .export(&amp;config, resources_dir)
+    })?;
+<span class="boring">}</span></code></pre>
+<p>Key differences from a single-TTF family:</p>
+<ul>
+<li><strong>Static <code>resources/font.gresource.xml</code></strong> - when
+<code>compile_font_gresource()</code> is called <em>without</em>
+<code>gresource_prefix(...)</code>, <code>FontBuild</code> falls back to the hand-written
+manifest in <code>resources/</code> instead of generating one. The generated
+manifest covers exactly one TTF; a static manifest can list all
+faces with aliases.</li>
+<li><strong>Manual <code>GtkFont</code> impl</strong> - <code>impl_gtk_font!</code> cannot express
+multi-TTF families. Implement it by hand with your own
+<code>FONT_RESOURCE_PATH</code> constant(s) for the bundled faces; the
+<code>load_font_from_gresource(path, tag)</code> helper still collapses the
+<code>OnceLock</code> + temp-extraction body to one call.</li>
+<li><strong>Manual <code>PangoFont::install_pango</code></strong> - a three-line override that
+calls the shared <code>PangoFont::install_pango_resources(font_map, &amp;RESOURCE_PATHS, crate_name)</code> helper once per face.</li>
+<li><strong><code>CurrentColor::inject_missing()</code></strong> - required when upstream SVG
+paths carry <em>no</em> paint attribute at all (plain <code>CurrentColor</code>
+rewriting would be a no-op); it injects <code>fill="currentColor"</code> on
+the <code>&lt;svg&gt;</code> root. Add a post-export assertion that every emitted
+SVG actually contains the injected fill.</li>
+<li><strong>Shared codepoints</strong> - style pairs (e.g. <code>adjust</code> /
+<code>adjust-solid</code>) share one FA5 codepoint. <code>CodemapGenerator</code>
+dedupes the forward <code>char -&gt; name</code> map per codepoint (the
+canonical/shortest name wins) while the reverse <code>name -&gt; char</code> map
+keeps every exported name - <code>phf_map!</code> rejects duplicate keys.</li>
+<li><strong><code>SoftwareRender</code></strong> needs a variant enum (<code>LineAwesomeStyle</code>) to
+select the face, since <code>type Variant = ()</code> cannot express multiple
+TTFs.</li>
+</ul>
+<p>See <code>crates/fonts-rs-line-awesome/build.rs</code> and <code>src/gtk.rs</code> for the
+complete implementation.</p>
+<h2 id="step-6-write-familyrs-and-librs"><a class="header" href="#step-6-write-familyrs-and-librs">Step 6: Write <code>family.rs</code> and <code>lib.rs</code></a></h2>
+<p><code>family.rs</code> wires the generated phf maps into the <code>FontFamily</code> trait
+and declares the family’s capabilities via <code>impl_font_family!</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>//! Runtime font family API for MyFont.
+
+use crate::codepoint_map;
+use crate::definition::MyFontConfig;
+use crate::naming::MyFont;
+use crate::naming::MyFontName;
+use crate::variant;
+
+fonts_rs_generator::impl_font_family!(
+    MyFont,
+    MyFontConfig,
+    glyphs = codepoint_map::GLYPHS,
+    reverse = codepoint_map::REVERSE_GLYPHS,
+    name = MyFontName,
+    glyph_prefix = variant::GLYPH_PREFIX,
+    capabilities = [icon_theme, pango, html],
+);
+<span class="boring">}</span></code></pre>
+<p>Valid capability names: <code>icon_theme</code> (<code>IconThemeFont</code> - icon-theme
+lookup, <code>glyph_svg</code>, <code>compose_svg</code>), <code>pango</code> (<code>PangoFont</code> - needs a
+TTF), <code>html_svg</code> (<code>HtmlSvgExport</code> - inline-SVG HTML export, fontless
+compatible), <code>html</code> (<code>HtmlExport</code> - additionally <code>@font-face</code> export,
+needs a TTF). Fontless sets declare only <code>[icon_theme, html_svg]</code>.</p>
+<p>The macro emits the <code>FontFamily</code> impl (<code>codepoint</code>, <code>glyph_name</code>,
+<code>all_glyphs</code>, <code>glyph_count</code>), the declared capability impls, and
+inherent forwarders so callers can write <code>MyFont::codepoint("x")</code>
+without importing the trait.</p>
+<p><code>lib.rs</code> ties everything together:</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>//! MyFont font integration for GTK 4.
 
 pub mod codepoint_map;
 pub mod constants;
+pub mod definition;
+mod family;
 pub mod naming;
 pub mod variant;
+
+#[cfg(feature = "gtk")]
+pub mod gtk;
 
 #[cfg(feature = "render")]
 pub mod fonts;
 
-use fonts_rs_model::CodePoint;
-
+pub use definition::MyFontConfig;
+#[cfg(feature = "gtk")]
+pub use fonts_rs_model::GtkFont;
+pub use fonts_rs_model::prelude;
+pub use naming::MyFont;
 pub use naming::MyFontName;
 
 /// Type alias for this font family's glyph name type.
 pub type FamilyName = MyFontName;
-
-/// Extension trait adding codepoint lookup to `GlyphName&lt;MyFont&gt;`.
-pub trait GlyphNameExt {
-    fn codepoint(&amp;self) -&gt; Option&lt;CodePoint&gt;;
-}
-
-impl GlyphNameExt for MyFontName {
-    fn codepoint(&amp;self) -&gt; Option&lt;CodePoint&gt; {
-        let key = self.as_ref();
-        if let Some(ch) = codepoint_map::REVERSE_GLYPHS.get(key).copied() {
-            return Some(CodePoint::from(ch));
-        }
-        let full = format!("{}-{}", variant::GLYPH_PREFIX, key);
-        codepoint_map::REVERSE_GLYPHS.get(&amp;full).copied().map(CodePoint::from)
-    }
-}
-
-/// Registers embedded glyphs as a GResource.
-#[cfg(feature = "gtk")]
-pub fn register_glyphs() -&gt; Result&lt;(), gio::glib::Error&gt; {
-    gio::resources_register_include!("icons.gresource")?;
-    Ok(())
-}
-
-/// Returns an iterator over all known glyphs.
-pub fn all_glyphs() -&gt; impl Iterator&lt;Item = (char, &amp;'static str)&gt; {
-    codepoint_map::GLYPHS.entries().map(|(c, name)| (*c, *name))
-}
 <span class="boring">}</span></code></pre>
 <h3 id="generated-module-stubs"><a class="header" href="#generated-module-stubs">Generated Module Stubs</a></h3>
 <p>Create these stub files that <code>include!</code> the generated code:</p>
@@ -1490,15 +2052,15 @@ mod tests {
 
     #[test]
     fn all_glyphs_is_not_empty() {
-        let count = all_glyphs().count();
+        let count = MyFont::glyph_count();
         assert!(count &gt; 0, "MyFont should export at least one glyph");
     }
 
     #[test]
     fn all_glyphs_names_start_with_family_prefix() {
-        for (_, name) in all_glyphs() {
+        for (_, name) in MyFont::all_glyphs() {
             assert!(
-                name.starts_with("myfont-"),
+                name.as_ref().starts_with("myfont-"),
                 "glyph name '{name}' should start with 'myfont-'"
             );
         }
@@ -1506,21 +2068,21 @@ mod tests {
 
     #[test]
     fn all_glyphs_names_are_lowercase() {
-        for (_, name) in all_glyphs() {
-            assert_eq!(*name, name.to_lowercase(), "glyph name '{name}' should be lowercase");
+        for (_, name) in MyFont::all_glyphs() {
+            assert_eq!(name.as_ref(), name.as_ref().to_lowercase(), "glyph name '{name}' should be lowercase");
         }
     }
 
     #[test]
     fn all_glyphs_names_contain_no_underscores() {
-        for (_, name) in all_glyphs() {
-            assert!(!name.contains('_'), "glyph name '{name}' should not contain underscores");
+        for (_, name) in MyFont::all_glyphs() {
+            assert!(!name.as_ref().contains('_'), "glyph name '{name}' should not contain underscores");
         }
     }
 
     #[test]
     fn all_glyphs_codepoints_are_unique() {
-        let codepoints: Vec&lt;char&gt; = all_glyphs().map(|(c, _)| c).collect();
+        let codepoints: Vec&lt;char&gt; = MyFont::all_glyphs().map(|(c, _)| c.as_char()).collect();
         let unique: std::collections::HashSet&lt;char&gt; = codepoints.iter().copied().collect();
         assert_eq!(codepoints.len(), unique.len(), "all codepoints should be unique");
     }
@@ -1538,35 +2100,238 @@ cargo fmt -p fonts-rs-myfont -- --check
 cat resources/metadata.json | head -20         # metadata preview
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
+<h1 id="upstream-sourcing"><a class="header" href="#upstream-sourcing">Upstream Sourcing</a></h1>
+<p>Every crate that vendors files from an upstream project declares its
+sources in <code>upstream.toml</code> and records the resolved result in
+<code>upstream.lock</code>, both committed next to <code>resources/</code>. The <code>xtask</code>
+helper crate provides three commands to work with them:</p>
+<pre><code class="language-bash">cargo xtask sync -p &lt;crate&gt;     # populate/refresh resources/
+cargo xtask check [-p &lt;crate&gt;]  # report upstream drift
+cargo xtask verify [-p &lt;crate&gt;] # re-hash committed resources
+</code></pre>
+<p><strong>Vendored artifacts stay in git.</strong> Builds never touch the network -
+<code>xtask</code> <em>writes</em> <code>resources/</code>; reproducibility means “re-derivable on
+demand”, not “fetched at build time”.</p>
+<h2 id="upstreamtoml"><a class="header" href="#upstreamtoml"><code>upstream.toml</code></a></h2>
+<p>The sourcing manifest of a vendored crate. It has three sections; all
+paths are relative and must not escape the crate/checkout (<code>..</code> and
+absolute paths are rejected). Targets must be unique across license,
+artifacts and metadata.</p>
+<h3 id="upstream---git-source-optional"><a class="header" href="#upstream---git-source-optional"><code>[upstream]</code> - git source (optional)</a></h3>
+<p>Crates sourced purely from <code>url</code> artifacts omit this section entirely.</p>
+<pre><code class="language-toml">[upstream]
+repo = "tailwindlabs/heroicons"        # owner/name shorthand or full git URL
+ref = "v2.2.0"                         # tag, branch or commit SHA
+
+[upstream.license]                     # optional
+source = "LICENSE"                     # path inside the upstream checkout
+target = "resources/LICENSE"           # vendored path below the crate dir
+
+sparse = [                             # optional, extra checkout paths
+  "icons/*.json",                      # for provider inputs not covered
+  "categories/*.json",                 # by artifact/license sources
+]
+</code></pre>
+<p>The checkout itself is sparse and content-cached: <code>xtask</code> resolves the
+ref via <code>git ls-remote</code>, then fetches with <code>--depth 1 --filter=blob:none</code>
+into <code>~/.cache/fonts-rs/upstream/&lt;repo&gt;/&lt;commit&gt;</code> with a <code>--no-cone</code>
+sparse checkout covering only the paths the manifest needs. The first
+path component of every <code>source</code> (artifacts and license) is included
+automatically; add <code>sparse</code> only for extra inputs providers read from
+the checkout (e.g. per-icon JSON metadata).</p>
+<h3 id="artifacts---file-copies"><a class="header" href="#artifacts---file-copies"><code>[[artifacts]]</code> - file copies</a></h3>
+<pre><code class="language-toml"># Directory copy, glob-filtered:
+[[artifacts]]
+source = "optimized/24/outline"        # dir or file inside the checkout
+target = "resources/svg/outline"       # dir for globs, file for 1:1 copies
+pattern = "*.svg"                      # optional, default "**/*"
+exclude = ["hidden-icon.svg"]          # optional curated exclusions
+
+# URL fetch (no checkout needed; mutually exclusive with `source`):
+[[artifacts]]
+url = "https://raw.githubusercontent.com/google/fonts/bd8f81d/.../OFL.txt"
+target = "resources/LICENSE.txt"
+</code></pre>
+<ul>
+<li><strong><code>source</code></strong> - a file inside the upstream checkout for 1:1 copies, or
+a directory scanned recursively against <code>pattern</code>. Mutually exclusive
+with <code>url</code>.</li>
+<li><strong><code>url</code></strong> - an external URL fetched verbatim at sync time (release
+assets, pinned raw-file URLs, API endpoints). <code>pattern</code>/<code>exclude</code> do
+not apply. Pin immutable URLs: release assets, commit-SHA paths,
+versioned CDN URLs - anything mutable will fail <code>verify</code> silently
+later.</li>
+<li><strong><code>pattern</code></strong> - glob relative to <code>source</code> (e.g. <code>**/*.svg</code>). Matched
+files are flattened into <code>target</code> by basename.</li>
+<li><strong><code>exclude</code></strong> - globs skipped even when <code>pattern</code> matches (curated
+exclusions, e.g. icons intentionally not in the set).</li>
+</ul>
+<h3 id="metadata---provider-generated-files"><a class="header" href="#metadata---provider-generated-files"><code>[[metadata]]</code> - provider-generated files</a></h3>
+<pre><code class="language-toml">[[metadata]]
+provider = "iconify_aliases"
+output = "resources/metadata/aliases.json"
+with.iconify_set = "heroicons"
+with.suffixes = ["-16-solid", "-20-solid", "-solid"]
+</code></pre>
+<p>A provider generates file content from the upstream checkout and/or
+fetched external inputs, driven by its <code>with.*</code> parameters. Registered
+providers:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Provider</th><th><code>with.*</code> parameters</th><th>Generates</th></tr>
+</thead>
+<tbody>
+<tr><td><code>copy</code></td><td><code>source</code></td><td>verbatim copy of one checkout file</td></tr>
+<tr><td><code>eva_metadata</code></td><td><code>source</code></td><td>name/tag metadata from an upstream file</td></tr>
+<tr><td><code>heroicons_keywords</code></td><td><code>site</code> (optional, default <code>https://heroicons.com</code>)</td><td>search keywords extracted from the site JS bundle</td></tr>
+<tr><td><code>iconify_aliases</code></td><td><code>iconify_set</code>, <code>suffixes</code>, <code>version</code> (optional)</td><td>v1→v2 style alias map from iconify’s <code>icons.json</code></td></tr>
+<tr><td><code>line_awesome_aliases</code></td><td>-</td><td>FA4/FA5 compatibility aliases from LA stylesheets</td></tr>
+<tr><td><code>line_awesome_codepoints</code></td><td>-</td><td><code>$la-{name}: \fXXX</code> codepoint map from <code>_variables.scss</code></td></tr>
+<tr><td><code>lucide_metadata</code></td><td><code>source</code>, <code>fields</code></td><td>merged per-icon metadata from a JSON directory</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="upstreamlock"><a class="header" href="#upstreamlock"><code>upstream.lock</code></a></h2>
+<p>Generated by <code>sync</code> - never edited by hand. Records the resolved
+upstream coordinates plus the SHA-256 of every vendored file:</p>
+<pre><code class="language-toml">[upstream]
+repo = "tailwindlabs/heroicons"
+ref = "v2.2.0"
+commit = "616b7a4dbbf3d011760af8066262cd5c6b3868f3"
+
+[[artifacts]]
+target = "resources/svg/outline/academic-cap.svg"
+sha256 = "…"
+source = "optimized/24/outline/academic-cap.svg"
+
+[[inputs]]
+url = "https://unpkg.com/@iconify-json/heroicons@1/icons.json"
+sha256 = "…"
+provider = "iconify_aliases"
+</code></pre>
+<ul>
+<li><strong><code>[upstream]</code></strong> - absent for URL-only manifests. <code>commit</code> is the
+resolved SHA; <code>ref</code> is the manifest pin that produced it.</li>
+<li><strong><code>[[artifacts]]</code></strong> - every vendored file: <code>target</code> (crate-relative),
+<code>sha256</code> (content), <code>source</code> (checkout path or <code>provider:&lt;name&gt;</code>).</li>
+<li><strong><code>[[inputs]]</code></strong> - external non-git inputs fetched by providers
+(<code>url</code> + <code>sha256</code> + <code>provider</code>), recorded for provenance.</li>
+</ul>
+<h2 id="commands"><a class="header" href="#commands">Commands</a></h2>
+<h3 id="cargo-xtask-sync--p-crate---update"><a class="header" href="#cargo-xtask-sync--p-crate---update"><code>cargo xtask sync -p &lt;crate&gt; [--update]</code></a></h3>
+<p>Resolves the manifest pin (or, with <code>--update</code>, the newest version-like
+tag / remote HEAD), materializes the sparse checkout, copies
+<code>[[artifacts]]</code>, runs <code>[[metadata]]</code> providers, then writes
+<code>upstream.lock</code>. Re-running <code>sync</code> on an unchanged manifest refreshes
+<code>resources/</code> from the same lock coordinates - byte-identical unless
+a provider’s external input drifted.</p>
+<h3 id="cargo-xtask-check--p-crate---json"><a class="header" href="#cargo-xtask-check--p-crate---json"><code>cargo xtask check [-p &lt;crate&gt;] [--json]</code></a></h3>
+<p>Reports drift without touching <code>resources/</code>: for each crate whether
+the pinned ref moved upstream (new tag, HEAD advanced), whether
+provider inputs changed (bundle re-fetched and re-hashed), and any
+fetch errors. <code>--json</code> emits a machine-readable report. Without <code>-p</code>,
+checks every vendored crate and prints an aggregate report. A weekly
+scheduled CI job runs this check.</p>
+<h3 id="cargo-xtask-verify--p-crate"><a class="header" href="#cargo-xtask-verify--p-crate"><code>cargo xtask verify [-p &lt;crate&gt;]</code></a></h3>
+<p>SHA-256s every locked file against committed <code>resources/</code> and reports
+<code>missing</code>/<code>mismatch</code> by name - non-zero exit on any failure. Files in
+<code>resources/</code> without a lock entry produce a warning (unknown
+hand-adds) but do not fail. This runs as a gate on every pull request:
+committed resources can never silently diverge from the lock.</p>
+<h2 id="bump-procedure"><a class="header" href="#bump-procedure">Bump procedure</a></h2>
+<p>Bumping a crate to a newer upstream is a normal review flow:</p>
+<pre><code class="language-bash">cargo xtask sync -p fonts-rs-heroicons --update   # re-pin manifest + re-vendor
+git diff crates/fonts-rs-heroicons                # review resources/ + manifest + lock
+cargo xtask verify -p fonts-rs-heroicons          # sanity check
+cargo build -p fonts-rs-heroicons                 # rebuild generated code
+</code></pre>
+<p><code>--update</code> picks the newest version-like tag when upstream releases;
+otherwise it follows the remote default HEAD. Review the diff - a bump
+is “commit <code>resources/</code> + <code>upstream.toml</code> + <code>upstream.lock</code>”, all in
+one reviewable change.</p>
+<h2 id="writing-a-provider"><a class="header" href="#writing-a-provider">Writing a provider</a></h2>
+<p>A provider is a unit-testable Rust type implementing the <code>Provider</code>
+trait in <code>xtask/src/providers/</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use crate::providers::Provider;
+use crate::providers::ProviderContext;
+use crate::providers::ProviderOutput;
+use crate::providers::required_string;
+
+/// `my_provider`: reads `with.source` from the checkout and emits JSON.
+pub struct MyProvider;
+
+impl Provider for MyProvider {
+    fn name(&amp;self) -&gt; &amp;'static str {
+        "my_provider"
+    }
+
+    fn generate(&amp;self, context: &amp;ProviderContext) -&gt; miette::Result&lt;ProviderOutput&gt; {
+        let source = required_string(context.with, "source", self.name())?;
+        let text = std::fs::read_to_string(context.checkout()?.join(source))?;
+        let content = transform(text)?;
+        Ok(ProviderOutput::file(content.into_bytes()))
+    }
+}
+<span class="boring">}</span></code></pre>
+<ul>
+<li><strong><code>ProviderContext.checkout</code></strong> - <code>Option&lt;&amp;Path&gt;</code>: root of the
+upstream sparse checkout, <code>None</code> for URL-only manifests. Call
+<code>context.checkout()?</code> to require it, or source purely via <code>http_get</code>.</li>
+<li><strong><code>ProviderContext.with</code></strong> - the <code>[[metadata]] with.*</code> parameter
+table (<code>toml::Table</code>). Use <code>required_string</code> /
+<code>required_string_list</code> for mandatory keys.</li>
+<li><strong><code>ProviderContext.http_get(url)</code></strong> - shared per-sync HTTP fetch
+cache: one request per URL regardless of how many providers need it.</li>
+<li><strong><code>ProviderOutput.content</code></strong> - the generated file written to
+<code>output</code>.</li>
+<li><strong><code>ProviderOutput.inputs</code></strong> - every external URL fetched while
+generating (recorded as <code>[[inputs]]</code> in the lock). Use
+<code>ProviderOutput::file(content)</code> when there are none.</li>
+</ul>
+<p>Register the provider by name in <code>resolve_provider</code> in
+<code>xtask/src/providers/mod.rs</code>, and extend the registry test - the
+manifest fails with “Unknown metadata provider” otherwise. Keep the
+generated output deterministic (sorted maps, stable formatting) so
+<code>verify</code> and <code>check</code> see real drift rather than serialization noise.</p>
+<div style="break-before: page; page-break-before: always;"></div>
 <h1 id="glyph-resolution"><a class="header" href="#glyph-resolution">Glyph Resolution</a></h1>
 <p>Each font family crate provides glyph name resolution - mapping human-readable
 glyph names to Unicode codepoints and vice versa.</p>
 <h2 id="font-family-crates"><a class="header" href="#font-family-crates">Font Family Crates</a></h2>
-<p>Font family crates use <code>GlyphName&lt;F&gt;</code> (phantom-typed) for type-safe glyph
-name resolution. Each crate defines a <code>GlyphNameExt</code> trait with a
-<code>codepoint()</code> method:</p>
+<p>Each font family marker type implements the <code>FontFamily</code> trait, which
+provides glyph name resolution as associated functions - no trait import
+needed thanks to inherent forwarders:</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>use fonts_rs_doto::GlyphNameExt;
-use fonts_rs_doto::DotoName;
+</span>use fonts_rs_doto::Doto;
 
 // Look up a glyph by name
-let name = DotoName::new("doto-a".to_string());
-if let Some(codepoint) = name.codepoint() {
-    println!("Glyph codepoint: U+{:04X}", codepoint as u32);
+if let Some(codepoint) = Doto::codepoint("doto-a") {
+    println!("Glyph codepoint: U+{:04X}", codepoint.as_char() as u32);
+}
+
+// Reverse lookup: codepoint → glyph name
+if let Some(name) = Doto::glyph_name('a') {
+    println!("Glyph name: {name}");
 }
 <span class="boring">}</span></code></pre>
-<p>The <code>codepoint()</code> method looks up the glyph name in the generated
-<code>phf::Map</code> (<code>REVERSE_GLYPHS</code>), trying both the bare name and the
-prefixed name (<code>{GLYPH_PREFIX}-{name}</code>).</p>
+<p><code>codepoint()</code> looks up the glyph name in the generated <code>phf::Map</code>
+(<code>REVERSE_GLYPHS</code>), trying both the bare name and the prefixed name
+(<code>{GLYPH_PREFIX}-{name}</code>).</p>
 <h3 id="iterating-all-glyphs"><a class="header" href="#iterating-all-glyphs">Iterating All Glyphs</a></h3>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>use fonts_rs_doto::all_glyphs;
+</span>use fonts_rs_doto::Doto;
 
-for (codepoint, name) in all_glyphs() {
-    println!("U+{:04X} → {}", codepoint as u32, name);
+for (codepoint, name) in Doto::all_glyphs() {
+    println!("U+{:04X} → {}", codepoint.as_char() as u32, name.as_ref());
 }
+
+// O(1) glyph count
+let total = Doto::glyph_count();
 <span class="boring">}</span></code></pre>
 <h3 id="gresource-path-resolution"><a class="header" href="#gresource-path-resolution">GResource Path Resolution</a></h3>
 <p>Each glyph has a GResource path that can be used with GTK:</p>
@@ -1583,36 +2348,33 @@ for (codepoint, name) in all_glyphs() {
 <li><code>nf-md-cube</code> - Material Design cube icon</li>
 <li><code>nf-linux-tux</code> - Linux Tux icon</li>
 </ul>
-<p>The <code>resolve_icon_codepoint</code> function:</p>
-<ol>
-<li>Normalizes the input to kebab-case, lower-case</li>
-<li>Appends <code>-symbolic</code> suffix if not already present (GTK symbolic icon convention)</li>
-<li>Looks up the normalized name in the vendored codepoint map</li>
-<li>Returns the Unicode character if found</li>
-</ol>
+<p><code>NerdFonts::codepoint</code> accepts all <code>IconName</code> forms - it normalizes the
+input to kebab-case, lower-case, strips the <code>nf-</code> prefix and <code>-symbolic</code>
+suffix, then looks up the name in the vendored codepoint map.</p>
 <h3 id="usage"><a class="header" href="#usage">Usage</a></h3>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>use nerd_fonts_rs::resolve_icon_codepoint;
+</span>use nerd_fonts_rs::CodePoint;
+use nerd_fonts_rs::NerdFonts;
 
 // Basic resolution
-let codepoint = resolve_icon_codepoint("nf-fa-gamepad");
-assert_eq!(codepoint, Some('\u{F11B}'));
+let codepoint = NerdFonts::codepoint("nf-fa-gamepad");
+assert_eq!(codepoint, Some(CodePoint::from_char('\u{F11B}')));
 
 // Underscores are normalized to hyphens
-let codepoint = resolve_icon_codepoint("nf_linux_tux");
-assert_eq!(codepoint, Some('\u{F31A}'));
+let codepoint = NerdFonts::codepoint("nf_linux_tux");
+assert_eq!(codepoint, Some(CodePoint::from_char('\u{F31A}')));
 
 // Case-insensitive
-let codepoint = resolve_icon_codepoint("NF-FA-GAMEPAD");
-assert_eq!(codepoint, Some('\u{F11B}'));
+let codepoint = NerdFonts::codepoint("NF-FA-GAMEPAD");
+assert_eq!(codepoint, Some(CodePoint::from_char('\u{F11B}')));
 
 // Already has -symbolic suffix
-let codepoint = resolve_icon_codepoint("nf-fa-gamepad-symbolic");
-assert_eq!(codepoint, Some('\u{F11B}'));
+let codepoint = NerdFonts::codepoint("nf-fa-gamepad-symbolic");
+assert_eq!(codepoint, Some(CodePoint::from_char('\u{F11B}')));
 
 // Unknown icon returns None
-let codepoint = resolve_icon_codepoint("nf-nonexistent-icon-xyz");
+let codepoint = NerdFonts::codepoint("nf-nonexistent-icon-xyz");
 assert_eq!(codepoint, None);
 <span class="boring">}</span></code></pre>
 <h3 id="gtk-icon-name-resolution"><a class="header" href="#gtk-icon-name-resolution">GTK Icon Name Resolution</a></h3>
@@ -1631,10 +2393,13 @@ let icon_name = resolve_gtk_nerd_icon("nf-fa-gamepad");
 <span class="boring">}</span></code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="glyph-export"><a class="header" href="#glyph-export">Glyph Export</a></h1>
-<p>Glyphs are extracted as GTK4 symbolic SVG icons at build time using
-<a href="https://crates.io/crates/skrifa"><code>skrifa</code></a> for outline parsing. The export
-logic lives in the <code>fonts-rs-generator</code> crate and is called automatically by
-each font family crate’s <code>build.rs</code>.</p>
+<p>Glyphs become GTK4 symbolic SVG icons at build time. The export logic
+lives in the <code>fonts-rs-generator</code> crate behind the <code>GlyphSource</code>
+abstraction - <code>FontFileSource</code> extracts outlines from TTF/OTF files via
+<a href="https://crates.io/crates/skrifa"><code>skrifa</code></a>, <code>SvgDirSource</code> consumes
+directories of pre-rendered SVGs (emoji sets, icon sets like Tabler and
+Lucide). Both feed the same export runner and emit identical artifacts.
+Each family crate’s <code>build.rs</code> invokes the pipeline automatically.</p>
 <h2 id="automatic-generation"><a class="header" href="#automatic-generation">Automatic Generation</a></h2>
 <p><code>build.rs</code> generates the icon resources on demand via <code>FontBuild</code>. The export
 is triggered when the font file hash has changed since the last export:</p>
@@ -1770,6 +2535,18 @@ GTK-friendly icon names:</p>
 <p>Some glyphs (e.g. <code>nonmarkingreturn</code>, <code>blank</code>) have no outline data. These
 are exported as minimal empty SVGs so their icon names remain registered in
 <code>metadata.json</code>.</p>
+<h2 id="svg-post-processing"><a class="header" href="#svg-post-processing">SVG Post-Processing</a></h2>
+<p><code>SvgDirSource</code> accepts <code>post_process</code> hooks (<code>SvgPostProcessor</code>) that
+transform each SVG before it is written. Built-in processors include
+<code>Optimize</code>, <code>NormalizeViewBox</code>, <code>CurrentColor</code>, <code>StripEntityNamespaces</code>
+and <code>SymbolicClasses</code>.</p>
+<p><code>SymbolicClasses</code> matters for <strong>stroke-based icon sets</strong> (Lucide,
+Tabler outline): GTK’s symbolic recoloring ignores <code>fill</code>/<code>stroke</code>
+attributes - without classes every shape is filled with the foreground
+color and <code>*-symbolic</code> icons render as solid blobs. The processor maps
+effective paints onto <code>transparent-fill</code> / <code>foreground-fill</code> /
+<code>foreground-stroke</code> classes (requires GTK ≥ 4.20 for strokes). See
+<a href="#fonts-rs-generator---build-time-pipeline"><code>fonts-rs-generator</code></a> for the mapping table.</p>
 <h2 id="crate-structure"><a class="header" href="#crate-structure">Crate Structure</a></h2>
 <p>The export logic lives in the <code>fonts-rs-generator</code> crate:</p>
 <pre><code class="language-toml"># Font family crate's Cargo.toml (build-dependency)
@@ -1928,27 +2705,29 @@ if let Some(display) = gtk4::gdk::Display::default() {
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="gtk-integration"><a class="header" href="#gtk-integration">GTK Integration</a></h1>
 <h2 id="font-family-crates-1"><a class="header" href="#font-family-crates-1">Font Family Crates</a></h2>
-<p>Each font family crate provides a <code>register_glyphs()</code> function (enabled with
-the <code>gtk</code> feature) that registers the compiled GResource bundle:</p>
-<pre class="playground"><code class="language-rust">use fonts_rs_doto::register_glyphs;
+<p>Each font family marker type provides an <code>install()</code> method (enabled with
+the <code>gtk</code> feature) that registers the compiled GResource bundle and loads
+the font:</p>
+<pre class="playground"><code class="language-rust">use fonts_rs_doto::Doto;
 
 fn main() {
-    // Register GResource (call once at startup)
-    register_glyphs().unwrap();
+    // Register GResource + load font (call once at startup)
+    Doto::install().unwrap();
 
     // Now GTK can resolve icon names from the GResource bundle
     let image = gtk4::Image::from_icon_name("doto-a");
 }</code></pre>
-<p><code>register_glyphs()</code> calls <code>gio::resources_register_include!("icons.gresource")</code>
-to register the compiled GResource binary containing all SVG glyph files.</p>
+<p><code>install()</code> registers the compiled GResource binary containing all SVG
+glyph files and loads the TTF into the fontconfig/pango font map.
+Registration is lazy and idempotent - <code>ensure_registered()</code> is called
+automatically by glyph accessors, so <code>install()</code> is only needed for
+explicit fail-fast setup at startup.</p>
 <h2 id="nerd-fonts-nerd-fonts-rs-3"><a class="header" href="#nerd-fonts-nerd-fonts-rs-3">Nerd Fonts (nerd-fonts-rs)</a></h2>
 <p>The <code>nerd-fonts-rs</code> crate provides additional GTK4 functionality:</p>
 <h3 id="initialization-1"><a class="header" href="#initialization-1">Initialization</a></h3>
 <p>Call <code>init()</code> once at application startup:</p>
-<pre class="playground"><code class="language-rust">use nerd_fonts_rs::init;
-
-fn main() {
-    init(None);
+<pre class="playground"><code class="language-rust">fn main() {
+    nerd_fonts_rs::init().unwrap();
     // ...
 }</code></pre>
 <p><code>init()</code> performs the following:</p>
@@ -1972,6 +2751,110 @@ let image = gtk4::Image::from_icon_name(&amp;icon_name.unwrap());
 <span class="boring">}</span></code></pre>
 <p>The function normalizes CSS class names (like <code>nf-fa-gamepad</code> or <code>fa-gamepad</code>)
 into GTK icon names that <code>gtk4::Image::from_icon_name</code> understands.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="cheat-sheet-apps"><a class="header" href="#cheat-sheet-apps">Cheat Sheet Apps</a></h1>
+<p>Every font family ships a per-family <code>*-cheat-sheet</code> binary - nine in
+total. They are thin wrappers around the shared <code>fonts-rs-cheat-sheet</code>
+crate and only differ in their <code>CheatSheetFamily</code> type parameter:</p>
+<pre class="playground"><code class="language-rust">fn main() -&gt; miette::Result&lt;()&gt; {
+    fonts_rs_cheat_sheet::run::&lt;fonts_rs_lucide::Lucide&gt;()
+}</code></pre>
+<p>All UI behavior - grid, search, history, sidebars, toasts - is generic
+over <code>F: CheatSheetFamily</code> and lives in <code>fonts-rs-cheat-sheet</code>.</p>
+<h2 id="libadwaita-widget-tree"><a class="header" href="#libadwaita-widget-tree">Libadwaita Widget Tree</a></h2>
+<p>The application is built on libadwaita (not plain GTK4). The widget
+hierarchy inside <code>build_ui</code>:</p>
+<pre><code>adw::Application
+└── adw::ApplicationWindow
+    └── adw::ToastOverlay                  ← copy-feedback toasts
+        └── adw::ToolbarView
+            ├── adw::HeaderBar             ← WindowTitle, back/fwd,
+            │                                sidebar toggle (left)
+            └── adw::NavigationSplitView   ← browse ↔ detail
+                ├── sidebar: adw::NavigationPage (browse)
+                │   └── adw::OverlaySplitView      ← category list ↔ grid
+                │       ├── sidebar: ScrolledWindow
+                │       │   └── Box
+                │       │       ├── ListBox  "Groups"      (if ordering())
+                │       │       └── ListBox  "Categories"  (if any)
+                │       └── content: Box
+                │           ├── top_bar (counts, group DropDown,
+                │           │            search Entry, size Scale,
+                │           │            tone row)
+                │           └── ScrolledWindow → FlowBox (icon grid)
+                └── content: adw::NavigationPage (detail)
+                    └── Stack
+                        ├── "empty":  adw::StatusPage
+                        └── "detail": adw::ToolbarView
+                            ├── adw::HeaderBar (close button only -
+                            │   window controls suppressed)
+                            └── ScrolledWindow → detail content
+</code></pre>
+<h3 id="navigationsplitview-browse--detail"><a class="header" href="#navigationsplitview-browse--detail">NavigationSplitView (browse ↔ detail)</a></h3>
+<p>The browse grid and the detail page are the two panes of a
+<code>NavigationSplitView</code>. An <code>adw::Breakpoint</code> (<code>max-width: 800sp</code>)
+collapses the split view so the detail page covers the grid on narrow
+windows; its own <code>HeaderBar</code> then shows an automatic back button plus a
+manual close button. Window controls are suppressed on the detail
+<code>HeaderBar</code> (<code>show_start/end_title_buttons(false)</code>) so they are not
+duplicated.</p>
+<h3 id="overlaysplitview-category-sidebar--grid"><a class="header" href="#overlaysplitview-category-sidebar--grid">OverlaySplitView (category sidebar ↔ grid)</a></h3>
+<p>Inside the browse page, an <code>adw::OverlaySplitView</code>
+(<code>sidebar_position = Start</code>) carries the navigation sidebar. It is
+<strong>revealed at startup</strong> and toggled by a <code>ToggleButton</code> in the main
+<code>HeaderBar</code>, bound bidirectionally to <code>show-sidebar</code>. The sidebar is
+omitted entirely when a family exposes neither <code>ordering()</code> groups nor
+categories.</p>
+<p>Sidebar content is a sectioned list in one <code>ScrolledWindow</code>:</p>
+<ul>
+<li><strong>Groups</strong> - one row per <code>group_labels()</code> entry. Rows route through
+<code>DropDown::set_selected</code>, so <code>active_group</code> + grid re-render share a
+single code path; re-activating the selected group resets to
+“All groups”.</li>
+<li><strong>Categories</strong> - <code>"{category} ({count})"</code> rows, collected once into a
+<code>BTreeMap</code> over <code>all_glyphs()</code>. Click replaces the search text,
+Shift+click appends (space-separated AND), clicking the active row
+clears back to the full grid. Category pill clicks (<code>cat-btn</code> on grid
+cells and the detail page) reveal the sidebar when collapsed.</li>
+</ul>
+<h3 id="toastoverlay-copy-feedback"><a class="header" href="#toastoverlay-copy-feedback">ToastOverlay (copy feedback)</a></h3>
+<p>Every copy action shows an <code>adw::Toast</code> with per-action wording -
+“Copied name” / “Copied character” / “Copied SVG” / “Copied codepoint”
+in the detail view, plus “Copied name” on secondary-click of a grid
+cell. The overlay is shared through <code>DetailContext::toasts</code>.</p>
+<h2 id="ordering-driven-grid-behavior"><a class="header" href="#ordering-driven-grid-behavior">Ordering-Driven Grid Behavior</a></h2>
+<p>When <code>CheatSheetFamily::ordering()</code> returns a <code>GlyphOrdering</code>, the
+browse grid gains three behaviors:</p>
+<ul>
+<li><strong>Sort</strong> - glyphs order by <code>order_index</code>; variants resolve through
+<code>base_of</code> so each variant sits next to its base. Families without
+ordering stay alphabetical.</li>
+<li><strong>Group filter</strong> - the top-bar <code>DropDown</code> (mirrored by the sidebar
+“Groups” section) restricts the grid to <code>group(name) == label</code>;
+“All groups” clears it.</li>
+<li><strong>Variant collapsing</strong> - with <code>collapse_variants() == true</code> a
+variant is hidden in “All groups” whenever its base is visible
+(emoji tones, dicefont d6 styles, cuernavaca pieces). Style
+families (line-awesome, fluent, eva, heroicons) return <code>false</code> -
+their variants stay visible; the <code>base_of</code>/<code>alternates</code> link then
+only powers the detail sidebar’s Variants section and sorting.</li>
+</ul>
+<h2 id="search--and-history-model"><a class="header" href="#search--and-history-model">Search- and History Model</a></h2>
+<ul>
+<li>The search <code>Entry</code> (primary <code>edit-find-symbolic</code> icon, secondary
+clear icon) filters the grid; every change pushes a
+<code>HistoryEntry::Search</code> onto the back/forward stack, so Back/Forward
+restore previous filters.</li>
+<li>Selecting a glyph pushes <code>HistoryEntry::Icon</code> and shows the detail
+page; <code>navigate_to</code> restores either kind of entry.</li>
+<li><code>suppress_history</code> prevents loop-pushing while navigating history.</li>
+</ul>
+<h2 id="styling"><a class="header" href="#styling">Styling</a></h2>
+<p>Custom CSS is intentionally thin - cell sizing, metadata pills
+(<code>cat-btn</code>/<code>kw-btn</code>), and hover/selected states use adwaita palette
+variables (<code>alpha(@accent_bg_color, …)</code>, <code>@success_bg_color</code>,
+<code>@warning_bg_color</code>). Sidebar theming, dark mode, and focus styles come
+from the adwaita stylesheet via <code>adw::StyleManager</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="web-css"><a class="header" href="#web-css">Web CSS</a></h1>
 <p>The <code>web</code> module (enabled with the <code>web</code> feature) provides a CSS constant for

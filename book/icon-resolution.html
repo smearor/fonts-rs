@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-32bca81d.js";
+            window.path_to_searchindex_js = "searchindex-2160d189.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-cbc065de.js"></script>
+        <script src="toc-8e28fbde.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -181,31 +181,37 @@
 <p>Each font family crate provides glyph name resolution - mapping human-readable
 glyph names to Unicode codepoints and vice versa.</p>
 <h2 id="font-family-crates"><a class="header" href="#font-family-crates">Font Family Crates</a></h2>
-<p>Font family crates use <code>GlyphName&lt;F&gt;</code> (phantom-typed) for type-safe glyph
-name resolution. Each crate defines a <code>GlyphNameExt</code> trait with a
-<code>codepoint()</code> method:</p>
+<p>Each font family marker type implements the <code>FontFamily</code> trait, which
+provides glyph name resolution as associated functions - no trait import
+needed thanks to inherent forwarders:</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>use fonts_rs_doto::GlyphNameExt;
-use fonts_rs_doto::DotoName;
+</span>use fonts_rs_doto::Doto;
 
 // Look up a glyph by name
-let name = DotoName::new("doto-a".to_string());
-if let Some(codepoint) = name.codepoint() {
-    println!("Glyph codepoint: U+{:04X}", codepoint as u32);
+if let Some(codepoint) = Doto::codepoint("doto-a") {
+    println!("Glyph codepoint: U+{:04X}", codepoint.as_char() as u32);
+}
+
+// Reverse lookup: codepoint → glyph name
+if let Some(name) = Doto::glyph_name('a') {
+    println!("Glyph name: {name}");
 }
 <span class="boring">}</span></code></pre>
-<p>The <code>codepoint()</code> method looks up the glyph name in the generated
-<code>phf::Map</code> (<code>REVERSE_GLYPHS</code>), trying both the bare name and the
-prefixed name (<code>{GLYPH_PREFIX}-{name}</code>).</p>
+<p><code>codepoint()</code> looks up the glyph name in the generated <code>phf::Map</code>
+(<code>REVERSE_GLYPHS</code>), trying both the bare name and the prefixed name
+(<code>{GLYPH_PREFIX}-{name}</code>).</p>
 <h3 id="iterating-all-glyphs"><a class="header" href="#iterating-all-glyphs">Iterating All Glyphs</a></h3>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>use fonts_rs_doto::all_glyphs;
+</span>use fonts_rs_doto::Doto;
 
-for (codepoint, name) in all_glyphs() {
-    println!("U+{:04X} → {}", codepoint as u32, name);
+for (codepoint, name) in Doto::all_glyphs() {
+    println!("U+{:04X} → {}", codepoint.as_char() as u32, name.as_ref());
 }
+
+// O(1) glyph count
+let total = Doto::glyph_count();
 <span class="boring">}</span></code></pre>
 <h3 id="gresource-path-resolution"><a class="header" href="#gresource-path-resolution">GResource Path Resolution</a></h3>
 <p>Each glyph has a GResource path that can be used with GTK:</p>
@@ -222,36 +228,33 @@ for (codepoint, name) in all_glyphs() {
 <li><code>nf-md-cube</code> - Material Design cube icon</li>
 <li><code>nf-linux-tux</code> - Linux Tux icon</li>
 </ul>
-<p>The <code>resolve_icon_codepoint</code> function:</p>
-<ol>
-<li>Normalizes the input to kebab-case, lower-case</li>
-<li>Appends <code>-symbolic</code> suffix if not already present (GTK symbolic icon convention)</li>
-<li>Looks up the normalized name in the vendored codepoint map</li>
-<li>Returns the Unicode character if found</li>
-</ol>
+<p><code>NerdFonts::codepoint</code> accepts all <code>IconName</code> forms - it normalizes the
+input to kebab-case, lower-case, strips the <code>nf-</code> prefix and <code>-symbolic</code>
+suffix, then looks up the name in the vendored codepoint map.</p>
 <h3 id="usage"><a class="header" href="#usage">Usage</a></h3>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>use nerd_fonts_rs::resolve_icon_codepoint;
+</span>use nerd_fonts_rs::CodePoint;
+use nerd_fonts_rs::NerdFonts;
 
 // Basic resolution
-let codepoint = resolve_icon_codepoint("nf-fa-gamepad");
-assert_eq!(codepoint, Some('\u{F11B}'));
+let codepoint = NerdFonts::codepoint("nf-fa-gamepad");
+assert_eq!(codepoint, Some(CodePoint::from_char('\u{F11B}')));
 
 // Underscores are normalized to hyphens
-let codepoint = resolve_icon_codepoint("nf_linux_tux");
-assert_eq!(codepoint, Some('\u{F31A}'));
+let codepoint = NerdFonts::codepoint("nf_linux_tux");
+assert_eq!(codepoint, Some(CodePoint::from_char('\u{F31A}')));
 
 // Case-insensitive
-let codepoint = resolve_icon_codepoint("NF-FA-GAMEPAD");
-assert_eq!(codepoint, Some('\u{F11B}'));
+let codepoint = NerdFonts::codepoint("NF-FA-GAMEPAD");
+assert_eq!(codepoint, Some(CodePoint::from_char('\u{F11B}')));
 
 // Already has -symbolic suffix
-let codepoint = resolve_icon_codepoint("nf-fa-gamepad-symbolic");
-assert_eq!(codepoint, Some('\u{F11B}'));
+let codepoint = NerdFonts::codepoint("nf-fa-gamepad-symbolic");
+assert_eq!(codepoint, Some(CodePoint::from_char('\u{F11B}')));
 
 // Unknown icon returns None
-let codepoint = resolve_icon_codepoint("nf-nonexistent-icon-xyz");
+let codepoint = NerdFonts::codepoint("nf-nonexistent-icon-xyz");
 assert_eq!(codepoint, None);
 <span class="boring">}</span></code></pre>
 <h3 id="gtk-icon-name-resolution"><a class="header" href="#gtk-icon-name-resolution">GTK Icon Name Resolution</a></h3>
@@ -273,7 +276,7 @@ let icon_name = resolve_gtk_nerd_icon("nf-fa-gamepad");
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="adding-font-family.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="upstream-sourcing.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
@@ -287,7 +290,7 @@ let icon_name = resolve_gtk_nerd_icon("nf-fa-gamepad");
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="adding-font-family.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="upstream-sourcing.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 

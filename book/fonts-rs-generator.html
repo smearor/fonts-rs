@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-32bca81d.js";
+            window.path_to_searchindex_js = "searchindex-2160d189.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-cbc065de.js"></script>
+        <script src="toc-8e28fbde.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -285,8 +285,135 @@ re-export on variant change even if the font file is unchanged</li>
 <li><strong><code>run</code></strong>: Export closure + default code generation
 (<code>CodemapGenerator</code> + <code>RustConstantsGenerator</code>)</li>
 <li><strong><code>run_with</code></strong>: Export closure + custom code generation closure</li>
+<li><strong><code>run_svg</code></strong>: Fontless variant - export closure receives only the
+resources dir (no font path). Must be paired with <code>svg_only()</code></li>
 <li>Hash is computed as FNV-1a of the font file and stored in <code>resources/.hash</code></li>
 </ul>
+<p><code>CodemapGenerator</code> tolerates <strong>shared codepoints</strong>: when several
+exported names map to the same codepoint (e.g. Line Awesome
+regular/solid pairs), the forward <code>char -&gt; name</code> map emits each
+codepoint exactly once - the canonical (shortest) name wins - while
+the reverse <code>name -&gt; char</code> map keeps all names. <code>phf_map!</code> rejects
+duplicate keys, so the dedupe is mandatory, not cosmetic.</p>
+<h3 id="fontless-builds-svg_only"><a class="header" href="#fontless-builds-svg_only">Fontless Builds (<code>svg_only</code>)</a></h3>
+<p><code>FontBuild::svg_only()</code> creates a builder without a font file - for
+icon sets that ship only SVGs (Lucide). Change detection then relies
+entirely on <code>extra_hash</code> components; callers must hash every input
+that affects the export:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>FontBuild::svg_only()
+    .extra_hash(EXPORT_PIPELINE_VERSION.to_string())
+    .extra_hash(format!("{:016x}", hash_svg_dir(&amp;svg_dir)))
+    .extra_hash(format!("{:016x}", hash_str(&amp;icons_json)))
+    .rerun_if_changed(&amp;svg_dir)
+    .run_svg(|resources_dir| {
+        SvgDirSource::new(&amp;svg_dir)
+            .codepoint_strategy(CodepointStrategy::HashedPua)
+            .name_resolver(|parsed| Some(format!("{}-symbolic", parsed.raw_name)))
+            .name_prefix(LucideConfig::FONT_FAMILY_NAME)
+            .post_process(SymbolicClasses)
+            .export(&amp;config, resources_dir)
+    })
+<span class="boring">}</span></code></pre>
+<ul>
+<li><strong><code>EXPORT_PIPELINE_VERSION</code></strong>: a manual constant in <code>build.rs</code> that is
+mixed into the hash. Bump it whenever the export pipeline itself
+changes (naming, layout, post-processors) - otherwise a matching
+hash would reuse a stale export.</li>
+<li><strong><code>hash_svg_dir</code> / <code>hash_str</code></strong>: hash helpers for non-font inputs.</li>
+</ul>
+<h2 id="glyphsource-abstraction"><a class="header" href="#glyphsource-abstraction"><code>GlyphSource</code> (Abstraction)</a></h2>
+<p><code>GlyphSource</code> decouples glyph identity and artwork from the export
+pipeline. Two implementations feed the shared <code>export</code> runner:</p>
+<ul>
+<li><strong><code>FontFileSource</code></strong> - extracts outlines from TTF/OTF via <code>skrifa</code></li>
+<li><strong><code>SvgDirSource</code></strong> - consumes a directory of pre-rendered SVGs</li>
+</ul>
+<p>Both emit identical artifacts (<code>metadata.json</code>, <code>icons.gresource.xml</code>,
+SVG files under <code>scalable/{context}/</code>).</p>
+<h3 id="svgdirsource-builder-methods"><a class="header" href="#svgdirsource-builder-methods"><code>SvgDirSource</code> Builder Methods</a></h3>
+<ul>
+<li><strong><code>filename_parser</code></strong> - <code>NameParser</code> (default, plain <code>{name}.svg</code>) or
+<code>EmojiUFilenameParser</code> (<code>emoji_u{cp}.svg</code>)</li>
+<li><strong><code>codepoint_strategy</code></strong> - how <code>GlyphDescriptor::code</code> is assigned</li>
+<li><strong><code>codepoint_map</code></strong> - name→codepoint map for <code>FromNameMap</code></li>
+<li><strong><code>name_resolver</code></strong> - parsed glyph → semantic name (falls back to the
+raw filename stem, kebab-normalized; name collisions get a
+deterministic suffix)</li>
+<li><strong><code>name_prefix</code></strong> - prepend <code>{prefix}-</code> to every resolved name</li>
+<li><strong><code>filter</code></strong> - drop glyphs by codepoint sequence (e.g. flag emoji)</li>
+<li><strong><code>post_process</code></strong> - add an <code>SvgPostProcessor</code>, applied in order</li>
+</ul>
+<h3 id="codepointstrategy"><a class="header" href="#codepointstrategy"><code>CodepointStrategy</code></a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Variant</th><th>Use case</th></tr>
+</thead>
+<tbody>
+<tr><td><code>FromFilename</code></td><td>Emoji codepoints in the filename; multi-codepoint sequences get a stable PUA allocation</td></tr>
+<tr><td><code>FromNameMap</code></td><td>Upstream name→codepoint table (<code>GlyphNameMap</code>, e.g. Tabler)</td></tr>
+<tr><td><code>HashedPua</code></td><td>Fontless sets - deterministic PUA codepoint via hash-of-name (Lucide)</td></tr>
+<tr><td><code>None</code> (default)</td><td>Icon-theme-only usage; <code>GtkIconTheme</code> resolves names → SVG directly</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="svgpostprocessor"><a class="header" href="#svgpostprocessor"><code>SvgPostProcessor</code></a></h2>
+<p>Trait for transforming each SVG before it is written to the output
+directory (<code>SvgDirSource::post_process</code>). Implementations should be
+XML-aware via <code>quick-xml</code> - naive string replacement would also match
+paint attributes inside comments or metadata.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait SvgPostProcessor {
+    fn process(&amp;self, svg: String) -&gt; Result&lt;String, GlyphSourceError&gt;;
+}
+<span class="boring">}</span></code></pre>
+<p>Available processors:</p>
+<ul>
+<li><strong><code>Optimize</code></strong> - whitespace/structure cleanup</li>
+<li><strong><code>NormalizeViewBox</code></strong> - normalize the <code>viewBox</code> attribute</li>
+<li><strong><code>CurrentColor(target)</code></strong> - rewrite <code>fill</code>/<code>stroke</code> values to
+<code>currentColor</code> (<code>PaintTarget::Fill</code>/<code>Stroke</code>/<code>Both</code>); keeps <code>none</code>,
+<code>url(…)</code>, <code>inherit</code>. <code>.inject_missing()</code> additionally injects the
+targeted attribute on <code>&lt;svg&gt;</code> roots that declare none - needed for
+sets like Line Awesome whose upstream paths carry no paint
+attribute at all (rewriting alone would be a no-op, leaving
+implicit black)</li>
+<li><strong><code>StripEntityNamespaces</code></strong> - strip internal entity namespace
+prefixes</li>
+<li><strong><code>SymbolicClasses</code></strong> - add GTK symbolic classes for stroke-based
+icon sets (see below)</li>
+</ul>
+<h3 id="symbolicclasses---symbolic-recoloring-for-stroke-based-sets"><a class="header" href="#symbolicclasses---symbolic-recoloring-for-stroke-based-sets"><code>SymbolicClasses</code> - Symbolic Recoloring for Stroke-Based Sets</a></h3>
+<p>GTK’s symbolic icon recoloring ignores <code>fill</code>/<code>stroke</code> attributes:
+paints are derived from <code>class</code> tokens (<code>transparent-fill</code>,
+<code>foreground-fill</code>, <code>foreground-stroke</code>, <code>success-*</code>, <code>warning-*</code>,
+<code>error-*</code>). Stroke-based sets (Lucide, Tabler outline) authored with
+<code>fill="none"</code> + <code>stroke="currentColor"</code> therefore render as solid
+blobs under <code>*-symbolic</code> names: every shape is filled with the
+foreground color, swallowing the stroked details.</p>
+<p><code>SymbolicClasses</code> maps each shape element’s <em>effective</em> <code>fill</code>/<code>stroke</code>
+(including values inherited from ancestor <code>&lt;svg&gt;</code>/<code>&lt;g&gt;</code> elements) onto
+symbolic classes:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Effective paint</th><th>Emitted class</th></tr>
+</thead>
+<tbody>
+<tr><td><code>fill="none"</code></td><td><code>transparent-fill</code></td></tr>
+<tr><td>any other fill / unset</td><td><code>foreground-fill</code></td></tr>
+<tr><td>visible <code>stroke</code></td><td><code>foreground-stroke</code></td></tr>
+<tr><td><code>stroke="none"</code> / unset</td><td><em>(no stroke class → not stroked)</em></td></tr>
+</tbody>
+</table>
+</div>
+<p>Original attributes are kept, so non-symbolic consumers (HTML export,
+<code>glyph_svg</code>, <code>compose_svg</code>) are unaffected. Stroke classes require
+<strong>GTK ≥ 4.20</strong> (or GTK 3 ≥ 3.24.50); on older versions stroke-based
+symbolic icons fall back to fill-only rendering.</p>
 <h2 id="impl_font_loader-macro"><a class="header" href="#impl_font_loader-macro"><code>impl_font_loader!</code> Macro</a></h2>
 <p>Generates a <code>font() -&gt; Option&lt;&amp;'static ab_glyph::FontVec&gt;</code> function that
 loads a TTF font file and caches it in a <code>OnceLock</code>.</p>
