@@ -7,7 +7,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  APT_PACKAGES: curl build-essential pkg-config libgtk-4-dev libglib2.0-dev
+  APT_PACKAGES: curl build-essential pkg-config libgtk-4-dev libglib2.0-dev libadwaita-1-dev
 
 permissions:
   contents: write
