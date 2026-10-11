@@ -34,7 +34,7 @@ impl<'a> ProviderContext<'a> {
     }
 
     /// The upstream checkout root. Fails for manifests without a git
-    /// `[upstream]` section — such providers must source purely via
+    /// `[upstream]` section - such providers must source purely via
     /// `http_get`/`with` inputs.
     pub fn checkout(&self) -> miette::Result<&'a Path> {
         self.checkout.ok_or_else(|| miette!("provider requires a git [upstream] checkout"))

@@ -11,14 +11,14 @@
 #
 # This file provides data for testing which emoji forms should be in keyboards and which should also be displayed/processed.
 # Format: code points; status # emoji name
-#     Code points — list of one or more hex code points, separated by spaces
+#     Code points - list of one or more hex code points, separated by spaces
 #     Status
-#       component           — an Emoji_Component,
+#       component           - an Emoji_Component,
 #                             excluding Regional_Indicator, ASCII, and non-Emoji
-#       fully-qualified     — a fully-qualified emoji (see ED-18 in UTS #51),
+#       fully-qualified     - a fully-qualified emoji (see ED-18 in UTS #51),
 #                             excluding Emoji_Component
-#       minimally-qualified — a minimally-qualified emoji (see ED-18a in UTS #51)
-#       unqualified         — an unqualified emoji (see ED-19 in UTS #51)
+#       minimally-qualified - a minimally-qualified emoji (see ED-18a in UTS #51)
+#       unqualified         - an unqualified emoji (see ED-19 in UTS #51)
 # Notes:
 #   • A mapping of these status values to RGI_Emoji_Qualification property values
 #     is given by ED-28 in UTS #51.

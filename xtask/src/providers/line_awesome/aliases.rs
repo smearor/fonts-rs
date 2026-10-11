@@ -13,7 +13,7 @@ use std::collections::BTreeSet;
 /// the FA4 layer (`.la.la-{name}`: alias key without the `la-`
 /// prefix), `font-awesome-line-awesome/css/all.css` the FA5 layer
 /// (`.fa-{name}`: alias key verbatim). Each class codepoint resolves
-/// to its canonical `$la-` variable name and then to the svg stem —
+/// to its canonical `$la-` variable name and then to the svg stem -
 /// `{name}` first, `{name}-solid` when only the solid variant exists
 /// (e.g. `fa-hotel` -> `bed-solid`). Classes resolving to their own
 /// canonical name are dropped.

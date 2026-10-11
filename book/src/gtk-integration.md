@@ -20,7 +20,7 @@ fn main() {
 
 `install()` registers the compiled GResource binary containing all SVG
 glyph files and loads the TTF into the fontconfig/pango font map.
-Registration is lazy and idempotent — `ensure_registered()` is called
+Registration is lazy and idempotent - `ensure_registered()` is called
 automatically by glyph accessors, so `install()` is only needed for
 explicit fail-fast setup at startup.
 

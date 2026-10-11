@@ -5,15 +5,15 @@ Tabler Icons font integration for GTK 4 and pixel-drawing.
 ## Overview
 
 [Tabler Icons](https://tabler.io/icons) is a free and open-source icon
-set designed with attention to pixel-perfect detail — over 5000 icons in
+set designed with attention to pixel-perfect detail - over 5000 icons in
 `outline` (stroke-based) and `filled` styles. This crate integrates
 Tabler Icons into the `fonts-rs` framework using the **hybrid approach**:
 
-- **GResource SVGs** — pre-rendered source SVGs (strokes in
+- **GResource SVGs** - pre-rendered source SVGs (strokes in
   `currentColor`), renamed to `tabler-{name}-symbolic` names under the
   `scalable/{context}` layout. Rendered via `librsvg` in GTK 4's
   `GtkIconTheme`.
-- **TTF for `pixel-drawing`** — the selected variant's webfont TTF is
+- **TTF for `pixel-drawing`** - the selected variant's webfont TTF is
   bundled for `ab_glyph` rendering (monochrome silhouettes).
 
 Glyph names are variant-independent (`tabler-{name}-symbolic`); the

@@ -9,12 +9,12 @@ Font-Awesome-5-compatible icon set - ~1,550 icons in `regular`,
 `solid` and `brands` styles. This crate integrates it into the
 `fonts-rs` framework using the **hybrid multi-TTF approach**:
 
-- **GResource SVGs** — the vendored flat `resources/svg/` slice,
+- **GResource SVGs** - the vendored flat `resources/svg/` slice,
   renamed to `la-{name}-symbolic` / `la-{name}-solid-symbolic` under
   the `scalable/{context}` layout. Upstream paths carry no paint
   attribute at all, so the `CurrentColor::inject_missing`
   post-processor injects `fill="currentColor"` on the `<svg>` root.
-- **Bundled TTFs** — all three upstream webfonts
+- **Bundled TTFs** - all three upstream webfonts
   (`la-regular-400.ttf`, `la-solid-900.ttf`, `la-brands-400.ttf`) ship
   via the static `resources/font.gresource.xml` manifest for Pango
   text (`install_pango` registers all faces), `@font-face` HTML
@@ -23,7 +23,7 @@ Font-Awesome-5-compatible icon set - ~1,550 icons in `regular`,
 
 Codepoints are **real upstream FA5 PUA codepoints** (U+F000-U+F8FF,
 BMP) from the vendored stem-keyed `codepoints.json`. Regular and solid
-style pairs share a codepoint per icon name — the `CodemapGenerator`
+style pairs share a codepoint per icon name - the `CodemapGenerator`
 dedupes the forward map (canonical name wins) while the reverse map
 keeps all names.
 

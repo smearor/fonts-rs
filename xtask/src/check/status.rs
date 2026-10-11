@@ -12,7 +12,7 @@ pub enum Status {
     /// The pinned commit is behind the update target (`sync --update`).
     Behind,
     /// The manifest ref resolves away from the locked commit
-    /// (branch moved or manual re-pin) — `sync` restores consistency.
+    /// (branch moved or manual re-pin) - `sync` restores consistency.
     Stale,
     /// No `upstream.lock` exists yet.
     Unsynced,

@@ -73,7 +73,7 @@ resources/
 └── OFL.txt            (or appropriate license)
 ```
 
-Curated files without an upstream source may live in `resources/` too —
+Curated files without an upstream source may live in `resources/` too -
 `verify` warns about them (no lock entry) but accepts them. See the
 [Upstream Sourcing](./upstream-sourcing.md) chapter for the full
 `upstream.toml` schema, provider-generated metadata (`[[metadata]]`)
@@ -269,7 +269,7 @@ FontBuild::new(&font_path)
 
 Key points:
 
-- **`SvgDirSource`** iterates `resources/svg/` — no TTF outline
+- **`SvgDirSource`** iterates `resources/svg/` - no TTF outline
   extraction. The SVGs are the final artwork (full color).
 - **`filename_parser`** maps filenames to codepoints
   (`EmojiUFilenameParser` for `emoji_u{cp}.svg`, `NameParser` for plain
@@ -281,7 +281,7 @@ Key points:
   `tts` names for emoji, `format!("{name}-symbolic")` for icons).
 - **`filter`** drops glyphs per variant (e.g. flag emoji for
   `*-noflags`).
-- **`extra_hash`** must cover the SVG directory — the default hash only
+- **`extra_hash`** must cover the SVG directory - the default hash only
   covers the TTF file, so SVG changes would not trigger a re-export.
 
 See `crates/fonts-rs-blobmoji/build.rs` (CLDR name map + flag filter)

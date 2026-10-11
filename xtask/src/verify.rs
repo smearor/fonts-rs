@@ -75,7 +75,7 @@ impl Crate {
     }
 
     /// Files under `resources/` that have no `[[artifacts]]` lock
-    /// entry — unknown hand-adds, reported as warnings.
+    /// entry - unknown hand-adds, reported as warnings.
     fn unaccounted_files(&self, locked: &HashSet<&str>) -> miette::Result<Vec<PathBuf>> {
         let mut unaccounted = Vec::new();
         collect_files(&self.dir.join("resources"), &self.dir, locked, &mut unaccounted)?;

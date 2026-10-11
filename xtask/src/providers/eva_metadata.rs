@@ -9,7 +9,7 @@ use std::collections::BTreeMap;
 /// `eva_metadata` provider: parses the upstream `icons-tags.ts`
 /// TypeScript object literal (`'name': ['tag', ...],` lines) into a
 /// `{name: [tags]}` JSON map with sorted keys, 2-space indentation
-/// and a trailing newline — the vendored `icons-tags.json` format.
+/// and a trailing newline - the vendored `icons-tags.json` format.
 pub struct EvaMetadata;
 
 impl Provider for EvaMetadata {

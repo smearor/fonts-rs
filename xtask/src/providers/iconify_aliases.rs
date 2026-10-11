@@ -111,7 +111,7 @@ impl Provider for IconifyAliases {
     }
 }
 
-/// Whether `name` ends with `-<digits>-<word>` — i.e. it belongs to
+/// Whether `name` ends with `-<digits>-<word>` - i.e. it belongs to
 /// a size variant that is not vendored (e.g. `-16-filled` or
 /// `-32-light` when only `-24-*` is selected). Aliases carrying a
 /// declared suffix are kept by the caller before this check.

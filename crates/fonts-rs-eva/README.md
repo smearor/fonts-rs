@@ -9,16 +9,16 @@ of ~490 delightful icons, available in `fill` (default) and `outline`
 styles. This crate integrates Eva Icons into the `fonts-rs` framework
 using the **hybrid approach**:
 
-- **GResource SVGs** — pre-rendered source SVGs, renamed to
+- **GResource SVGs** - pre-rendered source SVGs, renamed to
   `eva-{name}-symbolic` names under the `scalable/{context}` layout.
   Rendered via `librsvg` in GTK 4's `GtkIconTheme`.
-- **TTF for `pixel-drawing`** — the bundled `Eva-Icons.ttf` webfont for
+- **TTF for `pixel-drawing`** - the bundled `Eva-Icons.ttf` webfont for
   `ab_glyph` rendering (monochrome silhouettes).
 
 Both variants share a single TTF where fill and outline glyphs occupy
 different codepoints; the `fill`/`outline` feature selects the codepoint
 set and `resources/svg/{variant}` artwork. Glyph names stay
-variant-independent (`eva-{name}-symbolic`) — the upstream `-outline`
+variant-independent (`eva-{name}-symbolic`) - the upstream `-outline`
 suffix is stripped by the name resolver. Codepoints are parsed from the
 upstream stylesheet `eva-icons.css`; search tags come from
 `icons-tags.json` (the keyword data powering the official eva-icons.com

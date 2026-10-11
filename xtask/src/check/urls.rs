@@ -10,7 +10,7 @@ impl CheckRow {
     /// Re-fetches live URL artifacts and provider inputs and reports
     /// content drift on the row. Immutable URLs (commit pins,
     /// version-pinned registries, content-addressed CDNs, release
-    /// assets) are skipped — they cannot drift by construction.
+    /// assets) are skipped - they cannot drift by construction.
     /// Fetch failures land in `fetch_errors`: an unfetchable source
     /// must never masquerade as `up-to-date`.
     pub fn check_urls(&mut self, manifest: &Manifest, lockfile: Option<&Lockfile>, fetch: &FetchCache) {

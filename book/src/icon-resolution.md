@@ -6,7 +6,7 @@ glyph names to Unicode codepoints and vice versa.
 ## Font Family Crates
 
 Each font family marker type implements the `FontFamily` trait, which
-provides glyph name resolution as associated functions — no trait import
+provides glyph name resolution as associated functions - no trait import
 needed thanks to inherent forwarders:
 
 ```rust
@@ -58,7 +58,7 @@ Nerd Fonts use a different naming convention. Icon names follow the pattern
 - `nf-md-cube` - Material Design cube icon
 - `nf-linux-tux` - Linux Tux icon
 
-`NerdFonts::codepoint` accepts all `IconName` forms — it normalizes the
+`NerdFonts::codepoint` accepts all `IconName` forms - it normalizes the
 input to kebab-case, lower-case, strips the `nf-` prefix and `-symbolic`
 suffix, then looks up the name in the vendored codepoint map.
 

@@ -42,13 +42,13 @@ With the **`metadata`** feature, `NotoEmojiMetadata` implements
 `GlyphMetadata` + `GlyphOrdering` backed by build-time generated phf
 tables (same sources as `fonts-rs-blobmoji`):
 
-- **Keywords & categories** — CLDR annotations and `emoji-test.txt`.
-- **Picker ordering** — `groups()`/`order_index()`/`group()` follow
+- **Keywords & categories** - CLDR annotations and `emoji-test.txt`.
+- **Picker ordering** - `groups()`/`order_index()`/`group()` follow
   `googlefonts/emoji-metadata`.
-- **Variants & tone picking** — `alternates()`/`base_of()` link skin-tone
+- **Variants & tone picking** - `alternates()`/`base_of()` link skin-tone
   and ZWJ sequences to their base; `tone_group()` shares the variant
   shape for default-tone picking.
-- **Shortcode aliases** — `:smile:`/emoticons resolve via
+- **Shortcode aliases** - `:smile:`/emoticons resolve via
   `resolve_alias()` and hit `search()`.
 
 ## Font License

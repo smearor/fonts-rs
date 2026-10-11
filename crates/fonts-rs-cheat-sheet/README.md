@@ -1,7 +1,7 @@
 # fonts-rs-cheat-sheet
 
 Generic GTK 4 cheat sheet application shared by all `fonts-rs` font
-families — icon grid, incremental search, navigation history and a
+families - icon grid, incremental search, navigation history and a
 detail sidebar, driven by one trait implementation per family.
 
 ## Overview
@@ -43,23 +43,23 @@ alphabetical grid; icon families pay nothing.
 
 Opting in enables:
 
-- **Picker-order grid sort** via `order_index` — search results and the
+- **Picker-order grid sort** via `order_index` - search results and the
   browse grid follow the curated order.
 - **Group jump-list dropdown** plus a **group label** in the detail
   sidebar via `group_labels`/`group`.
-- **Variant collapsing** via `collapse_variants`/`base_of` — families
+- **Variant collapsing** via `collapse_variants`/`base_of` - families
   opt in to hide variants behind their base in the browse grid (emoji
   skin tones do; style families do not - a whole style is first-class
   content). Pairs stay linked through the sidebar's **"Variants"
   section** / **"Variant of"** back-link via `alternates`/`base_of`.
-- **Default-tone picking** via `tone_group` — a variant detail offers
+- **Default-tone picking** via `tone_group` - a variant detail offers
   "Set as default tone"; the chosen alternate index is stored per tone
   group (`TonePicker`) and `render_grid` swaps every base cell in the
   group to that tone. Session-scoped; GSettings persistence is a
   follow-up.
 
 Glyph names in `GlyphOrdering` tables must match the names produced by
-`all_glyphs()` — the generator joins sequences onto the exported name
+`all_glyphs()` - the generator joins sequences onto the exported name
 set at build time, so this holds automatically for `fonts-rs-generator`
 families.
 

@@ -80,14 +80,14 @@ impl<'de> Deserialize<'de> for GlyphNameMap {
     ///
     /// Accepts the common upstream JSON shapes transparently:
     ///
-    /// - SMuFL object: `{ "glyphName": { "codepoint": "U+E050", ... } }` —
+    /// - SMuFL object: `{ "glyphName": { "codepoint": "U+E050", ... } }` -
     ///   only `codepoint` is extracted, other fields are ignored.
     /// - Flat integer: `{ "glyphName": 57994 }` (e.g. Fluent System Icons).
     /// - String: `{ "glyphName": "U+E050" }` or bare hex `"E050"`.
     /// - Object with raw int: `{ "glyphName": { "codepoint": 57400 } }`.
     ///
     /// Key normalization (prefix/suffix stripping, name aliasing) is not
-    /// performed here — that is inherently vendor-specific and belongs in
+    /// performed here - that is inherently vendor-specific and belongs in
     /// the consumer.
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where

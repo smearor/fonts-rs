@@ -1,6 +1,6 @@
 # fonts-rs-heroicons
 
-Heroicons integration for GTK 4 — a **fontless** SVG-only icon set.
+Heroicons integration for GTK 4 - a **fontless** SVG-only icon set.
 
 ## Overview
 
@@ -10,24 +10,24 @@ icons by the makers of Tailwind CSS, shipped in four variants: outline
 micro (16×16 filled). This crate integrates Heroicons into the
 `fonts-rs` framework using the **SVG-only approach**:
 
-- **GResource SVGs** — pre-rendered source SVGs, renamed to
+- **GResource SVGs** - pre-rendered source SVGs, renamed to
   `heroicons-{name}-symbolic` names under the `scalable/{context}`
   layout. Rendered via `librsvg` in GTK 4's `GtkIconTheme`;
   `currentColor` plus the `SymbolicClasses` post-processor make every
   icon symbolic-recolorable (stroke details survive GTK's symbolic
   recoloring instead of becoming filled blobs).
-- **No TTF** — Heroicons ships no webfont, so there is no `render`
+- **No TTF** - Heroicons ships no webfont, so there is no `render`
   (`ab_glyph`), `embed-fonts`, or `pango` capability. Codepoints are
   stable hash-of-name PUA allocations (`HashedPua`) purely for the
   name ↔ codepoint API contract; they carry no font semantics.
-- **Typed HTML export** — `Heroicons::html()` produces a self-contained
+- **Typed HTML export** - `Heroicons::html()` produces a self-contained
   page of inline `<svg>` elements (`HtmlSvgExport`); `render_font_face()`
   is unavailable since there is no font to embed.
 
 ## Variants
 
 The icon variant is selected by Cargo feature; icon names are
-variant-independent (`heroicons-{name}-symbolic`) — the variant only
+variant-independent (`heroicons-{name}-symbolic`) - the variant only
 selects which SVG set ships:
 
 | Feature   | Upstream directory | Size  | Style    |
@@ -42,10 +42,10 @@ selects which SVG set ships:
 `metadata` (keywords + aliases) is vendored under
 `resources/metadata/`:
 
-- **`keywords.json`** — the search keywords used by heroicons.com
+- **`keywords.json`** - the search keywords used by heroicons.com
   (extracted from the site's JS bundle; e.g. `sparkles` carries
   `["glitter", "stars"]`, so searching "star" finds it).
-- **`aliases.json`** — Heroicons v1 → v2 name mappings derived from the
+- **`aliases.json`** - Heroicons v1 → v2 name mappings derived from the
   iconify `heroicons` set's alias table (e.g. `exclaimation-circle` →
   `exclamation-circle`).
 
@@ -53,9 +53,9 @@ Heroicons ships no categories.
 
 ## Features
 
-- **`gtk`** (default) — GResource registration and GTK4 icon name resolution
-- **`metadata`** — Keywords and v1→v2 aliases for search
-- **`outline` / `solid` / `mini` / `micro`** — icon variant selection
+- **`gtk`** (default) - GResource registration and GTK4 icon name resolution
+- **`metadata`** - Keywords and v1→v2 aliases for search
+- **`outline` / `solid` / `mini` / `micro`** - icon variant selection
 
 ## Usage
 
@@ -91,5 +91,5 @@ cargo run -p fonts-rs-heroicons-cheat-sheet
 
 ## Font License
 
-Heroicons are licensed under the MIT License — see
+Heroicons are licensed under the MIT License - see
 `resources/LICENSE`. The crate code is MIT.

@@ -73,12 +73,12 @@ impl Provider for LucideMetadata {
     }
 }
 
-/// A JSON object serialized with its declared field order — the
+/// A JSON object serialized with its declared field order - the
 /// vendored files keep e.g. `tags` before `categories` while
 /// `serde_json::Map` would sort keys alphabetically.
 struct OrderedFields(Vec<(String, Value)>);
 
-/// The merged top-level object serialized in insertion order — the
+/// The merged top-level object serialized in insertion order - the
 /// vendored files order keys by upstream filename, not by stem.
 struct MergedObjects(Vec<(String, OrderedFields)>);
 

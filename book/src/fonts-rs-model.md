@@ -52,7 +52,7 @@ pub trait FontFamily: FontFamilyMarker + FontFamilyConfig {
 The lookup methods are generic: `codepoint` accepts `&str`, `String`,
 and the typed `Self::Name` (`GlyphName<F>` / `IconName`) via `AsRef<str>`;
 `glyph_name` accepts `char` and `CodePoint` via `Into<CodePoint>`.
-`all_glyphs` yields the typed `Self::Name` — use `name.as_ref()` when
+`all_glyphs` yields the typed `Self::Name` - use `name.as_ref()` when
 plain `&str` access is enough.
 
 The macro also emits inherent forwarders, so callers write
@@ -103,11 +103,11 @@ pub trait FontFamilyConfig {
 - **`icons_dir`**: Returns the path to `scalable/{context}/` within the
   output directory
 - **`icons_resource_prefix`**: Returns
-  `{GRESOURCE_PREFIX}/scalable/{ICONS_CONTEXT}` — the canonical resource
+  `{GRESOURCE_PREFIX}/scalable/{ICONS_CONTEXT}` - the canonical resource
   layout for icon-theme glyphs. Every family ships SVGs at
   `{prefix}/scalable/{context}/{name}.svg`; override only when upstream
   assets demand a different layout.
-- **`is_valid_icon_name`**: Validation hook used by `IconName<F>` —
+- **`is_valid_icon_name`**: Validation hook used by `IconName<F>` -
   default accepts names starting with `ICON_PREFIX`; multi-set fonts
   override it (Nerd Fonts delegates to `IconSet` prefix detection).
 
@@ -283,7 +283,7 @@ pub type DotoName = GlyphName<Doto>;
 
 ## `IconName<F>`
 
-Phantom-typed GTK icon name for icon font families — the icon-font
+Phantom-typed GTK icon name for icon font families - the icon-font
 counterpart of `GlyphName<F>`:
 
 ```rust
@@ -296,7 +296,7 @@ pub struct IconName<F: FontFamilyConfig> {
 Normalizes raw glyph names to the canonical `{ICON_PREFIX}{kebab}-symbolic`
 form (lowercase, `_` → `-`, `-symbolic` suffix) and validates via
 `F::is_valid_icon_name`. Implements `AsRef<str>`, `Display`, `FromStr`,
-`Serialize`, `Deserialize`, `Hash`, `Eq`, `Ord` — all without bounds on `F`.
+`Serialize`, `Deserialize`, `Hash`, `Eq`, `Ord` - all without bounds on `F`.
 
 ```rust
 // nerd-fonts-model
@@ -309,7 +309,7 @@ Key methods: `IconName::parse` (accepts `nf-fa-x`, `nf-fa-x-symbolic`,
 
 ## `IconSetDetect` (Trait)
 
-Optional capability for multi-set icon fonts — detects which icon set a
+Optional capability for multi-set icon fonts - detects which icon set a
 name belongs to:
 
 ```rust
@@ -341,7 +341,7 @@ pub trait GlyphMetadata: Sync {
 }
 ```
 
-- `categories()` is a **filter axis** — a glyph may carry several
+- `categories()` is a **filter axis** - a glyph may carry several
   categories; they render as pills in the cheat sheet.
 - `search()` matches names, keywords, categories, and aliases
   case-insensitively; families without upstream keywords (dicefont,
@@ -349,7 +349,7 @@ pub trait GlyphMetadata: Sync {
 
 ## Glyph Ordering (`GlyphOrdering`)
 
-Optional canonical ordering contract — the generic form of the emoji
+Optional canonical ordering contract - the generic form of the emoji
 picker ordering. Consumers obtain `Option<&'static dyn GlyphOrdering>`
 via `CheatSheetFamily::ordering()` and stay family-agnostic:
 
@@ -369,30 +369,30 @@ pub trait GlyphOrdering: Sync {
 - **`order_index`** numbers only base/standalone glyphs; variants sort
   next to their base via `base_of`.
 - **`group`/`group_labels`/`groups`** partition the glyphs (each glyph
-  in exactly one group — unlike categories) and drive the group
+  in exactly one group - unlike categories) and drive the group
   drop-down plus the sidebar "Groups" section.
 - **`base_of`/`alternates`** link variants (skin tones, styles,
   upside-down pieces) to their base glyph; the pair powers the detail
   sidebar's "Variants"/"Variant of" section.
-- **`collapse_variants`** — `true` lets the browse grid hide variants
+- **`collapse_variants`** - `true` lets the browse grid hide variants
   behind their base (emoji tones, dicefont styles, cuernavaca pieces).
   Style families (line-awesome, fluent, eva, heroicons) return `false`:
   collapsing would hide an entire style from the "All groups" view;
   the `base_of`/`alternates` link still applies for variant links and
   sorting.
-- **`tone_group`** — emoji-only: entries sharing a group have the same
+- **`tone_group`** - emoji-only: entries sharing a group have the same
   alternates shape, so one default-tone choice applies everywhere.
 
 ### Table sources
 
-Everything is `'static` — two proven sources:
+Everything is `'static` - two proven sources:
 
 - **Codegen'd `phf` maps** (emoji): `EmojiOrderingGenerator` reads
   `emoji_*_ordering.json` in `build.rs` and emits `ORDERING`,
   `GROUP_OF`, `ALTERNATES`, `BASE_OF`, `TONE_GROUP`, `GROUPS`.
 - **Lazy derivation** (no upstream ordering file): a `OnceLock`-cached
   `OrderingTables` struct built once from `REVERSE_GLYPHS` (all
-  exported names) plus a small static rule table — the
+  exported names) plus a small static rule table - the
   line-awesome/nerd-fonts pattern, also used by dicefont and
   cuernavaca. Group assignment, `base_of`/`alternates` links, and the
   canonical index all derive from name parsing at first use.
@@ -420,18 +420,18 @@ pub trait IconThemeFont: FontFamily + GtkFont {
   single side-by-side SVG. Works for fontless families too - everything
   routes through the GResource.
 - **`pango`** ([`PangoFont`]): text shaping/measurement via the bundled
-  TTF — not available for fontless sets.
+  TTF - not available for fontless sets.
 
 ## HTML Export (`HtmlSvgExport` + `HtmlExport`)
 
 HTML export is split into two traits so fontless families can
 participate:
 
-- **`HtmlSvgExport: IconThemeFont`** — the `html_svg` capability.
+- **`HtmlSvgExport: IconThemeFont`** - the `html_svg` capability.
   Provides `html()` returning an `HtmlBuilder<F>` whose `render()` /
   `write()` produce a self-contained page of inline `<svg>` elements
-  (no TTF needed — Lucide, Tabler-level support).
-- **`HtmlExport: HtmlSvgExport`** — the `html` capability.
+  (no TTF needed - Lucide, Tabler-level support).
+- **`HtmlExport: HtmlSvgExport`** - the `html` capability.
   Additionally embeds the TTF via `css_font_face()` (`@font-face` with
   base64 data URI) and unlocks `render_font_face()` /
   `write_font_face()` on the builder. Requires a loadable font.
@@ -448,14 +448,14 @@ pub trait HtmlExport: HtmlSvgExport {
 
 ### `HtmlBuilder<F>`
 
-Fluent builder (`html()` entry point). `F` is a phantom marker — no
+Fluent builder (`html()` entry point). `F` is a phantom marker - no
 value is stored.
 
-- **`title(s)`** — page title (default `F::FAMILY_DISPLAY_NAME`)
-- **`glyphs(codepoints)`** — restrict the inline-SVG grid (default: all)
-- **`render()` / `write(path)`** — inline-SVG page (any `IconThemeFont`)
-- **`sample_text(s)` / `css_class(s)`** — `@font-face` mode options
-- **`render_font_face()` / `write_font_face(path)`** — `@font-face`
+- **`title(s)`** - page title (default `F::FAMILY_DISPLAY_NAME`)
+- **`glyphs(codepoints)`** - restrict the inline-SVG grid (default: all)
+- **`render()` / `write(path)`** - inline-SVG page (any `IconThemeFont`)
+- **`sample_text(s)` / `css_class(s)`** - `@font-face` mode options
+- **`render_font_face()` / `write_font_face(path)`** - `@font-face`
   page (`HtmlExport` families only)
 
 ## Icon CSS helpers

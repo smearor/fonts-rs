@@ -127,7 +127,7 @@
           "en dash"
         ]
       },
-      "—": {
+      "-": {
         "default": [
           "dash",
           "em"

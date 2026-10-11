@@ -6,15 +6,15 @@ Blobmoji font integration for GTK 4 and pixel-drawing.
 
 [Blobmoji](https://github.com/DavidBerdik/blobmoji2) is a
 community-maintained emoji font recreating Google's classic "blob" emoji
-style — the amorphous, expressive characters that shipped with Android
+style - the amorphous, expressive characters that shipped with Android
 4.4 through 8.0. This crate integrates Blobmoji 17.1 (Unicode 17
 coverage) into the `fonts-rs` framework using the **hybrid approach**:
 
-- **GResource SVGs** — pre-rendered full-color source SVGs from
+- **GResource SVGs** - pre-rendered full-color source SVGs from
   `blobmoji2/svg/` (~4000 files), renamed to CLDR semantic names
   (`grinning-face`, `thumbs-up`, ...). Rendered via `librsvg` in GTK 4's
-  `GtkIconTheme` — full color, original artwork, no COLRv1 extraction.
-- **TTF for `pixel-drawing`** — the selected variant's TTF is bundled
+  `GtkIconTheme` - full color, original artwork, no COLRv1 extraction.
+- **TTF for `pixel-drawing`** - the selected variant's TTF is bundled
   for `ab_glyph` rendering (CBDT bitmap strikes or COLRv1 outlines).
 
 Glyph names come from CLDR annotation data, identical to the Noto Emoji
@@ -37,7 +37,7 @@ flag emoji SVGs.
 
 - **`color-flags`** (default) - `Noto-COLRv1.ttf`, all emoji
 - **`color-noflags`** - `Noto-COLRv1-noflags.ttf`, no flag emoji
-- **`bitmap-flags`** - `NotoColorEmoji.ttf` (CBDT), all emoji — required
+- **`bitmap-flags`** - `NotoColorEmoji.ttf` (CBDT), all emoji - required
   for colored `ab_glyph` output (`embed_fonts_render`)
 - **`bitmap-noflags`** - `NotoColorEmoji-noflags.ttf` (CBDT), no flags
 
@@ -66,20 +66,20 @@ With the **`metadata`** feature, `BlobmojiMetadata` implements
 `GlyphMetadata` + `GlyphOrdering` backed by build-time generated phf
 tables:
 
-- **Keywords & categories** — CLDR annotations and `emoji-test.txt`;
+- **Keywords & categories** - CLDR annotations and `emoji-test.txt`;
   `search()`/`keywords()`/`categories()` power filtering beyond name
   matching.
-- **Picker ordering** — `groups()`/`order_index()`/`group()` follow
+- **Picker ordering** - `groups()`/`order_index()`/`group()` follow
   `googlefonts/emoji-metadata` (`emoji_17_0_ordering.json`): Smileys
   first, canonical group layout.
-- **Variants** — `alternates()`/`base_of()` link skin-tone, gender and
+- **Variants** - `alternates()`/`base_of()` link skin-tone, gender and
   ZWJ sequences to their base emoji; `tone_group()` shares the variant
   shape across bases for default-tone picking.
-- **Shortcode aliases** — `:smile:` and emoticons resolve via
+- **Shortcode aliases** - `:smile:` and emoticons resolve via
   `resolve_alias()` and hit `search()`; `shortcodes(name)` lists them.
 
 The cheat sheet consumes all of this via `CheatSheetFamily::ordering()`
-— picker-order grid, group jump-list, collapsed variants, tone picking.
+- picker-order grid, group jump-list, collapsed variants, tone picking.
 
 ## Examples
 

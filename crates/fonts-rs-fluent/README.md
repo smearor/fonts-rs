@@ -5,21 +5,21 @@ Fluent UI System Icons integration for GTK 4 and pixel-drawing.
 ## Overview
 
 [Fluent UI System Icons](https://github.com/microsoft/fluentui-system-icons)
-is Microsoft's icon set — over 2,400 icons per style in `regular` and
+is Microsoft's icon set - over 2,400 icons per style in `regular` and
 `filled` variants. This crate integrates Fluent into the `fonts-rs`
 framework using the **hybrid approach**:
 
-- **GResource SVGs** — the upstream 24px SVG slice (fills rewritten to
+- **GResource SVGs** - the upstream 24px SVG slice (fills rewritten to
   `currentColor` by the `CurrentColor` post-processor), renamed to
   `fluent-{name}-symbolic` / `fluent-filled-{name}-symbolic` under the
   `scalable/{context}` layout. Rendered via `librsvg` in GTK 4's
   `GtkIconTheme` and recolored by the widget theme.
-- **Bundled TTF** — `FluentSystemIcons-{Regular,Filled}.ttf` for Pango
+- **Bundled TTF** - `FluentSystemIcons-{Regular,Filled}.ttf` for Pango
   text (`install_pango`), `@font-face` HTML export, `ab_glyph` software
   rendering, and `embed-fonts` embedding.
 
 Codepoints are **real upstream codepoints** from the vendored
-`FluentSystemIcons-{Regular,Filled}.json` name↔codepoint maps — including
+`FluentSystemIcons-{Regular,Filled}.json` name↔codepoint maps - including
 ~26% glyphs in the Supplementary Private Use Area-A (>U+FFFF).
 
 ## Features

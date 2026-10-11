@@ -1,6 +1,6 @@
 # Cheat Sheet Apps
 
-Every font family ships a per-family `*-cheat-sheet` binary — nine in
+Every font family ships a per-family `*-cheat-sheet` binary - nine in
 total. They are thin wrappers around the shared `fonts-rs-cheat-sheet`
 crate and only differ in their `CheatSheetFamily` type parameter:
 
@@ -10,7 +10,7 @@ fn main() -> miette::Result<()> {
 }
 ```
 
-All UI behavior — grid, search, history, sidebars, toasts — is generic
+All UI behavior - grid, search, history, sidebars, toasts - is generic
 over `F: CheatSheetFamily` and lives in `fonts-rs-cheat-sheet`.
 
 ## Libadwaita Widget Tree
@@ -41,7 +41,7 @@ adw::Application
                     └── Stack
                         ├── "empty":  adw::StatusPage
                         └── "detail": adw::ToolbarView
-                            ├── adw::HeaderBar (close button only —
+                            ├── adw::HeaderBar (close button only -
                             │   window controls suppressed)
                             └── ScrolledWindow → detail content
 ```
@@ -67,11 +67,11 @@ categories.
 
 Sidebar content is a sectioned list in one `ScrolledWindow`:
 
-- **Groups** — one row per `group_labels()` entry. Rows route through
+- **Groups** - one row per `group_labels()` entry. Rows route through
   `DropDown::set_selected`, so `active_group` + grid re-render share a
   single code path; re-activating the selected group resets to
   "All groups".
-- **Categories** — `"{category} ({count})"` rows, collected once into a
+- **Categories** - `"{category} ({count})"` rows, collected once into a
   `BTreeMap` over `all_glyphs()`. Click replaces the search text,
   Shift+click appends (space-separated AND), clicking the active row
   clears back to the full grid. Category pill clicks (`cat-btn` on grid
@@ -79,7 +79,7 @@ Sidebar content is a sectioned list in one `ScrolledWindow`:
 
 ### ToastOverlay (copy feedback)
 
-Every copy action shows an `adw::Toast` with per-action wording —
+Every copy action shows an `adw::Toast` with per-action wording -
 "Copied name" / "Copied character" / "Copied SVG" / "Copied codepoint"
 in the detail view, plus "Copied name" on secondary-click of a grid
 cell. The overlay is shared through `DetailContext::toasts`.
@@ -89,16 +89,16 @@ cell. The overlay is shared through `DetailContext::toasts`.
 When `CheatSheetFamily::ordering()` returns a `GlyphOrdering`, the
 browse grid gains three behaviors:
 
-- **Sort** — glyphs order by `order_index`; variants resolve through
+- **Sort** - glyphs order by `order_index`; variants resolve through
   `base_of` so each variant sits next to its base. Families without
   ordering stay alphabetical.
-- **Group filter** — the top-bar `DropDown` (mirrored by the sidebar
+- **Group filter** - the top-bar `DropDown` (mirrored by the sidebar
   "Groups" section) restricts the grid to `group(name) == label`;
   "All groups" clears it.
-- **Variant collapsing** — with `collapse_variants() == true` a
+- **Variant collapsing** - with `collapse_variants() == true` a
   variant is hidden in "All groups" whenever its base is visible
   (emoji tones, dicefont d6 styles, cuernavaca pieces). Style
-  families (line-awesome, fluent, eva, heroicons) return `false` —
+  families (line-awesome, fluent, eva, heroicons) return `false` -
   their variants stay visible; the `base_of`/`alternates` link then
   only powers the detail sidebar's Variants section and sorting.
 
@@ -114,7 +114,7 @@ browse grid gains three behaviors:
 
 ## Styling
 
-Custom CSS is intentionally thin — cell sizing, metadata pills
+Custom CSS is intentionally thin - cell sizing, metadata pills
 (`cat-btn`/`kw-btn`), and hover/selected states use adwaita palette
 variables (`alpha(@accent_bg_color, …)`, `@success_bg_color`,
 `@warning_bg_color`). Sidebar theming, dark mode, and focus styles come

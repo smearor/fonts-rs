@@ -1,6 +1,6 @@
 //! xtask: vendored-upstream automation for the fonts-rs workspace.
 //!
-//! Reproducable vendoring — see //! `book/src/upstream-sourcing.md` for
+//! Reproducable vendoring - see //! `book/src/upstream-sourcing.md` for
 //! the user-facing reference: a git fetch backend with commit-keyed
 //! sparse-checkout caching, manifest (`upstream.toml`) and
 //! lockfile (`upstream.lock`) schemas, metadata providers,

@@ -137,7 +137,7 @@ impl Crate {
 }
 
 /// Rewrites `ref = "<old>"` to `ref = "<new>"` in `upstream.toml`,
-/// replacing the whole line (stale pin annotations are dropped — the
+/// replacing the whole line (stale pin annotations are dropped - the
 /// bump is reviewed in the commit diff anyway).
 fn rewrite_manifest_ref(manifest_path: &Path, old_ref: &str, new_ref: &str) -> miette::Result<()> {
     let text = std::fs::read_to_string(manifest_path).into_diagnostic()?;
@@ -270,7 +270,7 @@ fn collect_matching(root: &Path, dir: &Path, glob: &globset::GlobSet, excludes: 
 }
 
 /// Materializes a `url`+`source` artifact: fetches an archive
-/// (`.tgz`/`.tar.gz`/`.zip`) and extracts `source` — a member file
+/// (`.tgz`/`.tar.gz`/`.zip`) and extracts `source` - a member file
 /// for 1:1 copies, or a member directory globbed with
 /// `pattern`/`exclude` and flattened into `target` like a checkout
 /// directory. Provenance is `url#member`.

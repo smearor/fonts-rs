@@ -147,8 +147,8 @@ licenses (OFL-1.1 for most fonts, MIT for Nerd Fonts).
 
 Vendored assets are not copied by hand: each crate declares its upstream
 in `upstream.toml` and `cargo xtask sync` materializes `resources/` plus
-a content-hashed `upstream.lock`. `cargo xtask verify` — a CI gate on
-every pull request — re-hashes the committed tree against the lock, and
+a content-hashed `upstream.lock`. `cargo xtask verify` - a CI gate on
+every pull request - re-hashes the committed tree against the lock, and
 a scheduled `cargo xtask check` reports upstream drift. Bumping a family
 to a new upstream release is `cargo xtask sync -p <crate> --update` plus
 a normal diff review. See the

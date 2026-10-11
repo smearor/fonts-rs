@@ -201,7 +201,7 @@ Valid capability names: `icon_theme` (`IconThemeFont` - `GtkIconTheme`
 registration + `glyph_svg`/`compose_svg`), `pango` (`PangoFont`),
 `html_svg` (`HtmlSvgExport` - inline-SVG HTML export), `html`
 (`HtmlExport` - `@font-face` HTML export on top of `html_svg`).
-Fontless icon sets declare only `[icon_theme, html_svg]` — there is no
+Fontless icon sets declare only `[icon_theme, html_svg]` - there is no
 TTF for pango or font-face export. `SoftwareRender` is not a capability
 here; it is emitted by `impl_font_loader!`.
 
