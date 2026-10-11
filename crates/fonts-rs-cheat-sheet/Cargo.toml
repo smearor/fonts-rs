@@ -10,7 +10,7 @@ homepage.workspace = true
 keywords.workspace = true
 categories.workspace = true
 description = "Generic GTK4 cheat sheet application for fonts-rs font families"
-publish = false
+publish = true
 
 [dependencies]
 fonts-rs-model = { workspace = true, features = ["gtk"] }

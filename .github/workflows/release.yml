@@ -88,7 +88,11 @@ jobs:
       - name: Publish nerd-fonts-rs
         continue-on-error: true
         run: cargo publish --locked -p nerd-fonts-rs --token ${{ secrets.CRATES_IO_TOKEN }}
-      # Tier 5: Application crates (no build.rs, no dirty files)
+      # Tier 5: Shared cheat sheet library (required by cheat sheet apps)
+      - name: Publish fonts-rs-cheat-sheet
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-cheat-sheet --token ${{ secrets.CRATES_IO_TOKEN }}
+      # Tier 6: Application crates (no build.rs, no dirty files)
       - name: Publish fonts-rs-noto-emoji-cheat-sheet
         continue-on-error: true
         run: cargo publish --locked -p fonts-rs-noto-emoji-cheat-sheet --token ${{ secrets.CRATES_IO_TOKEN }}

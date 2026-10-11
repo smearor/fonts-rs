@@ -37,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **GTK symbolic recoloring**: `SymbolicClasses` post-processor fixes lucide and tabler icon rendering in cheat sheets
+- Publishing to crates.io
 
 ## [0.3.0] - 2026-09-14
 
