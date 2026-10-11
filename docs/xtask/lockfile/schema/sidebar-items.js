@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["LOCKFILE_NAME"],"struct":["Lockfile"]};

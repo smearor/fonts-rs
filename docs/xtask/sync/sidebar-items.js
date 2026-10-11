@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["MANIFEST_NAME"],"fn":["collect_matching","copy_dedup","copy_file","dedup_target","fetch_url","materialize","materialize_archive","remove_stale","rewrite_manifest_ref","write_file"]};

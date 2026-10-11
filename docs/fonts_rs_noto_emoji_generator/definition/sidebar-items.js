@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["ANNOTATIONS_FILE","EMOJI_RANGES","EMOJI_TEST_FILE","FONT_FILE"],"enum":["NotoEmoji"],"struct":["NotoEmojiDefinition"]};
+window.SIDEBAR_ITEMS = {"constant":["EMOJI_RANGES","FONT_FILE"],"enum":["NotoEmoji"],"struct":["NotoEmojiDefinition"]};

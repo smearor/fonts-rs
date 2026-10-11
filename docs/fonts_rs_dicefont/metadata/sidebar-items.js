@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["D6_BASE_STEM","D6_VARIANT_STEMS","DIE_LABELS","DIE_SEGMENTS"],"fn":["build_tables","die_label","die_rank","face_number","tables"],"static":["CATEGORIES","KEYWORDS"],"struct":["DicefontMetadata","OrderingTables"]};

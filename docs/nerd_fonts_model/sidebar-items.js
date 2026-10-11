@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["CodePointParseError"],"mod":["name","paths","set"],"struct":["CodePoint","GlyphEntry","ResourcePath"]};
+window.SIDEBAR_ITEMS = {"enum":["CodePointParseError"],"mod":["config","name","paths","set"],"struct":["CodePoint","GlyphEntry","IconNameParseError","ResourcePath"]};

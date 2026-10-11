@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["codemap","css","icons","metadata"],"struct":["IconName"]};
+window.SIDEBAR_ITEMS = {"mod":["codemap","css","icons","metadata"],"type":["IconName"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["resolve_provider"],"mod":["copy","eva_metadata","heroicons_keywords","iconify_aliases","line_awesome","lucide_metadata","provider"]};

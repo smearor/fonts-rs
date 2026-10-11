@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["font","load_bytes"],"static":["BRANDS_FONT","REGULAR_FONT","SOLID_FONT"]};

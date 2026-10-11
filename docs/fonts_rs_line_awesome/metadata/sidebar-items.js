@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["build_tables","tables"],"static":["ALIASES","CATEGORIES","GROUP_ORDER","KEYWORDS"],"struct":["LineAwesomeMetadata","OrderingTables"]};

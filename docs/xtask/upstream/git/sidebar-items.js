@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["git","git_in","is_commit_sha","run_git","sparse_paths","version_key"],"struct":["GitSource"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["required_string","required_string_list"],"struct":["ProviderContext","ProviderOutput"],"trait":["Provider"]};

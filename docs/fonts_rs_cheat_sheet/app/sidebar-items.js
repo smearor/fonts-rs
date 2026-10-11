@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["HistoryEntry"],"fn":["build_ui","icon_size_scale","navigate_to","run","update_nav_buttons"],"type":["GlyphList"]};

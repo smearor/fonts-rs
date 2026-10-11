@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["APP_ID"],"enum":["HistoryEntry"],"fn":["build_ui","main","navigate_to","show_detail","update_nav_buttons"]};
+window.SIDEBAR_ITEMS = {"fn":["main"],"struct":["NotoEmojiSheet"]};

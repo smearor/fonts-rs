@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["package","paths","vendored_crate","workspace"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["PIECES","STYLE_LABELS"],"fn":["build_tables","piece_info","tables"],"static":["CATEGORIES","KEYWORDS"],"struct":["CuernavacaMetadata","OrderingTables"]};

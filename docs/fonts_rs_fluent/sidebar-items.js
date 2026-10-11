@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["all_icons"],"mod":["codepoint_map","constants","definition","family","filename_parser","fonts","gtk","metadata","naming","prelude","variant"],"trait":["GtkFont"],"type":["FamilyName"]};

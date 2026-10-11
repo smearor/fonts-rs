@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["SHAPE_ELEMENTS"],"fn":["is_unpainted"],"struct":["Paint","SymbolicClasses"]};

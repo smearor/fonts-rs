@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["CODEPOINT_RANGES"],"struct":["DicefontConfig"]};

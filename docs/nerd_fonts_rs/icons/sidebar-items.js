@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["all_icons","all_icons_typed","register_icons"],"mod":["codepoint_map","constants"],"trait":["IconNameExt"]};
+window.SIDEBAR_ITEMS = {"fn":["all_icons","all_icons_typed","register_icons"],"mod":["codepoint_map","constants"]};

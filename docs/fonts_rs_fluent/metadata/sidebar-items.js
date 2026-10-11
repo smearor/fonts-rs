@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["FILLED_PREFIX"],"fn":["build_tables","tables"],"static":["ALIASES","CATEGORIES","KEYWORDS"],"struct":["FluentMetadata","OrderingTables"]};

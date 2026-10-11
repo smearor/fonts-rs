@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["CodePointParseError","IconSet"],"mod":["css","font_loader","fonts","gtk","icons","init","metadata","web"],"struct":["CodePoint","GlyphCategory","GlyphEntry","GlyphKeyword","IconName","ResourcePath"]};
+window.SIDEBAR_ITEMS = {"enum":["CodePointParseError","IconSet"],"mod":["css","definition","family","font_loader","fonts","gtk","gtk_font","icons","init","metadata","naming","variant","web"],"struct":["CodePoint","GlyphCategory","GlyphEntry","GlyphKeyword","NerdFontsConfig","ResourcePath"],"type":["IconName"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"static":["ALIASES","CATEGORIES","KEYWORDS"],"struct":["TablerMetadata"]};

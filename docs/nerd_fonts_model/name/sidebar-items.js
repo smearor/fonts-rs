@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["IconName"]};
+window.SIDEBAR_ITEMS = {"type":["IconName"]};

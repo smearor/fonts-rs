@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["parse_emoji_ordering"],"mod":["emoji","generator","group"],"struct":["EmojiOrdering"]};

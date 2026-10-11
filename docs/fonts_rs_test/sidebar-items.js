@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["render_text","run_composed_svg_text","run_css_class_html","run_embed_fonts_render","run_gtk_app","run_gtk_gresource","run_gtk_icon_theme","run_svg_gresource","run_svg_html","run_system_font_fallback"],"mod":["app","css_html","gtk_gresource","icon_theme","render","svg_compose","svg_gresource","svg_html","system_font_fallback"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["FONT_RESOURCE_PATH","FONT_RESOURCE_PATHS"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["is_rewritable_paint"],"struct":["CurrentColor"]};

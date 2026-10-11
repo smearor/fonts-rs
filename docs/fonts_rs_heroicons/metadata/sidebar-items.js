@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["STYLES"],"fn":["build_tables","style_of","tables"],"static":["ALIASES","CATEGORIES","KEYWORDS"],"struct":["HeroiconsMetadata","OrderingTables"]};

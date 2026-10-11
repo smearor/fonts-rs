@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["HEROICONS_RANGES"],"struct":["HeroiconsConfig"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["all_emoji","register_glyphs"],"mod":["codepoint_map","constants","fonts","metadata","naming","variant"],"trait":["GlyphNameExt"],"type":["FamilyName"]};
+window.SIDEBAR_ITEMS = {"fn":["all_emoji"],"mod":["codepoint_map","constants","definition","family","fonts","gtk","metadata","naming","prelude","variant"],"trait":["GtkFont"],"type":["FamilyName"]};

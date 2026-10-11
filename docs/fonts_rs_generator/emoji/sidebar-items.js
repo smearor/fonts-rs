@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["ANNOTATIONS_FILE","EMOJI_TEST_FILE","ORDERING_FILE"],"mod":["cldr","emoji_test","metadata","ordering"]};

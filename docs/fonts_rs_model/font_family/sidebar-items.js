@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["sealed"],"trait":["FontFamily"]};
+window.SIDEBAR_ITEMS = {"trait":["FontFamily"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["codepoint_strategy","combined_source","current_color","descriptor","emoji_u_parser","error","filename_parser","font_file_source","name_parser","normalize_view_box","optimize","paint_target","parsed_glyph","post_processor","pua_allocator","source","strip_entity_namespaces","svg_dir_source","symbolic_classes"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["GRESOURCE_PREFIX"],"fn":["all_glyphs","register_font","register_glyphs"],"mod":["codepoint_map","constants","definition","fonts"],"trait":["GlyphNameExt"]};
+window.SIDEBAR_ITEMS = {"mod":["codepoint_map","constants","definition","family","fonts","gtk","prelude"],"trait":["GtkFont"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":["FontFamilyConfig"]};
+window.SIDEBAR_ITEMS = {"trait":["FontFamilyConfigExt"]};

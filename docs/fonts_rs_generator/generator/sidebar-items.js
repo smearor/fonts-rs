@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["codemap","error","generate","metadata_generator","rust_constants"]};
+window.SIDEBAR_ITEMS = {"mod":["codemap","error","generate","metadata_generator","rust_constants","web_css"]};

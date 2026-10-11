@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["has_other_size_suffix","strip_suffix"],"struct":["IconifyAlias","IconifyAliases","IconifyIcon","IconifySet"]};

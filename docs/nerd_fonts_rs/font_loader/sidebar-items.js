@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["load_fonts","write_temp_font"],"static":["TEMP_GUARDS"]};
+window.SIDEBAR_ITEMS = {"fn":["install_fonts","load_fonts","write_temp_font"],"static":["TEMP_GUARDS"]};

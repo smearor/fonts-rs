@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["locked_artifact","locked_input","locked_upstream","schema"]};

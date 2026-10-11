@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["TABLER_RANGES"],"struct":["TablerConfig"]};

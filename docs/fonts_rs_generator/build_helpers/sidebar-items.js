@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["set_font_path_env"]};
+window.SIDEBAR_ITEMS = {"fn":["hash_str","hash_svg_dir","push_keyword","set_font_path_env","stem_keywords"]};

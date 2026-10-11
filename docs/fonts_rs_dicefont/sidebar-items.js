@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["all_glyphs","register_glyphs"],"mod":["codepoint_map","constants","fonts","naming","variant"],"trait":["GlyphNameExt"],"type":["FamilyName"]};
+window.SIDEBAR_ITEMS = {"mod":["codepoint_map","constants","definition","family","fonts","gtk","metadata","naming","prelude","variant"],"trait":["GtkFont"],"type":["FamilyName"]};

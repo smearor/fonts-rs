@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["GLYPH_PREFIX","LINE_AWESOME_RANGES","TTF_FAMILY_NAME"],"struct":["LineAwesomeConfig"]};

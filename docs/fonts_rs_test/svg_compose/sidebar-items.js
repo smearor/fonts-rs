@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["build_ui","run_composed_svg_text"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["extract_svg_inner","extract_svg_viewbox","extract_svg_xmlns"],"trait":["IconThemeFont"]};
