@@ -1,2 +1,7 @@
 book/** linguist-documentation
 book/book/** linguist-generated=true
+
+# Vendored resources must be byte-exact copies of upstream - disable
+# all text normalization (CRLF files would otherwise be stored as LF
+# blobs and fail `cargo xtask verify` on fresh checkouts).
+crates/*/resources/** -text
