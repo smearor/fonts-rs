@@ -30,7 +30,9 @@ jobs:
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2
       - name: Build (Release Mode)
-        run: cargo build --workspace --release --all-features --verbose
+        run: |
+          cargo build --workspace --exclude fonts-rs-noto-emoji --release --all-features --verbose
+          cargo build -p fonts-rs-noto-emoji --release --features gtk,render,embed-fonts,metadata --verbose
       # Tier 1: Foundation (no build.rs, no dirty files)
       - name: Dry-run publish (fonts-rs-model)
         run: cargo publish --dry-run --locked -p fonts-rs-model --token ${{ secrets.CRATES_IO_TOKEN }}
@@ -85,6 +87,30 @@ jobs:
         continue-on-error: true
         run: cargo publish --locked -p nerd-fonts-generator --token ${{ secrets.CRATES_IO_TOKEN }}
       # Tier 4: Composite crates (build.rs writes to OUT_DIR)
+      # Noto Emoji resource crates first: variants consume their links metadata (DEP_*)
+      - name: Publish fonts-rs-noto-emoji-glyphs
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-noto-emoji-glyphs --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-noto-emoji-sequences
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-noto-emoji-sequences --token ${{ secrets.CRATES_IO_TOKEN }}
+      # Noto Emoji variant crates
+      - name: Publish fonts-rs-noto-emoji-mono
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-noto-emoji-mono --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-noto-emoji-color-flags
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-noto-emoji-color-flags --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-noto-emoji-color-noflags
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-noto-emoji-color-noflags --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-noto-emoji-bitmap-flags
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-noto-emoji-bitmap-flags --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-noto-emoji-bitmap-noflags
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-noto-emoji-bitmap-noflags --token ${{ secrets.CRATES_IO_TOKEN }}
+      # Noto Emoji umbrella re-exporting the feature-selected variant
       - name: Publish fonts-rs-noto-emoji
         continue-on-error: true
         run: cargo publish --locked -p fonts-rs-noto-emoji --token ${{ secrets.CRATES_IO_TOKEN }}

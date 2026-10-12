@@ -43,9 +43,13 @@ jobs:
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2
       - name: Run cargo doc
-        run: cargo doc --workspace --no-deps --all-features --document-private-items --verbose
+        run: |
+          cargo doc --workspace --exclude fonts-rs-noto-emoji --no-deps --all-features --document-private-items --verbose
+          cargo doc -p fonts-rs-noto-emoji --no-deps --features gtk,render,embed-fonts,metadata --document-private-items --verbose
       - name: Run doctests
-        run: cargo test --workspace --doc --all-features --verbose
+        run: |
+          cargo test --workspace --exclude fonts-rs-noto-emoji --doc --all-features --verbose
+          cargo test -p fonts-rs-noto-emoji --doc --features gtk,render,embed-fonts,metadata --verbose
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
         if: ${{ github.ref == 'refs/heads/main' }}
