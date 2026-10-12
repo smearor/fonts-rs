@@ -10,10 +10,29 @@ with CLDR-based keyword and category metadata for search functionality.
 
 ![Noto Emoji Cheat Sheet](resources/cheat-sheet.png)
 
+## Variants
+
+This is an umbrella crate. Exactly one TTF variant is selected by Cargo
+feature; the active variant crate is re-exported 1:1.
+
+| Feature | Crate | Font | `RENDERABLE` |
+|---------|-------|------|--------------|
+| `color-flags` (default) | `fonts-rs-noto-emoji-color-flags` | `Noto-COLRv1.ttf` | `false` |
+| `color-noflags` | `fonts-rs-noto-emoji-color-noflags` | `Noto-COLRv1-noflags.ttf` | `false` |
+| `bitmap-flags` | `fonts-rs-noto-emoji-bitmap-flags` | `NotoColorEmoji.ttf` | `true` |
+| `bitmap-noflags` | `fonts-rs-noto-emoji-bitmap-noflags` | `NotoColorEmoji-noflags.ttf` | `true` |
+| `mono` | `fonts-rs-noto-emoji-mono` | `NotoEmoji-Regular.ttf` | `true` |
+
+Variant crates can also be used directly for smaller dependency trees.
+
 ## Features
 
+- **Variant selection** - exactly one of `mono`, `color-flags`
+  (default), `color-noflags`, `bitmap-flags`, `bitmap-noflags`;
+  enabling several is a compile error
 - **`gtk`** (default) - GResource registration and GTK4 icon name resolution
 - **`render`** - Font loading via `ab_glyph` for software rendering
+  (only `mono`/`bitmap-*` produce pixels - see `RENDERABLE`)
 - **`embed-fonts`** - Embed font file via `include_bytes!`
 - **`metadata`** - Emoji keywords, categories, picker ordering,
   shortcode aliases and tone groups (`emoji_17_0_ordering.json`) via
@@ -23,9 +42,14 @@ with CLDR-based keyword and category metadata for search functionality.
 
 ```toml
 [dependencies]
-fonts-rs-noto-emoji = "0.1"
+# Default: COLRv1 with flag emoji
+fonts-rs-noto-emoji = "0.4"
+
+# Another variant: disable defaults, then pick exactly one
+fonts-rs-noto-emoji = { version = "0.4", default-features = false, features = ["gtk", "bitmap-flags"] }
+
 # With metadata for search:
-fonts-rs-noto-emoji = { version = "0.1", features = ["metadata"] }
+fonts-rs-noto-emoji = { version = "0.4", features = ["metadata"] }
 ```
 
 ```rust

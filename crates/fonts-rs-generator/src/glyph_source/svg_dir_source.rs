@@ -27,15 +27,21 @@ type GlyphFilter<'a> = Box<dyn Fn(&[CodePoint]) -> bool + 'a>;
 /// Glyph filter predicate over the parsed filename identity.
 type NameFilter<'a> = Box<dyn Fn(&ParsedGlyph) -> bool + 'a>;
 
-/// `GlyphSource` backed by a directory of pre-rendered SVG files.
+/// `GlyphSource` backed by one or more directories of pre-rendered SVG files.
 ///
-/// Iterates `svg_dir`, resolves each file to a [`ParsedGlyph`] via the
-/// configured [`SvgFilenameParser`], maps it to a semantic name, applies
-/// post-processing hooks, and emits the same artifacts as the TTF path
-/// via the shared [`GlyphSource::export`] runner.
+/// Iterates every `svg_dir` entry in registration order, resolves each
+/// file to a [`ParsedGlyph`] via the configured [`SvgFilenameParser`],
+/// maps it to a semantic name, applies post-processing hooks, and emits
+/// the same artifacts as the TTF path via the shared
+/// [`GlyphSource::export`] runner.
+///
+/// Multiple directories merge into one export (e.g. an emoji set split
+/// into single-codepoint and sequence crates): name/codepoint
+/// namespaces are shared, so files across directories must partition
+/// the glyph set - a duplicate filename or resolved name collides.
 pub struct SvgDirSource<'a> {
-    /// Directory containing the source SVG files.
-    svg_dir: PathBuf,
+    /// Directories containing the source SVG files, searched in order.
+    svg_dirs: Vec<PathBuf>,
     /// Filename parser resolving files to glyph identities.
     parser: Box<dyn SvgFilenameParser>,
     /// Optional name→codepoint map for [`CodepointStrategy::FromNameMap`].
@@ -71,7 +77,7 @@ impl<'a> SvgDirSource<'a> {
     /// Creates a source over `svg_dir` with the [`NameParser`] default.
     pub fn new(svg_dir: impl Into<PathBuf>) -> Self {
         Self {
-            svg_dir: svg_dir.into(),
+            svg_dirs: vec![svg_dir.into()],
             parser: Box::new(NameParser),
             codepoint_map: None,
             name_resolver: None,
@@ -171,15 +177,31 @@ impl<'a> SvgDirSource<'a> {
         self.pua_allocator = Some(allocator);
         self
     }
+
+    /// Adds another SVG directory to the merged export.
+    ///
+    /// Directories are iterated in registration order and share the
+    /// name/codepoint namespace plus the PUA allocator - use for a
+    /// glyph set partitioned across directories (e.g. single-codepoint
+    /// vs sequence artwork in separate resource crates).
+    pub fn dir(mut self, svg_dir: impl Into<PathBuf>) -> Self {
+        self.svg_dirs.push(svg_dir.into());
+        self
+    }
 }
 
 impl GlyphSource for SvgDirSource<'_> {
     fn glyphs(&self) -> Result<Vec<GlyphDescriptor>, GlyphSourceError> {
         // Collect and sort by filename - `fs::read_dir` order is not
         // guaranteed, so unsorted input would make PUA probing
-        // order-dependent and non-reproducible.
-        let mut paths = fs::read_dir(&self.svg_dir)?.collect::<Result<Vec<_>, _>>()?;
-        paths.sort_by_key(|entry| entry.file_name());
+        // order-dependent and non-reproducible. Directories merge in
+        // registration order into one `(dir, path)` file list.
+        let mut paths: Vec<std::fs::DirEntry> = Vec::new();
+        for dir in &self.svg_dirs {
+            let mut entries = fs::read_dir(dir)?.collect::<Result<Vec<_>, _>>()?;
+            entries.sort_by_key(|entry| entry.file_name());
+            paths.extend(entries);
+        }
 
         // Shared allocator for combined sources; a per-source
         // allocator otherwise. The borrow spans the whole loop -
@@ -237,11 +259,24 @@ impl GlyphSource for SvgDirSource<'_> {
     }
 
     fn svg_for(&self, glyph: &GlyphDescriptor) -> Result<String, GlyphSourceError> {
-        let mut svg = fs::read_to_string(self.svg_dir.join(&glyph.source_key))?;
-        for processor in &self.post_processors {
-            svg = processor.process(svg)?;
+        // Filenames partition across directories, so the first dir
+        // containing `source_key` owns the glyph.
+        for dir in &self.svg_dirs {
+            match fs::read_to_string(dir.join(&glyph.source_key)) {
+                Ok(mut svg) => {
+                    for processor in &self.post_processors {
+                        svg = processor.process(svg)?;
+                    }
+                    return Ok(svg);
+                }
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => continue,
+                Err(error) => return Err(error.into()),
+            }
         }
-        Ok(svg)
+        Err(GlyphSourceError::Io(std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            format!("glyph source '{}' not found in any svg dir", glyph.source_key),
+        )))
     }
 }
 
@@ -375,6 +410,25 @@ mod tests {
             let code = sequence.code.expect("pua code");
             assert!(('\u{E000}'..='\u{F8FF}').contains(&code.as_char()));
             assert_eq!(sequence.sequence.as_ref().map(Vec::len), Some(3));
+        });
+    }
+
+    #[test]
+    fn multiple_dirs_merge_into_one_export() {
+        with_svg_dir("merged_a", &["emoji_u1f600.svg", "emoji_u1f1e6_1f1fa.svg"], |dir_a| {
+            let dir_b = dir_a.parent().expect("temp parent").join("svg_dir_source_test_merged_b");
+            fs::create_dir_all(&dir_b).expect("create temp dir");
+            fs::write(dir_b.join("emoji_u1f468_200d_1f469.svg"), "<svg/>").expect("write svg");
+            let source = SvgDirSource::new(dir_a)
+                .dir(&dir_b)
+                .filename_parser(crate::glyph_source::EmojiUFilenameParser)
+                .codepoint_strategy(CodepointStrategy::FromFilename);
+            let glyphs = source.glyphs().expect("glyphs");
+            assert_eq!(glyphs.len(), 3);
+            for glyph in &glyphs {
+                source.svg_for(glyph).expect("svg resolves across dirs");
+            }
+            fs::remove_dir_all(&dir_b).expect("remove temp dir");
         });
     }
 

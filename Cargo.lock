@@ -936,19 +936,50 @@ dependencies = [
 name = "fonts-rs-noto-emoji"
 version = "0.4.0"
 dependencies = [
+ "fonts-rs-noto-emoji-bitmap-flags",
+ "fonts-rs-noto-emoji-bitmap-noflags",
+ "fonts-rs-noto-emoji-color-flags",
+ "fonts-rs-noto-emoji-color-noflags",
+ "fonts-rs-noto-emoji-mono",
+]
+
+[[package]]
+name = "fonts-rs-noto-emoji-bitmap-flags"
+version = "0.4.0"
+dependencies = [
  "ab_glyph",
  "const_format",
  "fonts-rs-generator",
  "fonts-rs-model",
  "fonts-rs-noto-emoji-generator",
+ "fonts-rs-noto-emoji-glyphs",
+ "fonts-rs-noto-emoji-sequences",
  "fonts-rs-test",
  "gio",
  "glib",
  "gtk4",
  "miette",
  "phf",
- "serde",
- "serde_json",
+ "tracing",
+]
+
+[[package]]
+name = "fonts-rs-noto-emoji-bitmap-noflags"
+version = "0.4.0"
+dependencies = [
+ "ab_glyph",
+ "const_format",
+ "fonts-rs-generator",
+ "fonts-rs-model",
+ "fonts-rs-noto-emoji-generator",
+ "fonts-rs-noto-emoji-glyphs",
+ "fonts-rs-noto-emoji-sequences",
+ "fonts-rs-test",
+ "gio",
+ "glib",
+ "gtk4",
+ "miette",
+ "phf",
  "tracing",
 ]
 
@@ -964,6 +995,46 @@ dependencies = [
 ]
 
 [[package]]
+name = "fonts-rs-noto-emoji-color-flags"
+version = "0.4.0"
+dependencies = [
+ "ab_glyph",
+ "const_format",
+ "fonts-rs-generator",
+ "fonts-rs-model",
+ "fonts-rs-noto-emoji-generator",
+ "fonts-rs-noto-emoji-glyphs",
+ "fonts-rs-noto-emoji-sequences",
+ "fonts-rs-test",
+ "gio",
+ "glib",
+ "gtk4",
+ "miette",
+ "phf",
+ "tracing",
+]
+
+[[package]]
+name = "fonts-rs-noto-emoji-color-noflags"
+version = "0.4.0"
+dependencies = [
+ "ab_glyph",
+ "const_format",
+ "fonts-rs-generator",
+ "fonts-rs-model",
+ "fonts-rs-noto-emoji-generator",
+ "fonts-rs-noto-emoji-glyphs",
+ "fonts-rs-noto-emoji-sequences",
+ "fonts-rs-test",
+ "gio",
+ "glib",
+ "gtk4",
+ "miette",
+ "phf",
+ "tracing",
+]
+
+[[package]]
 name = "fonts-rs-noto-emoji-generator"
 version = "0.4.0"
 dependencies = [
@@ -974,6 +1045,34 @@ dependencies = [
  "miette",
  "serde_json",
 ]
+
+[[package]]
+name = "fonts-rs-noto-emoji-glyphs"
+version = "0.4.0"
+
+[[package]]
+name = "fonts-rs-noto-emoji-mono"
+version = "0.4.0"
+dependencies = [
+ "ab_glyph",
+ "const_format",
+ "fonts-rs-generator",
+ "fonts-rs-model",
+ "fonts-rs-noto-emoji-generator",
+ "fonts-rs-noto-emoji-glyphs",
+ "fonts-rs-noto-emoji-sequences",
+ "fonts-rs-test",
+ "gio",
+ "glib",
+ "gtk4",
+ "miette",
+ "phf",
+ "tracing",
+]
+
+[[package]]
+name = "fonts-rs-noto-emoji-sequences"
+version = "0.4.0"
 
 [[package]]
 name = "fonts-rs-redacted"

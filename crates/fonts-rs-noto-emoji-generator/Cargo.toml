@@ -16,11 +16,11 @@ publish = true
 const_format.workspace = true
 fonts-rs-generator.workspace = true
 fonts-rs-model.workspace = true
+miette.workspace = true
+serde_json.workspace = true
 
 [dev-dependencies]
 clap.workspace = true
-miette.workspace = true
-serde_json.workspace = true
 
 [[example]]
 name = "generate_noto_emoji"
