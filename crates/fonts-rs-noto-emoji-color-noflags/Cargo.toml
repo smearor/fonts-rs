@@ -42,6 +42,7 @@ phf.workspace = true
 tracing.workspace = true
 # Resource crates must be normal dependencies: `links` metadata
 # (DEP_* env vars) does not propagate via [build-dependencies].
+fonts-rs-emoji-metadata.workspace = true
 fonts-rs-noto-emoji-glyphs.workspace = true
 fonts-rs-noto-emoji-sequences.workspace = true
 

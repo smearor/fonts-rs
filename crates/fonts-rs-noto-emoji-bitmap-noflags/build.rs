@@ -21,7 +21,7 @@ fn dep_dir(var: &str) -> miette::Result<PathBuf> {
 fn main() -> miette::Result<()> {
     build(&BuildInput {
         svg_dirs: vec![dep_dir("DEP_NOTO_EMOJI_GLYPHS_SVG_DIR")?, dep_dir("DEP_NOTO_EMOJI_SEQUENCES_SVG_DIR")?],
-        metadata_dir: dep_dir("DEP_NOTO_EMOJI_GLYPHS_METADATA_DIR")?,
+        metadata_dir: dep_dir("DEP_EMOJI_METADATA_DIR")?,
         variant: Variant::BitmapNoflags,
         font_path_env: "NOTO_EMOJI_FONT_PATH",
     })
