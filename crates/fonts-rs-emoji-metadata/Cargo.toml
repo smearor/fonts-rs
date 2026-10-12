@@ -1,0 +1,28 @@
+[package]
+name = "fonts-rs-emoji-metadata"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "Shared CLDR/UTS-#51 emoji metadata for emoji font crates (build resource)"
+publish = true
+
+# Emits the vendored metadata directory to dependent build scripts via
+# DEP_EMOJI_METADATA_* environment variables.
+links = "emoji_metadata"
+
+# Crate code is MIT; the vendored data files are Unicode-3.0
+# (emoji-test.txt, CLDR annotations) and Apache-2.0 (emoji ordering).
+license = "MIT AND Unicode-3.0 AND Apache-2.0"
+
+include = [
+    "src/**/*.rs",
+    "build.rs",
+    "resources/*.json",
+    "resources/*.txt",
+    "Cargo.toml",
+]
+
+[dependencies]

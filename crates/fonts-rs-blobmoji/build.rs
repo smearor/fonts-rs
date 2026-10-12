@@ -6,8 +6,9 @@
 // variant. The selected TTF is bundled for `pixel-drawing` (ab_glyph) and
 // the GTK font.gresource.
 //
-// Glyph names come from CLDR annotation data
-// (`resources/metadata/annotations.json`): the emoji sequence encoded in
+// Glyph names come from CLDR annotation data (`annotations.json`,
+// vendored by fonts-rs-emoji-metadata and located via
+// DEP_EMOJI_METADATA_DIR): the emoji sequence encoded in
 // each `emoji_u*.svg` filename is mapped to the CLDR `tts` name
 // (kebab-cased). Sequences without a CLDR name keep their raw filename
 // stem. Emoji sequences are allocated PUA codepoints by `SvgDirSource`.
@@ -15,6 +16,7 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::path::Path;
+use std::path::PathBuf;
 
 use fonts_rs_generator::CodepointStrategy;
 use fonts_rs_generator::EmojiUFilenameParser;
@@ -45,6 +47,18 @@ use fonts_rs_model::GlyphEntry;
 mod definition;
 
 use definition::BlobmojiConfig;
+
+/// Reads a `DEP_*` path emitted by a resource crate's build script.
+fn dep_dir(var: &str) -> miette::Result<PathBuf> {
+    std::env::var(var)
+        .map(PathBuf::from)
+        .map_err(|_| miette::miette!("{var} is not set - is the resource crate declared as a dependency?"))
+}
+
+/// Basename of a `metadata/`-prefixed resource constant.
+fn file_name(constant: &str) -> &str {
+    constant.rsplit('/').next().unwrap_or(constant)
+}
 
 /// All Blobmoji variants and their mapping to TTF filenames.
 ///
@@ -162,12 +176,16 @@ fn main() -> miette::Result<()> {
     // Set TTF path for pixel-drawing (ab_glyph) at runtime.
     set_font_path_env("BLOBMOJI_FONT_PATH", &font_path)?;
 
+    // Shared emoji metadata (CLDR/UTS-#51) lives in the
+    // fonts-rs-emoji-metadata resource crate.
+    let metadata_dir = dep_dir("DEP_EMOJI_METADATA_DIR")?;
+
     // Parse CLDR annotations into a sequence → name map for the
     // SvgDirSource name resolver. The base file covers single-codepoint
     // emoji; the derived file adds sequences (ZWJ, flags, keycaps).
     let mut sequence_names = HashMap::new();
-    for file_name in ["annotations.json", "annotations-derived.json"] {
-        let path = Path::new(build_constants::RESOURCES_DIR).join("metadata").join(file_name);
+    for file in ["annotations.json", "annotations-derived.json"] {
+        let path = metadata_dir.join(file);
         let json = std::fs::read_to_string(&path).map_err(|e| miette::miette!("Failed to read {}: {e}", path.display()))?;
         sequence_names.extend(parse_cldr_sequence_names(&json)?);
     }
@@ -217,8 +235,8 @@ fn main() -> miette::Result<()> {
     if std::env::var("CARGO_FEATURE_METADATA").is_ok() {
         eprintln!("build.rs: generating emoji metadata (keywords/categories/ordering)...");
 
-        let annotations_path = Path::new(build_constants::RESOURCES_DIR).join(ANNOTATIONS_FILE);
-        let emoji_test_path = Path::new(build_constants::RESOURCES_DIR).join(EMOJI_TEST_FILE);
+        let annotations_path = metadata_dir.join(file_name(ANNOTATIONS_FILE));
+        let emoji_test_path = metadata_dir.join(file_name(EMOJI_TEST_FILE));
 
         let annotations_json = std::fs::read_to_string(&annotations_path).map_err(|e| miette::miette!("Failed to read {}: {e}", annotations_path.display()))?;
         let (_name_map, keyword_map, _name_by_codepoint) = parse_cldr_annotations(&annotations_json)?;
@@ -235,7 +253,7 @@ fn main() -> miette::Result<()> {
         // exported glyph name, mirroring SvgDirSource's CLDR resolver +
         // name_prefix + raw-stem fallback, then drops names that are not
         // exported (unknown upstream emoji or filtered flags).
-        let ordering_path = Path::new(build_constants::RESOURCES_DIR).join(ORDERING_FILE);
+        let ordering_path = metadata_dir.join(file_name(ORDERING_FILE));
         let ordering_json = std::fs::read_to_string(&ordering_path).map_err(|e| miette::miette!("Failed to read {}: {e}", ordering_path.display()))?;
         let ordering = parse_emoji_ordering(&ordering_json)?;
 

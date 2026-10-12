@@ -20,8 +20,6 @@ include = [
     "src/**/*.rs",
     "build.rs",
     "resources/svg/**/*.svg",
-    "resources/metadata/**/*.json",
-    "resources/metadata/**/*.txt",
     "resources/OFL.txt",
     "Cargo.toml",
 ]

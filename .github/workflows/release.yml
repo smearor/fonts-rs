@@ -77,6 +77,11 @@ jobs:
       - name: Publish fonts-rs-cuernavaca
         continue-on-error: true
         run: cargo publish --locked -p fonts-rs-cuernavaca --token ${{ secrets.CRATES_IO_TOKEN }}
+      # Shared emoji metadata resource crate: blobmoji and the noto-emoji
+      # variants consume its links metadata (DEP_*)
+      - name: Publish fonts-rs-emoji-metadata
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-emoji-metadata --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish fonts-rs-blobmoji
         continue-on-error: true
         run: cargo publish --locked -p fonts-rs-blobmoji --token ${{ secrets.CRATES_IO_TOKEN }}

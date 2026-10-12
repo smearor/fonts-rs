@@ -1,8 +1,7 @@
-//! Emits the vendored resource directories to dependent build scripts.
+//! Emits the vendored resource directory to dependent build scripts.
 //!
-//! Dependents declaring this crate as a build-dependency read the
-//! `DEP_NOTO_EMOJI_GLYPHS_SVG_DIR` and `DEP_NOTO_EMOJI_GLYPHS_METADATA_DIR`
-//! environment variables.
+//! Dependents declaring this crate as a dependency read the
+//! `DEP_NOTO_EMOJI_GLYPHS_SVG_DIR` environment variable.
 
 use std::env;
 use std::path::PathBuf;
@@ -13,8 +12,6 @@ fn main() {
         eprintln!("CARGO_MANIFEST_DIR not set");
         process::exit(1);
     };
-    let resources = manifest_dir.join("resources");
-    println!("cargo:svg_dir={}", resources.join("svg").display());
-    println!("cargo:metadata_dir={}", resources.join("metadata").display());
+    println!("cargo:svg_dir={}", manifest_dir.join("resources/svg").display());
     println!("cargo::rerun-if-changed=resources");
 }

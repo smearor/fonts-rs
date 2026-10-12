@@ -53,6 +53,9 @@ ab_glyph = { workspace = true, optional = true }
 const_format.workspace = true
 phf.workspace = true
 tracing.workspace = true
+# Resource crates must be normal dependencies: `links` metadata
+# (DEP_* env vars) does not propagate via [build-dependencies].
+fonts-rs-emoji-metadata.workspace = true
 
 [build-dependencies]
 fonts-rs-generator.workspace = true

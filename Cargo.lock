@@ -570,6 +570,7 @@ version = "0.4.0"
 dependencies = [
  "ab_glyph",
  "const_format",
+ "fonts-rs-emoji-metadata",
  "fonts-rs-generator",
  "fonts-rs-model",
  "fonts-rs-test",
@@ -727,6 +728,10 @@ dependencies = [
  "miette",
  "pangocairo",
 ]
+
+[[package]]
+name = "fonts-rs-emoji-metadata"
+version = "0.4.0"
 
 [[package]]
 name = "fonts-rs-eva"
@@ -949,6 +954,7 @@ version = "0.4.0"
 dependencies = [
  "ab_glyph",
  "const_format",
+ "fonts-rs-emoji-metadata",
  "fonts-rs-generator",
  "fonts-rs-model",
  "fonts-rs-noto-emoji-generator",
@@ -969,6 +975,7 @@ version = "0.4.0"
 dependencies = [
  "ab_glyph",
  "const_format",
+ "fonts-rs-emoji-metadata",
  "fonts-rs-generator",
  "fonts-rs-model",
  "fonts-rs-noto-emoji-generator",
@@ -1000,6 +1007,7 @@ version = "0.4.0"
 dependencies = [
  "ab_glyph",
  "const_format",
+ "fonts-rs-emoji-metadata",
  "fonts-rs-generator",
  "fonts-rs-model",
  "fonts-rs-noto-emoji-generator",
@@ -1020,6 +1028,7 @@ version = "0.4.0"
 dependencies = [
  "ab_glyph",
  "const_format",
+ "fonts-rs-emoji-metadata",
  "fonts-rs-generator",
  "fonts-rs-model",
  "fonts-rs-noto-emoji-generator",
@@ -1056,6 +1065,7 @@ version = "0.4.0"
 dependencies = [
  "ab_glyph",
  "const_format",
+ "fonts-rs-emoji-metadata",
  "fonts-rs-generator",
  "fonts-rs-model",
  "fonts-rs-noto-emoji-generator",
