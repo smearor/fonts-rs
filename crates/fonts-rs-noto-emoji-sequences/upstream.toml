@@ -1,0 +1,28 @@
+# Upstream sourcing manifest for fonts-rs-noto-emoji-sequences
+# Consumed by `cargo xtask sync/check/verify`.
+#
+# [upstream]: googlefonts/noto-emoji, pinned to the commit that
+# shipped the vendored font v2.057 build (main drifts).
+#
+# Splits `2D/svg` with fonts-rs-noto-emoji-glyphs: this crate vendors
+# the multi-codepoint artwork (emoji_u<hex>_<hex>...svg) - ZWJ
+# compositions, regional-indicator flags, skin-tone modifiers.
+#
+# resources/OFL.txt was previously vendored with CRLF line endings
+# from a Google Fonts download; sync now vendors the canonical
+# upstream LICENSE (byte-identical to the SIL OFL text upstream
+# ships in 2D/fonts/).
+
+[upstream]
+repo = "googlefonts/noto-emoji"
+ref = "e20cbc2bbec1926686be9f9bee7d1d2cfa1fea0e"
+
+[upstream.license]
+source = "2D/fonts/LICENSE"
+target = "resources/OFL.txt"
+
+# Multi-codepoint emoji SVG artwork (emoji_u<hex>_<hex>....svg).
+[[artifacts]]
+source = "2D/svg"
+target = "resources/svg"
+pattern = "emoji_u*_*"

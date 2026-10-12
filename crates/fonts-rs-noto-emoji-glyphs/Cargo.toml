@@ -1,0 +1,29 @@
+[package]
+name = "fonts-rs-noto-emoji-glyphs"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "Noto Emoji single-codepoint SVG artwork and CLDR metadata (build resource)"
+publish = true
+
+# Emits the vendored resource directories to dependent build scripts via
+# DEP_NOTO_EMOJI_GLYPHS_* environment variables.
+links = "noto_emoji_glyphs"
+
+# Noto Emoji is licensed under the SIL Open Font License (OFL-1.1).
+license-file = "resources/OFL.txt"
+
+include = [
+    "src/**/*.rs",
+    "build.rs",
+    "resources/svg/**/*.svg",
+    "resources/metadata/**/*.json",
+    "resources/metadata/**/*.txt",
+    "resources/OFL.txt",
+    "Cargo.toml",
+]
+
+[dependencies]

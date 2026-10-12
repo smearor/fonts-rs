@@ -6,100 +6,70 @@ rust-version.workspace = true
 authors.workspace = true
 repository.workspace = true
 homepage.workspace = true
-description = "Noto Emoji font integration for GTK 4 and pixel-drawing"
+description = "Noto Emoji font integration for GTK 4 and pixel-drawing (variant umbrella)"
 publish = true
-
-# Noto Emoji is licensed under the SIL Open Font License (OFL-1.1).
-license-file = "resources/OFL.txt"
+license.workspace = true
 
 include = [
     "src/**/*.rs",
-    "build.rs",
-    "resources/*.ttf",
-    "resources/**/*.json",
-    "resources/**/*.txt",
-    "resources/svg/**/*.svg",
-    "resources/OFL.txt",
+    "README.md",
+    "resources/cheat-sheet.png",
     "Cargo.toml",
 ]
 
 [features]
-default = ["gtk"]
+# Variant selection: each feature enables one variant crate. Exactly
+# one variant may be active - lib.rs guards with `compile_error!`.
+# `color-flags` is the default: COLRv1 is vector-based and roughly half
+# the size of the CBDT strikes. Select another variant with
+# `default-features = false, features = ["<variant>", ...]`.
+default = ["gtk", "color-flags"]
 
-gtk = ["dep:gtk4", "dep:gio", "fonts-rs-generator/gtk"]
-render = ["dep:ab_glyph", "fonts-rs-model/render"]
-embed-fonts = []
+mono = ["dep:fonts-rs-noto-emoji-mono"]
+color-flags = ["dep:fonts-rs-noto-emoji-color-flags"]
+color-noflags = ["dep:fonts-rs-noto-emoji-color-noflags"]
+bitmap-flags = ["dep:fonts-rs-noto-emoji-bitmap-flags"]
+bitmap-noflags = ["dep:fonts-rs-noto-emoji-bitmap-noflags"]
 
-# Each feature selects one TTF variant:
-#   mono (NotoEmoji-Regular) or color (COLRv1) / bitmap (CBDT) x flags
-# If none is active, build.rs defaults to `color-flags`.
-# `renderable` is a marker for variants with visible ab_glyph output
-# (mono silhouettes, bitmap color) - don't enable it directly.
-renderable = []
-mono = ["renderable"]
-color-flags = []
-color-noflags = []
-bitmap-flags = ["renderable"]
-bitmap-noflags = ["renderable"]
+# Forwarded to whichever variant crate is active (weak deps - no-op
+# when the variant feature is off).
+gtk = [
+    "fonts-rs-noto-emoji-mono?/gtk",
+    "fonts-rs-noto-emoji-color-flags?/gtk",
+    "fonts-rs-noto-emoji-color-noflags?/gtk",
+    "fonts-rs-noto-emoji-bitmap-flags?/gtk",
+    "fonts-rs-noto-emoji-bitmap-noflags?/gtk",
+]
+render = [
+    "fonts-rs-noto-emoji-mono?/render",
+    "fonts-rs-noto-emoji-color-flags?/render",
+    "fonts-rs-noto-emoji-color-noflags?/render",
+    "fonts-rs-noto-emoji-bitmap-flags?/render",
+    "fonts-rs-noto-emoji-bitmap-noflags?/render",
+]
+embed-fonts = [
+    "fonts-rs-noto-emoji-mono?/embed-fonts",
+    "fonts-rs-noto-emoji-color-flags?/embed-fonts",
+    "fonts-rs-noto-emoji-color-noflags?/embed-fonts",
+    "fonts-rs-noto-emoji-bitmap-flags?/embed-fonts",
+    "fonts-rs-noto-emoji-bitmap-noflags?/embed-fonts",
+]
 
 # Emoji metadata: keywords and categories for search functionality
-metadata = []
+metadata = [
+    "fonts-rs-noto-emoji-mono?/metadata",
+    "fonts-rs-noto-emoji-color-flags?/metadata",
+    "fonts-rs-noto-emoji-color-noflags?/metadata",
+    "fonts-rs-noto-emoji-bitmap-flags?/metadata",
+    "fonts-rs-noto-emoji-bitmap-noflags?/metadata",
+]
 
 [dependencies]
-fonts-rs-generator.workspace = true
-fonts-rs-model.workspace = true
-gio = { workspace = true, optional = true }
-gtk4 = { workspace = true, optional = true }
-ab_glyph = { workspace = true, optional = true }
-const_format.workspace = true
-phf.workspace = true
-tracing.workspace = true
-
-[build-dependencies]
-fonts-rs-generator.workspace = true
-fonts-rs-model.workspace = true
-fonts-rs-noto-emoji-generator.workspace = true
-miette.workspace = true
-serde.workspace = true
-serde_json.workspace = true
+fonts-rs-noto-emoji-mono = { workspace = true, optional = true }
+fonts-rs-noto-emoji-color-flags = { workspace = true, optional = true }
+fonts-rs-noto-emoji-color-noflags = { workspace = true, optional = true }
+fonts-rs-noto-emoji-bitmap-flags = { workspace = true, optional = true }
+fonts-rs-noto-emoji-bitmap-noflags = { workspace = true, optional = true }
 
 [lints]
 workspace = true
-
-[dev-dependencies]
-fonts-rs-test = { workspace = true, features = ["gtk", "render"] }
-gtk4 = { workspace = true, features = ["v4_12"] }
-glib.workspace = true
-miette.workspace = true
-
-[[example]]
-name = "gtk_icon_theme"
-required-features = ["gtk"]
-
-[[example]]
-name = "svg_gresource"
-required-features = ["gtk"]
-
-[[example]]
-name = "svg_html"
-required-features = ["gtk"]
-
-[[example]]
-name = "composed_svg_text"
-required-features = ["gtk"]
-
-[[example]]
-name = "css_class_html"
-required-features = ["gtk"]
-
-[[example]]
-name = "gtk_gresource"
-required-features = ["gtk"]
-
-[[example]]
-name = "system_font_fallback"
-required-features = ["gtk"]
-
-[[example]]
-name = "embed_fonts_render"
-required-features = ["gtk", "render", "embed-fonts", "renderable"]
