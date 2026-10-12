@@ -18,6 +18,7 @@ include = [
     "resources/*.ttf",
     "resources/**/*.json",
     "resources/**/*.txt",
+    "resources/svg/**/*.svg",
     "resources/OFL.txt",
     "Cargo.toml",
 ]
