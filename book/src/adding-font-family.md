@@ -281,12 +281,24 @@ Key points:
   `tts` names for emoji, `format!("{name}-symbolic")` for icons).
 - **`filter`** drops glyphs per variant (e.g. flag emoji for
   `*-noflags`).
+- **`dir(other)`** merges a second SVG directory into the same source -
+  used when the artwork is split across `links` resource crates
+  (`*-glyphs` + `*-sequences` for the emoji families). The sets must
+  partition the glyph space; duplicates are a hard error.
 - **`extra_hash`** must cover the SVG directory - the default hash only
   covers the TTF file, so SVG changes would not trigger a re-export.
+  Call it once per input directory (`hash_svg_dir`).
 
-See `crates/fonts-rs-blobmoji-generator/src/build/pipeline.rs` (CLDR name map + flag filter)
-and `crates/fonts-rs-tabler/build.rs` (`FromNameMap` + metadata) for
-complete implementations.
+When the vendored artwork plus TTFs would exceed the crates.io
+10 MiB package limit, the family is split into resource crates, one
+crate per TTF variant, a generator crate and an umbrella - see
+[Build Patterns](./build-patterns.md#pattern-3-multi-crate-emoji-family) (the
+emoji families use exactly that topology).
+
+See `crates/fonts-rs-blobmoji-generator/src/build/pipeline.rs` and
+`crates/fonts-rs-noto-emoji-generator/src/build/pipeline.rs` (CLDR
+name map + flag filter) and `crates/fonts-rs-tabler/build.rs`
+(`FromNameMap` + metadata) for complete implementations.
 
 ### Fontless SVG-Only Icon Set
 

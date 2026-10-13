@@ -40,9 +40,9 @@ the default.
 
 ```toml
 [dependencies]
-fonts-rs-tabler = "0.3"
+fonts-rs-tabler = "0.5"
 # Filled variant with metadata for search:
-fonts-rs-tabler = { version = "0.3", features = ["filled", "metadata"] }
+fonts-rs-tabler = { version = "0.5", features = ["filled", "metadata"] }
 ```
 
 ```rust

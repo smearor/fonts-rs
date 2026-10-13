@@ -20,9 +20,9 @@ features covering all style/weight combinations.
 
 ```toml
 [dependencies]
-fonts-rs-seven-segment = "0.1"
+fonts-rs-seven-segment = "0.5"
 # Select a variant:
-fonts-rs-seven-segment = { version = "0.1", features = ["modern-bold"] }
+fonts-rs-seven-segment = { version = "0.5", features = ["modern-bold"] }
 ```
 
 ```rust

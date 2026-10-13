@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-13
+
+### Added
+
+- **Emoji crate split for the crates.io 10 MiB limit**: both emoji families are now multi-crate topologies. Resource crates carry the vendored artwork (`links` + `DEP_*` build-script metadata), one crate per TTF variant vendors its own font, a generator crate hosts the shared export pipeline, and an umbrella crate keeps the family name by re-exporting the feature-selected variant
+- **`fonts-rs-emoji-metadata`**: shared CLDR/UTS-#51 metadata resource crate (`annotations.json`, `annotations-derived.json`, `emoji-test.txt`, `emoji_17_0_ordering.json`), consumed via `DEP_EMOJI_METADATA_DIR`; deduplicates byte-identical metadata previously vendored by both emoji crates
+- **Noto Emoji crates**: `fonts-rs-noto-emoji-glyphs` + `fonts-rs-noto-emoji-sequences` (SVG artwork partitioned by the `emoji_u*` filename grammar), `fonts-rs-noto-emoji-generator`, and the variant crates `fonts-rs-noto-emoji-{mono,color-flags,color-noflags,bitmap-flags,bitmap-noflags}` - every package is under the 10 MiB limit
+- **Blobmoji crates**: `fonts-rs-blobmoji-glyphs` + `fonts-rs-blobmoji-sequences`, `fonts-rs-blobmoji-generator`, and the variant crates `fonts-rs-blobmoji-{color-flags,color-noflags,bitmap-flags,bitmap-noflags}` (no `mono` variant)
+- **`SvgDirSource::dir()`**: merges additional SVG directories into one export - the emoji variant crates merge the glyphs + sequences resource crates' directories (disjoint by construction)
+- **`RENDERABLE` constant**: each emoji variant crate exports `pub const RENDERABLE: bool` telling whether the bundled TTF produces visible `ab_glyph` output (`true` for `mono`/`bitmap-*`, `false` for COLRv1)
+
+### Changed
+
+- **`fonts-rs-noto-emoji` and `fonts-rs-blobmoji` are umbrella crates** (breaking): variant features (`color-flags`, `color-noflags`, `bitmap-flags`, `bitmap-noflags`, plus `mono` for Noto Emoji) now map to optional variant-crate dependencies instead of build-time font selection; enabling several is a `compile_error!`. The public API surface is unchanged - existing `use fonts_rs_noto_emoji::*` code keeps working; selecting a non-default variant requires `default-features = false`
+- **`fonts-rs-blobmoji` `renderable` feature removed** (breaking): superseded by the `RENDERABLE` constant; the `embed_fonts_render` example lives only in the `bitmap-*` variant crates
+- **Release workflow**: publish order now covers resource crates, generators, variant crates and umbrellas (`fonts-rs-emoji-metadata` → generators → `*-glyphs`/`*-sequences` → variants → umbrellas); Blobmoji publish steps added
+- **Documentation**: book updated with the multi-crate emoji topology (resource crates, `links`/`DEP_*`, umbrella pattern) and all version references bumped to `0.5`
+
+### Fixed
+
+- **Unpublishable emoji crates**: `fonts-rs-noto-emoji` and `fonts-rs-blobmoji` exceeded the crates.io 10 MiB upload limit; every published artifact is now below the limit (largest: `fonts-rs-noto-emoji-bitmap-flags` ~9.4 MiB, `fonts-rs-blobmoji-bitmap-flags` ~8.6 MiB)
+
 ## [0.4.0] - 2026-10-11
 
 ### Added

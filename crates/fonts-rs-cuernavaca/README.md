@@ -73,7 +73,7 @@ canonical fairy role in that tradition.
 
 ```toml
 [dependencies]
-fonts-rs-cuernavaca = "0.1"
+fonts-rs-cuernavaca = "0.5"
 ```
 
 ```rust

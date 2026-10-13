@@ -39,9 +39,9 @@ real icon-set categories (42 upstream slugs like `arrows`, `devices`,
 
 ```toml
 [dependencies]
-fonts-rs-lucide = "0.3"
+fonts-rs-lucide = "0.5"
 # With upstream tags/categories for search:
-fonts-rs-lucide = { version = "0.3", features = ["metadata"] }
+fonts-rs-lucide = { version = "0.5", features = ["metadata"] }
 ```
 
 ```rust

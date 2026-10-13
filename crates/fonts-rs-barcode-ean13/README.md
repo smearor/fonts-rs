@@ -20,7 +20,7 @@ font for the EAN-13 symbology. This crate integrates it into the
 
 ```toml
 [dependencies]
-fonts-rs-barcode-ean13 = "0.1"
+fonts-rs-barcode-ean13 = "0.5"
 ```
 
 ```rust

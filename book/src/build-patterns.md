@@ -2,8 +2,8 @@
 
 Each font family crate follows a consistent structure with a `build.rs`
 for build-time glyph export and a `lib.rs` for runtime API. This page
-documents the two main `build.rs` patterns and the standard `lib.rs`
-layout.
+documents the `build.rs` patterns and the standard `lib.rs` layout -
+including the multi-crate topology used by the emoji families.
 
 ## Crate File Structure
 
@@ -167,6 +167,82 @@ Key points:
 - `ExportConfig::new()` - no variant, uses family config defaults
 - `export_glyphs_by_name_map()` - uses external name→codepoint mapping
 - No `extra_hash` needed (no variant selection)
+
+### Pattern 3: Multi-Crate Emoji Family
+
+Used when the vendored resources are too large for a single crate -
+crates.io rejects `.crate` uploads over 10 MiB, and the emoji families
+carry several TTFs plus thousands of pre-rendered SVGs. The family is
+split into four crate kinds:
+
+- **Resource crates** (`*-glyphs`, `*-sequences`) hold the vendored
+  SVG artwork, partitioned by the `emoji_u*` filename grammar. They
+  declare a unique `links` key and emit their directory via
+  `build.rs`:
+
+  ```rust
+  // fonts-rs-blobmoji-glyphs/build.rs
+  println!("cargo:svg_dir={}", manifest_dir.join("resources/svg").display());
+  println!("cargo::rerun-if-changed=resources");
+  ```
+
+  Dependents read it as `DEP_<LINKS>_SVG_DIR`. Important: `DEP_*`
+  variables propagate only along `[dependencies]` edges - resource
+  crates must be normal dependencies of the variant crate, never
+  `[build-dependencies]`.
+
+- **A generator crate** (`fonts-rs-{family}-generator`) hosts the
+  shared export pipeline as `build(&BuildInput)`, so every variant
+  produces byte-identical output modulo the variant parameters.
+  `BuildInput` carries `svg_dirs` (one per resource crate), a
+  `metadata_dir` (`fonts-rs-emoji-metadata`, shared between the emoji
+  families), the `Variant` and the `*_FONT_PATH` env var name.
+
+- **Variant crates** (`fonts-rs-{family}-{variant}`) vendor exactly
+  one TTF + the license file. There is no `VariantList` feature
+  detection - the variant is a compile-time constant:
+
+  ```rust
+  // fonts-rs-blobmoji-color-flags/build.rs
+  fn main() -> miette::Result<()> {
+      build(&BuildInput {
+          svg_dirs: vec![dep_dir("DEP_BLOBMOJI_GLYPHS_SVG_DIR")?, dep_dir("DEP_BLOBMOJI_SEQUENCES_SVG_DIR")?],
+          metadata_dir: dep_dir("DEP_EMOJI_METADATA_DIR")?,
+          variant: Variant::ColorFlags,
+          font_path_env: "BLOBMOJI_FONT_PATH",
+      })
+  }
+  ```
+
+  Inside the generator's `build`, the `svg_dirs` are merged into one
+  `SvgDirSource` via `.dir(...)` - the directories partition the glyph
+  set, so the duplicate check is a correctness guard. `noflags`
+  variants pass `include_flags = false`, filtering flag emoji at
+  export time. `pub const RENDERABLE` per crate replaces the old
+  compile-time `*_bitmap` cfgs.
+
+- **The umbrella crate** keeps the family name and maps variant
+  features to optional dependencies:
+
+  ```toml
+  [features]
+  default = ["gtk", "color-flags"]
+  color-flags = ["dep:fonts-rs-blobmoji-color-flags"]
+  bitmap-flags = ["dep:fonts-rs-blobmoji-bitmap-flags"]
+  # forwarded to whichever variant is active (weak deps)
+  gtk = ["fonts-rs-blobmoji-color-flags?/gtk", "fonts-rs-blobmoji-bitmap-flags?/gtk"]
+  ```
+
+  `lib.rs` re-exports the selected variant and guards against
+  multi-variant selection with `compile_error!` (features are
+  additive). Consumers get `fonts-rs-blobmoji = "0.5"` or pick a
+  variant via `default-features = false, features = ["bitmap-flags"]`;
+  the variant crates can also be used directly for smaller dependency
+  trees.
+
+See `crates/fonts-rs-noto-emoji-generator/src/build/pipeline.rs` and
+`crates/fonts-rs-blobmoji-generator/src/build/pipeline.rs` for the
+shared pipelines.
 
 ## `lib.rs` + `family.rs` - Runtime API
 

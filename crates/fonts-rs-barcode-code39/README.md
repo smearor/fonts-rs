@@ -20,7 +20,7 @@ font for the Code 39 symbology. This crate integrates it into the
 
 ```toml
 [dependencies]
-fonts-rs-barcode-code39 = "0.1"
+fonts-rs-barcode-code39 = "0.5"
 ```
 
 ```rust

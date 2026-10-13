@@ -51,13 +51,13 @@ Each font family is a separate crate. Add the ones you need:
 ```toml
 [dependencies]
 # Nerd Fonts (icon name resolution, GTK4 integration)
-nerd-fonts-rs = "0.1"
+nerd-fonts-rs = "0.5"
 
 # Specific font families
-fonts-rs-doto = "0.1"
-fonts-rs-bravura = "0.1"
-fonts-rs-seven-segment = "0.1"
-fonts-rs-noto-emoji = "0.1"
+fonts-rs-doto = "0.5"
+fonts-rs-bravura = "0.5"
+fonts-rs-seven-segment = "0.5"
+fonts-rs-noto-emoji = "0.5"
 ```
 
 ### From Source
@@ -74,32 +74,44 @@ Each font family crate provides the same feature gates:
 
 ```toml
 # GTK4 integration (default)
-fonts-rs-doto = "0.1"
+fonts-rs-doto = "0.5"
 
 # GTK4 + software rendering + embedded fonts
-fonts-rs-doto = { version = "0.1", features = ["gtk", "render", "embed-fonts"] }
+fonts-rs-doto = { version = "0.5", features = ["gtk", "render", "embed-fonts"] }
 
 # Software rendering only (no GTK)
-fonts-rs-doto = { version = "0.1", default-features = false, features = ["render"] }
+fonts-rs-doto = { version = "0.5", default-features = false, features = ["render"] }
 
 # Variable font variant selection (Doto example)
-fonts-rs-doto = { version = "0.1", features = ["bold-dot"] }
+fonts-rs-doto = { version = "0.5", features = ["bold-dot"] }
+```
+
+The emoji families are *umbrella crates* over one crate per TTF
+variant - a variant feature selects a whole crate, so exactly one may
+be active (enabling several is a compile error):
+
+```toml
+# Noto Emoji default: COLRv1 with flag emoji (color-flags)
+fonts-rs-noto-emoji = "0.5"
+
+# A different variant: disable defaults, then pick exactly one
+fonts-rs-blobmoji = { version = "0.5", default-features = false, features = ["gtk", "bitmap-flags"] }
 ```
 
 For Nerd Fonts specifically:
 
 ```toml
 # GTK4 with 4.12+ APIs
-nerd-fonts-rs = { version = "0.1", features = ["gtk", "v4_12"] }
+nerd-fonts-rs = { version = "0.5", features = ["gtk", "v4_12"] }
 
 # Font loading only (no GTK)
-nerd-fonts-rs = { version = "0.1", default-features = false, features = ["render"] }
+nerd-fonts-rs = { version = "0.5", default-features = false, features = ["render"] }
 
 # Web CSS only
-nerd-fonts-rs = { version = "0.1", default-features = false, features = ["web"] }
+nerd-fonts-rs = { version = "0.5", default-features = false, features = ["web"] }
 
 # Icon metadata (keywords & categories)
-nerd-fonts-rs = { version = "0.1", features = ["metadata"] }
+nerd-fonts-rs = { version = "0.5", features = ["metadata"] }
 ```
 
 ## Quick Start

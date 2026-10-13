@@ -25,8 +25,8 @@ This crate provides the build-time tooling for the modular fonts framework:
 
 ```toml
 [build-dependencies]
-fonts-rs-generator = "0.1"
-fonts-rs-model = "0.1"
+fonts-rs-generator = "0.5"
+fonts-rs-model = "0.5"
 ```
 
 See the [Build Patterns](../book/src/build-patterns.md) documentation for

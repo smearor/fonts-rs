@@ -20,7 +20,7 @@ and mockups. This crate integrates Redacted into the `fonts-rs` framework.
 
 ```toml
 [dependencies]
-fonts-rs-redacted = "0.1"
+fonts-rs-redacted = "0.5"
 ```
 
 ```rust

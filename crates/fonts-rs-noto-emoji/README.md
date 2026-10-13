@@ -43,13 +43,13 @@ Variant crates can also be used directly for smaller dependency trees.
 ```toml
 [dependencies]
 # Default: COLRv1 with flag emoji
-fonts-rs-noto-emoji = "0.4"
+fonts-rs-noto-emoji = "0.5"
 
 # Another variant: disable defaults, then pick exactly one
-fonts-rs-noto-emoji = { version = "0.4", default-features = false, features = ["gtk", "bitmap-flags"] }
+fonts-rs-noto-emoji = { version = "0.5", default-features = false, features = ["gtk", "bitmap-flags"] }
 
 # With metadata for search:
-fonts-rs-noto-emoji = { version = "0.4", features = ["metadata"] }
+fonts-rs-noto-emoji = { version = "0.5", features = ["metadata"] }
 ```
 
 ```rust

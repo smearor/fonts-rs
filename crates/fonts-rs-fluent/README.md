@@ -41,9 +41,9 @@ the default.
 
 ```toml
 [dependencies]
-fonts-rs-fluent = "0.3"
+fonts-rs-fluent = "0.5"
 # Filled variant with metadata for search:
-fonts-rs-fluent = { version = "0.3", features = ["filled", "metadata"] }
+fonts-rs-fluent = { version = "0.5", features = ["filled", "metadata"] }
 ```
 
 ```rust

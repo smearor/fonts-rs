@@ -21,7 +21,7 @@ resolution (since Bravura lacks PostScript glyph names).
 
 ```toml
 [dependencies]
-fonts-rs-bravura = "0.1"
+fonts-rs-bravura = "0.5"
 ```
 
 ```rust

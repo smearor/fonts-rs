@@ -22,9 +22,9 @@ registration, glyph name resolution, and software rendering.
 
 ```toml
 [dependencies]
-fonts-rs-doto = "0.1"
+fonts-rs-doto = "0.5"
 # Select a variant:
-fonts-rs-doto = { version = "0.1", features = ["bold-dot"] }
+fonts-rs-doto = { version = "0.5", features = ["bold-dot"] }
 ```
 
 ```rust

@@ -20,7 +20,7 @@ the `fonts-rs` framework.
 
 ```toml
 [dependencies]
-fonts-rs-dicefont = "0.1"
+fonts-rs-dicefont = "0.5"
 ```
 
 ```rust

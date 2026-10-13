@@ -14,7 +14,7 @@ This crate is typically used as a dependency of `nerd-fonts-generator` and
 
 ```toml
 [dependencies]
-nerd-fonts-model = "0.1"
+nerd-fonts-model = "0.5"
 ```
 
 ## License

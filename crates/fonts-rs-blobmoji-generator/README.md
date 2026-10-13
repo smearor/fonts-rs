@@ -12,7 +12,7 @@ build-dependency by the `fonts-rs-blobmoji-*` variant crates.
 
 ```toml
 [build-dependencies]
-fonts-rs-blobmoji-generator = "0.1"
+fonts-rs-blobmoji-generator = "0.5"
 ```
 
 ## License

@@ -12,7 +12,7 @@ build-dependency by `fonts-rs-noto-emoji`.
 
 ```toml
 [build-dependencies]
-fonts-rs-noto-emoji-generator = "0.1"
+fonts-rs-noto-emoji-generator = "0.5"
 ```
 
 ## License

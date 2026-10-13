@@ -44,9 +44,9 @@ the default.
 
 ```toml
 [dependencies]
-fonts-rs-eva = "0.3"
+fonts-rs-eva = "0.5"
 # Outline variant with metadata for search:
-fonts-rs-eva = { version = "0.3", features = ["outline", "metadata"] }
+fonts-rs-eva = { version = "0.5", features = ["outline", "metadata"] }
 ```
 
 ```rust
