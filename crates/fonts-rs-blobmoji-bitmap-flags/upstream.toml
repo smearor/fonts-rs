@@ -1,0 +1,23 @@
+# Upstream sourcing manifest for fonts-rs-blobmoji-bitmap-flags
+# Consumed by `cargo xtask sync/check/verify`.
+#
+# [upstream]: DavidBerdik/blobmoji2 (Blobmoji font fork with the
+# original Noto naming), pinned to the compiled Blobmoji 17 commit
+# (blobmoji-master drifts).
+# SVG artwork lives in fonts-rs-blobmoji-glyphs /
+# fonts-rs-blobmoji-sequences.
+
+[upstream]
+repo = "DavidBerdik/blobmoji2"
+ref = "3a1be353fde25aee4743a80f94d6702dc7dd97da"
+
+[upstream.license]
+source = "fonts/LICENSE"
+target = "resources/OFL.txt"
+
+# CBDT bitmap font including flag emoji (upstream uses the Noto file
+# names).
+[[artifacts]]
+source = "fonts"
+target = "resources"
+pattern = "NotoColorEmoji.ttf"

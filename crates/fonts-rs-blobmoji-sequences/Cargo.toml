@@ -1,0 +1,27 @@
+[package]
+name = "fonts-rs-blobmoji-sequences"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "Blobmoji multi-codepoint SVG sequences (ZWJ, flags, modifiers - build resource)"
+publish = true
+
+# Emits the vendored resource directory to dependent build scripts via
+# DEP_BLOBMOJI_SEQUENCES_* environment variables.
+links = "blobmoji_sequences"
+
+# Blobmoji is licensed under the SIL Open Font License (OFL-1.1).
+license-file = "resources/OFL.txt"
+
+include = [
+    "src/**/*.rs",
+    "build.rs",
+    "resources/svg/**/*.svg",
+    "resources/OFL.txt",
+    "Cargo.toml",
+]
+
+[dependencies]

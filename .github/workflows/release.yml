@@ -31,8 +31,9 @@ jobs:
         uses: Swatinem/rust-cache@v2
       - name: Build (Release Mode)
         run: |
-          cargo build --workspace --exclude fonts-rs-noto-emoji --release --all-features --verbose
+          cargo build --workspace --exclude fonts-rs-noto-emoji --exclude fonts-rs-blobmoji --release --all-features --verbose
           cargo build -p fonts-rs-noto-emoji --release --features gtk,render,embed-fonts,metadata --verbose
+          cargo build -p fonts-rs-blobmoji --release --features gtk,render,embed-fonts,metadata --verbose
       # Tier 1: Foundation (no build.rs, no dirty files)
       - name: Dry-run publish (fonts-rs-model)
         run: cargo publish --dry-run --locked -p fonts-rs-model --token ${{ secrets.CRATES_IO_TOKEN }}
@@ -82,9 +83,10 @@ jobs:
       - name: Publish fonts-rs-emoji-metadata
         continue-on-error: true
         run: cargo publish --locked -p fonts-rs-emoji-metadata --token ${{ secrets.CRATES_IO_TOKEN }}
-      - name: Publish fonts-rs-blobmoji
+      # Emoji generators are build-dependencies of the variant crates
+      - name: Publish fonts-rs-blobmoji-generator
         continue-on-error: true
-        run: cargo publish --locked -p fonts-rs-blobmoji --token ${{ secrets.CRATES_IO_TOKEN }}
+        run: cargo publish --locked -p fonts-rs-blobmoji-generator --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish fonts-rs-noto-emoji-generator
         continue-on-error: true
         run: cargo publish --locked -p fonts-rs-noto-emoji-generator --token ${{ secrets.CRATES_IO_TOKEN }}
@@ -119,6 +121,30 @@ jobs:
       - name: Publish fonts-rs-noto-emoji
         continue-on-error: true
         run: cargo publish --locked -p fonts-rs-noto-emoji --token ${{ secrets.CRATES_IO_TOKEN }}
+      # Blobmoji resource crates first: variants consume their links metadata (DEP_*)
+      - name: Publish fonts-rs-blobmoji-glyphs
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-blobmoji-glyphs --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-blobmoji-sequences
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-blobmoji-sequences --token ${{ secrets.CRATES_IO_TOKEN }}
+      # Blobmoji variant crates
+      - name: Publish fonts-rs-blobmoji-color-flags
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-blobmoji-color-flags --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-blobmoji-color-noflags
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-blobmoji-color-noflags --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-blobmoji-bitmap-flags
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-blobmoji-bitmap-flags --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-blobmoji-bitmap-noflags
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-blobmoji-bitmap-noflags --token ${{ secrets.CRATES_IO_TOKEN }}
+      # Blobmoji umbrella re-exporting the feature-selected variant
+      - name: Publish fonts-rs-blobmoji
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-blobmoji --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish nerd-fonts-rs
         continue-on-error: true
         run: cargo publish --locked -p nerd-fonts-rs --token ${{ secrets.CRATES_IO_TOKEN }}

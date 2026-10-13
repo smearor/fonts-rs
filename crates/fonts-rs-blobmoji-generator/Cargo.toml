@@ -1,0 +1,29 @@
+[package]
+name = "fonts-rs-blobmoji-generator"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+description = "Build-time code generation and glyph export for Blobmoji"
+publish = true
+
+[dependencies]
+const_format.workspace = true
+fonts-rs-generator.workspace = true
+fonts-rs-model.workspace = true
+miette.workspace = true
+serde_json.workspace = true
+
+[dev-dependencies]
+clap.workspace = true
+
+[[example]]
+name = "generate_blobmoji"
+
+[lints]
+workspace = true

@@ -28,6 +28,13 @@ members = [
     "crates/fonts-rs-noto-emoji-generator",
     "crates/fonts-rs-noto-emoji-cheat-sheet",
     "crates/fonts-rs-blobmoji",
+    "crates/fonts-rs-blobmoji-color-flags",
+    "crates/fonts-rs-blobmoji-color-noflags",
+    "crates/fonts-rs-blobmoji-bitmap-flags",
+    "crates/fonts-rs-blobmoji-bitmap-noflags",
+    "crates/fonts-rs-blobmoji-glyphs",
+    "crates/fonts-rs-blobmoji-sequences",
+    "crates/fonts-rs-blobmoji-generator",
     "crates/fonts-rs-blobmoji-cheat-sheet",
     "crates/fonts-rs-cuernavaca",
     "crates/fonts-rs-cuernavaca-cheat-sheet",
@@ -91,6 +98,13 @@ fonts-rs-noto-emoji-glyphs = { version = "0.4.0", path = "crates/fonts-rs-noto-e
 fonts-rs-noto-emoji-sequences = { version = "0.4.0", path = "crates/fonts-rs-noto-emoji-sequences" }
 fonts-rs-noto-emoji-generator = { version = "0.4.0", path = "crates/fonts-rs-noto-emoji-generator" }
 fonts-rs-blobmoji = { version = "0.4.0", path = "crates/fonts-rs-blobmoji" }
+fonts-rs-blobmoji-color-flags = { version = "0.4.0", path = "crates/fonts-rs-blobmoji-color-flags" }
+fonts-rs-blobmoji-color-noflags = { version = "0.4.0", path = "crates/fonts-rs-blobmoji-color-noflags" }
+fonts-rs-blobmoji-bitmap-flags = { version = "0.4.0", path = "crates/fonts-rs-blobmoji-bitmap-flags" }
+fonts-rs-blobmoji-bitmap-noflags = { version = "0.4.0", path = "crates/fonts-rs-blobmoji-bitmap-noflags" }
+fonts-rs-blobmoji-glyphs = { version = "0.4.0", path = "crates/fonts-rs-blobmoji-glyphs" }
+fonts-rs-blobmoji-sequences = { version = "0.4.0", path = "crates/fonts-rs-blobmoji-sequences" }
+fonts-rs-blobmoji-generator = { version = "0.4.0", path = "crates/fonts-rs-blobmoji-generator" }
 fonts-rs-cuernavaca = { version = "0.4.0", path = "crates/fonts-rs-cuernavaca" }
 fonts-rs-eva = { version = "0.4.0", path = "crates/fonts-rs-eva" }
 fonts-rs-fluent = { version = "0.4.0", path = "crates/fonts-rs-fluent" }

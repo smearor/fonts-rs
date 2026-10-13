@@ -11,7 +11,8 @@ style - the amorphous, expressive characters that shipped with Android
 coverage) into the `fonts-rs` framework using the **hybrid approach**:
 
 - **GResource SVGs** - pre-rendered full-color source SVGs from
-  `blobmoji2/svg/` (~4000 files), renamed to CLDR semantic names
+  `blobmoji2/svg/` (~4000 files, vendored via `fonts-rs-blobmoji-glyphs`
+  and `fonts-rs-blobmoji-sequences`), renamed to CLDR semantic names
   (`grinning-face`, `thumbs-up`, ...). Rendered via `librsvg` in GTK 4's
   `GtkIconTheme` - full color, original artwork, no COLRv1 extraction.
 - **TTF for `pixel-drawing`** - the selected variant's TTF is bundled
@@ -21,35 +22,48 @@ Glyph names come from CLDR annotation data, identical to the Noto Emoji
 approach. Multi-codepoint sequences (ZWJ, keycap, flag) are covered by
 the pre-rendered SVG set and allocated PUA codepoints.
 
+## Variants
+
+This is an umbrella crate. Exactly one TTF variant is selected by Cargo
+feature; the active variant crate is re-exported 1:1.
+
+| Feature | Crate | Font | `RENDERABLE` |
+|---------|-------|------|--------------|
+| `color-flags` (default) | `fonts-rs-blobmoji-color-flags` | `Noto-COLRv1.ttf` | `false` |
+| `color-noflags` | `fonts-rs-blobmoji-color-noflags` | `Noto-COLRv1-noflags.ttf` | `false` |
+| `bitmap-flags` | `fonts-rs-blobmoji-bitmap-flags` | `NotoColorEmoji.ttf` | `true` |
+| `bitmap-noflags` | `fonts-rs-blobmoji-bitmap-noflags` | `NotoColorEmoji-noflags.ttf` | `true` |
+
+Variant crates can also be used directly for smaller dependency trees.
+
 ## Features
 
+- **Variant selection** - exactly one of `color-flags` (default),
+  `color-noflags`, `bitmap-flags`, `bitmap-noflags`; enabling several
+  is a compile error
 - **`gtk`** (default) - GResource registration and GTK4 icon name resolution
 - **`render`** - Font loading via `ab_glyph` for software rendering
+  (only `bitmap-*` produces pixels - see `RENDERABLE`)
 - **`embed-fonts`** - Embed font file via `include_bytes!`
-- **`metadata`** - Emoji keywords (CLDR) and categories (emoji-test.txt)
-  for search
+- **`metadata`** - Emoji keywords, categories, picker ordering,
+  shortcode aliases and tone groups (`emoji_17_0_ordering.json`) via
+  `BlobmojiMetadata` (`GlyphMetadata` + `GlyphOrdering`)
 
-### Variant features (2×2 matrix: color × flags)
-
-Each feature selects one TTF for `pixel-drawing`. The GResource SVGs are
-always full-color regardless of variant; `*-noflags` additionally drops
-flag emoji SVGs.
-
-- **`color-flags`** (default) - `Noto-COLRv1.ttf`, all emoji
-- **`color-noflags`** - `Noto-COLRv1-noflags.ttf`, no flag emoji
-- **`bitmap-flags`** - `NotoColorEmoji.ttf` (CBDT), all emoji - required
-  for colored `ab_glyph` output (`embed_fonts_render`)
-- **`bitmap-noflags`** - `NotoColorEmoji-noflags.ttf` (CBDT), no flags
+The GResource SVGs are always full-color regardless of variant;
+`*-noflags` additionally drops flag emoji SVGs.
 
 ## Usage
 
 ```toml
 [dependencies]
-fonts-rs-blobmoji = "0.3"
+# Default: COLRv1 with flag emoji
+fonts-rs-blobmoji = "0.4"
+
+# Another variant: disable defaults, then pick exactly one
+fonts-rs-blobmoji = { version = "0.4", default-features = false, features = ["gtk", "bitmap-flags"] }
+
 # With metadata for search:
-fonts-rs-blobmoji = { version = "0.3", features = ["metadata"] }
-# Bitmap variant for colored pixel-drawing:
-fonts-rs-blobmoji = { version = "0.3", features = ["bitmap-flags"] }
+fonts-rs-blobmoji = { version = "0.4", features = ["metadata"] }
 ```
 
 ```rust
@@ -83,10 +97,13 @@ The cheat sheet consumes all of this via `CheatSheetFamily::ordering()`
 
 ## Examples
 
+Each variant crate ships the standard example set; the renderable
+`bitmap-*` crates additionally provide `embed_fonts_render`:
+
 ```sh
-cargo run -p fonts-rs-blobmoji --example gtk_icon_theme --features gtk
-cargo run -p fonts-rs-blobmoji --example svg_gresource --features gtk
-cargo run -p fonts-rs-blobmoji --example embed_fonts_render --features gtk,render,embed-fonts,bitmap-flags
+cargo run -p fonts-rs-blobmoji-color-flags --example gtk_icon_theme
+cargo run -p fonts-rs-blobmoji-color-flags --example svg_gresource
+cargo run -p fonts-rs-blobmoji-bitmap-flags --example embed_fonts_render --features gtk,render,embed-fonts
 ```
 
 A GTK 4 cheat sheet is available as `fonts-rs-blobmoji-cheat-sheet`:

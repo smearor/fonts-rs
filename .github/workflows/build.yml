@@ -65,8 +65,9 @@ jobs:
         uses: mozilla-actions/sccache-action@v0.0.11
       - name: Run cargo clippy
         run: |
-          cargo clippy --workspace --exclude fonts-rs-noto-emoji --all-targets --all-features --target ${{ matrix.target }}
+          cargo clippy --workspace --exclude fonts-rs-noto-emoji --exclude fonts-rs-blobmoji --all-targets --all-features --target ${{ matrix.target }}
           cargo clippy -p fonts-rs-noto-emoji --all-targets --features gtk,render,embed-fonts,metadata --target ${{ matrix.target }}
+          cargo clippy -p fonts-rs-blobmoji --all-targets --features gtk,render,embed-fonts,metadata --target ${{ matrix.target }}
   verify:
     name: Verify vendored artifacts
     needs: [ lint ]
@@ -109,8 +110,9 @@ jobs:
         uses: mozilla-actions/sccache-action@v0.0.11
       - name: Build (Release Mode)
         run: |
-          cargo build --workspace --exclude fonts-rs-noto-emoji --release --all-features --verbose
+          cargo build --workspace --exclude fonts-rs-noto-emoji --exclude fonts-rs-blobmoji --release --all-features --verbose
           cargo build -p fonts-rs-noto-emoji --release --features gtk,render,embed-fonts,metadata --verbose
+          cargo build -p fonts-rs-blobmoji --release --features gtk,render,embed-fonts,metadata --verbose
   test:
     name: Tests
     needs: [ lint ]
@@ -142,5 +144,6 @@ jobs:
         uses: mozilla-actions/sccache-action@v0.0.11
       - name: Test (Release Mode)
         run: |
-          cargo test --workspace --exclude fonts-rs-noto-emoji --release --all-features --verbose --target ${{ matrix.target }}
+          cargo test --workspace --exclude fonts-rs-noto-emoji --exclude fonts-rs-blobmoji --release --all-features --verbose --target ${{ matrix.target }}
           cargo test -p fonts-rs-noto-emoji --release --features gtk,render,embed-fonts,metadata --verbose --target ${{ matrix.target }}
+          cargo test -p fonts-rs-blobmoji --release --features gtk,render,embed-fonts,metadata --verbose --target ${{ matrix.target }}

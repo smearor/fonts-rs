@@ -568,8 +568,21 @@ dependencies = [
 name = "fonts-rs-blobmoji"
 version = "0.4.0"
 dependencies = [
+ "fonts-rs-blobmoji-bitmap-flags",
+ "fonts-rs-blobmoji-bitmap-noflags",
+ "fonts-rs-blobmoji-color-flags",
+ "fonts-rs-blobmoji-color-noflags",
+]
+
+[[package]]
+name = "fonts-rs-blobmoji-bitmap-flags"
+version = "0.4.0"
+dependencies = [
  "ab_glyph",
  "const_format",
+ "fonts-rs-blobmoji-generator",
+ "fonts-rs-blobmoji-glyphs",
+ "fonts-rs-blobmoji-sequences",
  "fonts-rs-emoji-metadata",
  "fonts-rs-generator",
  "fonts-rs-model",
@@ -579,8 +592,27 @@ dependencies = [
  "gtk4",
  "miette",
  "phf",
- "serde",
- "serde_json",
+ "tracing",
+]
+
+[[package]]
+name = "fonts-rs-blobmoji-bitmap-noflags"
+version = "0.4.0"
+dependencies = [
+ "ab_glyph",
+ "const_format",
+ "fonts-rs-blobmoji-generator",
+ "fonts-rs-blobmoji-glyphs",
+ "fonts-rs-blobmoji-sequences",
+ "fonts-rs-emoji-metadata",
+ "fonts-rs-generator",
+ "fonts-rs-model",
+ "fonts-rs-test",
+ "gio",
+ "glib",
+ "gtk4",
+ "miette",
+ "phf",
  "tracing",
 ]
 
@@ -594,6 +626,68 @@ dependencies = [
  "gtk4",
  "miette",
 ]
+
+[[package]]
+name = "fonts-rs-blobmoji-color-flags"
+version = "0.4.0"
+dependencies = [
+ "ab_glyph",
+ "const_format",
+ "fonts-rs-blobmoji-generator",
+ "fonts-rs-blobmoji-glyphs",
+ "fonts-rs-blobmoji-sequences",
+ "fonts-rs-emoji-metadata",
+ "fonts-rs-generator",
+ "fonts-rs-model",
+ "fonts-rs-test",
+ "gio",
+ "glib",
+ "gtk4",
+ "miette",
+ "phf",
+ "tracing",
+]
+
+[[package]]
+name = "fonts-rs-blobmoji-color-noflags"
+version = "0.4.0"
+dependencies = [
+ "ab_glyph",
+ "const_format",
+ "fonts-rs-blobmoji-generator",
+ "fonts-rs-blobmoji-glyphs",
+ "fonts-rs-blobmoji-sequences",
+ "fonts-rs-emoji-metadata",
+ "fonts-rs-generator",
+ "fonts-rs-model",
+ "fonts-rs-test",
+ "gio",
+ "glib",
+ "gtk4",
+ "miette",
+ "phf",
+ "tracing",
+]
+
+[[package]]
+name = "fonts-rs-blobmoji-generator"
+version = "0.4.0"
+dependencies = [
+ "clap",
+ "const_format",
+ "fonts-rs-generator",
+ "fonts-rs-model",
+ "miette",
+ "serde_json",
+]
+
+[[package]]
+name = "fonts-rs-blobmoji-glyphs"
+version = "0.4.0"
+
+[[package]]
+name = "fonts-rs-blobmoji-sequences"
+version = "0.4.0"
 
 [[package]]
 name = "fonts-rs-bravura"

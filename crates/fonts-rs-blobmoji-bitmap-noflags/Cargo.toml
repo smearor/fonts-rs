@@ -1,0 +1,92 @@
+[package]
+name = "fonts-rs-blobmoji-bitmap-noflags"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "Blobmoji CBDT bitmap (without flag emoji) font integration for GTK 4 and pixel-drawing"
+publish = true
+
+# Blobmoji is licensed under the SIL Open Font License (OFL-1.1).
+license-file = "resources/OFL.txt"
+
+include = [
+    "src/**/*.rs",
+    "build.rs",
+    "resources/*.ttf",
+    "resources/OFL.txt",
+    "README.md",
+    "Cargo.toml",
+]
+
+[features]
+default = ["gtk"]
+
+gtk = ["dep:gtk4", "dep:gio", "fonts-rs-generator/gtk"]
+render = ["dep:ab_glyph", "fonts-rs-model/render"]
+embed-fonts = []
+
+# Emoji metadata: keywords and categories for search functionality
+metadata = []
+
+[dependencies]
+fonts-rs-generator.workspace = true
+fonts-rs-model.workspace = true
+gio = { workspace = true, optional = true }
+gtk4 = { workspace = true, optional = true }
+ab_glyph = { workspace = true, optional = true }
+const_format.workspace = true
+phf.workspace = true
+tracing.workspace = true
+# Resource crates must be normal dependencies: `links` metadata
+# (DEP_* env vars) does not propagate via [build-dependencies].
+fonts-rs-emoji-metadata.workspace = true
+fonts-rs-blobmoji-glyphs.workspace = true
+fonts-rs-blobmoji-sequences.workspace = true
+
+[build-dependencies]
+fonts-rs-blobmoji-generator.workspace = true
+miette.workspace = true
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+fonts-rs-test = { workspace = true, features = ["gtk", "render"] }
+gtk4 = { workspace = true, features = ["v4_12"] }
+glib.workspace = true
+miette.workspace = true
+
+[[example]]
+name = "gtk_icon_theme"
+required-features = ["gtk"]
+
+[[example]]
+name = "svg_gresource"
+required-features = ["gtk"]
+
+[[example]]
+name = "svg_html"
+required-features = ["gtk"]
+
+[[example]]
+name = "composed_svg_text"
+required-features = ["gtk"]
+
+[[example]]
+name = "css_class_html"
+required-features = ["gtk"]
+
+[[example]]
+name = "gtk_gresource"
+required-features = ["gtk"]
+
+[[example]]
+name = "system_font_fallback"
+required-features = ["gtk"]
+
+[[example]]
+name = "embed_fonts_render"
+required-features = ["gtk", "render", "embed-fonts"]

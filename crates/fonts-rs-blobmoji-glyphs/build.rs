@@ -1,0 +1,17 @@
+//! Emits the vendored resource directory to dependent build scripts.
+//!
+//! Dependents declaring this crate as a dependency read the
+//! `DEP_BLOBMOJI_GLYPHS_SVG_DIR` environment variable.
+
+use std::env;
+use std::path::PathBuf;
+use std::process;
+
+fn main() {
+    let Some(manifest_dir) = env::var_os("CARGO_MANIFEST_DIR").map(PathBuf::from) else {
+        eprintln!("CARGO_MANIFEST_DIR not set");
+        process::exit(1);
+    };
+    println!("cargo:svg_dir={}", manifest_dir.join("resources/svg").display());
+    println!("cargo::rerun-if-changed=resources");
+}

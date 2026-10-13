@@ -284,7 +284,7 @@ Key points:
 - **`extra_hash`** must cover the SVG directory - the default hash only
   covers the TTF file, so SVG changes would not trigger a re-export.
 
-See `crates/fonts-rs-blobmoji/build.rs` (CLDR name map + flag filter)
+See `crates/fonts-rs-blobmoji-generator/src/build/pipeline.rs` (CLDR name map + flag filter)
 and `crates/fonts-rs-tabler/build.rs` (`FromNameMap` + metadata) for
 complete implementations.
 

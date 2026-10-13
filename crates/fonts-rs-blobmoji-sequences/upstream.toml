@@ -1,0 +1,24 @@
+# Upstream sourcing manifest for fonts-rs-blobmoji-sequences
+# Consumed by `cargo xtask sync/check/verify`.
+#
+# [upstream]: DavidBerdik/blobmoji2 (Blobmoji font fork with the
+# original Noto naming), pinned to the compiled Blobmoji 17 commit
+# (blobmoji-master drifts).
+#
+# Splits `svg` with fonts-rs-blobmoji-glyphs: this crate vendors the
+# multi-codepoint artwork (emoji_u<hex>_<hex>....svg) - ZWJ
+# compositions, regional-indicator flags, skin-tone modifiers.
+
+[upstream]
+repo = "DavidBerdik/blobmoji2"
+ref = "3a1be353fde25aee4743a80f94d6702dc7dd97da"
+
+[upstream.license]
+source = "fonts/LICENSE"
+target = "resources/OFL.txt"
+
+# Multi-codepoint emoji SVG artwork (emoji_u<hex>_<hex>....svg).
+[[artifacts]]
+source = "svg"
+target = "resources/svg"
+pattern = "emoji_u*_*"
