@@ -46,7 +46,7 @@ platform-specific dependencies and works on any platform supported by Rust.
 
 ```toml
 [dependencies]
-nerd-fonts-rs = { version = "0.1", default-features = false, features = ["render"] }
+nerd-fonts-rs = { version = "0.5", default-features = false, features = ["render"] }
 ```
 
 ## Web-Only Mode
@@ -56,7 +56,7 @@ CSS string constant.
 
 ```toml
 [dependencies]
-nerd-fonts-rs = { version = "0.1", default-features = false, features = ["web"] }
+nerd-fonts-rs = { version = "0.5", default-features = false, features = ["web"] }
 ```
 
 ## Embedded Fonts

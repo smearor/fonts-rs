@@ -92,7 +92,7 @@ The workspace is organized into three layers:
 
 ```toml
 [dependencies]
-fonts-rs-doto = "0.1"
+fonts-rs-doto = "0.5"
 ```
 
 ```rust
@@ -111,7 +111,7 @@ fn main() {
 
 ```toml
 [dependencies]
-nerd-fonts-rs = "0.1"
+nerd-fonts-rs = "0.5"
 ```
 
 ```rust

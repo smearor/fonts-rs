@@ -8,7 +8,7 @@
 //! Select a non-default variant with `default-features = false`:
 //!
 //! ```toml
-//! fonts-rs-noto-emoji = { version = "0.4", default-features = false, features = ["gtk", "bitmap-flags"] }
+//! fonts-rs-noto-emoji = { version = "0.5", default-features = false, features = ["gtk", "bitmap-flags"] }
 //! ```
 //!
 //! ## Quick Start

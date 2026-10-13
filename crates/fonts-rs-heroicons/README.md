@@ -61,9 +61,9 @@ Heroicons ships no categories.
 
 ```toml
 [dependencies]
-fonts-rs-heroicons = "0.3"
+fonts-rs-heroicons = "0.5"
 # Outline variant with keywords/aliases for search:
-fonts-rs-heroicons = { version = "0.3", features = ["outline", "metadata"] }
+fonts-rs-heroicons = { version = "0.5", features = ["outline", "metadata"] }
 ```
 
 ```rust

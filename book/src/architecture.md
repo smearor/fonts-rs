@@ -8,6 +8,7 @@ The workspace is organized into four layers:
 |-------|--------|------|
 | Generic framework | `fonts-rs-model`, `fonts-rs-generator`, `fonts-rs-test` | Shared types, build pipeline, test fixtures |
 | Font families | `fonts-rs-doto`, `fonts-rs-bravura`, `fonts-rs-tabler`, `fonts-rs-lucide`, ... | One crate per font/icon family |
+| Emoji families | `fonts-rs-noto-emoji*`, `fonts-rs-blobmoji*`, `fonts-rs-emoji-metadata` | Multi-crate families: resource + variant + umbrella + generator crates |
 | Nerd Fonts | `nerd-fonts-model`, `nerd-fonts-generator`, `nerd-fonts-rs` | Nerd Fonts-specific integration |
 | Applications | `fonts-rs-cheat-sheet` + `*-cheat-sheet` crates | Generic cheat sheet library + per-family apps |
 
@@ -20,6 +21,7 @@ graph TD
     Gen --> NFGen["nerd-fonts-generator"]
     NFModel --> NFGen
     Gen --> NotoGen["fonts-rs-noto-emoji-generator"]
+    Gen --> BlobGen["fonts-rs-blobmoji-generator"]
 
     Model --> Doto["fonts-rs-doto"]
     Gen --> Doto
@@ -34,7 +36,19 @@ graph TD
     Model --> Heroicons["fonts-rs-heroicons (fontless)"]
     Gen --> Heroicons
 
-    NotoGen --> NotoEmoji["fonts-rs-noto-emoji"]
+    subgraph "Emoji family (multi-crate, shown for Noto Emoji)"
+        NotoGlyphs["fonts-rs-noto-emoji-glyphs<br/>(links resource)"]
+        NotoSeq["fonts-rs-noto-emoji-sequences<br/>(links resource)"]
+        EmojiMeta["fonts-rs-emoji-metadata<br/>(links resource)"]
+        NotoVar["fonts-rs-noto-emoji-*<br/>(one crate per TTF variant)"]
+        NotoEmoji["fonts-rs-noto-emoji<br/>(umbrella)"]
+    end
+    NotoGlyphs --> NotoVar
+    NotoSeq --> NotoVar
+    EmojiMeta --> NotoVar
+    NotoGen --> NotoVar
+    BlobGen --> BlobVar["fonts-rs-blobmoji-*<br/>(4 variants) -> fonts-rs-blobmoji"]
+    NotoVar --> NotoEmoji
     NFGen --> NFRs["nerd-fonts-rs"]
     Model --> NFRs
 
@@ -116,6 +130,53 @@ crates/fonts-rs-{name}/
     └── fonts.rs        # impl_font_loader! (optional, render feature)
 ```
 
+### Emoji Families: Multi-Crate Layout
+
+crates.io rejects package uploads larger than 10 MiB. The emoji
+families ship several large TTFs plus thousands of pre-rendered color
+SVGs, so each family is split into a crate topology instead of a
+single crate:
+
+```
+fonts-rs-noto-emoji-glyphs       # links resource: single-codepoint SVGs
+fonts-rs-noto-emoji-sequences    # links resource: multi-codepoint SVGs (ZWJ, flags, modifiers)
+fonts-rs-emoji-metadata          # links resource: shared CLDR/UTS-#51 metadata
+fonts-rs-noto-emoji-generator    # shared build pipeline (build-dependency)
+fonts-rs-noto-emoji-{mono,color-flags,color-noflags,bitmap-flags,bitmap-noflags}
+fonts-rs-noto-emoji              # umbrella: re-exports the feature-selected variant
+```
+
+Blobmoji uses the identical topology with four variants (no `mono`):
+`fonts-rs-blobmoji-{color-flags,color-noflags,bitmap-flags,bitmap-noflags}`.
+
+- **Resource crates** carry the vendored artwork and declare a `links`
+  key (e.g. `links = "noto_emoji_glyphs"`); their `build.rs` prints
+  `cargo:svg_dir=...`, which dependents read as
+  `DEP_NOTO_EMOJI_GLYPHS_SVG_DIR`. Cargo propagates `DEP_*` variables
+  only along `[dependencies]` edges - resource crates are normal
+  dependencies of the variant crates, not build-dependencies. See
+  [Upstream Sourcing](./upstream-sourcing.md#resource-crates).
+- **Variant crates** each vendor one TTF + license file and run the
+  identical export via the family generator's `build(&BuildInput)`;
+  the variant is a compile-time constant per crate, so feature-based
+  variant detection (`VariantList`) is not needed. `noflags` variants
+  filter flag emoji at export time; `RENDERABLE` is a `pub const`
+  per crate.
+- **The umbrella crate** keeps the family's name
+  (`fonts-rs-noto-emoji`, `fonts-rs-blobmoji`), maps variant features
+  to optional dependencies and re-exports the selected variant 1:1.
+  A `compile_error!` guards against enabling several variants, since
+  Cargo features are additive.
+- **Generators** (`fonts-rs-{family}-generator`) host the shared
+  export pipeline; generic emoji machinery (CLDR parsing, ordering,
+  metadata generation) lives in `fonts_rs_generator::emoji`.
+
+Consumers keep the usual surface: `fonts-rs-noto-emoji = "0.5"` gets
+the default variant; `default-features = false` +
+`features = ["bitmap-flags"]` selects another. See
+[Build Patterns](./build-patterns.md#pattern-3-multi-crate-emoji-family) for the
+build-side details.
+
 ## Feature Gates
 
 Each font family crate uses feature gates for optional functionality:
@@ -125,7 +186,7 @@ Each font family crate uses feature gates for optional functionality:
 | `gtk` (default) | GResource registration, GTK4 icon name resolution |
 | `render` | Font loading via `ab_glyph` for software rendering |
 | `embed-fonts` | Embed font files via `include_bytes!` instead of disk |
-| Variant features | One Cargo feature per font variant (e.g. `bold-dot`) |
+| Variant features | One Cargo feature per font variant (e.g. `bold-dot`); for emoji umbrellas a variant feature enables a whole variant crate |
 
 ## GResource Registration
 

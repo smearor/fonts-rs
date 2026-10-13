@@ -57,13 +57,13 @@ The GResource SVGs are always full-color regardless of variant;
 ```toml
 [dependencies]
 # Default: COLRv1 with flag emoji
-fonts-rs-blobmoji = "0.4"
+fonts-rs-blobmoji = "0.5"
 
 # Another variant: disable defaults, then pick exactly one
-fonts-rs-blobmoji = { version = "0.4", default-features = false, features = ["gtk", "bitmap-flags"] }
+fonts-rs-blobmoji = { version = "0.5", default-features = false, features = ["gtk", "bitmap-flags"] }
 
 # With metadata for search:
-fonts-rs-blobmoji = { version = "0.4", features = ["metadata"] }
+fonts-rs-blobmoji = { version = "0.5", features = ["metadata"] }
 ```
 
 ```rust

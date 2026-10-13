@@ -26,7 +26,7 @@ rendering.
 
 ```toml
 [dependencies]
-nerd-fonts-rs = "0.1"
+nerd-fonts-rs = "0.5"
 ```
 
 ```rust

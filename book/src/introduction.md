@@ -12,7 +12,10 @@ The workspace is organized into three layers:
 1. **Generic framework** - `fonts-rs-model` (shared types) and
    `fonts-rs-generator` (build-time pipeline)
 2. **Font family crates** - one crate per font family (e.g. `fonts-rs-doto`,
-   `fonts-rs-bravura`, `fonts-rs-seven-segment`)
+   `fonts-rs-bravura`, `fonts-rs-seven-segment`). The emoji families
+   (Noto Emoji, Blobmoji) are an exception: they are split into
+   resource, variant and umbrella crates to stay under the crates.io
+   10 MiB package limit - see [Architecture](./architecture.md)
 3. **Nerd Fonts integration** - `nerd-fonts-model`, `nerd-fonts-generator`,
    and `nerd-fonts-rs` for the legacy Nerd Fonts-specific API
 
@@ -27,7 +30,7 @@ graph TD
         Doto["fonts-rs-doto"]
         Bravura["fonts-rs-bravura"]
         SevenSeg["fonts-rs-seven-segment"]
-        NotoEmoji["fonts-rs-noto-emoji"]
+        NotoEmoji["fonts-rs-noto-emoji<br/>(umbrella)"]
         Other["... 10 more"]
     end
 
@@ -86,8 +89,8 @@ graph TD
 | `fonts-rs-redacted` | Redacted | OFL-1.1 | - |
 | `fonts-rs-dicefont` | DiceFont | OFL-1.1 | - |
 | `fonts-rs-cuernavaca` | Cuernavaca | OFL-1.1 | - |
-| `fonts-rs-noto-emoji` | Noto Emoji | OFL-1.1 | COLRv1/bitmap × flags |
-| `fonts-rs-blobmoji` | Blobmoji | OFL-1.1 | COLRv1/bitmap × flags |
+| `fonts-rs-noto-emoji` | Noto Emoji | OFL-1.1 | umbrella: mono / COLRv1 / bitmap × flags |
+| `fonts-rs-blobmoji` | Blobmoji | OFL-1.1 | umbrella: COLRv1/bitmap × flags |
 | `fonts-rs-tabler` | Tabler Icons | MIT | outline, filled |
 | `fonts-rs-lucide` | Lucide Icons | ISC | fontless (SVG-only) |
 | `fonts-rs-heroicons` | Heroicons | MIT | fontless (SVG-only) × outline, solid, mini, micro |

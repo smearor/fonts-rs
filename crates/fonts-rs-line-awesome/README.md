@@ -41,9 +41,9 @@ keeps all names.
 
 ```toml
 [dependencies]
-fonts-rs-line-awesome = "0.3"
+fonts-rs-line-awesome = "0.5"
 # With metadata for search:
-fonts-rs-line-awesome = { version = "0.3", features = ["metadata"] }
+fonts-rs-line-awesome = { version = "0.5", features = ["metadata"] }
 ```
 
 ```rust

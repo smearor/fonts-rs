@@ -131,6 +131,43 @@ provider = "iconify_aliases"
 - **`[[inputs]]`** - external non-git inputs fetched by providers
   (`url` + `sha256` + `provider`), recorded for provenance.
 
+## Resource crates
+
+Vendored payloads can live in dedicated *resource crates* so several
+crates share them (or so a large payload is split under the crates.io
+10 MiB limit - the emoji families do exactly this). A resource crate
+declares a unique `links` key and emits directory paths from its
+`build.rs`:
+
+```toml
+# fonts-rs-blobmoji-glyphs/Cargo.toml
+links = "blobmoji_glyphs"
+```
+
+```rust
+// fonts-rs-blobmoji-glyphs/build.rs
+println!("cargo:svg_dir={}", manifest_dir.join("resources/svg").display());
+println!("cargo::rerun-if-changed=resources");
+```
+
+Cargo exposes each `cargo:<key>=<value>` line to dependents'
+`build.rs` as `DEP_<LINKS>_<KEY>` (`DEP_BLOBMOJI_GLYPHS_SVG_DIR` here).
+Two rules matter:
+
+- **`DEP_*` only flows along `[dependencies]` edges.** Resource crates
+  must be declared as normal dependencies of the crate whose
+  `build.rs` consumes the variable - declaring them under
+  `[build-dependencies]` yields an unset variable.
+- **A `links` crate still needs a lib target** - a stub `src/lib.rs`
+  suffices; the crate carries no runtime API.
+
+Resource crates vendored from upstream carry their own
+`upstream.toml`/`upstream.lock` with disjoint `pattern`/`exclude`
+slices of the upstream tree - e.g. `fonts-rs-blobmoji-glyphs` pins
+`emoji_u*.svg` minus `emoji_u*_*`, `fonts-rs-blobmoji-sequences` pins
+`emoji_u*_*`. `verify` and `check` cover them like any other vendored
+crate, so the byte-exact guarantee is unchanged.
+
 ## Commands
 
 ### `cargo xtask sync -p <crate> [--update]`

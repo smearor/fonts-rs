@@ -18,7 +18,7 @@ and the `export_icons` CLI binary.
 
 ```toml
 [build-dependencies]
-nerd-fonts-generator = "0.1"
+nerd-fonts-generator = "0.5"
 ```
 
 ### CLI

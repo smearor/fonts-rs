@@ -92,6 +92,11 @@ Returns the active variant or `default_index` if none is active. Returns
 an error if more than one variant is active. Uses `X::FAMILY_DISPLAY_NAME`
 for diagnostic messages.
 
+Used by single-crate families only. Multi-crate families (Noto Emoji,
+Blobmoji) instead hard-code a `Variant` per variant crate and hand it
+to the family generator's `build(&BuildInput)` - see
+[Build Patterns](./build-patterns.md#pattern-3-multi-crate-emoji-family).
+
 ## `FontBuild` (Builder)
 
 Builder for the common `build.rs` pipeline. Handles hash-based change
@@ -177,6 +182,11 @@ SVG files under `scalable/{context}/`).
 
 ### `SvgDirSource` Builder Methods
 
+- **`dir`** - merge an additional SVG directory into the same export.
+  Used by the emoji families where `*-glyphs` (single codepoints) and
+  `*-sequences` (ZWJ/flags/modifiers) are separate resource crates;
+  the sets must be disjoint - the duplicate check is a correctness
+  guard
 - **`filename_parser`** - `NameParser` (default, plain `{name}.svg`) or
   `EmojiUFilenameParser` (`emoji_u{cp}.svg`)
 - **`codepoint_strategy`** - how `GlyphDescriptor::code` is assigned
@@ -297,9 +307,10 @@ pub trait MetadataGenerator {
 - `run()`: Writes `keywords.rs`, `categories.rs`, `aliases.rs` to
   `OUT_DIR`
 
-Example implementation: `NotoEmojiMetadataGenerator` in
-`fonts-rs-noto-emoji-generator` uses `CodePointKeywordMap` and
-`CodePointCategoryMap` as data sources.
+Example implementation: `EmojiMetadataGenerator` in
+`fonts_rs_generator::emoji` (re-exported by
+`fonts-rs-noto-emoji-generator` / `fonts-rs-blobmoji-generator`) uses
+`CodePointKeywordMap` and `CodePointCategoryMap` as data sources.
 
 ## `VariantList<X: FontFamilyConfig>`
 

@@ -29,7 +29,7 @@ family crates. You rarely depend on it directly.
 
 ```toml
 [dependencies]
-fonts-rs-model = "0.1"
+fonts-rs-model = "0.5"
 ```
 
 ## License
