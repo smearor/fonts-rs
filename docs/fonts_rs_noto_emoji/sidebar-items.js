@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["all_emoji"],"mod":["codepoint_map","constants","definition","family","fonts","gtk","metadata","naming","prelude","variant"],"trait":["GtkFont"],"type":["FamilyName"]};
+window.SIDEBAR_ITEMS = {"constant":["RENDERABLE"],"enum":["NotoEmoji"],"fn":["all_emoji"],"mod":["codepoint_map","constants","definition","fonts","gtk","metadata","naming","prelude","variant"],"struct":["NotoEmojiConfig"],"trait":["GtkFont"],"type":["FamilyName","NotoEmojiName"]};

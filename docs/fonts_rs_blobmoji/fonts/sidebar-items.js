@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["font"],"static":["FONT"]};
+window.SIDEBAR_ITEMS = {"fn":["font"]};

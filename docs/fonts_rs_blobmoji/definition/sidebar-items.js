@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["EMOJI_RANGES"],"struct":["BlobmojiConfig"]};
+window.SIDEBAR_ITEMS = {"struct":["BlobmojiConfig"]};

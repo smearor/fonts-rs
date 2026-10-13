@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["EMOJI_RANGES"],"struct":["NotoEmojiConfig"]};
+window.SIDEBAR_ITEMS = {"struct":["NotoEmojiConfig"]};

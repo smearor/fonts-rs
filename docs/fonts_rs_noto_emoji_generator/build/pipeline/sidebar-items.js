@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["EXPORT_PIPELINE_VERSION","VARIATION_SELECTOR_16"],"fn":["build","file_name","is_flag_emoji","parse_cldr_sequence_names"]};

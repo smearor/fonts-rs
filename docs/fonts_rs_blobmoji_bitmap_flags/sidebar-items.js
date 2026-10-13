@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["RENDERABLE"],"fn":["all_emoji"],"mod":["codepoint_map","constants","definition","family","fonts","gtk","metadata","naming","prelude","variant"],"trait":["GtkFont"],"type":["FamilyName"]};

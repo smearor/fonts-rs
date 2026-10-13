@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["GLYPH_PREFIX","GRESOURCE_PREFIX"]};
