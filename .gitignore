@@ -22,4 +22,6 @@ target
 
 book/book
 
+logs/
+
 # Generated icon resources (regenerated from font by build.rs, now in OUT_DIR)
