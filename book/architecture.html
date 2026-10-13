@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-2160d189.js";
+            window.path_to_searchindex_js = "searchindex-924c7b43.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-8e28fbde.js"></script>
@@ -188,6 +188,7 @@
 <tbody>
 <tr><td>Generic framework</td><td><code>fonts-rs-model</code>, <code>fonts-rs-generator</code>, <code>fonts-rs-test</code></td><td>Shared types, build pipeline, test fixtures</td></tr>
 <tr><td>Font families</td><td><code>fonts-rs-doto</code>, <code>fonts-rs-bravura</code>, <code>fonts-rs-tabler</code>, <code>fonts-rs-lucide</code>, …</td><td>One crate per font/icon family</td></tr>
+<tr><td>Emoji families</td><td><code>fonts-rs-noto-emoji*</code>, <code>fonts-rs-blobmoji*</code>, <code>fonts-rs-emoji-metadata</code></td><td>Multi-crate families: resource + variant + umbrella + generator crates</td></tr>
 <tr><td>Nerd Fonts</td><td><code>nerd-fonts-model</code>, <code>nerd-fonts-generator</code>, <code>nerd-fonts-rs</code></td><td>Nerd Fonts-specific integration</td></tr>
 <tr><td>Applications</td><td><code>fonts-rs-cheat-sheet</code> + <code>*-cheat-sheet</code> crates</td><td>Generic cheat sheet library + per-family apps</td></tr>
 </tbody>
@@ -200,6 +201,7 @@
     Gen --&gt; NFGen["nerd-fonts-generator"]
     NFModel --&gt; NFGen
     Gen --&gt; NotoGen["fonts-rs-noto-emoji-generator"]
+    Gen --&gt; BlobGen["fonts-rs-blobmoji-generator"]
 
     Model --&gt; Doto["fonts-rs-doto"]
     Gen --&gt; Doto
@@ -214,7 +216,19 @@
     Model --&gt; Heroicons["fonts-rs-heroicons (fontless)"]
     Gen --&gt; Heroicons
 
-    NotoGen --&gt; NotoEmoji["fonts-rs-noto-emoji"]
+    subgraph "Emoji family (multi-crate, shown for Noto Emoji)"
+        NotoGlyphs["fonts-rs-noto-emoji-glyphs&lt;br/&gt;(links resource)"]
+        NotoSeq["fonts-rs-noto-emoji-sequences&lt;br/&gt;(links resource)"]
+        EmojiMeta["fonts-rs-emoji-metadata&lt;br/&gt;(links resource)"]
+        NotoVar["fonts-rs-noto-emoji-*&lt;br/&gt;(one crate per TTF variant)"]
+        NotoEmoji["fonts-rs-noto-emoji&lt;br/&gt;(umbrella)"]
+    end
+    NotoGlyphs --&gt; NotoVar
+    NotoSeq --&gt; NotoVar
+    EmojiMeta --&gt; NotoVar
+    NotoGen --&gt; NotoVar
+    BlobGen --&gt; BlobVar["fonts-rs-blobmoji-*&lt;br/&gt;(4 variants) -&gt; fonts-rs-blobmoji"]
+    NotoVar --&gt; NotoEmoji
     NFGen --&gt; NFRs["nerd-fonts-rs"]
     Model --&gt; NFRs
 
@@ -285,6 +299,48 @@ variant changes even if the font file is unchanged.</p>
     ├── constants.rs    # include!(OUT_DIR/icons.rs)
     └── fonts.rs        # impl_font_loader! (optional, render feature)
 </code></pre>
+<h3 id="emoji-families-multi-crate-layout"><a class="header" href="#emoji-families-multi-crate-layout">Emoji Families: Multi-Crate Layout</a></h3>
+<p>crates.io rejects package uploads larger than 10 MiB. The emoji
+families ship several large TTFs plus thousands of pre-rendered color
+SVGs, so each family is split into a crate topology instead of a
+single crate:</p>
+<pre><code>fonts-rs-noto-emoji-glyphs       # links resource: single-codepoint SVGs
+fonts-rs-noto-emoji-sequences    # links resource: multi-codepoint SVGs (ZWJ, flags, modifiers)
+fonts-rs-emoji-metadata          # links resource: shared CLDR/UTS-#51 metadata
+fonts-rs-noto-emoji-generator    # shared build pipeline (build-dependency)
+fonts-rs-noto-emoji-{mono,color-flags,color-noflags,bitmap-flags,bitmap-noflags}
+fonts-rs-noto-emoji              # umbrella: re-exports the feature-selected variant
+</code></pre>
+<p>Blobmoji uses the identical topology with four variants (no <code>mono</code>):
+<code>fonts-rs-blobmoji-{color-flags,color-noflags,bitmap-flags,bitmap-noflags}</code>.</p>
+<ul>
+<li><strong>Resource crates</strong> carry the vendored artwork and declare a <code>links</code>
+key (e.g. <code>links = "noto_emoji_glyphs"</code>); their <code>build.rs</code> prints
+<code>cargo:svg_dir=...</code>, which dependents read as
+<code>DEP_NOTO_EMOJI_GLYPHS_SVG_DIR</code>. Cargo propagates <code>DEP_*</code> variables
+only along <code>[dependencies]</code> edges - resource crates are normal
+dependencies of the variant crates, not build-dependencies. See
+<a href="./upstream-sourcing.html#resource-crates">Upstream Sourcing</a>.</li>
+<li><strong>Variant crates</strong> each vendor one TTF + license file and run the
+identical export via the family generator’s <code>build(&amp;BuildInput)</code>;
+the variant is a compile-time constant per crate, so feature-based
+variant detection (<code>VariantList</code>) is not needed. <code>noflags</code> variants
+filter flag emoji at export time; <code>RENDERABLE</code> is a <code>pub const</code>
+per crate.</li>
+<li><strong>The umbrella crate</strong> keeps the family’s name
+(<code>fonts-rs-noto-emoji</code>, <code>fonts-rs-blobmoji</code>), maps variant features
+to optional dependencies and re-exports the selected variant 1:1.
+A <code>compile_error!</code> guards against enabling several variants, since
+Cargo features are additive.</li>
+<li><strong>Generators</strong> (<code>fonts-rs-{family}-generator</code>) host the shared
+export pipeline; generic emoji machinery (CLDR parsing, ordering,
+metadata generation) lives in <code>fonts_rs_generator::emoji</code>.</li>
+</ul>
+<p>Consumers keep the usual surface: <code>fonts-rs-noto-emoji = "0.5"</code> gets
+the default variant; <code>default-features = false</code> +
+<code>features = ["bitmap-flags"]</code> selects another. See
+<a href="./build-patterns.html#pattern-3-multi-crate-emoji-family">Build Patterns</a> for the
+build-side details.</p>
 <h2 id="feature-gates"><a class="header" href="#feature-gates">Feature Gates</a></h2>
 <p>Each font family crate uses feature gates for optional functionality:</p>
 <div class="table-wrapper">
@@ -296,7 +352,7 @@ variant changes even if the font file is unchanged.</p>
 <tr><td><code>gtk</code> (default)</td><td>GResource registration, GTK4 icon name resolution</td></tr>
 <tr><td><code>render</code></td><td>Font loading via <code>ab_glyph</code> for software rendering</td></tr>
 <tr><td><code>embed-fonts</code></td><td>Embed font files via <code>include_bytes!</code> instead of disk</td></tr>
-<tr><td>Variant features</td><td>One Cargo feature per font variant (e.g. <code>bold-dot</code>)</td></tr>
+<tr><td>Variant features</td><td>One Cargo feature per font variant (e.g. <code>bold-dot</code>); for emoji umbrellas a variant feature enables a whole variant crate</td></tr>
 </tbody>
 </table>
 </div>

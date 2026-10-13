@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-2160d189.js";
+            window.path_to_searchindex_js = "searchindex-924c7b43.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-8e28fbde.js"></script>
@@ -207,13 +207,13 @@ guide</a> for details.</p>
 <p>The <code>render</code> feature enables font loading (TTF/WOFF2) via <code>ab_glyph</code>. It has no
 platform-specific dependencies and works on any platform supported by Rust.</p>
 <pre><code class="language-toml">[dependencies]
-nerd-fonts-rs = { version = "0.1", default-features = false, features = ["render"] }
+nerd-fonts-rs = { version = "0.5", default-features = false, features = ["render"] }
 </code></pre>
 <h2 id="web-only-mode"><a class="header" href="#web-only-mode">Web-Only Mode</a></h2>
 <p>The <code>web</code> feature has no platform-specific dependencies. It simply provides a
 CSS string constant.</p>
 <pre><code class="language-toml">[dependencies]
-nerd-fonts-rs = { version = "0.1", default-features = false, features = ["web"] }
+nerd-fonts-rs = { version = "0.5", default-features = false, features = ["web"] }
 </code></pre>
 <h2 id="embedded-fonts"><a class="header" href="#embedded-fonts">Embedded Fonts</a></h2>
 <p>The <code>embed-fonts</code> feature compiles font files directly into the binary. This

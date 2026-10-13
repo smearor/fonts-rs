@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-2160d189.js";
+            window.path_to_searchindex_js = "searchindex-924c7b43.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-8e28fbde.js"></script>
@@ -255,6 +255,10 @@ the active variant prefix.</p>
 Returns the active variant or <code>default_index</code> if none is active. Returns
 an error if more than one variant is active. Uses <code>X::FAMILY_DISPLAY_NAME</code>
 for diagnostic messages.</p>
+<p>Used by single-crate families only. Multi-crate families (Noto Emoji,
+Blobmoji) instead hard-code a <code>Variant</code> per variant crate and hand it
+to the family generator’s <code>build(&amp;BuildInput)</code> - see
+<a href="./build-patterns.html#pattern-3-multi-crate-emoji-family">Build Patterns</a>.</p>
 <h2 id="fontbuild-builder"><a class="header" href="#fontbuild-builder"><code>FontBuild</code> (Builder)</a></h2>
 <p>Builder for the common <code>build.rs</code> pipeline. Handles hash-based change
 detection, conditional glyph export, GResource compilation, and code
@@ -334,6 +338,11 @@ pipeline. Two implementations feed the shared <code>export</code> runner:</p>
 SVG files under <code>scalable/{context}/</code>).</p>
 <h3 id="svgdirsource-builder-methods"><a class="header" href="#svgdirsource-builder-methods"><code>SvgDirSource</code> Builder Methods</a></h3>
 <ul>
+<li><strong><code>dir</code></strong> - merge an additional SVG directory into the same export.
+Used by the emoji families where <code>*-glyphs</code> (single codepoints) and
+<code>*-sequences</code> (ZWJ/flags/modifiers) are separate resource crates;
+the sets must be disjoint - the duplicate check is a correctness
+guard</li>
 <li><strong><code>filename_parser</code></strong> - <code>NameParser</code> (default, plain <code>{name}.svg</code>) or
 <code>EmojiUFilenameParser</code> (<code>emoji_u{cp}.svg</code>)</li>
 <li><strong><code>codepoint_strategy</code></strong> - how <code>GlyphDescriptor::code</code> is assigned</li>
@@ -454,9 +463,10 @@ reduces binary size for large maps with many duplicates</li>
 <li><code>run()</code>: Writes <code>keywords.rs</code>, <code>categories.rs</code>, <code>aliases.rs</code> to
 <code>OUT_DIR</code></li>
 </ul>
-<p>Example implementation: <code>NotoEmojiMetadataGenerator</code> in
-<code>fonts-rs-noto-emoji-generator</code> uses <code>CodePointKeywordMap</code> and
-<code>CodePointCategoryMap</code> as data sources.</p>
+<p>Example implementation: <code>EmojiMetadataGenerator</code> in
+<code>fonts_rs_generator::emoji</code> (re-exported by
+<code>fonts-rs-noto-emoji-generator</code> / <code>fonts-rs-blobmoji-generator</code>) uses
+<code>CodePointKeywordMap</code> and <code>CodePointCategoryMap</code> as data sources.</p>
 <h2 id="variantlistx-fontfamilyconfig"><a class="header" href="#variantlistx-fontfamilyconfig"><code>VariantList&lt;X: FontFamilyConfig&gt;</code></a></h2>
 <p>A typed list of font variants, generic over the font family config.
 Provides methods to detect the active variant from Cargo features.</p>

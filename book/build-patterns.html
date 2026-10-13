@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-2160d189.js";
+            window.path_to_searchindex_js = "searchindex-924c7b43.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-8e28fbde.js"></script>
@@ -180,8 +180,8 @@
                         <h1 id="build-script--runtime-api-patterns"><a class="header" href="#build-script--runtime-api-patterns">Build Script &amp; Runtime API Patterns</a></h1>
 <p>Each font family crate follows a consistent structure with a <code>build.rs</code>
 for build-time glyph export and a <code>lib.rs</code> for runtime API. This page
-documents the two main <code>build.rs</code> patterns and the standard <code>lib.rs</code>
-layout.</p>
+documents the <code>build.rs</code> patterns and the standard <code>lib.rs</code> layout -
+including the multi-crate topology used by the emoji families.</p>
 <h2 id="crate-file-structure"><a class="header" href="#crate-file-structure">Crate File Structure</a></h2>
 <pre><code>crates/fonts-rs-{name}/
 ├── Cargo.toml
@@ -329,6 +329,77 @@ fn main() -&gt; miette::Result&lt;()&gt; {
 <li><code>export_glyphs_by_name_map()</code> - uses external name→codepoint mapping</li>
 <li>No <code>extra_hash</code> needed (no variant selection)</li>
 </ul>
+<h3 id="pattern-3-multi-crate-emoji-family"><a class="header" href="#pattern-3-multi-crate-emoji-family">Pattern 3: Multi-Crate Emoji Family</a></h3>
+<p>Used when the vendored resources are too large for a single crate -
+crates.io rejects <code>.crate</code> uploads over 10 MiB, and the emoji families
+carry several TTFs plus thousands of pre-rendered SVGs. The family is
+split into four crate kinds:</p>
+<ul>
+<li>
+<p><strong>Resource crates</strong> (<code>*-glyphs</code>, <code>*-sequences</code>) hold the vendored
+SVG artwork, partitioned by the <code>emoji_u*</code> filename grammar. They
+declare a unique <code>links</code> key and emit their directory via
+<code>build.rs</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// fonts-rs-blobmoji-glyphs/build.rs
+println!("cargo:svg_dir={}", manifest_dir.join("resources/svg").display());
+println!("cargo::rerun-if-changed=resources");
+<span class="boring">}</span></code></pre>
+<p>Dependents read it as <code>DEP_&lt;LINKS&gt;_SVG_DIR</code>. Important: <code>DEP_*</code>
+variables propagate only along <code>[dependencies]</code> edges - resource
+crates must be normal dependencies of the variant crate, never
+<code>[build-dependencies]</code>.</p>
+</li>
+<li>
+<p><strong>A generator crate</strong> (<code>fonts-rs-{family}-generator</code>) hosts the
+shared export pipeline as <code>build(&amp;BuildInput)</code>, so every variant
+produces byte-identical output modulo the variant parameters.
+<code>BuildInput</code> carries <code>svg_dirs</code> (one per resource crate), a
+<code>metadata_dir</code> (<code>fonts-rs-emoji-metadata</code>, shared between the emoji
+families), the <code>Variant</code> and the <code>*_FONT_PATH</code> env var name.</p>
+</li>
+<li>
+<p><strong>Variant crates</strong> (<code>fonts-rs-{family}-{variant}</code>) vendor exactly
+one TTF + the license file. There is no <code>VariantList</code> feature
+detection - the variant is a compile-time constant:</p>
+<pre class="playground"><code class="language-rust">// fonts-rs-blobmoji-color-flags/build.rs
+fn main() -&gt; miette::Result&lt;()&gt; {
+    build(&amp;BuildInput {
+        svg_dirs: vec![dep_dir("DEP_BLOBMOJI_GLYPHS_SVG_DIR")?, dep_dir("DEP_BLOBMOJI_SEQUENCES_SVG_DIR")?],
+        metadata_dir: dep_dir("DEP_EMOJI_METADATA_DIR")?,
+        variant: Variant::ColorFlags,
+        font_path_env: "BLOBMOJI_FONT_PATH",
+    })
+}</code></pre>
+<p>Inside the generator’s <code>build</code>, the <code>svg_dirs</code> are merged into one
+<code>SvgDirSource</code> via <code>.dir(...)</code> - the directories partition the glyph
+set, so the duplicate check is a correctness guard. <code>noflags</code>
+variants pass <code>include_flags = false</code>, filtering flag emoji at
+export time. <code>pub const RENDERABLE</code> per crate replaces the old
+compile-time <code>*_bitmap</code> cfgs.</p>
+</li>
+<li>
+<p><strong>The umbrella crate</strong> keeps the family name and maps variant
+features to optional dependencies:</p>
+<pre><code class="language-toml">[features]
+default = ["gtk", "color-flags"]
+color-flags = ["dep:fonts-rs-blobmoji-color-flags"]
+bitmap-flags = ["dep:fonts-rs-blobmoji-bitmap-flags"]
+# forwarded to whichever variant is active (weak deps)
+gtk = ["fonts-rs-blobmoji-color-flags?/gtk", "fonts-rs-blobmoji-bitmap-flags?/gtk"]
+</code></pre>
+<p><code>lib.rs</code> re-exports the selected variant and guards against
+multi-variant selection with <code>compile_error!</code> (features are
+additive). Consumers get <code>fonts-rs-blobmoji = "0.5"</code> or pick a
+variant via <code>default-features = false, features = ["bitmap-flags"]</code>;
+the variant crates can also be used directly for smaller dependency
+trees.</p>
+</li>
+</ul>
+<p>See <code>crates/fonts-rs-noto-emoji-generator/src/build/pipeline.rs</code> and
+<code>crates/fonts-rs-blobmoji-generator/src/build/pipeline.rs</code> for the
+shared pipelines.</p>
 <h2 id="librs--familyrs---runtime-api"><a class="header" href="#librs--familyrs---runtime-api"><code>lib.rs</code> + <code>family.rs</code> - Runtime API</a></h2>
 <p>Each font family crate wires the generated phf maps into the <code>FontFamily</code>
 trait via <code>impl_font_family!</code> in <code>family.rs</code>:</p>

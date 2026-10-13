@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-2160d189.js";
+            window.path_to_searchindex_js = "searchindex-924c7b43.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-8e28fbde.js"></script>
@@ -295,6 +295,38 @@ resolved SHA; <code>ref</code> is the manifest pin that produced it.</li>
 <li><strong><code>[[inputs]]</code></strong> - external non-git inputs fetched by providers
 (<code>url</code> + <code>sha256</code> + <code>provider</code>), recorded for provenance.</li>
 </ul>
+<h2 id="resource-crates"><a class="header" href="#resource-crates">Resource crates</a></h2>
+<p>Vendored payloads can live in dedicated <em>resource crates</em> so several
+crates share them (or so a large payload is split under the crates.io
+10 MiB limit - the emoji families do exactly this). A resource crate
+declares a unique <code>links</code> key and emits directory paths from its
+<code>build.rs</code>:</p>
+<pre><code class="language-toml"># fonts-rs-blobmoji-glyphs/Cargo.toml
+links = "blobmoji_glyphs"
+</code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// fonts-rs-blobmoji-glyphs/build.rs
+println!("cargo:svg_dir={}", manifest_dir.join("resources/svg").display());
+println!("cargo::rerun-if-changed=resources");
+<span class="boring">}</span></code></pre>
+<p>Cargo exposes each <code>cargo:&lt;key&gt;=&lt;value&gt;</code> line to dependents’
+<code>build.rs</code> as <code>DEP_&lt;LINKS&gt;_&lt;KEY&gt;</code> (<code>DEP_BLOBMOJI_GLYPHS_SVG_DIR</code> here).
+Two rules matter:</p>
+<ul>
+<li><strong><code>DEP_*</code> only flows along <code>[dependencies]</code> edges.</strong> Resource crates
+must be declared as normal dependencies of the crate whose
+<code>build.rs</code> consumes the variable - declaring them under
+<code>[build-dependencies]</code> yields an unset variable.</li>
+<li><strong>A <code>links</code> crate still needs a lib target</strong> - a stub <code>src/lib.rs</code>
+suffices; the crate carries no runtime API.</li>
+</ul>
+<p>Resource crates vendored from upstream carry their own
+<code>upstream.toml</code>/<code>upstream.lock</code> with disjoint <code>pattern</code>/<code>exclude</code>
+slices of the upstream tree - e.g. <code>fonts-rs-blobmoji-glyphs</code> pins
+<code>emoji_u*.svg</code> minus <code>emoji_u*_*</code>, <code>fonts-rs-blobmoji-sequences</code> pins
+<code>emoji_u*_*</code>. <code>verify</code> and <code>check</code> cover them like any other vendored
+crate, so the byte-exact guarantee is unchanged.</p>
 <h2 id="commands"><a class="header" href="#commands">Commands</a></h2>
 <h3 id="cargo-xtask-sync--p-crate---update"><a class="header" href="#cargo-xtask-sync--p-crate---update"><code>cargo xtask sync -p &lt;crate&gt; [--update]</code></a></h3>
 <p>Resolves the manifest pin (or, with <code>--update</code>, the newest version-like

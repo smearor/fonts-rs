@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-2160d189.js";
+            window.path_to_searchindex_js = "searchindex-924c7b43.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-8e28fbde.js"></script>
@@ -424,12 +424,23 @@ codepoints in the filename) or <code>FromNameMap</code> (external
 <code>tts</code> names for emoji, <code>format!("{name}-symbolic")</code> for icons).</li>
 <li><strong><code>filter</code></strong> drops glyphs per variant (e.g. flag emoji for
 <code>*-noflags</code>).</li>
+<li><strong><code>dir(other)</code></strong> merges a second SVG directory into the same source -
+used when the artwork is split across <code>links</code> resource crates
+(<code>*-glyphs</code> + <code>*-sequences</code> for the emoji families). The sets must
+partition the glyph space; duplicates are a hard error.</li>
 <li><strong><code>extra_hash</code></strong> must cover the SVG directory - the default hash only
-covers the TTF file, so SVG changes would not trigger a re-export.</li>
+covers the TTF file, so SVG changes would not trigger a re-export.
+Call it once per input directory (<code>hash_svg_dir</code>).</li>
 </ul>
-<p>See <code>crates/fonts-rs-blobmoji/build.rs</code> (CLDR name map + flag filter)
-and <code>crates/fonts-rs-tabler/build.rs</code> (<code>FromNameMap</code> + metadata) for
-complete implementations.</p>
+<p>When the vendored artwork plus TTFs would exceed the crates.io
+10 MiB package limit, the family is split into resource crates, one
+crate per TTF variant, a generator crate and an umbrella - see
+<a href="./build-patterns.html#pattern-3-multi-crate-emoji-family">Build Patterns</a> (the
+emoji families use exactly that topology).</p>
+<p>See <code>crates/fonts-rs-blobmoji-generator/src/build/pipeline.rs</code> and
+<code>crates/fonts-rs-noto-emoji-generator/src/build/pipeline.rs</code> (CLDR
+name map + flag filter) and <code>crates/fonts-rs-tabler/build.rs</code>
+(<code>FromNameMap</code> + metadata) for complete implementations.</p>
 <h3 id="fontless-svg-only-icon-set"><a class="header" href="#fontless-svg-only-icon-set">Fontless SVG-Only Icon Set</a></h3>
 <p>Icon sets that ship only SVGs - no TTF at all (e.g. Lucide) - use
 <code>FontBuild::svg_only()</code> + <code>run_svg()</code>. There is no font file to hash,

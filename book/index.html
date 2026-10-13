@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-2160d189.js";
+            window.path_to_searchindex_js = "searchindex-924c7b43.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-8e28fbde.js"></script>
@@ -188,7 +188,10 @@ rendering text with software rasterization.</p>
 <li><strong>Generic framework</strong> - <code>fonts-rs-model</code> (shared types) and
 <code>fonts-rs-generator</code> (build-time pipeline)</li>
 <li><strong>Font family crates</strong> - one crate per font family (e.g. <code>fonts-rs-doto</code>,
-<code>fonts-rs-bravura</code>, <code>fonts-rs-seven-segment</code>)</li>
+<code>fonts-rs-bravura</code>, <code>fonts-rs-seven-segment</code>). The emoji families
+(Noto Emoji, Blobmoji) are an exception: they are split into
+resource, variant and umbrella crates to stay under the crates.io
+10 MiB package limit - see <a href="./architecture.html">Architecture</a></li>
 <li><strong>Nerd Fonts integration</strong> - <code>nerd-fonts-model</code>, <code>nerd-fonts-generator</code>,
 and <code>nerd-fonts-rs</code> for the legacy Nerd Fonts-specific API</li>
 </ol>
@@ -202,7 +205,7 @@ and <code>nerd-fonts-rs</code> for the legacy Nerd Fonts-specific API</li>
         Doto["fonts-rs-doto"]
         Bravura["fonts-rs-bravura"]
         SevenSeg["fonts-rs-seven-segment"]
-        NotoEmoji["fonts-rs-noto-emoji"]
+        NotoEmoji["fonts-rs-noto-emoji&lt;br/&gt;(umbrella)"]
         Other["... 10 more"]
     end
 
@@ -264,8 +267,8 @@ functionality (e.g. Noto Emoji CLDR annotations)</li>
 <tr><td><code>fonts-rs-redacted</code></td><td>Redacted</td><td>OFL-1.1</td><td>-</td></tr>
 <tr><td><code>fonts-rs-dicefont</code></td><td>DiceFont</td><td>OFL-1.1</td><td>-</td></tr>
 <tr><td><code>fonts-rs-cuernavaca</code></td><td>Cuernavaca</td><td>OFL-1.1</td><td>-</td></tr>
-<tr><td><code>fonts-rs-noto-emoji</code></td><td>Noto Emoji</td><td>OFL-1.1</td><td>COLRv1/bitmap × flags</td></tr>
-<tr><td><code>fonts-rs-blobmoji</code></td><td>Blobmoji</td><td>OFL-1.1</td><td>COLRv1/bitmap × flags</td></tr>
+<tr><td><code>fonts-rs-noto-emoji</code></td><td>Noto Emoji</td><td>OFL-1.1</td><td>umbrella: mono / COLRv1 / bitmap × flags</td></tr>
+<tr><td><code>fonts-rs-blobmoji</code></td><td>Blobmoji</td><td>OFL-1.1</td><td>umbrella: COLRv1/bitmap × flags</td></tr>
 <tr><td><code>fonts-rs-tabler</code></td><td>Tabler Icons</td><td>MIT</td><td>outline, filled</td></tr>
 <tr><td><code>fonts-rs-lucide</code></td><td>Lucide Icons</td><td>ISC</td><td>fontless (SVG-only)</td></tr>
 <tr><td><code>fonts-rs-heroicons</code></td><td>Heroicons</td><td>MIT</td><td>fontless (SVG-only) × outline, solid, mini, micro</td></tr>
