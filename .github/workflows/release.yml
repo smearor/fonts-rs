@@ -78,6 +78,24 @@ jobs:
       - name: Publish fonts-rs-cuernavaca
         continue-on-error: true
         run: cargo publish --locked -p fonts-rs-cuernavaca --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-eva
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-eva --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-fluent
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-fluent --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-heroicons
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-heroicons --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-line-awesome
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-line-awesome --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-lucide
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-lucide --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-tabler
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-tabler --token ${{ secrets.CRATES_IO_TOKEN }}
       # Shared emoji metadata resource crate: blobmoji and the noto-emoji
       # variants consume its links metadata (DEP_*)
       - name: Publish fonts-rs-emoji-metadata
@@ -159,6 +177,45 @@ jobs:
       - name: Publish nerd-fonts-cheat-sheet
         continue-on-error: true
         run: cargo publish --locked -p nerd-fonts-cheat-sheet --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-blobmoji-cheat-sheet
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-blobmoji-cheat-sheet --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-bravura-cheat-sheet
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-bravura-cheat-sheet --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-cuernavaca-cheat-sheet
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-cuernavaca-cheat-sheet --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-dicefont-cheat-sheet
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-dicefont-cheat-sheet --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-doto-cheat-sheet
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-doto-cheat-sheet --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-eva-cheat-sheet
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-eva-cheat-sheet --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-fluent-cheat-sheet
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-fluent-cheat-sheet --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-fourteen-segment-cheat-sheet
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-fourteen-segment-cheat-sheet --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-heroicons-cheat-sheet
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-heroicons-cheat-sheet --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-line-awesome-cheat-sheet
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-line-awesome-cheat-sheet --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-lucide-cheat-sheet
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-lucide-cheat-sheet --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-seven-segment-cheat-sheet
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-seven-segment-cheat-sheet --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-tabler-cheat-sheet
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-tabler-cheat-sheet --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
