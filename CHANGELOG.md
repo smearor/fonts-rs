@@ -22,12 +22,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`fonts-rs-noto-emoji` and `fonts-rs-blobmoji` are umbrella crates** (breaking): variant features (`color-flags`, `color-noflags`, `bitmap-flags`, `bitmap-noflags`, plus `mono` for Noto Emoji) now map to optional variant-crate dependencies instead of build-time font selection; enabling several is a `compile_error!`. The public API surface is unchanged - existing `use fonts_rs_noto_emoji::*` code keeps working; selecting a non-default variant requires `default-features = false`
 - **`fonts-rs-blobmoji` `renderable` feature removed** (breaking): superseded by the `RENDERABLE` constant; the `embed_fonts_render` example lives only in the `bitmap-*` variant crates
-- **Release workflow**: publish order now covers resource crates, generators, variant crates and umbrellas (`fonts-rs-emoji-metadata` → generators → `*-glyphs`/`*-sequences` → variants → umbrellas); Blobmoji publish steps added
 - **Documentation**: book updated with the multi-crate emoji topology (resource crates, `links`/`DEP_*`, umbrella pattern) and all version references bumped to `0.5`
 
 ### Fixed
 
 - **Unpublishable emoji crates**: `fonts-rs-noto-emoji` and `fonts-rs-blobmoji` exceeded the crates.io 10 MiB upload limit; every published artifact is now below the limit (largest: `fonts-rs-noto-emoji-bitmap-flags` ~9.4 MiB, `fonts-rs-blobmoji-bitmap-flags` ~8.6 MiB)
+
+### Infrastructure
+
+- **Release workflow**: publish order now covers resource crates, generators, variant crates and umbrellas (`fonts-rs-emoji-metadata` → generators → `*-glyphs`/`*-sequences` → variants → umbrellas)
+- **Publish more icon families and their cheat sheets**: `eva`, `fluent`, `heroicons`, `line-awesome`, `lucide`, `tabler`
+- **Blobmoji**: publish Blobmoji and cheat sheet
 
 ## [0.4.0] - 2026-10-11
 
