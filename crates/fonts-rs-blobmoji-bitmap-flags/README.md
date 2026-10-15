@@ -1,5 +1,9 @@
 # fonts-rs-blobmoji-bitmap-flags
 
+[![crates.io](https://img.shields.io/crates/v/fonts-rs-blobmoji-bitmap-flags.svg)](https://crates.io/crates/fonts-rs-blobmoji-bitmap-flags)
+[![Rust Edition 2024](https://img.shields.io/badge/Rust-Edition%202024-orange.svg)](https://doc.rust-lang.org/edition-guide/editions/2024/)
+[![License: OFL-1.1](https://img.shields.io/badge/License-OFL--1.1-blue.svg)](https://openfontlicense.org)
+
 Blobmoji `bitmap-flags` variant (`NotoColorEmoji`, CBDT bitmap strikes,
 including flag emoji) integration for GTK 4 and pixel-drawing.
 

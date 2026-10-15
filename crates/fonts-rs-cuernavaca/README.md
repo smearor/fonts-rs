@@ -1,5 +1,9 @@
 # fonts-rs-cuernavaca
 
+[![crates.io](https://img.shields.io/crates/v/fonts-rs-cuernavaca.svg)](https://crates.io/crates/fonts-rs-cuernavaca)
+[![Rust Edition 2024](https://img.shields.io/badge/Rust-Edition%202024-orange.svg)](https://doc.rust-lang.org/edition-guide/editions/2024/)
+[![License: OFL-1.1](https://img.shields.io/badge/License-OFL--1.1-blue.svg)](https://openfontlicense.org)
+
 Chess Cuernavaca font integration for GTK 4 and pixel-drawing.
 
 ## Overview
