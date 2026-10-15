@@ -1,5 +1,9 @@
 # nerd-fonts-rs
 
+[![crates.io](https://img.shields.io/crates/v/nerd-fonts-rs.svg)](https://crates.io/crates/nerd-fonts-rs)
+[![Rust Edition 2024](https://img.shields.io/badge/Rust-Edition%202024-orange.svg)](https://doc.rust-lang.org/edition-guide/editions/2024/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Shared Nerd Font integration for GTK4 projects: icon resolution, font
 loading, and CSS generation.
 

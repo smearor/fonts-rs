@@ -22,6 +22,7 @@ include = [
     "build.rs",
     "resources/*.json",
     "resources/*.txt",
+    "README.md",
     "Cargo.toml",
 ]
 

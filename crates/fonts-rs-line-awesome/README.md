@@ -1,5 +1,9 @@
 # fonts-rs-line-awesome
 
+[![crates.io](https://img.shields.io/crates/v/fonts-rs-line-awesome.svg)](https://crates.io/crates/fonts-rs-line-awesome)
+[![Rust Edition 2024](https://img.shields.io/badge/Rust-Edition%202024-orange.svg)](https://doc.rust-lang.org/edition-guide/editions/2024/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Line Awesome integration for GTK 4 and pixel-drawing.
 
 ## Overview
