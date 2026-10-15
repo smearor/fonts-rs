@@ -1,5 +1,9 @@
 # fonts-rs-lucide
 
+[![crates.io](https://img.shields.io/crates/v/fonts-rs-lucide.svg)](https://crates.io/crates/fonts-rs-lucide)
+[![Rust Edition 2024](https://img.shields.io/badge/Rust-Edition%202024-orange.svg)](https://doc.rust-lang.org/edition-guide/editions/2024/)
+[![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/license/isc-license-txt)
+
 Lucide Icons integration for GTK 4 - a **fontless** SVG-only icon set.
 
 ## Overview

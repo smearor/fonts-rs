@@ -1,5 +1,9 @@
 # fonts-rs-generator
 
+[![crates.io](https://img.shields.io/crates/v/fonts-rs-generator.svg)](https://crates.io/crates/fonts-rs-generator)
+[![Rust Edition 2024](https://img.shields.io/badge/Rust-Edition%202024-orange.svg)](https://doc.rust-lang.org/edition-guide/editions/2024/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Generic build-time pipeline for font glyph export, SVG generation, and
 GResource packaging. Used as a build-dependency by every font family crate.
 

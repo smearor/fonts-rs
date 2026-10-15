@@ -1,5 +1,9 @@
 # fonts-rs-blobmoji-color-flags
 
+[![crates.io](https://img.shields.io/crates/v/fonts-rs-blobmoji-color-flags.svg)](https://crates.io/crates/fonts-rs-blobmoji-color-flags)
+[![Rust Edition 2024](https://img.shields.io/badge/Rust-Edition%202024-orange.svg)](https://doc.rust-lang.org/edition-guide/editions/2024/)
+[![License: OFL-1.1](https://img.shields.io/badge/License-OFL--1.1-blue.svg)](https://openfontlicense.org)
+
 Blobmoji `color-flags` variant (`Noto-COLRv1`, including flag emoji)
 integration for GTK 4 and pixel-drawing.
 

@@ -1,5 +1,9 @@
 # fonts-rs-noto-emoji-bitmap-noflags
 
+[![crates.io](https://img.shields.io/crates/v/fonts-rs-noto-emoji-bitmap-noflags.svg)](https://crates.io/crates/fonts-rs-noto-emoji-bitmap-noflags)
+[![Rust Edition 2024](https://img.shields.io/badge/Rust-Edition%202024-orange.svg)](https://doc.rust-lang.org/edition-guide/editions/2024/)
+[![License: OFL-1.1](https://img.shields.io/badge/License-OFL--1.1-blue.svg)](https://openfontlicense.org)
+
 Noto Emoji `bitmap-noflags` variant (`NotoColorEmoji-noflags`, flag
 emoji filtered out) integration for GTK 4 and pixel-drawing.
 
