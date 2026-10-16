@@ -194,7 +194,6 @@
 - **No Import Comments**: Don't comment import statements
 - **Macro Usage**: Use `debug!` instead of `tracing::debug!` with proper imports
 - **Alphabetical Ordering**: Sort all `use` statements alphabetically within each scope
-- **Import Scope Order**: Group by source - `crate::` first, then external crates, then `std::` last
 
 ### Formatting
 
