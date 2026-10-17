@@ -2,7 +2,7 @@
 
 use crate::app::icon_size_scale;
 use crate::detail_context::DetailContext;
-use crate::family::CheatSheetFamily;
+use crate::dyn_family::DynCheatSheetFamily;
 use crate::xml_highlight;
 use fonts_rs_model::CodePoint;
 use gtk4::Align;
@@ -18,9 +18,10 @@ use gtk4::pango::AttrFloat;
 use gtk4::pango::AttrList;
 use gtk4::prelude::*;
 use libadwaita as adw;
+use std::rc::Rc;
 
 /// Populate the sidebar content with details for the given glyph.
-pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Name, codepoint: CodePoint) {
+pub(super) fn show_detail(ctx: &DetailContext, family: &Rc<dyn DynCheatSheetFamily>, name: &str, codepoint: CodePoint) {
     let DetailContext {
         content,
         search_entry,
@@ -46,10 +47,10 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
         content.remove(&child);
     }
 
-    let display_name = F::display_name(name);
-    let subtitle = F::subtitle(name);
-    let keywords = F::keywords(name);
-    let categories = F::categories(name);
+    let display_name = family.display_name(name);
+    let subtitle = family.subtitle(name);
+    let keywords = family.keywords(name);
+    let categories = family.categories(name);
 
     // Display name as title.
     let title_label = Label::builder()
@@ -66,7 +67,7 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
     content.append(&subtitle_label);
 
     // Ordering group label (e.g. the emoji picker group) below the subtitle.
-    if let Some(group) = F::ordering().and_then(|o| o.group(name.as_ref())) {
+    if let Some(group) = family.ordering().and_then(|o| o.group(name)) {
         let group_label = Label::builder()
             .label(group.as_str())
             .css_classes(["sidebar-subtitle", "dim-label"])
@@ -83,7 +84,11 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
         .margin_top(8)
         .build();
     content.append(&family_heading);
-    for (field, value) in [("Name", F::FAMILY_NAME), ("Type", F::FAMILY_KIND.as_str()), ("License", F::LICENSE)] {
+    for (field, value) in [
+        ("Name", family.family_name()),
+        ("Type", family.family_kind().as_str()),
+        ("License", family.license()),
+    ] {
         let field_row = Box::builder().orientation(Orientation::Horizontal).spacing(8).build();
         let field_label = Label::builder().label(field).css_classes(["dim-label"]).width_chars(8).xalign(0.0).build();
         let value_label = Label::builder().label(value).halign(Align::Start).selectable(true).build();
@@ -94,7 +99,7 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
 
     // Name section (CSS class name for icon fonts, glyph name otherwise).
     let name_heading = Label::builder()
-        .label(F::NAME_FIELD_LABEL)
+        .label(family.name_field_label())
         .css_classes(["heading"])
         .halign(Align::Start)
         .margin_top(8)
@@ -122,7 +127,7 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
         .build();
     let name_copy = Button::builder()
         .icon_name("edit-copy-symbolic")
-        .tooltip_text(format!("Copy {}", F::NAME_FIELD_LABEL.to_lowercase()))
+        .tooltip_text(format!("Copy {}", family.name_field_label().to_lowercase()))
         .build();
     let name_for_copy = display_name.clone();
     let toasts_for_name = toasts.clone();
@@ -149,7 +154,7 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
     // glyphs (e.g. emoji, fontless SVG sets) render the registered SVG -
     // their codepoint is a PUA handle that the system font fallback
     // would draw as an unrelated glyph. Others render the char as text.
-    let cp_widget: gtk4::Widget = if let Some(icon_name) = F::glyph_icon_name(name) {
+    let cp_widget: gtk4::Widget = if let Some(icon_name) = family.glyph_icon_name(name) {
         gtk4::Image::builder()
             .icon_name(&icon_name)
             .pixel_size(detail_size.round() as i32)
@@ -158,7 +163,7 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
             .upcast()
     } else {
         let mut cp_char_classes = vec!["sidebar-codepoint-char"];
-        if let Some(class) = F::GLYPH_CSS_CLASS {
+        if let Some(class) = family.glyph_css_class() {
             cp_char_classes.insert(0, class);
         }
         let cp_label = Label::builder()
@@ -246,7 +251,7 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
     content.append(&cp_copy);
 
     // Alias info.
-    if let Some(canonical) = F::alias_display(name) {
+    if let Some(canonical) = family.alias_display(name) {
         let alias_label = Label::builder()
             .label(format!("Alias of: {}", canonical))
             .css_classes(["dim-label"])
@@ -323,9 +328,9 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
     // back to its base; a base with alternates lists them as clickable
     // glyph cells. Replaces the popover interaction - variants stay
     // reachable from the sidebar while the grid stays collapsed.
-    if let Some(ord) = F::ordering() {
-        if let Some(base) = ord.base_of(name.as_ref())
-            && let (Some(base_name), Some(base_cp)) = (F::parse_name(base), F::codepoint(base))
+    if let Some(ord) = family.ordering() {
+        if let Some(base) = ord.base_of(name)
+            && let (Some(base_name), Some(base_cp)) = (family.parse_name(base), family.codepoint(base))
         {
             let base_header = Label::builder()
                 .label("Variant of")
@@ -341,11 +346,12 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
                 .tooltip_text(format!("Open {base}"))
                 .build();
             let ctx_ref = ctx.clone();
-            btn.connect_clicked(move |_| show_detail::<F>(&ctx_ref, &base_name, base_cp));
+            let family_ref = family.clone();
+            btn.connect_clicked(move |_| show_detail(&ctx_ref, &family_ref, &base_name, base_cp));
             content.append(&btn);
         }
 
-        let variants = ord.alternates(name.as_ref());
+        let variants = ord.alternates(name);
         if !variants.is_empty() {
             let var_header = Label::builder()
                 .label("Variants")
@@ -361,10 +367,10 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
                 .selection_mode(gtk4::SelectionMode::None)
                 .build();
             for &variant in variants {
-                let (Some(variant_name), Some(variant_cp)) = (F::parse_name(variant), F::codepoint(variant)) else {
+                let (Some(variant_name), Some(variant_cp)) = (family.parse_name(variant), family.codepoint(variant)) else {
                     continue;
                 };
-                let icon: gtk4::Widget = if let Some(icon_name) = F::glyph_icon_name(&variant_name) {
+                let icon: gtk4::Widget = if let Some(icon_name) = family.glyph_icon_name(&variant_name) {
                     gtk4::Image::builder()
                         .icon_name(&icon_name)
                         .pixel_size(32)
@@ -377,7 +383,7 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
                     // covering the PUA codepoint and draws an
                     // unrelated glyph.
                     let mut variant_classes = vec!["cheat-icon-label"];
-                    if let Some(class) = F::GLYPH_CSS_CLASS {
+                    if let Some(class) = family.glyph_css_class() {
                         variant_classes.insert(0, class);
                     }
                     Label::builder()
@@ -400,7 +406,8 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
                 );
                 let btn = Button::builder().child(&cell).css_classes(["flat"]).tooltip_text(variant).build();
                 let ctx_ref = ctx.clone();
-                btn.connect_clicked(move |_| show_detail::<F>(&ctx_ref, &variant_name, variant_cp));
+                let family_ref = family.clone();
+                btn.connect_clicked(move |_| show_detail(&ctx_ref, &family_ref, &variant_name, variant_cp));
                 var_box.insert(&btn, -1);
             }
             content.append(&var_box);
@@ -410,10 +417,8 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
         // of its tone group ("set skin tone once, apply everywhere").
         // The base glyph has no alternates position - it only offers
         // the reset while a non-default index is stored.
-        if let Some(group) = ord.tone_group(name.as_ref()) {
-            let picked_index = ord
-                .base_of(name.as_ref())
-                .and_then(|base| ord.alternates(base).iter().position(|v| *v == name.as_ref()));
+        if let Some(group) = ord.tone_group(name) {
+            let picked_index = ord.base_of(name).and_then(|base| ord.alternates(base).iter().position(|v| *v == name));
             let stored = tone_picker.selected(group);
             if picked_index.is_some() || stored.is_some() {
                 let is_default = picked_index == stored;
@@ -426,7 +431,8 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
                     .tooltip_text("Apply this tone to every glyph in the group")
                     .build();
                 let ctx_ref = ctx.clone();
-                let name_for_tone = name.clone();
+                let name_for_tone = name.to_string();
+                let family_ref = family.clone();
                 tone_btn.connect_clicked(move |_| {
                     match (picked_index, is_default) {
                         (Some(index), false) => ctx_ref.tone_picker.select(group, index),
@@ -434,7 +440,7 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
                     }
                     // Re-render the sidebar so the button label
                     // reflects the new selection state.
-                    show_detail::<F>(&ctx_ref, &name_for_tone, codepoint);
+                    show_detail(&ctx_ref, &family_ref, &name_for_tone, codepoint);
                 });
                 content.append(&tone_btn);
             }
@@ -442,7 +448,7 @@ pub(super) fn show_detail<F: CheatSheetFamily>(ctx: &DetailContext, name: &F::Na
     }
 
     // SVG section.
-    if let Some(svg_xml) = F::glyph_svg(name) {
+    if let Some(svg_xml) = family.glyph_svg(name) {
         let svg_heading = Label::builder()
             .label("SVG")
             .css_classes(["heading"])
