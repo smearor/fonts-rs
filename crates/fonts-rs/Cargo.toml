@@ -1,0 +1,253 @@
+[package]
+name = "fonts-rs"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+description = "Facade crate for the fonts-rs workspace - one dependency, feature-selected font families"
+publish = true
+
+[package.metadata.docs.rs]
+# The full family matrix pulls in GTK system libraries; document the
+# model-only configuration.
+no-default-features = true
+
+[dependencies]
+fonts-rs-model.workspace = true
+
+# Family crates - optional and without default features so that
+# `default-features = false` genuinely disables `gtk`/`render`/
+# `embed-fonts` (unlike the emoji umbrellas' own variant deps). These
+# are declared directly rather than via `workspace = true` because
+# member crates cannot disable the workspace dependency's default
+# features.
+fonts-rs-barcode-code39 = { version = "0.5.0", path = "../fonts-rs-barcode-code39", optional = true, default-features = false }
+fonts-rs-barcode-code128 = { version = "0.5.0", path = "../fonts-rs-barcode-code128", optional = true, default-features = false }
+fonts-rs-barcode-ean13 = { version = "0.5.0", path = "../fonts-rs-barcode-ean13", optional = true, default-features = false }
+fonts-rs-blobmoji = { version = "0.5.0", path = "../fonts-rs-blobmoji", optional = true, default-features = false }
+fonts-rs-bravura = { version = "0.5.0", path = "../fonts-rs-bravura", optional = true, default-features = false }
+fonts-rs-cuernavaca = { version = "0.5.0", path = "../fonts-rs-cuernavaca", optional = true, default-features = false }
+fonts-rs-dicefont = { version = "0.5.0", path = "../fonts-rs-dicefont", optional = true, default-features = false }
+fonts-rs-doto = { version = "0.5.0", path = "../fonts-rs-doto", optional = true, default-features = false }
+fonts-rs-eva = { version = "0.5.0", path = "../fonts-rs-eva", optional = true, default-features = false }
+fonts-rs-fluent = { version = "0.5.0", path = "../fonts-rs-fluent", optional = true, default-features = false }
+fonts-rs-fourteen-segment = { version = "0.5.0", path = "../fonts-rs-fourteen-segment", optional = true, default-features = false }
+fonts-rs-heroicons = { version = "0.5.0", path = "../fonts-rs-heroicons", optional = true, default-features = false }
+fonts-rs-line-awesome = { version = "0.5.0", path = "../fonts-rs-line-awesome", optional = true, default-features = false }
+fonts-rs-lucide = { version = "0.5.0", path = "../fonts-rs-lucide", optional = true, default-features = false }
+fonts-rs-noto-emoji = { version = "0.5.0", path = "../fonts-rs-noto-emoji", optional = true, default-features = false }
+fonts-rs-redacted = { version = "0.5.0", path = "../fonts-rs-redacted", optional = true, default-features = false }
+fonts-rs-seven-segment = { version = "0.5.0", path = "../fonts-rs-seven-segment", optional = true, default-features = false }
+fonts-rs-tabler = { version = "0.5.0", path = "../fonts-rs-tabler", optional = true, default-features = false }
+nerd-fonts-rs = { version = "0.5.0", path = "../nerd-fonts-rs", optional = true, default-features = false }
+
+# GUI binary (`gui` feature): the cheat-sheet engine plus one sheet
+# binding per family. Cargo cannot activate a dep conditionally on a
+# feature pair (`gui` AND `lucide`), so `gui` enables every family's
+# sheet - the multi-family cheat sheet wants the full set anyway.
+fonts-rs-cheat-sheet = { workspace = true, optional = true }
+fonts-rs-blobmoji-cheat-sheet = { workspace = true, optional = true }
+fonts-rs-bravura-cheat-sheet = { workspace = true, optional = true }
+fonts-rs-cuernavaca-cheat-sheet = { workspace = true, optional = true }
+fonts-rs-dicefont-cheat-sheet = { workspace = true, optional = true }
+fonts-rs-doto-cheat-sheet = { workspace = true, optional = true }
+fonts-rs-eva-cheat-sheet = { workspace = true, optional = true }
+fonts-rs-fluent-cheat-sheet = { workspace = true, optional = true }
+fonts-rs-fourteen-segment-cheat-sheet = { workspace = true, optional = true }
+fonts-rs-heroicons-cheat-sheet = { workspace = true, optional = true }
+fonts-rs-line-awesome-cheat-sheet = { workspace = true, optional = true }
+fonts-rs-lucide-cheat-sheet = { workspace = true, optional = true }
+fonts-rs-noto-emoji-cheat-sheet = { workspace = true, optional = true }
+fonts-rs-seven-segment-cheat-sheet = { workspace = true, optional = true }
+fonts-rs-tabler-cheat-sheet = { workspace = true, optional = true }
+nerd-fonts-cheat-sheet = { workspace = true, optional = true }
+gtk4 = { workspace = true, optional = true }
+miette = { workspace = true, optional = true }
+
+[features]
+default = ["gtk"]
+
+# --- Family selectors ---
+barcode-code39 = ["dep:fonts-rs-barcode-code39"]
+barcode-code128 = ["dep:fonts-rs-barcode-code128"]
+barcode-ean13 = ["dep:fonts-rs-barcode-ean13"]
+bravura = ["dep:fonts-rs-bravura"]
+cuernavaca = ["dep:fonts-rs-cuernavaca"]
+dicefont = ["dep:fonts-rs-dicefont"]
+doto = ["dep:fonts-rs-doto"]
+eva = ["dep:fonts-rs-eva"]
+fluent = ["dep:fonts-rs-fluent"]
+fourteen-segment = ["dep:fonts-rs-fourteen-segment"]
+heroicons = ["dep:fonts-rs-heroicons"]
+line-awesome = ["dep:fonts-rs-line-awesome"]
+lucide = ["dep:fonts-rs-lucide"]
+nerd-fonts = ["dep:nerd-fonts-rs"]
+redacted = ["dep:fonts-rs-redacted"]
+seven-segment = ["dep:fonts-rs-seven-segment"]
+tabler = ["dep:fonts-rs-tabler"]
+
+# --- Emoji variants (the umbrellas' `compile_error!` guard requires
+# exactly one variant, so they are first-class facade features) ---
+# `emoji-noto`/`emoji-blobmoji` are internal marker features: every
+# variant enables them so `#[cfg]` sites stay legible.
+noto-emoji-mono = ["dep:fonts-rs-noto-emoji", "fonts-rs-noto-emoji/mono", "emoji-noto"]
+noto-emoji-color-flags = ["dep:fonts-rs-noto-emoji", "fonts-rs-noto-emoji/color-flags", "emoji-noto"]
+noto-emoji-color-noflags = ["dep:fonts-rs-noto-emoji", "fonts-rs-noto-emoji/color-noflags", "emoji-noto"]
+noto-emoji-bitmap-flags = ["dep:fonts-rs-noto-emoji", "fonts-rs-noto-emoji/bitmap-flags", "emoji-noto"]
+noto-emoji-bitmap-noflags = ["dep:fonts-rs-noto-emoji", "fonts-rs-noto-emoji/bitmap-noflags", "emoji-noto"]
+blobmoji-color-flags = ["dep:fonts-rs-blobmoji", "fonts-rs-blobmoji/color-flags", "emoji-blobmoji"]
+blobmoji-color-noflags = ["dep:fonts-rs-blobmoji", "fonts-rs-blobmoji/color-noflags", "emoji-blobmoji"]
+blobmoji-bitmap-flags = ["dep:fonts-rs-blobmoji", "fonts-rs-blobmoji/bitmap-flags", "emoji-blobmoji"]
+blobmoji-bitmap-noflags = ["dep:fonts-rs-blobmoji", "fonts-rs-blobmoji/bitmap-noflags", "emoji-blobmoji"]
+
+emoji-noto = []
+emoji-blobmoji = []
+
+# --- Emoji aliases: the umbrellas' default variant ---
+noto-emoji = ["noto-emoji-color-flags"]
+blobmoji = ["blobmoji-color-flags"]
+
+# --- Capability forwarding (weak: applied to enabled families only) ---
+gtk = [
+    "fonts-rs-model/gtk",
+    "fonts-rs-barcode-code39?/gtk",
+    "fonts-rs-barcode-code128?/gtk",
+    "fonts-rs-barcode-ean13?/gtk",
+    "fonts-rs-blobmoji?/gtk",
+    "fonts-rs-bravura?/gtk",
+    "fonts-rs-cuernavaca?/gtk",
+    "fonts-rs-dicefont?/gtk",
+    "fonts-rs-doto?/gtk",
+    "fonts-rs-eva?/gtk",
+    "fonts-rs-fluent?/gtk",
+    "fonts-rs-fourteen-segment?/gtk",
+    "fonts-rs-heroicons?/gtk",
+    "fonts-rs-line-awesome?/gtk",
+    "fonts-rs-lucide?/gtk",
+    "fonts-rs-noto-emoji?/gtk",
+    "fonts-rs-redacted?/gtk",
+    "fonts-rs-seven-segment?/gtk",
+    "fonts-rs-tabler?/gtk",
+    "nerd-fonts-rs?/gtk",
+]
+render = [
+    "fonts-rs-model/render",
+    "fonts-rs-barcode-code39?/render",
+    "fonts-rs-barcode-code128?/render",
+    "fonts-rs-barcode-ean13?/render",
+    "fonts-rs-blobmoji?/render",
+    "fonts-rs-bravura?/render",
+    "fonts-rs-cuernavaca?/render",
+    "fonts-rs-dicefont?/render",
+    "fonts-rs-doto?/render",
+    "fonts-rs-eva?/render",
+    "fonts-rs-fluent?/render",
+    "fonts-rs-fourteen-segment?/render",
+    "fonts-rs-line-awesome?/render",
+    "fonts-rs-noto-emoji?/render",
+    "fonts-rs-redacted?/render",
+    "fonts-rs-seven-segment?/render",
+    "fonts-rs-tabler?/render",
+    "nerd-fonts-rs?/render",
+]
+metadata = [
+    "fonts-rs-cuernavaca?/metadata",
+    "fonts-rs-dicefont?/metadata",
+    "fonts-rs-eva?/metadata",
+    "fonts-rs-fluent?/metadata",
+    "fonts-rs-heroicons?/metadata",
+    "fonts-rs-line-awesome?/metadata",
+    "fonts-rs-lucide?/metadata",
+    "fonts-rs-tabler?/metadata",
+    "nerd-fonts-rs?/metadata",
+]
+embed-fonts = [
+    "fonts-rs-barcode-code39?/embed-fonts",
+    "fonts-rs-barcode-code128?/embed-fonts",
+    "fonts-rs-barcode-ean13?/embed-fonts",
+    "fonts-rs-blobmoji?/embed-fonts",
+    "fonts-rs-bravura?/embed-fonts",
+    "fonts-rs-cuernavaca?/embed-fonts",
+    "fonts-rs-dicefont?/embed-fonts",
+    "fonts-rs-doto?/embed-fonts",
+    "fonts-rs-eva?/embed-fonts",
+    "fonts-rs-fluent?/embed-fonts",
+    "fonts-rs-fourteen-segment?/embed-fonts",
+    "fonts-rs-line-awesome?/embed-fonts",
+    "fonts-rs-noto-emoji?/embed-fonts",
+    "fonts-rs-redacted?/embed-fonts",
+    "fonts-rs-seven-segment?/embed-fonts",
+    "fonts-rs-tabler?/embed-fonts",
+    "nerd-fonts-rs?/embed-fonts",
+]
+
+# --- Convenience groups ---
+icons = ["lucide", "tabler", "heroicons", "eva", "fluent", "line-awesome"]
+emoji = ["noto-emoji", "blobmoji"]
+segment = ["seven-segment", "fourteen-segment"]
+barcode = ["barcode-code39", "barcode-code128", "barcode-ean13"]
+all = ["icons", "emoji", "segment", "barcode", "doto", "redacted", "dicefont", "bravura", "cuernavaca", "nerd-fonts"]
+
+# --- `fonts-rs` binary: the multi-family cheat sheet ---
+#
+# `gui` = the engine + every `sheet-*` binding (the full set).
+# `gui-core` = the engine alone; combine with selected `sheet-*`
+# features for a subset install:
+#
+#   cargo install fonts-rs --features gui                  # all families
+#   cargo install fonts-rs --features "gui-core sheet-lucide sheet-tabler"
+gui-core = [
+    "dep:fonts-rs-cheat-sheet",
+    "dep:gtk4",
+    "dep:miette",
+    "gtk",
+]
+sheet-blobmoji = ["dep:fonts-rs-blobmoji-cheat-sheet"]
+sheet-bravura = ["dep:fonts-rs-bravura-cheat-sheet"]
+sheet-cuernavaca = ["dep:fonts-rs-cuernavaca-cheat-sheet"]
+sheet-dicefont = ["dep:fonts-rs-dicefont-cheat-sheet"]
+sheet-doto = ["dep:fonts-rs-doto-cheat-sheet"]
+sheet-eva = ["dep:fonts-rs-eva-cheat-sheet"]
+sheet-fluent = ["dep:fonts-rs-fluent-cheat-sheet"]
+sheet-fourteen-segment = ["dep:fonts-rs-fourteen-segment-cheat-sheet"]
+sheet-heroicons = ["dep:fonts-rs-heroicons-cheat-sheet"]
+sheet-line-awesome = ["dep:fonts-rs-line-awesome-cheat-sheet"]
+sheet-lucide = ["dep:fonts-rs-lucide-cheat-sheet"]
+sheet-noto-emoji = ["dep:fonts-rs-noto-emoji-cheat-sheet"]
+sheet-seven-segment = ["dep:fonts-rs-seven-segment-cheat-sheet"]
+sheet-tabler = ["dep:fonts-rs-tabler-cheat-sheet"]
+sheet-nerd-fonts = ["dep:nerd-fonts-cheat-sheet"]
+gui = [
+    "gui-core",
+    "sheet-blobmoji",
+    "sheet-bravura",
+    "sheet-cuernavaca",
+    "sheet-dicefont",
+    "sheet-doto",
+    "sheet-eva",
+    "sheet-fluent",
+    "sheet-fourteen-segment",
+    "sheet-heroicons",
+    "sheet-line-awesome",
+    "sheet-lucide",
+    "sheet-noto-emoji",
+    "sheet-seven-segment",
+    "sheet-tabler",
+    "sheet-nerd-fonts",
+]
+
+[[bin]]
+name = "fonts-rs"
+path = "src/bin/fonts-rs.rs"
+# The engine, not the family set: `gui-core` suffices to build the
+# binary (empty family list errors cleanly at runtime); `gui` includes
+# it. A `sheet-*` without `gui-core` skips the target.
+required-features = ["gui-core"]
+
+[lints]
+workspace = true

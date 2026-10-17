@@ -509,6 +509,50 @@ dependencies = [
 ]
 
 [[package]]
+name = "fonts-rs"
+version = "0.5.0"
+dependencies = [
+ "fonts-rs-barcode-code128",
+ "fonts-rs-barcode-code39",
+ "fonts-rs-barcode-ean13",
+ "fonts-rs-blobmoji",
+ "fonts-rs-blobmoji-cheat-sheet",
+ "fonts-rs-bravura",
+ "fonts-rs-bravura-cheat-sheet",
+ "fonts-rs-cheat-sheet",
+ "fonts-rs-cuernavaca",
+ "fonts-rs-cuernavaca-cheat-sheet",
+ "fonts-rs-dicefont",
+ "fonts-rs-dicefont-cheat-sheet",
+ "fonts-rs-doto",
+ "fonts-rs-doto-cheat-sheet",
+ "fonts-rs-eva",
+ "fonts-rs-eva-cheat-sheet",
+ "fonts-rs-fluent",
+ "fonts-rs-fluent-cheat-sheet",
+ "fonts-rs-fourteen-segment",
+ "fonts-rs-fourteen-segment-cheat-sheet",
+ "fonts-rs-heroicons",
+ "fonts-rs-heroicons-cheat-sheet",
+ "fonts-rs-line-awesome",
+ "fonts-rs-line-awesome-cheat-sheet",
+ "fonts-rs-lucide",
+ "fonts-rs-lucide-cheat-sheet",
+ "fonts-rs-model",
+ "fonts-rs-noto-emoji",
+ "fonts-rs-noto-emoji-cheat-sheet",
+ "fonts-rs-redacted",
+ "fonts-rs-seven-segment",
+ "fonts-rs-seven-segment-cheat-sheet",
+ "fonts-rs-tabler",
+ "fonts-rs-tabler-cheat-sheet",
+ "gtk4",
+ "miette",
+ "nerd-fonts-cheat-sheet",
+ "nerd-fonts-rs",
+]
+
+[[package]]
 name = "fonts-rs-barcode-code128"
 version = "0.5.0"
 dependencies = [
