@@ -12,6 +12,7 @@ publish = false
 [dependencies]
 clap.workspace = true
 flate2.workspace = true
+fonts-rs-model.workspace = true
 globset.workspace = true
 miette = { workspace = true, features = ["fancy"] }
 serde.workspace = true

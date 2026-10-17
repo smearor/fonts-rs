@@ -194,6 +194,12 @@ fn assert_no_hex_fill(resources_dir: &Path) -> Result<(), GlyphSourceError> {
 }
 
 fn main() -> miette::Result<()> {
+    // Emit the vendored SVG directory to dependent build scripts
+    // (custom icon sets via `fonts_rs_generator::IconSetBuild`).
+    if let Some(manifest_dir) = std::env::var_os("CARGO_MANIFEST_DIR") {
+        println!("cargo:svg_dir={}", Path::new(&manifest_dir).join("resources/svg").display());
+    }
+
     // The TTFs are vendored under resources/fonts/ (matching the
     // upstream lock file layout). Only the regular font ships: its
     // codepoints are the real upstream values, while filled

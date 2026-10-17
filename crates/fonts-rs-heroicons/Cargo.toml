@@ -9,6 +9,10 @@ homepage.workspace = true
 description = "Heroicons integration for GTK 4 - fontless SVG-only icon set"
 publish = true
 
+# Emits the vendored SVG directory to dependent build scripts via
+# DEP_HEROICONS_* environment variables.
+links = "heroicons"
+
 # Heroicons are licensed under the MIT License - see resources/LICENSE.
 license-file = "resources/LICENSE"
 

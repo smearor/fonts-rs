@@ -82,6 +82,12 @@ impl MetadataGenerator for LucideMetadataGenerator {
 }
 
 fn main() -> miette::Result<()> {
+    // Emit the vendored SVG directory to dependent build scripts
+    // (custom icon sets via `fonts_rs_generator::IconSetBuild`).
+    if let Some(manifest_dir) = std::env::var_os("CARGO_MANIFEST_DIR") {
+        println!("cargo:svg_dir={}", Path::new(&manifest_dir).join("resources/svg").display());
+    }
+
     let metadata_dir = Path::new(build_constants::RESOURCES_DIR).join("metadata");
     let icons_json = std::fs::read_to_string(metadata_dir.join("icons.json")).map_err(|e| miette::miette!("Failed to read icons.json: {e}"))?;
     let categories_json = std::fs::read_to_string(metadata_dir.join("categories.json")).map_err(|e| miette::miette!("Failed to read categories.json: {e}"))?;

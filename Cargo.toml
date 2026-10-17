@@ -55,6 +55,7 @@ members = [
     "crates/nerd-fonts-rs",
     "crates/nerd-fonts-cheat-sheet",
     "crates/fonts-rs-cheat-sheet",
+    "crates/fonts-rs-iconset-test",
     "crates/fonts-rs-test",
     "xtask",
 ]

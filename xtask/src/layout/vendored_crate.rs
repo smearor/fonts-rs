@@ -1,6 +1,7 @@
 use super::Package;
 use super::Workspace;
 use miette::IntoDiagnostic;
+use miette::miette;
 use std::path::PathBuf;
 
 /// A vendored crate: the package name plus its on-disk crate
@@ -17,7 +18,9 @@ impl Crate {
     /// Resolves the crate directory for `package`
     /// (`crates/<package>`), failing when it does not exist.
     pub fn load(package: Package) -> miette::Result<Self> {
-        let dir = package.crate_dir()?;
+        let dir = package
+            .crate_dir(&Workspace::root())
+            .ok_or_else(|| miette!("Package '{package}' not found under crates/"))?;
         Ok(Self { package, dir })
     }
 

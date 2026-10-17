@@ -18,12 +18,13 @@ use std::collections::HashSet;
 
 /// Merges multiple [`GlyphSource`]s into a single export.
 ///
-/// Each source is registered with a *name marker*: `svg_for` routes a
-/// glyph to the source with the longest marker `glyph.name` contains
-/// (the catch-all marker `""` matches every name). Registration order
-/// still matters for [`glyphs`](GlyphSource::glyphs): sub-sources
-/// allocate codepoints in registration order, so register the style
-/// whose codepoints must stay stable first.
+/// `svg_for` routes a glyph back to exactly the source that produced
+/// it: [`glyphs`](GlyphSource::glyphs) tags each descriptor's
+/// `source_key` with the owner's registration index. (The `source()`
+/// *name marker* remains as fallback routing for descriptors that did
+/// not pass through `glyphs()`.) Registration order still matters for
+/// `glyphs`: sub-sources allocate codepoints in registration order, so
+/// register the style whose codepoints must stay stable first.
 ///
 /// All sources must be of the same concrete type - typically
 /// [`SvgDirSource`](crate::glyph_source::SvgDirSource) with one entry
@@ -58,12 +59,22 @@ impl<S: GlyphSource> Default for CombinedSource<S> {
 impl<S: GlyphSource> GlyphSource for CombinedSource<S> {
     /// Returns the concatenation of all sub-source glyph lists.
     ///
+    /// Each descriptor's `source_key` is tagged with the owning
+    /// source's registration index (`"{index}\u{1F}{key}"`) so
+    /// `svg_for` routes back to exactly that source - names and
+    /// filenames may coincide across sources (e.g. two crates shipping
+    /// a `check.svg`). The tag never reaches serialized output:
+    /// `GlyphEntry` derives `file`/`resource_path` from the name.
+    ///
     /// Fails when two sources resolve to the same glyph name or
     /// codepoint - merged exports must partition the glyph namespace.
     fn glyphs(&self) -> Result<Vec<GlyphDescriptor>, GlyphSourceError> {
         let mut descriptors = Vec::new();
-        for (_, source) in &self.sources {
-            descriptors.extend(source.glyphs()?);
+        for (index, (_, source)) in self.sources.iter().enumerate() {
+            for mut descriptor in source.glyphs()? {
+                descriptor.source_key = format!("{index}\u{1F}{}", descriptor.source_key);
+                descriptors.push(descriptor);
+            }
         }
 
         let mut names = HashSet::with_capacity(descriptors.len());
@@ -85,8 +96,22 @@ impl<S: GlyphSource> GlyphSource for CombinedSource<S> {
         Ok(descriptors)
     }
 
-    /// Routes to the source with the longest matching marker.
+    /// Routes to the source that produced the descriptor.
+    ///
+    /// Descriptors passing through [`glyphs`](Self::glyphs) carry their
+    /// owner's registration index in `source_key`; that tag takes
+    /// precedence. Foreign descriptors fall back to the longest
+    /// matching name marker (the original routing rule).
     fn svg_for(&self, glyph: &GlyphDescriptor) -> Result<String, GlyphSourceError> {
+        if let Some((index, key)) = glyph.source_key.split_once('\u{1F}')
+            && let Ok(index) = index.parse::<usize>()
+            && let Some((_, source)) = self.sources.get(index)
+        {
+            let mut routed = glyph.clone();
+            routed.source_key = key.to_string();
+            return source.svg_for(&routed);
+        }
+
         self.sources
             .iter()
             .filter(|(marker, _)| glyph.name.contains(marker.as_str()))

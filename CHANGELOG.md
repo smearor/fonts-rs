@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Custom icon sets**: applications define a minimal icon set in a root `icons.toml` (`[iconset]` + `[[iconset.sources]]`) and build it with `IconSetBuild::from_file("icons.toml")?.run()` — whitelisted, renamed glyphs merged across multiple source crates, exported to `icons.gresource`, plus a generated `iconset.rs` module providing the marker type, `FontFamilyConfig`, typed `GlyphName` alias, `icon_names` constants, `install()` and `IconThemeFont`/`GtkFont` impls
+- **`fonts_rs_model::icon_set`**: serde model for `icons.toml` (`IconSetFile`, `IconSetSpec`, `IconSetSourceSpec`, `IconSetSourceLocation`, `IconWhitelistEntry`, `IconSetPostProcessor`) with `IconSetSpec::validate()` and `IconSetSpecError` — shared wire format between the build pipeline and authoring tools
+- **`fonts_rs_generator::icon_set`**: `IconSetBuild` (TOML-driven build entry point), `IconSetSourceResolver` (`DEP_*_SVG_DIR` links metadata → `cargo metadata` fallback → `dir`), `IconSetModuleGenerator` (`iconset.rs` codegen), `IconSetPostProcessorExt` and `IconSetBuildError` (`miette::Diagnostic`)
+- **`GlyphExportTarget` + `GlyphSource::export_to`**: runtime GResource prefix / icon context for TOML-driven exports; `GlyphSource::export` stays as an adapter over the compile-time `FontFamilyConfig`
+- **`links` + `cargo:svg_dir` metadata** in `fonts-rs-{lucide,tabler,heroicons,eva,fluent,line-awesome}` — dependents' build scripts locate the packaged `resources/svg` via `DEP_*_SVG_DIR`
+- **`fonts-rs-iconset-test`**: `publish = false` end-to-end fixture crate exercising a merged multi-source set, renames and per-source post-processors
+
+### Fixed
+
+- **`CombinedSource::svg_for` misrouting**: name-marker routing could serve a glyph's SVG from the wrong sub-source when names or filenames coincided across sources; `glyphs()` now tags each descriptor's `source_key` with the owning source's registration index
+
 ## [0.5.0] - 2026-10-13
 
 ### Added

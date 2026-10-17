@@ -142,6 +142,12 @@ impl MetadataGenerator for TablerMetadataGenerator {
 }
 
 fn main() -> miette::Result<()> {
+    // Emit the vendored SVG directory to dependent build scripts
+    // (custom icon sets via `fonts_rs_generator::IconSetBuild`).
+    if let Some(manifest_dir) = std::env::var_os("CARGO_MANIFEST_DIR") {
+        println!("cargo:svg_dir={}", Path::new(&manifest_dir).join("resources/svg").display());
+    }
+
     let entry = VARIANTS.detect_and_get_active_variant(0)?;
     let font_path = entry.font_path()?;
     let style = entry.as_str().to_string();
