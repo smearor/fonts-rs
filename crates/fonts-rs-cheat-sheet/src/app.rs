@@ -2,7 +2,9 @@
 
 use crate::detail::show_detail;
 use crate::detail_context::DetailContext;
+use crate::dyn_family::DynCheatSheetFamily;
 use crate::family::CheatSheetFamily;
+use crate::family_adapter::FamilyAdapter;
 use crate::tone_picker::TonePicker;
 use fonts_rs_model::CodePoint;
 use fonts_rs_model::GroupLabel;
@@ -31,20 +33,24 @@ use std::cell::RefCell;
 use std::collections::BTreeMap;
 use std::rc::Rc;
 
+/// GTK application ID of the multi-family cheat sheet - per-family
+/// `APP_ID`s stay with the standalone binaries.
+const MULTI_APP_ID: &str = "io.smearor.fonts_rs.multi";
+
 /// Shared list of currently displayed glyphs.
-type GlyphList<F> = Rc<RefCell<Vec<(CodePoint, <F as CheatSheetFamily>::Name)>>>;
+type GlyphList = Rc<RefCell<Vec<(CodePoint, String)>>>;
 
 /// A navigable history entry: either a search query or a glyph detail view.
 #[derive(Clone, PartialEq, Eq)]
-enum HistoryEntry<N> {
+enum HistoryEntry {
     /// A search query that filters the grid.
     Search(String),
     /// A glyph detail view (name + codepoint).
-    Icon(N, CodePoint),
+    Icon(String, CodePoint),
 }
 
 /// Update sensitivity of Back/Forward buttons based on current history position.
-fn update_nav_buttons<N>(back_btn: &Button, forward_btn: &Button, history: &[HistoryEntry<N>], index: usize) {
+fn update_nav_buttons(back_btn: &Button, forward_btn: &Button, history: &[HistoryEntry], index: usize) {
     back_btn.set_sensitive(index > 0);
     forward_btn.set_sensitive(index + 1 < history.len());
 }
@@ -83,10 +89,11 @@ pub(super) fn icon_size_scale(initial: f64, width: i32) -> Scale {
 }
 
 /// Navigate to a history entry: search filters the grid, glyph pushes the detail page.
-fn navigate_to<F: CheatSheetFamily>(
-    entry: &HistoryEntry<F::Name>,
+fn navigate_to(
+    entry: &HistoryEntry,
+    family: &Rc<dyn DynCheatSheetFamily>,
     ctx: &DetailContext,
-    selected_name: &Rc<RefCell<Option<F::Name>>>,
+    selected_name: &Rc<RefCell<Option<String>>>,
     selected_cell: &Rc<RefCell<Option<gtk4::Box>>>,
 ) {
     // Clear previous selection.
@@ -105,7 +112,7 @@ fn navigate_to<F: CheatSheetFamily>(
             *selected_name.borrow_mut() = Some(name.clone());
             ctx.detail_stack.set_visible_child_name("detail");
             ctx.split_view.set_show_content(true);
-            show_detail::<F>(ctx, name, *cp);
+            show_detail(ctx, family, name, *cp);
         }
     }
 }
@@ -119,18 +126,55 @@ fn navigate_to<F: CheatSheetFamily>(
 ///
 /// Returns an error if GTK or family initialization fails.
 pub fn run<F: CheatSheetFamily>() -> Result<glib::ExitCode> {
-    gtk4::init().into_diagnostic()?;
-    F::init()?;
+    run_single(Rc::new(FamilyAdapter::<F>::new()))
+}
 
-    let app = adw::Application::builder().application_id(F::APP_ID).build();
-    app.connect_activate(build_ui::<F>);
+/// Runs the single-family path on the dyn surface, keeping the
+/// family's own application ID.
+fn run_single(family: Rc<dyn DynCheatSheetFamily>) -> Result<glib::ExitCode> {
+    gtk4::init().into_diagnostic()?;
+    family.init()?;
+    run_app(family.app_id(), vec![family], &[true])
+}
+
+/// Runs the cheat sheet multiplexed over `families`; the first entry
+/// is shown initially and a header dropdown switches families in
+/// place.
+///
+/// Per-family `init()` is lazy: the active family initializes
+/// upfront, the rest on first selection.
+///
+/// # Errors
+///
+/// Returns an error if `families` is empty or GTK/family
+/// initialization fails.
+pub fn run_multi(families: Vec<std::boxed::Box<dyn DynCheatSheetFamily>>) -> Result<glib::ExitCode> {
+    if families.is_empty() {
+        return Err(miette::miette!("run_multi requires at least one family"));
+    }
+    gtk4::init().into_diagnostic()?;
+    families[0].init()?;
+
+    let mut initialized = vec![false; families.len()];
+    initialized[0] = true;
+    let families: Vec<Rc<dyn DynCheatSheetFamily>> = families.into_iter().map(Rc::from).collect();
+    run_app(MULTI_APP_ID, families, &initialized)
+}
+
+/// Shared entry: builds the `adw::Application` and hands `build_ui`
+/// the family list plus which of them are already initialized.
+fn run_app(app_id: &str, families: Vec<Rc<dyn DynCheatSheetFamily>>, initialized_flags: &[bool]) -> Result<glib::ExitCode> {
+    let app = adw::Application::builder().application_id(app_id).build();
+    let families = Rc::new(families);
+    let initialized = Rc::new(RefCell::new(initialized_flags.to_vec()));
+    app.connect_activate(move |app| build_ui(app, families.clone(), initialized.clone()));
     Ok(app.run())
 }
 
-fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
+fn build_ui(app: &adw::Application, families: Rc<Vec<Rc<dyn DynCheatSheetFamily>>>, initialized: Rc<RefCell<Vec<bool>>>) {
     let window = adw::ApplicationWindow::builder()
         .application(app)
-        .title(F::TITLE)
+        .title(families[0].title())
         .default_width(1280)
         .default_height(800)
         .width_request(460)
@@ -167,12 +211,29 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
         gtk4::style_context_add_provider_for_display(&display, &provider, gtk4::STYLE_PROVIDER_PRIORITY_USER);
     }
 
-    let all_icons = F::all_glyphs();
+    let page = build_family_page(&window, &families, 0, &initialized);
+    window.set_content(Some(&page));
+    window.present();
+}
+
+/// Builds the full per-family content: header bar (with the family
+/// switcher), browse grid, detail sidebar, history. Rebuilt on every
+/// family switch and swapped into the window via `set_content`.
+fn build_family_page(
+    window: &adw::ApplicationWindow,
+    families: &Rc<Vec<Rc<dyn DynCheatSheetFamily>>>,
+    active: usize,
+    initialized: &Rc<RefCell<Vec<bool>>>,
+) -> gtk4::Widget {
+    let family = families[active].clone();
+    window.set_title(Some(family.title()));
+
+    let all_icons = family.all_glyphs();
     let total = all_icons.len();
 
     // Canonical ordering contract (e.g. emoji picker ordering). `None`
     // for families without a curated order - keeps the alphabetical grid.
-    let ordering = F::ordering();
+    let ordering = family.ordering();
     let group_labels: &'static [GroupLabel] = ordering.map(|o| o.group_labels()).unwrap_or_default();
     let active_group: Rc<RefCell<Option<GroupLabel>>> = Rc::new(RefCell::new(None));
 
@@ -183,7 +244,12 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
 
     // --- AdwHeaderBar with WindowTitle + Back/Forward history ---
     let header_bar = adw::HeaderBar::builder()
-        .title_widget(&adw::WindowTitle::builder().title(F::TITLE).subtitle(format!("{total} {}", F::NOUN)).build())
+        .title_widget(
+            &adw::WindowTitle::builder()
+                .title(family.title())
+                .subtitle(format!("{total} {}", family.noun()))
+                .build(),
+        )
         .build();
 
     let back_btn = Button::builder()
@@ -195,8 +261,41 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
     header_bar.pack_start(&back_btn);
     header_bar.pack_start(&forward_btn);
 
+    // Family switcher - only meaningful with more than one family.
+    if families.len() > 1 {
+        let titles: Vec<String> = families.iter().map(|family| family.title().to_string()).collect();
+        let refs: Vec<&str> = titles.iter().map(String::as_str).collect();
+        let family_dropdown = DropDown::from_strings(&refs);
+        family_dropdown.set_tooltip_text(Some("Font family"));
+        family_dropdown.set_selected(active as u32);
+        header_bar.pack_end(&family_dropdown);
+        let window_for_switch = window.clone();
+        let families_for_switch = families.clone();
+        let initialized_for_switch = initialized.clone();
+        family_dropdown.connect_selected_notify(move |dropdown| {
+            let index = dropdown.selected() as usize;
+            if index == active {
+                return;
+            }
+            // Lazy per-family init: GResource registration, font
+            // loading and CSS run on first activation.
+            if !initialized_for_switch.borrow()[index] {
+                match families_for_switch[index].init() {
+                    Ok(()) => initialized_for_switch.borrow_mut()[index] = true,
+                    Err(error) => {
+                        eprintln!("cheat-sheet: family init failed: {error:?}");
+                        dropdown.set_selected(active as u32);
+                        return;
+                    }
+                }
+            }
+            let page = build_family_page(&window_for_switch, &families_for_switch, index, &initialized_for_switch);
+            window_for_switch.set_content(Some(&page));
+        });
+    }
+
     // --- Navigation history state ---
-    let history: Rc<RefCell<Vec<HistoryEntry<F::Name>>>> = Rc::new(RefCell::new(Vec::new()));
+    let history: Rc<RefCell<Vec<HistoryEntry>>> = Rc::new(RefCell::new(Vec::new()));
     let history_index: Rc<RefCell<usize>> = Rc::new(RefCell::new(0));
     let suppress_history: Rc<RefCell<bool>> = Rc::new(RefCell::new(false));
 
@@ -217,7 +316,7 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
         .margin_bottom(2)
         .build();
     let count_label = Label::builder()
-        .label(format!("{} {} available", total, F::NOUN))
+        .label(format!("{} {} available", total, family.noun()))
         .css_classes(["dim-label"])
         .halign(Align::Start)
         .build();
@@ -247,7 +346,7 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
     top_bar.append(&count_bar);
 
     let search_entry = Entry::builder()
-        .placeholder_text(F::SEARCH_PLACEHOLDER)
+        .placeholder_text(family.search_placeholder())
         .halign(Align::Fill)
         .margin_top(4)
         .margin_bottom(4)
@@ -298,11 +397,10 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
             .find(|(_, name)| ord.tone_group(name.as_ref()).is_some() && !ord.alternates(name.as_ref()).is_empty())
     {
         let glyph_preview = |name_str: &str| -> gtk4::Widget {
-            let icon_name = F::parse_name(name_str).and_then(|n| F::glyph_icon_name(&n));
-            if let Some(icon_name) = icon_name {
+            if let Some(icon_name) = family.glyph_icon_name(name_str) {
                 return gtk4::Image::builder().icon_name(&icon_name).pixel_size(18).build().upcast();
             }
-            let text = F::codepoint(name_str).map(|cp| cp.as_char().to_string()).unwrap_or_else(|| "?".to_string());
+            let text = family.codepoint(name_str).map(|cp| cp.as_char().to_string()).unwrap_or_else(|| "?".to_string());
             Label::builder().label(&text).build().upcast()
         };
 
@@ -337,10 +435,10 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
             tone_buttons.borrow_mut().push(base_btn.clone());
             tone_box.append(&base_btn);
         }
-        for (index, variant) in ord.alternates(base.as_ref()).iter().enumerate() {
+        for (index, variant) in ord.alternates(base).iter().enumerate() {
             let buttons = tone_buttons.clone();
             let picker = tone_picker.clone();
-            let variant_label = F::parse_name(variant).map(|n| F::display_name(&n)).unwrap_or_else(|| variant.to_string());
+            let variant_label = family.display_name(variant);
             let btn = Button::builder().child(&glyph_preview(variant)).tooltip_text(variant_label).build();
             btn.connect_clicked(move |_| {
                 picker.set_default(index);
@@ -380,10 +478,10 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
     let mut category_counts: BTreeMap<String, u32> = BTreeMap::new();
     let mut tag_counts: BTreeMap<String, u32> = BTreeMap::new();
     for (_, name) in &all_icons {
-        for category in F::categories(name) {
+        for category in family.categories(name) {
             *category_counts.entry(category).or_default() += 1;
         }
-        for tag in F::keywords(name) {
+        for tag in family.keywords(name) {
             *tag_counts.entry(tag).or_default() += 1;
         }
     }
@@ -536,7 +634,7 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
         Some(split) => split.clone().upcast(),
         None => left_box.clone().upcast(),
     };
-    let browse_page = adw::NavigationPage::builder().title(F::TITLE).child(&browse_widget).build();
+    let browse_page = adw::NavigationPage::builder().title(family.title()).child(&browse_widget).build();
     let detail_page = adw::NavigationPage::builder().title("Details").child(&detail_stack).build();
     let split_view = adw::NavigationSplitView::new();
     split_view.set_sidebar(Some(&browse_page));
@@ -547,7 +645,7 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
     split_view.set_max_sidebar_width(4000.0);
 
     // --- Shared selection state ---
-    let selected_name: Rc<RefCell<Option<F::Name>>> = Rc::new(RefCell::new(None));
+    let selected_name: Rc<RefCell<Option<String>>> = Rc::new(RefCell::new(None));
     let selected_cell: Rc<RefCell<Option<gtk4::Box>>> = Rc::new(RefCell::new(None));
 
     // --- Close button handler: back to grid (collapsed) + placeholder ---
@@ -573,7 +671,7 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
     // --- Grid population ---
     const BATCH_SIZE: usize = 100;
 
-    let current_icons: GlyphList<F> = Rc::new(RefCell::new(Vec::new()));
+    let current_icons: GlyphList = Rc::new(RefCell::new(Vec::new()));
     let displayed_count: Rc<RefCell<usize>> = Rc::new(RefCell::new(0));
     let current_icon_size: Rc<RefCell<f64>> = Rc::new(RefCell::new(42.0));
 
@@ -581,24 +679,25 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
     let render_grid = {
         let active_group = active_group.clone();
         let tone_picker = tone_picker.clone();
-        move |filter: &str| -> Vec<(CodePoint, F::Name)> {
+        let family = family.clone();
+        move |filter: &str| -> Vec<(CodePoint, String)> {
             // Group jump-list filter: restrict the glyph set to the
             // selected group (None = all groups / ordering disabled).
             let group = *active_group.borrow();
-            let in_group = |name: &F::Name| group.is_none_or(|label| ordering.is_some_and(|o| o.group(name.as_ref()) == Some(label)));
+            let in_group = |name: &str| group.is_none_or(|label| ordering.is_some_and(|o| o.group(name) == Some(label)));
             // Variant collapsing: browsing hides variants whose base is
             // itself displayed (search keeps them reachable). With a
             // style group selected the bases live in another group, so
             // the group's variants must stay visible.
             let collapse = ordering.is_some_and(|o| o.collapse_variants());
-            let is_collapsed_variant = |name: &F::Name| {
+            let is_collapsed_variant = |name: &str| {
                 collapse
                     && ordering.is_some_and(|o| {
-                        o.base_of(name.as_ref())
-                            .is_some_and(|base_name| F::parse_name(base_name).is_some_and(|base| in_group(&base)))
+                        o.base_of(name)
+                            .is_some_and(|base_name| family.parse_name(base_name).is_some_and(|base| in_group(&base)))
                     })
             };
-            let base: Vec<(CodePoint, F::Name)> = icons_for_filter
+            let base: Vec<(CodePoint, String)> = icons_for_filter
                 .iter()
                 .filter(|(_, name)| in_group(name) && !is_collapsed_variant(name))
                 .cloned()
@@ -607,17 +706,17 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
             // Default-tone swap (browse path only): a base cell whose
             // tone group has a stored index renders that alternate.
             // Presentation-only - the search path shows real glyphs.
-            let swap_tone = |(cp, name): (CodePoint, F::Name)| -> (CodePoint, F::Name) {
-                let Some(group) = ordering.and_then(|o| o.tone_group(name.as_ref())) else {
+            let swap_tone = |(cp, name): (CodePoint, String)| -> (CodePoint, String) {
+                let Some(group) = ordering.and_then(|o| o.tone_group(&name)) else {
                     return (cp, name);
                 };
                 let Some(index) = tone_picker.selected(group) else {
                     return (cp, name);
                 };
-                let Some(&variant) = ordering.and_then(|o| o.alternates(name.as_ref()).get(index)) else {
+                let Some(&variant) = ordering.and_then(|o| o.alternates(&name).get(index)) else {
                     return (cp, name);
                 };
-                let (Some(variant_name), Some(variant_cp)) = (F::parse_name(variant), F::codepoint(variant)) else {
+                let (Some(variant_name), Some(variant_cp)) = (family.parse_name(variant), family.codepoint(variant)) else {
                     return (cp, name);
                 };
                 (variant_cp, variant_name)
@@ -628,15 +727,15 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
                 return base.into_iter().map(swap_tone).collect();
             }
 
-            let search_results = F::search(filter);
-            let mut filtered: Vec<(CodePoint, F::Name)> = search_results
+            let search_results = family.search(filter);
+            let mut filtered: Vec<(CodePoint, String)> = search_results
                 .iter()
                 .filter_map(|name| {
-                    let icon_name = F::parse_name(name)?;
+                    let icon_name = family.parse_name(name)?;
                     if !in_group(&icon_name) {
                         return None;
                     }
-                    let cp = F::codepoint(name)?;
+                    let cp = family.codepoint(name)?;
                     Some((cp, icon_name))
                 })
                 .collect();
@@ -652,7 +751,7 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
                 if (hex.to_lowercase().contains(&filter_lower)
                     || format!("\\u{{{:X}}}", cp.as_char() as u32).to_lowercase().contains(&filter_lower)
                     || char_str.contains(filter)
-                    || name.as_ref().to_lowercase().contains(&filter_lower))
+                    || name.to_lowercase().contains(&filter_lower))
                     && !filtered.iter().any(|(_, n)| n == name)
                 {
                     filtered.push((*cp, name.clone()));
@@ -661,12 +760,7 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
 
             // Sort key: canonical ordering position (variants fall back
             // to their base's index so they sort next to it), then name.
-            let sort_key = |name: &F::Name| {
-                ordering.and_then(|o| {
-                    o.order_index(name.as_ref())
-                        .or_else(|| o.base_of(name.as_ref()).and_then(|base| o.order_index(base)))
-                })
-            };
+            let sort_key = |name: &str| ordering.and_then(|o| o.order_index(name).or_else(|| o.base_of(name).and_then(|base| o.order_index(base))));
             filtered.sort_by(|a, b| {
                 sort_key(&a.1)
                     .unwrap_or(u32::MAX)
@@ -705,7 +799,8 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
     let toasts_for_grid = toast_overlay.clone();
     let category_split_for_grid = category_split.clone();
 
-    let populate_batch = move |start: usize, end: usize, icons: &[(CodePoint, F::Name)], icon_size: f64, _cols: u32| {
+    let family_for_batch = family.clone();
+    let populate_batch = move |start: usize, end: usize, icons: &[(CodePoint, String)], icon_size: f64, _cols: u32| {
         if start == 0 {
             while let Some(child) = grid_clone.first_child() {
                 grid_clone.remove(&child);
@@ -719,12 +814,12 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
         }
 
         for (codepoint, name) in icons[start..end].iter() {
-            let display_name = F::display_name(name);
+            let display_name = family_for_batch.display_name(name);
             let hex = format!("\\u{{{:X}}}", codepoint.as_char() as u32);
 
             // Families with icon-theme glyphs (e.g. emoji) render the
             // registered SVG; others render the codepoint as text.
-            let icon: gtk4::Widget = if let Some(icon_name) = F::glyph_icon_name(name) {
+            let icon: gtk4::Widget = if let Some(icon_name) = family_for_batch.glyph_icon_name(name) {
                 gtk4::Image::builder()
                     .icon_name(&icon_name)
                     .pixel_size(icon_size as i32)
@@ -733,7 +828,7 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
                     .upcast()
             } else {
                 let mut icon_classes = vec!["cheat-icon-label"];
-                if let Some(class) = F::GLYPH_CSS_CLASS {
+                if let Some(class) = family_for_batch.glyph_css_class() {
                     icon_classes.insert(0, class);
                 }
                 Label::builder()
@@ -763,8 +858,8 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
             // Metadata buttons: keywords (orange) and categories (green).
             let meta_box = Box::builder().orientation(Orientation::Vertical).spacing(2).halign(Align::Fill).build();
 
-            let keywords = F::keywords(name);
-            let categories = F::categories(name);
+            let keywords = family_for_batch.keywords(name);
+            let categories = family_for_batch.categories(name);
 
             // Category buttons (green) - wrapped via FlowBox.
             if !categories.is_empty() {
@@ -850,6 +945,7 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
             let back_btn_ref = back_btn_for_grid.clone();
             let forward_btn_ref = forward_btn_for_grid.clone();
             let detail_ctx_ref = detail_ctx_for_grid.clone();
+            let family_ref = family_for_batch.clone();
             let gesture = gtk4::GestureClick::new();
             gesture.connect_released(move |gesture, _n, x, y| {
                 if let Some(widget) = gesture.widget()
@@ -882,7 +978,7 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
                 *selected_cell_ref.borrow_mut() = Some(vbox_ref.clone());
                 detail_ctx_ref.detail_stack.set_visible_child_name("detail");
                 detail_ctx_ref.split_view.set_show_content(true);
-                show_detail::<F>(&detail_ctx_ref, &name_for_click, cp_for_click);
+                show_detail(&detail_ctx_ref, &family_ref, &name_for_click, cp_for_click);
 
                 // Record icon view in history.
                 if !*suppress_ref.borrow() {
@@ -924,6 +1020,7 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
         let size_ref = current_icon_size.clone();
         let populate_ref = populate_batch.clone();
         let count_label_ref = count_label.clone();
+        let family = family.clone();
         move |reset: bool| {
             let icons = current_icons_ref.borrow().clone();
             let total_icons = icons.len();
@@ -944,9 +1041,9 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
             }
             let shown = *displayed_count_ref.borrow();
             let label = if shown >= total_icons {
-                format!("{} / {} {}", total_icons, total_icons, F::NOUN)
+                format!("{} / {} {}", total_icons, total_icons, family.noun())
             } else {
-                format!("{} / {} {} (scroll for more)", shown, total_icons, F::NOUN)
+                format!("{} / {} {} (scroll for more)", shown, total_icons, family.noun())
             };
             count_label_ref.set_label(&label);
         }
@@ -1100,6 +1197,7 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
         let forward_btn_for_back = forward_btn.clone();
         let back_btn_for_handler = back_btn.clone();
         let detail_ctx_for_back = detail_ctx.clone();
+        let family_for_back = family.clone();
         back_btn.connect_clicked(move |_| {
             let hist = history_for_back.borrow();
             let mut idx = history_index_for_back.borrow_mut();
@@ -1109,7 +1207,7 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
                 drop(idx);
                 drop(hist);
                 *suppress_for_back.borrow_mut() = true;
-                navigate_to::<F>(&prev, &detail_ctx_for_back, &selected_name_for_back, &selected_cell_for_back);
+                navigate_to(&prev, &family_for_back, &detail_ctx_for_back, &selected_name_for_back, &selected_cell_for_back);
                 *suppress_for_back.borrow_mut() = false;
                 let hist = history_for_back.borrow();
                 let idx = history_index_for_back.borrow();
@@ -1126,6 +1224,7 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
         let back_btn_for_fwd = back_btn.clone();
         let forward_btn_for_handler = forward_btn.clone();
         let detail_ctx_for_fwd = detail_ctx.clone();
+        let family_for_fwd = family.clone();
         forward_btn.connect_clicked(move |_| {
             let hist = history_for_fwd.borrow();
             let mut idx = history_index_for_fwd.borrow_mut();
@@ -1135,7 +1234,7 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
                 drop(idx);
                 drop(hist);
                 *suppress_for_fwd.borrow_mut() = true;
-                navigate_to::<F>(&next, &detail_ctx_for_fwd, &selected_name_for_fwd, &selected_cell_for_fwd);
+                navigate_to(&next, &family_for_fwd, &detail_ctx_for_fwd, &selected_name_for_fwd, &selected_cell_for_fwd);
                 *suppress_for_fwd.borrow_mut() = false;
                 let hist = history_for_fwd.borrow();
                 let idx = history_index_for_fwd.borrow();
@@ -1170,6 +1269,16 @@ fn build_ui<F: CheatSheetFamily>(app: &adw::Application) {
     toolbar_view.set_content(Some(&split_view));
 
     toast_overlay.set_child(Some(&toolbar_view));
-    window.set_content(Some(&toast_overlay));
-    window.present();
+    toast_overlay.upcast()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// `run_multi` rejects an empty family list before touching GTK.
+    #[test]
+    fn run_multi_rejects_empty_family_list() {
+        assert!(run_multi(Vec::new()).is_err());
+    }
 }

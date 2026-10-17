@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`GlyphExportTarget` + `GlyphSource::export_to`**: runtime GResource prefix / icon context for TOML-driven exports; `GlyphSource::export` stays as an adapter over the compile-time `FontFamilyConfig`
 - **`links` + `cargo:svg_dir` metadata** in `fonts-rs-{lucide,tabler,heroicons,eva,fluent,line-awesome}` — dependents' build scripts locate the packaged `resources/svg` via `DEP_*_SVG_DIR`
 - **`fonts-rs-iconset-test`**: `publish = false` end-to-end fixture crate exercising a merged multi-source set, renames and per-source post-processors
+- **Multi-family cheat sheets**: `fonts_rs_cheat_sheet::run_multi` runs one `adw::Application` multiplexed over `Vec<Box<dyn DynCheatSheetFamily>>` with a header dropdown switcher and lazy per-family `init()`; `DynCheatSheetFamily` is the object-safe, string-typed counterpart of `CheatSheetFamily`, bridged by `FamilyAdapter<F>` — `run::<F>()` keeps working unchanged on the dyn surface
 
 ### Fixed
 
