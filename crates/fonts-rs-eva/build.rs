@@ -124,6 +124,12 @@ impl MetadataGenerator for EvaMetadataGenerator {
 }
 
 fn main() -> miette::Result<()> {
+    // Emit the vendored SVG directory to dependent build scripts
+    // (custom icon sets via `fonts_rs_generator::IconSetBuild`).
+    if let Some(manifest_dir) = std::env::var_os("CARGO_MANIFEST_DIR") {
+        println!("cargo:svg_dir={}", Path::new(&manifest_dir).join("resources/svg").display());
+    }
+
     let font_path = Path::new(build_constants::RESOURCES_DIR).join("Eva-Icons.ttf");
 
     eprintln!("build.rs: combined fill+outline export -> {}", font_path.display());

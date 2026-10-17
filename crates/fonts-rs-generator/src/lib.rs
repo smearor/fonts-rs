@@ -25,6 +25,7 @@ pub mod glyph_source;
 pub mod gresource;
 #[cfg(feature = "gtk")]
 pub mod gtk;
+pub mod icon_set;
 pub mod svg;
 pub mod variant_list;
 
@@ -55,6 +56,7 @@ pub use glyph_source::CurrentColor;
 pub use glyph_source::EmojiUFilenameParser;
 pub use glyph_source::FontFileSource;
 pub use glyph_source::GlyphDescriptor;
+pub use glyph_source::GlyphExportTarget;
 pub use glyph_source::GlyphSource;
 pub use glyph_source::GlyphSourceError;
 pub use glyph_source::NameParser;
@@ -68,6 +70,10 @@ pub use glyph_source::SvgDirSource;
 pub use glyph_source::SvgFilenameParser;
 pub use glyph_source::SvgPostProcessor;
 pub use glyph_source::SymbolicClasses;
+pub use icon_set::IconSetBuild;
+pub use icon_set::IconSetBuildError;
+pub use icon_set::IconSetModuleGenerator;
+pub use icon_set::IconSetSourceResolver;
 pub use svg::EMPTY_SVG;
 pub use svg::Svg;
 pub use svg::SvgPathBuilder;

@@ -9,6 +9,10 @@ homepage.workspace = true
 description = "Lucide Icons integration for GTK 4 - fontless SVG-only icon set"
 publish = true
 
+# Emits the vendored SVG directory to dependent build scripts via
+# DEP_LUCIDE_* environment variables.
+links = "lucide"
+
 # Lucide Icons are licensed under the ISC License (Feather-derived
 # icons under MIT) - see resources/LICENSE.
 license-file = "resources/LICENSE"

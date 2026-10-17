@@ -182,6 +182,12 @@ fn parse_aliases(json: &str) -> miette::Result<Vec<(String, String)>> {
 }
 
 fn main() -> miette::Result<()> {
+    // Emit the vendored SVG directory to dependent build scripts
+    // (custom icon sets via `fonts_rs_generator::IconSetBuild`).
+    if let Some(manifest_dir) = std::env::var_os("CARGO_MANIFEST_DIR") {
+        println!("cargo:svg_dir={}", Path::new(&manifest_dir).join("resources/svg").display());
+    }
+
     eprintln!("build.rs: combined outline+solid+mini+micro export");
 
     let metadata_dir = Path::new(build_constants::RESOURCES_DIR).join("metadata");

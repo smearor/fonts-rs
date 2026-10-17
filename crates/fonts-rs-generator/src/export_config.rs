@@ -10,20 +10,12 @@ use std::path::Path;
 
 use fonts_rs_model::AxisValues;
 use fonts_rs_model::FontVariant;
-use fonts_rs_model::GlyphEntry;
 use fonts_rs_model::GlyphNameMap;
-use fonts_rs_model::SCALABLE_DIR;
-use quick_xml::se::Serializer;
-use serde::Serialize;
 
 use crate::export_error::ExportError;
 use crate::glyph_source::FontFileSource;
 use crate::glyph_source::GlyphSource;
 use fonts_rs_model::FontFamilyConfig;
-
-use crate::gresource::model::GResource;
-use crate::gresource::model::GResourceFile;
-use crate::gresource::model::GResources;
 
 /// Runtime configuration for glyph export, parameterized by a [`FontFamilyConfig`].
 ///
@@ -149,41 +141,6 @@ impl<X: FontFamilyConfig> ExportConfig<X> {
     /// The number of exported glyphs on success, or an [`ExportError`] on failure.
     pub fn export_glyphs_by_name_map(&self, font_path: &Path, output_dir: &Path, name_map: &GlyphNameMap) -> Result<usize, ExportError> {
         Ok(FontFileSource::new(font_path, self)?.name_map(name_map).export(self, output_dir)?)
-    }
-
-    /// Generate GResource XML with an explicit prefix.
-    ///
-    /// Creates an `icons.gresource.xml` listing all glyph SVG files under
-    /// the export config's GResource prefix and icons context.
-    ///
-    /// `pub(crate)` for reuse by the [`GlyphSource`](crate::glyph_source::GlyphSource)
-    /// export runner.
-    pub(crate) fn generate_gresource_xml(&self, entries: &[GlyphEntry<String>], output_path: &Path) -> Result<(), ExportError> {
-        let mut sorted: Vec<&GlyphEntry<String>> = entries.iter().collect();
-        sorted.sort_by(|a, b| a.name.cmp(&b.name));
-
-        let files: Vec<GResourceFile> = sorted
-            .iter()
-            .map(|entry| GResourceFile {
-                path: format!("{}/{}/{}.svg", SCALABLE_DIR, X::ICONS_CONTEXT, entry.name),
-            })
-            .collect();
-
-        let manifest = GResources {
-            gresource: GResource {
-                prefix: self.gresource_prefix.clone(),
-                files,
-            },
-        };
-
-        let mut buffer = String::new();
-        let mut serializer = Serializer::new(&mut buffer);
-        serializer.indent(' ', 2);
-        manifest.serialize(serializer)?;
-
-        let xml = format!("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n{buffer}");
-        fs::write(output_path, xml)?;
-        Ok(())
     }
 
     /// Write `variant.rs` with `GRESOURCE_PREFIX` and `GLYPH_PREFIX` constants.

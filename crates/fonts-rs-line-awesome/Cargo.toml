@@ -9,6 +9,10 @@ homepage.workspace = true
 description = "Line Awesome integration for GTK 4 - hybrid TTF + SVG icon set (Font Awesome 5 compatible)"
 publish = true
 
+# Emits the vendored SVG directory to dependent build scripts via
+# DEP_LINE_AWESOME_* environment variables.
+links = "line_awesome"
+
 # Line Awesome is dual-licensed MIT OR "Good Boy License"; vendored under MIT.
 license-file = "resources/LICENSE"
 

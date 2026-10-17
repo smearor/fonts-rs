@@ -10,6 +10,7 @@
 - [Upstream Sourcing](./upstream-sourcing.md)
 - [Glyph Resolution](./icon-resolution.md)
 - [Glyph Export](./icon-export.md)
+- [Custom Icon Sets](./custom-icon-sets.md)
 - [Font Loading](./font-loading.md)
 - [CSS Generation](./css-generation.md)
 - [GTK Integration](./gtk-integration.md)

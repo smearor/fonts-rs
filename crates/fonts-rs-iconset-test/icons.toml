@@ -1,0 +1,38 @@
+# icons.toml — end-to-end fixture for IconSetBuild.
+#
+# Exercises the full spec surface: two crate sources resolved via
+# DEP_*_SVG_DIR (one with a subdirectory and a rename-driven collision
+# resolution), a local `dir` source, per-source post-processors, and a
+# rename in every source.
+
+[iconset]
+name = "FixtureIcons"
+display_name = "Icon-Set Fixture Icons"
+icon_prefix = "fixture"
+gresource_prefix = "/com/example/iconset-test/icons"
+icons_context = "actions"
+
+[[iconset.sources]]
+crate = "fonts-rs-lucide"
+post_processors = ["symbolic-classes"]
+icons = [
+    "check",
+    { name = "download", rename = "install" },
+    "trash",
+]
+
+[[iconset.sources]]
+crate = "fonts-rs-tabler"
+subdirectory = "filled"
+post_processors = ["current-color-fill"]
+icons = [
+    { name = "check", rename = "check-filled" },
+    "heart",
+]
+
+[[iconset.sources]]
+dir = "resources/icons"
+icons = [
+    "custom-arrow",
+    { name = "old-brand", rename = "brand" },
+]

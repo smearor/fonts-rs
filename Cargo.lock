@@ -930,6 +930,7 @@ dependencies = [
  "serde_json",
  "skrifa",
  "thiserror 2.0.21",
+ "toml",
 ]
 
 [[package]]
@@ -957,6 +958,20 @@ dependencies = [
  "fonts-rs-model",
  "gtk4",
  "miette",
+]
+
+[[package]]
+name = "fonts-rs-iconset-test"
+version = "0.5.0"
+dependencies = [
+ "fonts-rs-generator",
+ "fonts-rs-lucide",
+ "fonts-rs-model",
+ "fonts-rs-tabler",
+ "gio",
+ "gtk4",
+ "miette",
+ "phf",
 ]
 
 [[package]]
@@ -2819,6 +2834,7 @@ version = "0.5.0"
 dependencies = [
  "clap",
  "flate2",
+ "fonts-rs-model",
  "globset",
  "miette",
  "serde",

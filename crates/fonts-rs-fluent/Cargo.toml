@@ -9,6 +9,10 @@ homepage.workspace = true
 description = "Fluent UI System Icons integration for GTK 4 - hybrid TTF + SVG icon set"
 publish = true
 
+# Emits the vendored SVG directory to dependent build scripts via
+# DEP_FLUENT_* environment variables.
+links = "fluent"
+
 # Fluent UI System Icons are licensed under the MIT License.
 license-file = "resources/LICENSE"
 

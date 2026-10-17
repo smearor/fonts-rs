@@ -9,6 +9,10 @@ homepage.workspace = true
 description = "Tabler Icons font integration for GTK 4 and pixel-drawing"
 publish = true
 
+# Emits the vendored SVG directory to dependent build scripts via
+# DEP_TABLER_* environment variables.
+links = "tabler"
+
 # Tabler Icons are licensed under the MIT License.
 license-file = "resources/LICENSE"
 

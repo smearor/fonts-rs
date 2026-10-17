@@ -4,14 +4,20 @@
 //! [`FontFamilyMarker`], which serves as the phantom type parameter for
 //! [`GlyphName<F>`](crate::GlyphName).
 
-/// Sealed trait module preventing external implementations of
-/// [`FontFamilyMarker`].
+/// Sealed trait module for [`FontFamilyMarker`].
 ///
-/// Only crates within the workspace can implement `FontFamilyMarker` by
-/// also implementing `Sealed`, which is private to this module.
+/// `Sealed` is publicly re-exported (`pub use font_family_marker::sealed;`
+/// at crate root), so downstream crates *can* implement
+/// `FontFamilyMarker` — intentionally, for application-defined marker
+/// types such as custom icon sets built via `fonts-rs-generator`'s
+/// `IconSetBuild`. The seal pattern still marks the trait as
+/// internal-by-convention: outside of generated code, new marker types
+/// should live in the fonts-rs workspace.
 pub mod sealed {
-    /// Private supertrait that prevents external crates from implementing
-    /// [`FontFamilyMarker`](super::FontFamilyMarker).
+    /// Supertrait of [`FontFamilyMarker`](super::FontFamilyMarker).
+    ///
+    /// Publicly re-exported — external crates may implement it for
+    /// application-defined marker types (custom icon sets).
     pub trait Sealed {}
 }
 
@@ -22,9 +28,9 @@ pub mod sealed {
 /// [`GlyphName<F>`](crate::GlyphName) to ensure type safety between font
 /// families at compile time.
 ///
-/// The `Sealed` supertrait prevents external crates from implementing
-/// `FontFamilyMarker`, ensuring that only crates within the workspace can
-/// define font family markers.
+/// Application crates may also implement it for generated icon-set
+/// markers (see `fonts-rs-generator`'s `IconSetBuild`) — the public
+/// `sealed` re-export makes that possible.
 ///
 /// For the runtime API surface (glyph maps, capability traits), see
 /// [`FontFamily`](crate::FontFamily).

@@ -1,0 +1,30 @@
+[package]
+name = "fonts-rs-iconset-test"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "End-to-end fixture for custom icon sets (icons.toml + IconSetBuild)"
+publish = false
+
+[features]
+default = ["gtk"]
+gtk = ["dep:gtk4", "dep:gio", "fonts-rs-model/gtk"]
+
+[build-dependencies]
+fonts-rs-generator.workspace = true
+miette.workspace = true
+
+[dependencies]
+fonts-rs-generator.workspace = true
+fonts-rs-model.workspace = true
+fonts-rs-lucide.workspace = true
+fonts-rs-tabler.workspace = true
+gio = { workspace = true, optional = true }
+gtk4 = { workspace = true, optional = true, features = ["v4_12"] }
+phf.workspace = true
+
+[lints]
+workspace = true
