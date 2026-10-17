@@ -216,6 +216,9 @@ jobs:
       - name: Publish fonts-rs-tabler-cheat-sheet
         continue-on-error: true
         run: cargo publish --locked -p fonts-rs-tabler-cheat-sheet --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:

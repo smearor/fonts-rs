@@ -56,6 +56,7 @@ members = [
     "crates/nerd-fonts-cheat-sheet",
     "crates/fonts-rs-cheat-sheet",
     "crates/fonts-rs-iconset-test",
+    "crates/fonts-rs",
     "crates/fonts-rs-test",
     "xtask",
 ]
@@ -117,6 +118,22 @@ nerd-fonts-model = { version = "0.5.0", path = "crates/nerd-fonts-model" }
 nerd-fonts-generator = { version = "0.5.0", path = "crates/nerd-fonts-generator" }
 nerd-fonts-rs = { version = "0.5.0", path = "crates/nerd-fonts-rs" }
 fonts-rs-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-cheat-sheet" }
+fonts-rs-blobmoji-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-blobmoji-cheat-sheet" }
+fonts-rs-bravura-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-bravura-cheat-sheet" }
+fonts-rs-cuernavaca-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-cuernavaca-cheat-sheet" }
+fonts-rs-dicefont-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-dicefont-cheat-sheet" }
+fonts-rs-doto-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-doto-cheat-sheet" }
+fonts-rs-eva-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-eva-cheat-sheet" }
+fonts-rs-fluent-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-fluent-cheat-sheet" }
+fonts-rs-fourteen-segment-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-fourteen-segment-cheat-sheet" }
+fonts-rs-heroicons-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-heroicons-cheat-sheet" }
+fonts-rs-line-awesome-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-line-awesome-cheat-sheet" }
+fonts-rs-lucide-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-lucide-cheat-sheet" }
+fonts-rs-noto-emoji-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-noto-emoji-cheat-sheet" }
+fonts-rs-seven-segment-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-seven-segment-cheat-sheet" }
+fonts-rs-tabler-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-tabler-cheat-sheet" }
+nerd-fonts-cheat-sheet = { version = "0.5.0", path = "crates/nerd-fonts-cheat-sheet" }
+fonts-rs = { version = "0.5.0", path = "crates/fonts-rs" }
 fonts-rs-test = { path = "crates/fonts-rs-test" }
 
 # Serialization
