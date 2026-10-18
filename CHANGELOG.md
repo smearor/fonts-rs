@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-19
+
 ### Added
 
 - **Custom icon sets**: applications define a minimal icon set in a root `icons.toml` (`[iconset]` + `[[iconset.sources]]`) and build it with `IconSetBuild::from_file("icons.toml")?.run()` — whitelisted, renamed glyphs merged across multiple source crates, exported to `icons.gresource`, plus a generated `iconset.rs` module providing the marker type, `FontFamilyConfig`, typed `GlyphName` alias, `icon_names` constants, `install()` and `IconThemeFont`/`GtkFont` impls
