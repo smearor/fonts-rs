@@ -80,6 +80,7 @@ macro_rules! impl_font_family {
             const GRESOURCE_PREFIX: &'static str =
                 $crate::impl_font_family!(@gresource_prefix $definition $(, $gresource_prefix)?);
             const ICONS_CONTEXT: &'static str = <$definition as ::fonts_rs_model::FontFamilyConfig>::ICONS_CONTEXT;
+            const ICON_PREFIX: &'static str = <$definition as ::fonts_rs_model::FontFamilyConfig>::ICON_PREFIX;
             const CODEPOINT_RANGES: &[::fonts_rs_model::CodePointRange] =
                 <$definition as ::fonts_rs_model::FontFamilyConfig>::CODEPOINT_RANGES;
         }

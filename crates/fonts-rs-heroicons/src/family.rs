@@ -20,3 +20,29 @@ fonts_rs_generator::impl_font_family!(
     glyph_prefix = "heroicons",
     capabilities = [icon_theme, html_svg],
 );
+
+impl fonts_rs_model::UpstreamIcons for Heroicons {
+    /// Heroicons styles are an infix on the display name:
+    /// `heroicons-{stem}-symbolic` is the (unmarked) `outline` style,
+    /// `-micro`/`-mini`/`-solid` select the other directories; the
+    /// upstream file stem drops the style suffix.
+    fn upstream_icon(icon_name: &str) -> Option<fonts_rs_model::UpstreamIcon> {
+        let stem = Self::upstream_stem(icon_name)?;
+        for style in ["micro", "mini", "solid"] {
+            if let Some(name) = stem.strip_suffix(&format!("-{style}")) {
+                return Some(fonts_rs_model::UpstreamIcon {
+                    subdirectory: Some(style),
+                    stem: name.to_string(),
+                    rename: None,
+                    post_processors: &[fonts_rs_model::IconSetPostProcessor::CurrentColorFill],
+                });
+            }
+        }
+        Some(fonts_rs_model::UpstreamIcon {
+            subdirectory: Some("outline"),
+            stem: stem.to_string(),
+            rename: None,
+            post_processors: &[fonts_rs_model::IconSetPostProcessor::SymbolicClasses],
+        })
+    }
+}

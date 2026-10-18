@@ -98,40 +98,9 @@ impl IconSetBuild {
     /// [`IconSetBuildError::SourceNotFound`] when a location cannot be
     /// resolved, and the export/codegen errors otherwise.
     pub fn run(&self) -> Result<(), IconSetBuildError> {
-        let resolver = IconSetSourceResolver::new();
-        let mut svg_dirs = Vec::with_capacity(self.spec.sources.len());
-        for source in &self.spec.sources {
-            svg_dirs.push(resolver.resolve(&source.location)?);
-        }
-        for (source, svg_dir) in self.spec.sources.iter().zip(&svg_dirs) {
-            self.check_whitelist(source, svg_dir)?;
-        }
-
-        let allocator = Rc::new(RefCell::new(PuaAllocator::new()));
-        let mut combined = CombinedSource::new();
-        for (source, svg_dir) in self.spec.sources.iter().zip(&svg_dirs) {
-            let whitelist = source.whitelist();
-            let renames = source.rename_map();
-            let mut svg_source = SvgDirSource::new(svg_dir)
-                .name_filter(move |parsed| whitelist.contains(&parsed.raw_name))
-                .codepoint_strategy(CodepointStrategy::HashedPua)
-                .pua_salt(source.location.salt())
-                .pua_allocator(allocator.clone())
-                .name_resolver(move |parsed| {
-                    let exported = renames.get(&parsed.raw_name).unwrap_or(&parsed.raw_name);
-                    Some(format!("{exported}-symbolic"))
-                })
-                .name_prefix(&self.spec.icon_prefix);
-            for processor in &source.post_processors {
-                svg_source = processor.apply(svg_source);
-            }
-            combined = combined.source("", svg_source);
-        }
-
-        let target = GlyphExportTarget {
-            gresource_prefix: self.spec.gresource_prefix.clone(),
-            icons_context: self.spec.icons_context.clone(),
-        };
+        let svg_dirs = self.resolve_sources()?;
+        let combined = self.combined_source(&svg_dirs);
+        let target = self.export_target();
 
         let mut build = FontBuild::svg_only()
             .extra_hash(EXPORT_PIPELINE_VERSION.to_string())
@@ -152,6 +121,77 @@ impl IconSetBuild {
                 Ok(())
             },
         )
+    }
+
+    /// Previews the export without a build-script context: resolves all
+    /// sources (registry/`cargo metadata` fallback - no `DEP_*` is
+    /// needed outside `build.rs`), exports the whitelisted glyphs into
+    /// `out_dir` and returns the exported glyph entries.
+    ///
+    /// This exercises the *real* pipeline - filtering, rename
+    /// resolution, `HashedPua`, post-processors - so preview output
+    /// equals what `run()` produces in a consumer's build.
+    ///
+    /// # Errors
+    ///
+    /// Same as [`run`](Self::run) plus [`IconSetBuildError::Io`] for
+    /// `out_dir` creation/writes.
+    pub fn preview(&self, out_dir: &Path) -> Result<Vec<GlyphEntry<String>>, IconSetBuildError> {
+        let svg_dirs = self.resolve_sources()?;
+        let combined = self.combined_source(&svg_dirs);
+        fs::create_dir_all(out_dir)?;
+        combined.export_to(&self.export_target(), out_dir)?;
+        let json = fs::read_to_string(out_dir.join("metadata.json"))?;
+        Ok(serde_json::from_str(&json)?)
+    }
+
+    /// Resolves every `[[iconset.sources]]` location to its SVG
+    /// directory and verifies the whitelists cover real files.
+    fn resolve_sources(&self) -> Result<Vec<PathBuf>, IconSetBuildError> {
+        let resolver = IconSetSourceResolver::new();
+        let mut svg_dirs = Vec::with_capacity(self.spec.sources.len());
+        for source in &self.spec.sources {
+            svg_dirs.push(resolver.resolve(&source.location)?);
+        }
+        for (source, svg_dir) in self.spec.sources.iter().zip(&svg_dirs) {
+            self.check_whitelist(source, svg_dir)?;
+        }
+        Ok(svg_dirs)
+    }
+
+    /// Builds the merged `CombinedSource` - shared-PUA allocation,
+    /// whitelist filters, rename resolvers and post-processors per
+    /// source.
+    fn combined_source(&self, svg_dirs: &[PathBuf]) -> CombinedSource<SvgDirSource<'_>> {
+        let allocator = Rc::new(RefCell::new(PuaAllocator::new()));
+        let mut combined = CombinedSource::new();
+        for (source, svg_dir) in self.spec.sources.iter().zip(svg_dirs) {
+            let whitelist = source.whitelist();
+            let renames = source.rename_map();
+            let mut svg_source = SvgDirSource::new(svg_dir)
+                .name_filter(move |parsed| whitelist.contains(&parsed.raw_name))
+                .codepoint_strategy(CodepointStrategy::HashedPua)
+                .pua_salt(source.location.salt())
+                .pua_allocator(allocator.clone())
+                .name_resolver(move |parsed| {
+                    let exported = renames.get(&parsed.raw_name).unwrap_or(&parsed.raw_name);
+                    Some(format!("{exported}-symbolic"))
+                })
+                .name_prefix(&self.spec.icon_prefix);
+            for processor in &source.post_processors {
+                svg_source = processor.apply(svg_source);
+            }
+            combined = combined.source("", svg_source);
+        }
+        combined
+    }
+
+    /// The export target carrying the spec's gresource settings.
+    fn export_target(&self) -> GlyphExportTarget {
+        GlyphExportTarget {
+            gresource_prefix: self.spec.gresource_prefix.clone(),
+            icons_context: self.spec.icons_context.clone(),
+        }
     }
 
     /// Verifies every whitelisted upstream name matches an `*.svg`

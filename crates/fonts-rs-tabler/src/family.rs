@@ -19,3 +19,10 @@ fonts_rs_generator::impl_font_family!(
     glyph_prefix = "tabler",
     capabilities = [icon_theme, pango, html],
 );
+
+impl fonts_rs_model::UpstreamIcons for Tabler {
+    // The variant is a build-time feature (`outline` default, `filled`
+    // alternative) - the upstream subdirectory follows it.
+    const UPSTREAM_SUBDIRECTORY: Option<&'static str> = if cfg!(feature = "filled") { Some("filled") } else { Some("outline") };
+    const UPSTREAM_POST_PROCESSORS: &'static [fonts_rs_model::IconSetPostProcessor] = &[fonts_rs_model::IconSetPostProcessor::SymbolicClasses];
+}

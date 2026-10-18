@@ -24,3 +24,24 @@ fonts_rs_generator::impl_font_family!(
     gresource_prefix = variant::GRESOURCE_PREFIX,
     capabilities = [icon_theme, pango, html],
 );
+
+impl fonts_rs_model::UpstreamIcons for Fluent {
+    /// Fluent exports `fluent-{name}-symbolic` (regular) and
+    /// `fluent-filled-{name}-symbolic` (filled); upstream files are
+    /// `ic_fluent_{snake}_24_{style}` under `regular-24`/`filled-24`.
+    fn upstream_icon(icon_name: &str) -> Option<fonts_rs_model::UpstreamIcon> {
+        let stem = Self::upstream_stem(icon_name)?;
+        let (subdirectory, style, name) = match stem.strip_prefix("filled-") {
+            Some(rest) => ("filled-24", "filled", rest),
+            None => ("regular-24", "regular", stem),
+        };
+        Some(fonts_rs_model::UpstreamIcon {
+            subdirectory: Some(subdirectory),
+            stem: format!("ic_fluent_{}_24_{style}", name.replace('-', "_")),
+            // The snake-case upstream stem is not kebab-spec - the
+            // whitelist entry must carry the clean stem as `rename`.
+            rename: Some(name.to_string()),
+            post_processors: &[fonts_rs_model::IconSetPostProcessor::CurrentColorFill],
+        })
+    }
+}

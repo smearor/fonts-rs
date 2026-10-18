@@ -129,4 +129,3 @@ impl CheatSheetFamily for TablerSheet {
         Tabler::glyph_svg(name)
     }
 }
-

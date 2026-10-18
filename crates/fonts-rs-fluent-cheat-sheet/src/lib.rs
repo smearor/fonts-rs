@@ -165,4 +165,3 @@ impl CheatSheetFamily for FluentSheet {
         Fluent::glyph_svg(name)
     }
 }
-

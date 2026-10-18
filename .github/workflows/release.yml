@@ -219,6 +219,9 @@ jobs:
       - name: Publish fonts-rs
         continue-on-error: true
         run: cargo publish --locked -p fonts-rs --token ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish fonts-rs-iconset-builder
+        continue-on-error: true
+        run: cargo publish --locked -p fonts-rs-iconset-builder --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:

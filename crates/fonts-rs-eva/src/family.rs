@@ -19,3 +19,23 @@ fonts_rs_generator::impl_font_family!(
     glyph_prefix = "eva",
     capabilities = [icon_theme, pango, html],
 );
+
+impl fonts_rs_model::UpstreamIcons for Eva {
+    /// Eva ships two styles: `fill/` (stems like `activity`) and
+    /// `outline/` (stems like `activity-outline` - the style suffix is
+    /// part of the upstream file name).
+    fn upstream_icon(icon_name: &str) -> Option<fonts_rs_model::UpstreamIcon> {
+        let stem = Self::upstream_stem(icon_name)?;
+        let (subdirectory, post_processors) = if stem.ends_with("-outline") {
+            (Some("outline"), &[fonts_rs_model::IconSetPostProcessor::SymbolicClasses][..])
+        } else {
+            (Some("fill"), &[fonts_rs_model::IconSetPostProcessor::CurrentColorFill][..])
+        };
+        Some(fonts_rs_model::UpstreamIcon {
+            subdirectory,
+            stem: stem.to_string(),
+            rename: None,
+            post_processors,
+        })
+    }
+}

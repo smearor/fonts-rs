@@ -20,3 +20,7 @@ fonts_rs_generator::impl_font_family!(
     glyph_prefix = "lucide",
     capabilities = [icon_theme, html_svg],
 );
+
+impl fonts_rs_model::UpstreamIcons for Lucide {
+    const UPSTREAM_POST_PROCESSORS: &'static [fonts_rs_model::IconSetPostProcessor] = &[fonts_rs_model::IconSetPostProcessor::SymbolicClasses];
+}

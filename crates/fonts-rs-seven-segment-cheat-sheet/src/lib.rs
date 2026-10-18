@@ -86,4 +86,3 @@ impl CheatSheetFamily for SevenSegmentSheet {
         SevenSegment::glyph_svg(name)
     }
 }
-
