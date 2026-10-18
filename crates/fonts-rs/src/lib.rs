@@ -74,82 +74,114 @@ pub use fonts_rs_model as model;
 #[cfg(feature = "barcode-code39")]
 pub use fonts_rs_barcode_code39 as barcode_code39;
 #[cfg(feature = "barcode-code39")]
-pub use fonts_rs_barcode_code39::{Code39, Code39Name};
+pub use fonts_rs_barcode_code39::Code39;
+#[cfg(feature = "barcode-code39")]
+pub use fonts_rs_barcode_code39::Code39Name;
 
 #[cfg(feature = "barcode-code128")]
 pub use fonts_rs_barcode_code128 as barcode_code128;
 #[cfg(feature = "barcode-code128")]
-pub use fonts_rs_barcode_code128::{Code128, Code128Name};
+pub use fonts_rs_barcode_code128::Code128;
+#[cfg(feature = "barcode-code128")]
+pub use fonts_rs_barcode_code128::Code128Name;
 
 #[cfg(feature = "barcode-ean13")]
 pub use fonts_rs_barcode_ean13 as barcode_ean13;
 #[cfg(feature = "barcode-ean13")]
-pub use fonts_rs_barcode_ean13::{Ean13, Ean13Name};
+pub use fonts_rs_barcode_ean13::Ean13;
+#[cfg(feature = "barcode-ean13")]
+pub use fonts_rs_barcode_ean13::Ean13Name;
 
 #[cfg(feature = "bravura")]
 pub use fonts_rs_bravura as bravura;
 #[cfg(feature = "bravura")]
-pub use fonts_rs_bravura::{Bravura, BravuraName};
+pub use fonts_rs_bravura::Bravura;
+#[cfg(feature = "bravura")]
+pub use fonts_rs_bravura::BravuraName;
 
 #[cfg(feature = "cuernavaca")]
 pub use fonts_rs_cuernavaca as cuernavaca;
 #[cfg(feature = "cuernavaca")]
-pub use fonts_rs_cuernavaca::{Cuernavaca, CuernavacaName};
+pub use fonts_rs_cuernavaca::Cuernavaca;
+#[cfg(feature = "cuernavaca")]
+pub use fonts_rs_cuernavaca::CuernavacaName;
 
 #[cfg(feature = "dicefont")]
 pub use fonts_rs_dicefont as dicefont;
 #[cfg(feature = "dicefont")]
-pub use fonts_rs_dicefont::{Dicefont, DicefontName};
+pub use fonts_rs_dicefont::Dicefont;
+#[cfg(feature = "dicefont")]
+pub use fonts_rs_dicefont::DicefontName;
 
 #[cfg(feature = "doto")]
 pub use fonts_rs_doto as doto;
 #[cfg(feature = "doto")]
-pub use fonts_rs_doto::{Doto, DotoName};
+pub use fonts_rs_doto::Doto;
+#[cfg(feature = "doto")]
+pub use fonts_rs_doto::DotoName;
 
 #[cfg(feature = "eva")]
 pub use fonts_rs_eva as eva;
 #[cfg(feature = "eva")]
-pub use fonts_rs_eva::{Eva, EvaIconName};
+pub use fonts_rs_eva::Eva;
+#[cfg(feature = "eva")]
+pub use fonts_rs_eva::EvaIconName;
 
 #[cfg(feature = "fluent")]
 pub use fonts_rs_fluent as fluent;
 #[cfg(feature = "fluent")]
-pub use fonts_rs_fluent::{Fluent, FluentIconName};
+pub use fonts_rs_fluent::Fluent;
+#[cfg(feature = "fluent")]
+pub use fonts_rs_fluent::FluentIconName;
 
 #[cfg(feature = "fourteen-segment")]
 pub use fonts_rs_fourteen_segment as fourteen_segment;
 #[cfg(feature = "fourteen-segment")]
-pub use fonts_rs_fourteen_segment::{FourteenSegment, FourteenSegmentName};
+pub use fonts_rs_fourteen_segment::FourteenSegment;
+#[cfg(feature = "fourteen-segment")]
+pub use fonts_rs_fourteen_segment::FourteenSegmentName;
 
 #[cfg(feature = "heroicons")]
 pub use fonts_rs_heroicons as heroicons;
 #[cfg(feature = "heroicons")]
-pub use fonts_rs_heroicons::{Heroicons, HeroiconsIconName};
+pub use fonts_rs_heroicons::Heroicons;
+#[cfg(feature = "heroicons")]
+pub use fonts_rs_heroicons::HeroiconsIconName;
 
 #[cfg(feature = "line-awesome")]
 pub use fonts_rs_line_awesome as line_awesome;
 #[cfg(feature = "line-awesome")]
-pub use fonts_rs_line_awesome::{LineAwesome, LineAwesomeIconName};
+pub use fonts_rs_line_awesome::LineAwesome;
+#[cfg(feature = "line-awesome")]
+pub use fonts_rs_line_awesome::LineAwesomeIconName;
 
 #[cfg(feature = "lucide")]
 pub use fonts_rs_lucide as lucide;
 #[cfg(feature = "lucide")]
-pub use fonts_rs_lucide::{Lucide, LucideIconName};
+pub use fonts_rs_lucide::Lucide;
+#[cfg(feature = "lucide")]
+pub use fonts_rs_lucide::LucideIconName;
 
 #[cfg(feature = "redacted")]
 pub use fonts_rs_redacted as redacted;
 #[cfg(feature = "redacted")]
-pub use fonts_rs_redacted::{Redacted, RedactedName};
+pub use fonts_rs_redacted::Redacted;
+#[cfg(feature = "redacted")]
+pub use fonts_rs_redacted::RedactedName;
 
 #[cfg(feature = "seven-segment")]
 pub use fonts_rs_seven_segment as seven_segment;
 #[cfg(feature = "seven-segment")]
-pub use fonts_rs_seven_segment::{SevenSegment, SevenSegmentName};
+pub use fonts_rs_seven_segment::SevenSegment;
+#[cfg(feature = "seven-segment")]
+pub use fonts_rs_seven_segment::SevenSegmentName;
 
 #[cfg(feature = "tabler")]
 pub use fonts_rs_tabler as tabler;
 #[cfg(feature = "tabler")]
-pub use fonts_rs_tabler::{Tabler, TablerIconName};
+pub use fonts_rs_tabler::Tabler;
+#[cfg(feature = "tabler")]
+pub use fonts_rs_tabler::TablerIconName;
 
 #[cfg(feature = "nerd-fonts")]
 pub use nerd_fonts_rs as nerd_fonts;
@@ -159,11 +191,15 @@ pub use nerd_fonts_rs::NerdFonts;
 #[cfg(feature = "emoji-noto")]
 pub use fonts_rs_noto_emoji as noto_emoji;
 #[cfg(feature = "emoji-noto")]
-pub use fonts_rs_noto_emoji::{NotoEmoji, NotoEmojiName};
+pub use fonts_rs_noto_emoji::NotoEmoji;
+#[cfg(feature = "emoji-noto")]
+pub use fonts_rs_noto_emoji::NotoEmojiName;
 
 #[cfg(feature = "emoji-blobmoji")]
 pub use fonts_rs_blobmoji as blobmoji;
 #[cfg(feature = "emoji-blobmoji")]
-pub use fonts_rs_blobmoji::{Blobmoji, BlobmojiName};
+pub use fonts_rs_blobmoji::Blobmoji;
+#[cfg(feature = "emoji-blobmoji")]
+pub use fonts_rs_blobmoji::BlobmojiName;
 
 pub mod prelude;

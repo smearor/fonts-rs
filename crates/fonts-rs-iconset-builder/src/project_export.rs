@@ -52,10 +52,22 @@ impl ProjectExport {
     fn files(selection: &IconSelection, settings: &BuilderSettings) -> Result<Vec<ExportFile>, IconSelectionError> {
         let package = Self::package_name(&settings.name);
         Ok(vec![
-            ExportFile { path: "Cargo.toml".to_string(), content: cargo_toml(selection, &package) },
-            ExportFile { path: "icons.toml".to_string(), content: selection.to_toml(settings)? },
-            ExportFile { path: "build.rs".to_string(), content: build_rs().to_string() },
-            ExportFile { path: "src/lib.rs".to_string(), content: lib_rs(&settings.name) },
+            ExportFile {
+                path: "Cargo.toml".to_string(),
+                content: cargo_toml(selection, &package),
+            },
+            ExportFile {
+                path: "icons.toml".to_string(),
+                content: selection.to_toml(settings)?,
+            },
+            ExportFile {
+                path: "build.rs".to_string(),
+                content: build_rs().to_string(),
+            },
+            ExportFile {
+                path: "src/lib.rs".to_string(),
+                content: lib_rs(&settings.name),
+            },
         ])
     }
 }
@@ -171,7 +183,9 @@ mod tests {
         ProjectExport::write_zip(&selection, &settings(), &path).unwrap();
         let mut archive = zip::ZipArchive::new(std::fs::File::open(&path).unwrap()).unwrap();
         assert_eq!(archive.len(), 4);
-        let mut names: Vec<String> = (0..archive.len()).filter_map(|i| archive.by_index(i).ok().map(|f| f.name().to_string())).collect();
+        let mut names: Vec<String> = (0..archive.len())
+            .filter_map(|i| archive.by_index(i).ok().map(|f| f.name().to_string()))
+            .collect();
         names.sort();
         assert_eq!(names, ["Cargo.toml", "build.rs", "icons.toml", "src/lib.rs"]);
         let _ = std::fs::remove_file(&path);
