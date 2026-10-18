@@ -125,4 +125,3 @@ impl CheatSheetFamily for EvaSheet {
         Eva::glyph_svg(name)
     }
 }
-

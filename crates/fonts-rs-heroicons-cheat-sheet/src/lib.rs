@@ -155,4 +155,3 @@ impl CheatSheetFamily for HeroiconsSheet {
         Heroicons::glyph_svg(name)
     }
 }
-

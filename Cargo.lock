@@ -1005,6 +1005,34 @@ dependencies = [
 ]
 
 [[package]]
+name = "fonts-rs-iconset-builder"
+version = "0.5.0"
+dependencies = [
+ "fonts-rs-cheat-sheet",
+ "fonts-rs-eva",
+ "fonts-rs-eva-cheat-sheet",
+ "fonts-rs-fluent",
+ "fonts-rs-fluent-cheat-sheet",
+ "fonts-rs-generator",
+ "fonts-rs-heroicons",
+ "fonts-rs-heroicons-cheat-sheet",
+ "fonts-rs-line-awesome",
+ "fonts-rs-line-awesome-cheat-sheet",
+ "fonts-rs-lucide",
+ "fonts-rs-lucide-cheat-sheet",
+ "fonts-rs-model",
+ "fonts-rs-tabler",
+ "fonts-rs-tabler-cheat-sheet",
+ "gtk4",
+ "libadwaita",
+ "miette",
+ "serde_json",
+ "thiserror 2.0.21",
+ "toml",
+ "zip 8.6.0",
+]
+
+[[package]]
 name = "fonts-rs-iconset-test"
 version = "0.5.0"
 dependencies = [
@@ -2419,9 +2447,9 @@ dependencies = [
 
 [[package]]
 name = "sha2"
-version = "0.11.1"
+version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "47d7069beb7d6ac7b9acd1039986e73443f24234f41074da099d6f994ac9ad19"
+checksum = "446ba717509524cb3f22f17ecc096f10f4822d76ab5c0b9822c5f9c284e825f4"
 dependencies = [
  "cfg-if",
  "cpufeatures",
@@ -2888,7 +2916,7 @@ dependencies = [
  "tempfile",
  "toml",
  "tracing",
- "zip",
+ "zip 9.0.1",
 ]
 
 [[package]]
@@ -2970,9 +2998,21 @@ dependencies = [
 
 [[package]]
 name = "zip"
-version = "9.0.3"
+version = "8.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c2d98561b612a84ae525331a7a094429ef8a5772514ed507ff6db5f54badc971"
+checksum = "2d04a6b5381502aa6087c94c669499eb1602eb9c5e8198e534de571f7154809b"
+dependencies = [
+ "crc32fast",
+ "indexmap",
+ "memchr",
+ "typed-path",
+]
+
+[[package]]
+name = "zip"
+version = "9.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e49ade69c4434c55dd651d36fe05f38e0578db948b773cbc01c48c4b5e560692"
 dependencies = [
  "crc32fast",
  "flate2",

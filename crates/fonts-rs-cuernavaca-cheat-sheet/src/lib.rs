@@ -129,4 +129,3 @@ impl CheatSheetFamily for CuernavacaSheet {
         Cuernavaca::glyph_svg(name)
     }
 }
-

@@ -54,6 +54,8 @@ pub mod prelude;
 pub mod resource_path;
 #[cfg(feature = "render")]
 pub mod software_render;
+pub mod upstream_icon;
+pub mod upstream_icons;
 
 #[cfg(feature = "gtk")]
 pub use gtk4;
@@ -132,3 +134,5 @@ pub use paths::SCALABLE_DIR;
 pub use resource_path::ResourcePath;
 #[cfg(feature = "render")]
 pub use software_render::SoftwareRender;
+pub use upstream_icon::UpstreamIcon;
+pub use upstream_icons::UpstreamIcons;

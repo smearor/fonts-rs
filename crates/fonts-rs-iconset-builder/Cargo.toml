@@ -1,0 +1,48 @@
+[package]
+name = "fonts-rs-iconset-builder"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+description = "Icon Set Builder - cross-family glyph selection that emits an icons.toml for IconSetBuild"
+publish = true
+
+[dependencies]
+fonts-rs-model.workspace = true
+fonts-rs-generator.workspace = true
+fonts-rs-eva.workspace = true
+fonts-rs-fluent.workspace = true
+fonts-rs-heroicons.workspace = true
+fonts-rs-line-awesome.workspace = true
+fonts-rs-lucide.workspace = true
+fonts-rs-tabler.workspace = true
+thiserror.workspace = true
+serde_json.workspace = true
+toml.workspace = true
+zip = { version = "8", default-features = false }
+
+# GUI binary - the crate is the tool; no feature gating on a
+# standalone builder (`cargo install fonts-rs-iconset-builder` always
+# ships the binary).
+libadwaita.workspace = true
+fonts-rs-cheat-sheet.workspace = true
+fonts-rs-eva-cheat-sheet.workspace = true
+fonts-rs-fluent-cheat-sheet.workspace = true
+fonts-rs-heroicons-cheat-sheet.workspace = true
+fonts-rs-line-awesome-cheat-sheet.workspace = true
+fonts-rs-lucide-cheat-sheet.workspace = true
+fonts-rs-tabler-cheat-sheet.workspace = true
+gtk4 = { workspace = true, features = ["v4_12"] }
+miette.workspace = true
+
+[[bin]]
+name = "fonts-rs-iconset-builder"
+path = "src/bin/fonts-rs-iconset-builder/main.rs"
+
+[lints]
+workspace = true

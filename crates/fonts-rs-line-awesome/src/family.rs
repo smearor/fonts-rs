@@ -82,3 +82,7 @@ impl LineAwesome {
         <Self as fonts_rs_model::SoftwareRender>::font()
     }
 }
+
+impl fonts_rs_model::UpstreamIcons for LineAwesome {
+    const UPSTREAM_POST_PROCESSORS: &'static [fonts_rs_model::IconSetPostProcessor] = &[fonts_rs_model::IconSetPostProcessor::CurrentColorFill];
+}

@@ -96,4 +96,3 @@ impl CheatSheetFamily for NerdFontsSheet {
         NerdFonts::glyph_svg(name)
     }
 }
-

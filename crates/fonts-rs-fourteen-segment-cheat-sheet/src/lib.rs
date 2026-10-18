@@ -86,4 +86,3 @@ impl CheatSheetFamily for FourteenSegmentSheet {
         FourteenSegment::glyph_svg(name)
     }
 }
-

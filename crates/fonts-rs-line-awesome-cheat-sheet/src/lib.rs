@@ -172,4 +172,3 @@ impl CheatSheetFamily for LineAwesomeSheet {
         LineAwesome::glyph_svg(name)
     }
 }
-

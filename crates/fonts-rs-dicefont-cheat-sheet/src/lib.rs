@@ -126,4 +126,3 @@ impl CheatSheetFamily for DicefontSheet {
         Dicefont::glyph_svg(name)
     }
 }
-

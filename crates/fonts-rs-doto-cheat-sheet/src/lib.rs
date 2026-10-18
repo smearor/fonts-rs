@@ -86,4 +86,3 @@ impl CheatSheetFamily for DotoSheet {
         Doto::glyph_svg(name)
     }
 }
-

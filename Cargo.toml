@@ -57,6 +57,7 @@ members = [
     "crates/fonts-rs-cheat-sheet",
     "crates/fonts-rs-iconset-test",
     "crates/fonts-rs",
+    "crates/fonts-rs-iconset-builder",
     "crates/fonts-rs-test",
     "xtask",
 ]
@@ -134,6 +135,7 @@ fonts-rs-seven-segment-cheat-sheet = { version = "0.5.0", path = "crates/fonts-r
 fonts-rs-tabler-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-tabler-cheat-sheet" }
 nerd-fonts-cheat-sheet = { version = "0.5.0", path = "crates/nerd-fonts-cheat-sheet" }
 fonts-rs = { version = "0.5.0", path = "crates/fonts-rs" }
+fonts-rs-iconset-builder = { version = "0.5.0", path = "crates/fonts-rs-iconset-builder" }
 fonts-rs-test = { path = "crates/fonts-rs-test" }
 
 # Serialization
