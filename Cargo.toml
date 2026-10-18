@@ -64,7 +64,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version = "0.5.0"
+version = "0.6.0"
 edition = "2024"
 rust-version = "1.92"
 license = "MIT"
@@ -79,63 +79,63 @@ unexpected_cfgs = { level = "warn", check-cfg = ['cfg(is_lib)'] }
 
 [workspace.dependencies]
 # Internal crates
-fonts-rs-model = { version = "0.5.0", path = "crates/fonts-rs-model" }
-fonts-rs-generator = { version = "0.5.0", path = "crates/fonts-rs-generator" }
-fonts-rs-seven-segment = { version = "0.5.0", path = "crates/fonts-rs-seven-segment" }
-fonts-rs-fourteen-segment = { version = "0.5.0", path = "crates/fonts-rs-fourteen-segment" }
-fonts-rs-barcode-code39 = { version = "0.5.0", path = "crates/fonts-rs-barcode-code39" }
-fonts-rs-barcode-code128 = { version = "0.5.0", path = "crates/fonts-rs-barcode-code128" }
-fonts-rs-barcode-ean13 = { version = "0.5.0", path = "crates/fonts-rs-barcode-ean13" }
-fonts-rs-doto = { version = "0.5.0", path = "crates/fonts-rs-doto" }
-fonts-rs-redacted = { version = "0.5.0", path = "crates/fonts-rs-redacted" }
-fonts-rs-dicefont = { version = "0.5.0", path = "crates/fonts-rs-dicefont" }
-fonts-rs-bravura = { version = "0.5.0", path = "crates/fonts-rs-bravura" }
-fonts-rs-emoji-metadata = { version = "0.5.0", path = "crates/fonts-rs-emoji-metadata" }
-fonts-rs-noto-emoji = { version = "0.5.0", path = "crates/fonts-rs-noto-emoji" }
-fonts-rs-noto-emoji-mono = { version = "0.5.0", path = "crates/fonts-rs-noto-emoji-mono" }
-fonts-rs-noto-emoji-color-flags = { version = "0.5.0", path = "crates/fonts-rs-noto-emoji-color-flags" }
-fonts-rs-noto-emoji-color-noflags = { version = "0.5.0", path = "crates/fonts-rs-noto-emoji-color-noflags" }
-fonts-rs-noto-emoji-bitmap-flags = { version = "0.5.0", path = "crates/fonts-rs-noto-emoji-bitmap-flags" }
-fonts-rs-noto-emoji-bitmap-noflags = { version = "0.5.0", path = "crates/fonts-rs-noto-emoji-bitmap-noflags" }
-fonts-rs-noto-emoji-glyphs = { version = "0.5.0", path = "crates/fonts-rs-noto-emoji-glyphs" }
-fonts-rs-noto-emoji-sequences = { version = "0.5.0", path = "crates/fonts-rs-noto-emoji-sequences" }
-fonts-rs-noto-emoji-generator = { version = "0.5.0", path = "crates/fonts-rs-noto-emoji-generator" }
-fonts-rs-blobmoji = { version = "0.5.0", path = "crates/fonts-rs-blobmoji" }
-fonts-rs-blobmoji-color-flags = { version = "0.5.0", path = "crates/fonts-rs-blobmoji-color-flags" }
-fonts-rs-blobmoji-color-noflags = { version = "0.5.0", path = "crates/fonts-rs-blobmoji-color-noflags" }
-fonts-rs-blobmoji-bitmap-flags = { version = "0.5.0", path = "crates/fonts-rs-blobmoji-bitmap-flags" }
-fonts-rs-blobmoji-bitmap-noflags = { version = "0.5.0", path = "crates/fonts-rs-blobmoji-bitmap-noflags" }
-fonts-rs-blobmoji-glyphs = { version = "0.5.0", path = "crates/fonts-rs-blobmoji-glyphs" }
-fonts-rs-blobmoji-sequences = { version = "0.5.0", path = "crates/fonts-rs-blobmoji-sequences" }
-fonts-rs-blobmoji-generator = { version = "0.5.0", path = "crates/fonts-rs-blobmoji-generator" }
-fonts-rs-cuernavaca = { version = "0.5.0", path = "crates/fonts-rs-cuernavaca" }
-fonts-rs-eva = { version = "0.5.0", path = "crates/fonts-rs-eva" }
-fonts-rs-fluent = { version = "0.5.0", path = "crates/fonts-rs-fluent" }
-fonts-rs-tabler = { version = "0.5.0", path = "crates/fonts-rs-tabler" }
-fonts-rs-lucide = { version = "0.5.0", path = "crates/fonts-rs-lucide" }
-fonts-rs-heroicons = { version = "0.5.0", path = "crates/fonts-rs-heroicons" }
-fonts-rs-line-awesome = { version = "0.5.0", path = "crates/fonts-rs-line-awesome" }
-nerd-fonts-model = { version = "0.5.0", path = "crates/nerd-fonts-model" }
-nerd-fonts-generator = { version = "0.5.0", path = "crates/nerd-fonts-generator" }
-nerd-fonts-rs = { version = "0.5.0", path = "crates/nerd-fonts-rs" }
-fonts-rs-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-cheat-sheet" }
-fonts-rs-blobmoji-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-blobmoji-cheat-sheet" }
-fonts-rs-bravura-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-bravura-cheat-sheet" }
-fonts-rs-cuernavaca-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-cuernavaca-cheat-sheet" }
-fonts-rs-dicefont-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-dicefont-cheat-sheet" }
-fonts-rs-doto-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-doto-cheat-sheet" }
-fonts-rs-eva-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-eva-cheat-sheet" }
-fonts-rs-fluent-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-fluent-cheat-sheet" }
-fonts-rs-fourteen-segment-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-fourteen-segment-cheat-sheet" }
-fonts-rs-heroicons-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-heroicons-cheat-sheet" }
-fonts-rs-line-awesome-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-line-awesome-cheat-sheet" }
-fonts-rs-lucide-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-lucide-cheat-sheet" }
-fonts-rs-noto-emoji-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-noto-emoji-cheat-sheet" }
-fonts-rs-seven-segment-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-seven-segment-cheat-sheet" }
-fonts-rs-tabler-cheat-sheet = { version = "0.5.0", path = "crates/fonts-rs-tabler-cheat-sheet" }
-nerd-fonts-cheat-sheet = { version = "0.5.0", path = "crates/nerd-fonts-cheat-sheet" }
-fonts-rs = { version = "0.5.0", path = "crates/fonts-rs" }
-fonts-rs-iconset-builder = { version = "0.5.0", path = "crates/fonts-rs-iconset-builder" }
+fonts-rs-model = { version = "0.6.0", path = "crates/fonts-rs-model" }
+fonts-rs-generator = { version = "0.6.0", path = "crates/fonts-rs-generator" }
+fonts-rs-seven-segment = { version = "0.6.0", path = "crates/fonts-rs-seven-segment" }
+fonts-rs-fourteen-segment = { version = "0.6.0", path = "crates/fonts-rs-fourteen-segment" }
+fonts-rs-barcode-code39 = { version = "0.6.0", path = "crates/fonts-rs-barcode-code39" }
+fonts-rs-barcode-code128 = { version = "0.6.0", path = "crates/fonts-rs-barcode-code128" }
+fonts-rs-barcode-ean13 = { version = "0.6.0", path = "crates/fonts-rs-barcode-ean13" }
+fonts-rs-doto = { version = "0.6.0", path = "crates/fonts-rs-doto" }
+fonts-rs-redacted = { version = "0.6.0", path = "crates/fonts-rs-redacted" }
+fonts-rs-dicefont = { version = "0.6.0", path = "crates/fonts-rs-dicefont" }
+fonts-rs-bravura = { version = "0.6.0", path = "crates/fonts-rs-bravura" }
+fonts-rs-emoji-metadata = { version = "0.6.0", path = "crates/fonts-rs-emoji-metadata" }
+fonts-rs-noto-emoji = { version = "0.6.0", path = "crates/fonts-rs-noto-emoji" }
+fonts-rs-noto-emoji-mono = { version = "0.6.0", path = "crates/fonts-rs-noto-emoji-mono" }
+fonts-rs-noto-emoji-color-flags = { version = "0.6.0", path = "crates/fonts-rs-noto-emoji-color-flags" }
+fonts-rs-noto-emoji-color-noflags = { version = "0.6.0", path = "crates/fonts-rs-noto-emoji-color-noflags" }
+fonts-rs-noto-emoji-bitmap-flags = { version = "0.6.0", path = "crates/fonts-rs-noto-emoji-bitmap-flags" }
+fonts-rs-noto-emoji-bitmap-noflags = { version = "0.6.0", path = "crates/fonts-rs-noto-emoji-bitmap-noflags" }
+fonts-rs-noto-emoji-glyphs = { version = "0.6.0", path = "crates/fonts-rs-noto-emoji-glyphs" }
+fonts-rs-noto-emoji-sequences = { version = "0.6.0", path = "crates/fonts-rs-noto-emoji-sequences" }
+fonts-rs-noto-emoji-generator = { version = "0.6.0", path = "crates/fonts-rs-noto-emoji-generator" }
+fonts-rs-blobmoji = { version = "0.6.0", path = "crates/fonts-rs-blobmoji" }
+fonts-rs-blobmoji-color-flags = { version = "0.6.0", path = "crates/fonts-rs-blobmoji-color-flags" }
+fonts-rs-blobmoji-color-noflags = { version = "0.6.0", path = "crates/fonts-rs-blobmoji-color-noflags" }
+fonts-rs-blobmoji-bitmap-flags = { version = "0.6.0", path = "crates/fonts-rs-blobmoji-bitmap-flags" }
+fonts-rs-blobmoji-bitmap-noflags = { version = "0.6.0", path = "crates/fonts-rs-blobmoji-bitmap-noflags" }
+fonts-rs-blobmoji-glyphs = { version = "0.6.0", path = "crates/fonts-rs-blobmoji-glyphs" }
+fonts-rs-blobmoji-sequences = { version = "0.6.0", path = "crates/fonts-rs-blobmoji-sequences" }
+fonts-rs-blobmoji-generator = { version = "0.6.0", path = "crates/fonts-rs-blobmoji-generator" }
+fonts-rs-cuernavaca = { version = "0.6.0", path = "crates/fonts-rs-cuernavaca" }
+fonts-rs-eva = { version = "0.6.0", path = "crates/fonts-rs-eva" }
+fonts-rs-fluent = { version = "0.6.0", path = "crates/fonts-rs-fluent" }
+fonts-rs-tabler = { version = "0.6.0", path = "crates/fonts-rs-tabler" }
+fonts-rs-lucide = { version = "0.6.0", path = "crates/fonts-rs-lucide" }
+fonts-rs-heroicons = { version = "0.6.0", path = "crates/fonts-rs-heroicons" }
+fonts-rs-line-awesome = { version = "0.6.0", path = "crates/fonts-rs-line-awesome" }
+nerd-fonts-model = { version = "0.6.0", path = "crates/nerd-fonts-model" }
+nerd-fonts-generator = { version = "0.6.0", path = "crates/nerd-fonts-generator" }
+nerd-fonts-rs = { version = "0.6.0", path = "crates/nerd-fonts-rs" }
+fonts-rs-cheat-sheet = { version = "0.6.0", path = "crates/fonts-rs-cheat-sheet" }
+fonts-rs-blobmoji-cheat-sheet = { version = "0.6.0", path = "crates/fonts-rs-blobmoji-cheat-sheet" }
+fonts-rs-bravura-cheat-sheet = { version = "0.6.0", path = "crates/fonts-rs-bravura-cheat-sheet" }
+fonts-rs-cuernavaca-cheat-sheet = { version = "0.6.0", path = "crates/fonts-rs-cuernavaca-cheat-sheet" }
+fonts-rs-dicefont-cheat-sheet = { version = "0.6.0", path = "crates/fonts-rs-dicefont-cheat-sheet" }
+fonts-rs-doto-cheat-sheet = { version = "0.6.0", path = "crates/fonts-rs-doto-cheat-sheet" }
+fonts-rs-eva-cheat-sheet = { version = "0.6.0", path = "crates/fonts-rs-eva-cheat-sheet" }
+fonts-rs-fluent-cheat-sheet = { version = "0.6.0", path = "crates/fonts-rs-fluent-cheat-sheet" }
+fonts-rs-fourteen-segment-cheat-sheet = { version = "0.6.0", path = "crates/fonts-rs-fourteen-segment-cheat-sheet" }
+fonts-rs-heroicons-cheat-sheet = { version = "0.6.0", path = "crates/fonts-rs-heroicons-cheat-sheet" }
+fonts-rs-line-awesome-cheat-sheet = { version = "0.6.0", path = "crates/fonts-rs-line-awesome-cheat-sheet" }
+fonts-rs-lucide-cheat-sheet = { version = "0.6.0", path = "crates/fonts-rs-lucide-cheat-sheet" }
+fonts-rs-noto-emoji-cheat-sheet = { version = "0.6.0", path = "crates/fonts-rs-noto-emoji-cheat-sheet" }
+fonts-rs-seven-segment-cheat-sheet = { version = "0.6.0", path = "crates/fonts-rs-seven-segment-cheat-sheet" }
+fonts-rs-tabler-cheat-sheet = { version = "0.6.0", path = "crates/fonts-rs-tabler-cheat-sheet" }
+nerd-fonts-cheat-sheet = { version = "0.6.0", path = "crates/nerd-fonts-cheat-sheet" }
+fonts-rs = { version = "0.6.0", path = "crates/fonts-rs" }
+fonts-rs-iconset-builder = { version = "0.6.0", path = "crates/fonts-rs-iconset-builder" }
 fonts-rs-test = { path = "crates/fonts-rs-test" }
 
 # Serialization

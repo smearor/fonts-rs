@@ -26,25 +26,25 @@ fonts-rs-model.workspace = true
 # are declared directly rather than via `workspace = true` because
 # member crates cannot disable the workspace dependency's default
 # features.
-fonts-rs-barcode-code39 = { version = "0.5.0", path = "../fonts-rs-barcode-code39", optional = true, default-features = false }
-fonts-rs-barcode-code128 = { version = "0.5.0", path = "../fonts-rs-barcode-code128", optional = true, default-features = false }
-fonts-rs-barcode-ean13 = { version = "0.5.0", path = "../fonts-rs-barcode-ean13", optional = true, default-features = false }
-fonts-rs-blobmoji = { version = "0.5.0", path = "../fonts-rs-blobmoji", optional = true, default-features = false }
-fonts-rs-bravura = { version = "0.5.0", path = "../fonts-rs-bravura", optional = true, default-features = false }
-fonts-rs-cuernavaca = { version = "0.5.0", path = "../fonts-rs-cuernavaca", optional = true, default-features = false }
-fonts-rs-dicefont = { version = "0.5.0", path = "../fonts-rs-dicefont", optional = true, default-features = false }
-fonts-rs-doto = { version = "0.5.0", path = "../fonts-rs-doto", optional = true, default-features = false }
-fonts-rs-eva = { version = "0.5.0", path = "../fonts-rs-eva", optional = true, default-features = false }
-fonts-rs-fluent = { version = "0.5.0", path = "../fonts-rs-fluent", optional = true, default-features = false }
-fonts-rs-fourteen-segment = { version = "0.5.0", path = "../fonts-rs-fourteen-segment", optional = true, default-features = false }
-fonts-rs-heroicons = { version = "0.5.0", path = "../fonts-rs-heroicons", optional = true, default-features = false }
-fonts-rs-line-awesome = { version = "0.5.0", path = "../fonts-rs-line-awesome", optional = true, default-features = false }
-fonts-rs-lucide = { version = "0.5.0", path = "../fonts-rs-lucide", optional = true, default-features = false }
-fonts-rs-noto-emoji = { version = "0.5.0", path = "../fonts-rs-noto-emoji", optional = true, default-features = false }
-fonts-rs-redacted = { version = "0.5.0", path = "../fonts-rs-redacted", optional = true, default-features = false }
-fonts-rs-seven-segment = { version = "0.5.0", path = "../fonts-rs-seven-segment", optional = true, default-features = false }
-fonts-rs-tabler = { version = "0.5.0", path = "../fonts-rs-tabler", optional = true, default-features = false }
-nerd-fonts-rs = { version = "0.5.0", path = "../nerd-fonts-rs", optional = true, default-features = false }
+fonts-rs-barcode-code39 = { version = "0.6.0", path = "../fonts-rs-barcode-code39", optional = true, default-features = false }
+fonts-rs-barcode-code128 = { version = "0.6.0", path = "../fonts-rs-barcode-code128", optional = true, default-features = false }
+fonts-rs-barcode-ean13 = { version = "0.6.0", path = "../fonts-rs-barcode-ean13", optional = true, default-features = false }
+fonts-rs-blobmoji = { version = "0.6.0", path = "../fonts-rs-blobmoji", optional = true, default-features = false }
+fonts-rs-bravura = { version = "0.6.0", path = "../fonts-rs-bravura", optional = true, default-features = false }
+fonts-rs-cuernavaca = { version = "0.6.0", path = "../fonts-rs-cuernavaca", optional = true, default-features = false }
+fonts-rs-dicefont = { version = "0.6.0", path = "../fonts-rs-dicefont", optional = true, default-features = false }
+fonts-rs-doto = { version = "0.6.0", path = "../fonts-rs-doto", optional = true, default-features = false }
+fonts-rs-eva = { version = "0.6.0", path = "../fonts-rs-eva", optional = true, default-features = false }
+fonts-rs-fluent = { version = "0.6.0", path = "../fonts-rs-fluent", optional = true, default-features = false }
+fonts-rs-fourteen-segment = { version = "0.6.0", path = "../fonts-rs-fourteen-segment", optional = true, default-features = false }
+fonts-rs-heroicons = { version = "0.6.0", path = "../fonts-rs-heroicons", optional = true, default-features = false }
+fonts-rs-line-awesome = { version = "0.6.0", path = "../fonts-rs-line-awesome", optional = true, default-features = false }
+fonts-rs-lucide = { version = "0.6.0", path = "../fonts-rs-lucide", optional = true, default-features = false }
+fonts-rs-noto-emoji = { version = "0.6.0", path = "../fonts-rs-noto-emoji", optional = true, default-features = false }
+fonts-rs-redacted = { version = "0.6.0", path = "../fonts-rs-redacted", optional = true, default-features = false }
+fonts-rs-seven-segment = { version = "0.6.0", path = "../fonts-rs-seven-segment", optional = true, default-features = false }
+fonts-rs-tabler = { version = "0.6.0", path = "../fonts-rs-tabler", optional = true, default-features = false }
+nerd-fonts-rs = { version = "0.6.0", path = "../nerd-fonts-rs", optional = true, default-features = false }
 
 # GUI binary (`gui` feature): the cheat-sheet engine plus one sheet
 # binding per family. Cargo cannot activate a dep conditionally on a
