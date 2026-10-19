@@ -143,7 +143,7 @@ jobs:
       # Noto Emoji umbrella re-exporting the feature-selected variant
       - name: Publish fonts-rs-noto-emoji
         continue-on-error: true
-        run: cargo publish --locked -p fonts-rs-noto-emoji --token ${{ secrets.CRATES_IO_TOKEN }}
+        run: cargo publish --locked --no-verify -p fonts-rs-noto-emoji --token ${{ secrets.CRATES_IO_TOKEN }}
       # Blobmoji resource crates first: variants consume their links metadata (DEP_*)
       - name: Publish fonts-rs-blobmoji-glyphs
         continue-on-error: true
@@ -167,7 +167,7 @@ jobs:
       # Blobmoji umbrella re-exporting the feature-selected variant
       - name: Publish fonts-rs-blobmoji
         continue-on-error: true
-        run: cargo publish --locked -p fonts-rs-blobmoji --token ${{ secrets.CRATES_IO_TOKEN }}
+        run: cargo publish --locked --no-verify -p fonts-rs-blobmoji --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish nerd-fonts-rs
         continue-on-error: true
         run: cargo publish --locked -p nerd-fonts-rs --token ${{ secrets.CRATES_IO_TOKEN }}
@@ -223,7 +223,7 @@ jobs:
         run: cargo publish --locked -p fonts-rs-tabler-cheat-sheet --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish fonts-rs
         continue-on-error: true
-        run: cargo publish --locked -p fonts-rs --token ${{ secrets.CRATES_IO_TOKEN }}
+        run: cargo publish --locked --no-verify -p fonts-rs --token ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish fonts-rs-iconset-builder
         continue-on-error: true
         run: cargo publish --locked -p fonts-rs-iconset-builder --token ${{ secrets.CRATES_IO_TOKEN }}

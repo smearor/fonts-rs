@@ -65,7 +65,12 @@ jobs:
         uses: mozilla-actions/sccache-action@v0.0.11
       - name: Run cargo clippy
         run: |
-          cargo clippy --workspace --exclude fonts-rs-noto-emoji --exclude fonts-rs-blobmoji --all-targets --all-features --target ${{ matrix.target }}
+          # --all-features on fonts-rs would unify every emoji variant
+          # feature at once (compile_error! guards); the facade is
+          # checked separately with its `all`/`gui` feature sets.
+          cargo clippy --workspace --exclude fonts-rs --exclude fonts-rs-noto-emoji --exclude fonts-rs-blobmoji --all-targets --all-features --target ${{ matrix.target }}
+          cargo clippy -p fonts-rs --all-targets --features all --target ${{ matrix.target }}
+          cargo clippy -p fonts-rs --all-targets --features gui --target ${{ matrix.target }}
           cargo clippy -p fonts-rs-noto-emoji --all-targets --features gtk,render,embed-fonts,metadata --target ${{ matrix.target }}
           cargo clippy -p fonts-rs-blobmoji --all-targets --features gtk,render,embed-fonts,metadata --target ${{ matrix.target }}
   verify:
@@ -110,7 +115,12 @@ jobs:
         uses: mozilla-actions/sccache-action@v0.0.11
       - name: Build (Release Mode)
         run: |
-          cargo build --workspace --exclude fonts-rs-noto-emoji --exclude fonts-rs-blobmoji --release --all-features --verbose
+          # --all-features on fonts-rs would unify every emoji variant
+          # feature at once (compile_error! guards); the facade is
+          # built separately with its `all`/`gui` feature sets.
+          cargo build --workspace --exclude fonts-rs --exclude fonts-rs-noto-emoji --exclude fonts-rs-blobmoji --release --all-features --verbose
+          cargo build -p fonts-rs --release --features all --verbose
+          cargo build -p fonts-rs --release --features gui --verbose
           cargo build -p fonts-rs-noto-emoji --release --features gtk,render,embed-fonts,metadata --verbose
           cargo build -p fonts-rs-blobmoji --release --features gtk,render,embed-fonts,metadata --verbose
   test:
@@ -144,6 +154,11 @@ jobs:
         uses: mozilla-actions/sccache-action@v0.0.11
       - name: Test (Release Mode)
         run: |
-          cargo test --workspace --exclude fonts-rs-noto-emoji --exclude fonts-rs-blobmoji --release --all-features --verbose --target ${{ matrix.target }}
+          # --all-features on fonts-rs would unify every emoji variant
+          # feature at once (compile_error! guards); the facade is
+          # tested separately with its `all`/`gui` feature sets.
+          cargo test --workspace --exclude fonts-rs --exclude fonts-rs-noto-emoji --exclude fonts-rs-blobmoji --release --all-features --verbose --target ${{ matrix.target }}
+          cargo test -p fonts-rs --release --features all --verbose --target ${{ matrix.target }}
+          cargo test -p fonts-rs --release --features gui --verbose --target ${{ matrix.target }}
           cargo test -p fonts-rs-noto-emoji --release --features gtk,render,embed-fonts,metadata --verbose --target ${{ matrix.target }}
           cargo test -p fonts-rs-blobmoji --release --features gtk,render,embed-fonts,metadata --verbose --target ${{ matrix.target }}
