@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-924c7b43.js";
+            window.path_to_searchindex_js = "searchindex-fefd4b01.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-8e28fbde.js"></script>
+        <script src="toc-9e3a91fb.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -2748,6 +2748,128 @@ fonts-rs-model.workspace = true
 miette.workspace = true
 </code></pre>
 <p>See <a href="#build-script--runtime-api-patterns">Build Patterns</a> for complete <code>build.rs</code> examples.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="custom-icon-sets"><a class="header" href="#custom-icon-sets">Custom Icon Sets</a></h1>
+<p>Font family crates ship <em>complete</em> icon sets — <code>fonts-rs-lucide</code>
+embeds all ~1,850 icons (~3 MB). An application typically uses a small
+subset and should not pay for the rest. Custom icon sets let an
+application declare a minimal, application-specific set in a root
+<code>icons.toml</code> and build it with a one-line <code>build.rs</code> — no manual SVG
+vendoring, keeping the same type-safe runtime API (<code>GlyphName</code>,
+<code>IconThemeFont</code>, <code>Image::from_icon_name</code>).</p>
+<h2 id="the-three-line-integration"><a class="header" href="#the-three-line-integration">The Three-Line Integration</a></h2>
+<pre><code class="language-toml"># Cargo.toml (application)
+[build-dependencies]
+fonts-rs-generator = "0.6"
+miette = "7.6"
+
+[dependencies]
+fonts-rs-generator = "0.6"  # for impl_font_family!/impl_gtk_font! in generated code
+fonts-rs-model = "0.6"
+gio = "0.22"
+gtk4 = "0.11"
+phf = "0.14"
+# Source crates must be *normal* dependencies: links metadata (DEP_*
+# env vars) does not propagate via [build-dependencies]. They are
+# never used at runtime — their gresource is unreachable and stripped
+# by the linker.
+fonts-rs-lucide = "0.6"
+fonts-rs-tabler = "0.6"
+
+[features]
+# The generated module's GTK impls are #[cfg(feature = "gtk")]-gated
+# in the consuming crate — the app must declare it for install() and
+# IconThemeFont to exist.
+default = ["gtk"]
+gtk = []
+</code></pre>
+<pre class="playground"><code class="language-rust">// build.rs
+fn main() -&gt; miette::Result&lt;()&gt; {
+    fonts_rs_generator::IconSetBuild::from_file("icons.toml")?.run()?;
+    Ok(())
+}</code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// src/icons.rs — the entire module
+include!(concat!(env!("OUT_DIR"), "/iconset.rs"));
+<span class="boring">}</span></code></pre>
+<h2 id="iconstoml"><a class="header" href="#iconstoml"><code>icons.toml</code></a></h2>
+<pre><code class="language-toml">[iconset]
+
+# PascalCase marker enum name (generated as `pub enum MyAppIcons {}`).
+name = "MyAppIcons"
+
+# Human-readable name for build logs and generated docs.
+display_name = "My Application Icons"
+
+# Icon name prefix: `check` becomes `myapp-check-symbolic`.
+icon_prefix = "myapp"
+
+# GResource prefix under which the SVGs register.
+gresource_prefix = "/com/example/myapp/icons"
+
+# Freedesktop icon context. Optional, default "actions".
+icons_context = "actions"
+
+[[iconset.sources]]
+crate = "fonts-rs-lucide"          # packaged resources/svg via DEP_LUCIDE_SVG_DIR
+post_processors = ["symbolic-classes"]
+icons = [
+    "check",
+    { name = "download", rename = "install" },   # rename → myapp-install-symbolic
+    "trash",
+]
+
+[[iconset.sources]]
+crate = "fonts-rs-tabler"
+subdirectory = "filled"            # subdirectory inside resources/svg
+post_processors = ["current-color-fill"]
+icons = [
+    { name = "check", rename = "check-filled" }, # disambiguates Lucide's check
+    "brand-github",
+]
+
+# `dir = "…"` (relative to CARGO_MANIFEST_DIR) is the escape hatch for
+# hand-drawn or non-crate sources.
+</code></pre>
+<p>All <code>[[iconset.sources]]</code> tables merge into <em>one</em> set: one marker
+type, one prefix, one GResource bundle, one codepoint space. The
+whitelist <code>name</code> is the upstream SVG file stem; <code>rename</code> is the
+exported base name (<code>{icon_prefix}-{rename}-symbolic</code>).</p>
+<p>Source crates advertise their <code>resources/svg</code> directory via <code>links</code> +
+<code>cargo:svg_dir</code> build-script metadata (the pattern the emoji resource
+crates established in v0.5.0). <code>fonts-rs-{lucide, tabler, heroicons, eva, fluent, line-awesome}</code> all emit it; <code>cargo metadata</code> is the
+fallback for sources without <code>links</code>.</p>
+<p>Available <code>post_processors</code> (kebab-case, per source):</p>
+<ul>
+<li><code>symbolic-classes</code> — GTK symbolic-recoloring classes (required for
+stroke-based sets like Lucide, Heroicons outline)</li>
+<li><code>current-color-fill</code> / <code>current-color-fill-inject</code> / <code>current-color-stroke</code></li>
+<li><code>optimize</code> — strip comments and whitespace</li>
+<li><code>strip-entity-namespaces</code></li>
+</ul>
+<h2 id="using-the-set"><a class="header" href="#using-the-set">Using the Set</a></h2>
+<pre class="playground"><code class="language-rust">fn main() {
+    icons::MyAppIcons::install().expect("icon set registration failed");
+
+    let image = gtk4::Image::from_icon_name(icons::icon_names::MYAPP_CHECK_SYMBOLIC);
+}</code></pre>
+<p><code>install()</code> registers <code>icons.gresource</code> and the icon theme; the
+<code>icon_names</code> module exposes one <code>&amp;str</code> constant per exported icon.
+Only the whitelisted SVGs land in the binary — the example above is
+~15–20 KB versus the ~3 MB full Lucide bundle.</p>
+<h2 id="errors"><a class="header" href="#errors">Errors</a></h2>
+<p>Build failures surface as miette diagnostics: <code>UnknownIcon</code> reports
+the whitelisted name plus the three closest file stems the source
+actually contains, <code>IconNameCollision</code> fires when two entries (within
+or across sources) resolve to the same exported name, and
+<code>SourceNotFound</code> lists which <code>DEP_*</code> variables and resolution paths
+were tried.</p>
+<h2 id="fixture"><a class="header" href="#fixture">Fixture</a></h2>
+<p><code>crates/fonts-rs-iconset-test</code> (<code>publish = false</code>) is the end-to-end
+fixture — a merged Lucide + Tabler + <code>dir</code> set exercising renames and
+per-source post-processors with headless assertions.</p>
+<p>See <code>concepts/planned/CUSTOM_ICON_SET.md</code> for the design rationale.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="font-loading"><a class="header" href="#font-loading">Font Loading</a></h1>
 <p>The <code>fonts</code> module (enabled with the <code>render</code> feature) handles loading font
