@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["main"],"struct":["CuernavacaSheet"]};
+window.SIDEBAR_ITEMS = {"struct":["CuernavacaSheet"]};

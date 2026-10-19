@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["main"],"struct":["BlobmojiSheet"]};
+window.SIDEBAR_ITEMS = {"struct":["BlobmojiSheet"]};

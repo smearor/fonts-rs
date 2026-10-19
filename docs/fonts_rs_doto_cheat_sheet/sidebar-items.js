@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["main"],"struct":["DotoSheet"]};
+window.SIDEBAR_ITEMS = {"struct":["DotoSheet"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["main"],"struct":["FourteenSegmentSheet"]};
+window.SIDEBAR_ITEMS = {"struct":["FourteenSegmentSheet"]};

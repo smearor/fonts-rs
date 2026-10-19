@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["used_source_crates"],"struct":["Scaffold"]};

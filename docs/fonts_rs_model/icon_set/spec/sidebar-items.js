@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["default_icons_context","is_kebab","is_pascal_case"],"struct":["IconSetSpec"]};

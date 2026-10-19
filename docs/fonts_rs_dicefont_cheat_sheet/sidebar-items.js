@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["main"],"struct":["DicefontSheet"]};
+window.SIDEBAR_ITEMS = {"struct":["DicefontSheet"]};

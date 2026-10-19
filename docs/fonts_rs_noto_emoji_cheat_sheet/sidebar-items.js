@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["main"],"struct":["NotoEmojiSheet"]};
+window.SIDEBAR_ITEMS = {"struct":["NotoEmojiSheet"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["main"],"struct":["FluentSheet"]};
+window.SIDEBAR_ITEMS = {"struct":["FluentSheet"]};

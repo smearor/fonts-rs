@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["FamilyKind"],"fn":["run"],"mod":["app","detail","detail_context","family","family_kind","tone_picker","xml_highlight"],"trait":["CheatSheetFamily"]};
+window.SIDEBAR_ITEMS = {"enum":["FamilyKind"],"fn":["run","run_multi"],"mod":["app","detail","detail_context","dyn_family","family","family_adapter","family_kind","tone_picker","xml_highlight"],"struct":["FamilyAdapter"],"trait":["CheatSheetFamily","DynCheatSheetFamily"]};

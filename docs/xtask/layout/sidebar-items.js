@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["package","paths","vendored_crate","workspace"]};
+window.SIDEBAR_ITEMS = {"mod":["paths","vendored_crate","workspace"],"struct":["Package"]};

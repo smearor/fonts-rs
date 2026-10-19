@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["PreviewError"],"fn":["temp_dir"],"struct":["ExportedIcon","Preview"]};

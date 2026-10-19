@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["IconSelectionError"],"struct":["IconSelection","SelectedIcon","SourceGroup"],"type":["SourceKey"]};

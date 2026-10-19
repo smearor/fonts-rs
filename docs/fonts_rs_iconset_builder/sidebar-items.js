@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["IconSelectionError","PreviewError","ProjectExportError"],"mod":["builder_settings","icon_selection","icon_source","preview","project_export","scaffold"],"static":["ICON_SOURCES"],"struct":["BuilderSettings","ExportedIcon","IconSelection","IconSource","Preview","ProjectExport","Scaffold","SelectedIcon"],"type":["SourceKey"]};

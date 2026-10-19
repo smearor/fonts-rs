@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["main"],"struct":["NerdFontsSheet"]};
+window.SIDEBAR_ITEMS = {"struct":["NerdFontsSheet"]};

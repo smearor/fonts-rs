@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["FixtureIcons"],"mod":["codepoint_map","icon_names"],"struct":["FixtureIconsConfig"],"type":["FixtureIconName"]};

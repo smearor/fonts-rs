@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["main"],"struct":["LineAwesomeSheet"]};
+window.SIDEBAR_ITEMS = {"struct":["LineAwesomeSheet"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["main"],"struct":["EvaSheet"]};
+window.SIDEBAR_ITEMS = {"struct":["EvaSheet"]};

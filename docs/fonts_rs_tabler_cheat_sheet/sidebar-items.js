@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["main"],"struct":["TablerSheet"]};
+window.SIDEBAR_ITEMS = {"struct":["TablerSheet"]};

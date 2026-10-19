@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["main"],"struct":["LucideSheet"]};
+window.SIDEBAR_ITEMS = {"struct":["LucideSheet"]};

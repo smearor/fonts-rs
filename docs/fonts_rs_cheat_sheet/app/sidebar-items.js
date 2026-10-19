@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["HistoryEntry"],"fn":["build_ui","icon_size_scale","navigate_to","run","update_nav_buttons"],"type":["GlyphList"]};
+window.SIDEBAR_ITEMS = {"constant":["MULTI_APP_ID"],"enum":["HistoryEntry"],"fn":["build_family_page","build_ui","icon_size_scale","navigate_to","run","run_app","run_multi","run_single","update_nav_buttons"],"type":["GlyphList"]};
