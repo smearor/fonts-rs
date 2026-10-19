@@ -83,7 +83,9 @@ mod tests {
         assert_eq!(upstream.subdirectory, None);
 
         let (_, tabler) = IconSource::resolve("tabler-heart-symbolic").unwrap();
-        assert_eq!(tabler.subdirectory, Some("outline"));
+        // The subdirectory follows the compiled variant - `outline`
+        // by default, `filled` under --all-features.
+        assert_eq!(tabler.subdirectory, <fonts_rs_tabler::Tabler as fonts_rs_model::UpstreamIcons>::UPSTREAM_SUBDIRECTORY);
 
         let (_, eva) = IconSource::resolve("eva-checkmark-outline-symbolic").unwrap();
         assert_eq!(eva.subdirectory, Some("outline"));

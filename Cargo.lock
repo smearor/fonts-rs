@@ -1029,7 +1029,7 @@ dependencies = [
  "serde_json",
  "thiserror 2.0.21",
  "toml",
- "zip 8.6.0",
+ "zip",
 ]
 
 [[package]]
@@ -2916,7 +2916,7 @@ dependencies = [
  "tempfile",
  "toml",
  "tracing",
- "zip 9.0.1",
+ "zip",
 ]
 
 [[package]]
@@ -2994,18 +2994,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 3.0.8",
-]
-
-[[package]]
-name = "zip"
-version = "8.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2d04a6b5381502aa6087c94c669499eb1602eb9c5e8198e534de571f7154809b"
-dependencies = [
- "crc32fast",
- "indexmap",
- "memchr",
- "typed-path",
 ]
 
 [[package]]
