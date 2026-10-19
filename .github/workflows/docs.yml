@@ -44,12 +44,20 @@ jobs:
         uses: Swatinem/rust-cache@v2
       - name: Run cargo doc
         run: |
-          cargo doc --workspace --exclude fonts-rs-noto-emoji --exclude fonts-rs-blobmoji --no-deps --all-features --document-private-items --verbose
+          # --all-features on fonts-rs would unify every emoji variant
+          # feature at once (compile_error! guards); the facade is
+          # documented separately with `all`+`gui`.
+          cargo doc --workspace --exclude fonts-rs --exclude fonts-rs-noto-emoji --exclude fonts-rs-blobmoji --no-deps --all-features --document-private-items --verbose
+          cargo doc -p fonts-rs --no-deps --features "all gui" --document-private-items --verbose
           cargo doc -p fonts-rs-noto-emoji --no-deps --features gtk,render,embed-fonts,metadata --document-private-items --verbose
           cargo doc -p fonts-rs-blobmoji --no-deps --features gtk,render,embed-fonts,metadata --document-private-items --verbose
       - name: Run doctests
         run: |
-          cargo test --workspace --exclude fonts-rs-noto-emoji --exclude fonts-rs-blobmoji --doc --all-features --verbose
+          # --all-features on fonts-rs would unify every emoji variant
+          # feature at once (compile_error! guards); the facade's
+          # doctests run with `all`.
+          cargo test --workspace --exclude fonts-rs --exclude fonts-rs-noto-emoji --exclude fonts-rs-blobmoji --doc --all-features --verbose
+          cargo test -p fonts-rs --doc --features all --verbose
           cargo test -p fonts-rs-noto-emoji --doc --features gtk,render,embed-fonts,metadata --verbose
           cargo test -p fonts-rs-blobmoji --doc --features gtk,render,embed-fonts,metadata --verbose
       - name: Deploy
