@@ -39,7 +39,7 @@ impl ProjectExport {
     pub fn write_zip(selection: &IconSelection, settings: &BuilderSettings, path: &std::path::Path) -> Result<(), ProjectExportError> {
         let file = std::fs::File::create(path)?;
         let mut zip = zip::ZipWriter::new(file);
-        let options: zip::write::FileOptions<'static, ()> = zip::write::FileOptions::default();
+        let options = zip::write::SimpleFileOptions::default();
         for export in Self::files(selection, settings)? {
             zip.start_file(&export.path, options)?;
             zip.write_all(export.content.as_bytes())?;
@@ -184,7 +184,7 @@ mod tests {
         let mut archive = zip::ZipArchive::new(std::fs::File::open(&path).unwrap()).unwrap();
         assert_eq!(archive.len(), 4);
         let mut names: Vec<String> = (0..archive.len())
-            .filter_map(|i| archive.by_index(i).ok().map(|f| f.name().to_string()))
+            .filter_map(|i| archive.by_index(i).ok().and_then(|f| f.name().ok().map(|n| n.to_string())))
             .collect();
         names.sort();
         assert_eq!(names, ["Cargo.toml", "build.rs", "icons.toml", "src/lib.rs"]);
