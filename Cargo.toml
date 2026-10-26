@@ -153,7 +153,7 @@ miette = "7.6"
 
 # Font parsing
 skrifa = "0.48"
-read-fonts = "0.45"
+read-fonts = "0.46"
 font-types = "0.12"
 ab_glyph = "0.2"
 woff2-patched = "0.4"
