@@ -59,6 +59,8 @@ fonts-rs-test = { workspace = true, features = ["gtk", "render"] }
 gtk4 = { workspace = true, features = ["v4_12"] }
 glib.workspace = true
 miette.workspace = true
+smearor-commons-color = { workspace = true, features = ["cairo"] }
+serde.workspace = true
 
 [[example]]
 name = "chess_board"

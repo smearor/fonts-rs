@@ -84,6 +84,7 @@ fonts-rs-test = { workspace = true, features = ["gtk", "render"] }
 gtk4 = { workspace = true, features = ["v4_12"] }
 glib.workspace = true
 miette.workspace = true
+smearor-commons-color = { workspace = true, features = ["gtk4"] }
 
 [[example]]
 name = "fourteen_segment_demo"

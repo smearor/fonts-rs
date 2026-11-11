@@ -137,6 +137,7 @@ nerd-fonts-cheat-sheet = { version = "0.6.0", path = "crates/nerd-fonts-cheat-sh
 fonts-rs = { version = "0.6.0", path = "crates/fonts-rs" }
 fonts-rs-iconset-builder = { version = "0.6.0", path = "crates/fonts-rs-iconset-builder" }
 fonts-rs-test = { path = "crates/fonts-rs-test" }
+smearor-commons-color = { path = "../smearor-commons/crates/color" }
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }

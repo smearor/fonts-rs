@@ -17,6 +17,9 @@ use ab_glyph::OutlineCurve;
 
 use fonts_rs_bravura::Bravura;
 
+use gtk4::cairo;
+use gtk4::glib;
+use gtk4::prelude::*;
 use gtk4::Application;
 use gtk4::ApplicationWindow;
 use gtk4::Box as GtkBox;
@@ -24,13 +27,20 @@ use gtk4::DrawingArea;
 use gtk4::Label;
 use gtk4::Orientation;
 use gtk4::Scale;
-use gtk4::cairo;
-use gtk4::glib;
-use gtk4::prelude::*;
 
 use miette::Result;
+use smearor_commons_color::Color;
 
 const APP_ID: &str = "io.smearor.fonts_rs.wiener_blut";
+
+/// Warm paper background.
+const PAPER: Color<f64> = Color::<f64>::new(0.98, 0.96, 0.92);
+/// Standard engraving ink.
+const INK: Color<f64> = Color::<f64>::BLACK;
+/// Highlight color for the currently playing note.
+const CURRENT_NOTE: Color<f64> = Color::<f64>::new(0.8, 0.2, 0.2);
+/// Footer text color.
+const FOOTER: Color<f64> = Color::<f64>::new(0.4, 0.4, 0.4);
 
 /// SMuFL codepoints for the glyphs we need.
 mod cp {
@@ -332,7 +342,11 @@ fn event_duration_ms_tempo(event: &Event, bpm: f64) -> u32 {
                 Duration::Quarter => beat_ms,
                 Duration::Eighth => beat_ms * 0.5,
             } as u32;
-            if *dotted { base + base / 2 } else { base }
+            if *dotted {
+                base + base / 2
+            } else {
+                base
+            }
         }
         Event::Rest { duration } => {
             (match duration {
@@ -761,7 +775,7 @@ fn draw_score(state: &Rc<RefCell<AppState>>, cr: &cairo::Context, width: i32, he
     let h = height as f64;
 
     // Background - warm paper color
-    cr.set_source_rgb(0.98, 0.96, 0.92);
+    PAPER.apply(cr);
     cr.paint().unwrap_or(());
 
     // Layout parameters
@@ -778,7 +792,7 @@ fn draw_score(state: &Rc<RefCell<AppState>>, cr: &cairo::Context, width: i32, he
         let staff_y = top_margin + (sys_idx as f64) * system_spacing;
 
         // Draw staff lines (5 lines)
-        cr.set_source_rgb(0.0, 0.0, 0.0);
+        INK.apply(cr);
         cr.set_line_width(0.6);
         for i in 0..5 {
             let y = staff_y + (i as f64) * staff_space;
@@ -803,11 +817,11 @@ fn draw_score(state: &Rc<RefCell<AppState>>, cr: &cairo::Context, width: i32, he
 
         for event in system {
             let is_current = global_event_idx == s.current_note;
-            let color = if is_current { (0.8, 0.2, 0.2) } else { (0.0, 0.0, 0.0) };
+            let color = if is_current { CURRENT_NOTE } else { INK };
 
             match event {
                 Event::Barline => {
-                    cr.set_source_rgb(color.0, color.1, color.2);
+                    color.apply(cr);
                     cr.set_line_width(0.8);
                     cr.move_to(x, staff_y);
                     cr.line_to(x, staff_y + staff_line_height);
@@ -815,7 +829,7 @@ fn draw_score(state: &Rc<RefCell<AppState>>, cr: &cairo::Context, width: i32, he
                     x += 12.0;
                 }
                 Event::DoubleBar => {
-                    cr.set_source_rgb(0.0, 0.0, 0.0);
+                    INK.apply(cr);
                     cr.set_line_width(0.8);
                     cr.move_to(x, staff_y);
                     cr.line_to(x, staff_y + staff_line_height);
@@ -826,7 +840,7 @@ fn draw_score(state: &Rc<RefCell<AppState>>, cr: &cairo::Context, width: i32, he
                     x += 20.0;
                 }
                 Event::FinalBar => {
-                    cr.set_source_rgb(0.0, 0.0, 0.0);
+                    INK.apply(cr);
                     cr.set_line_width(0.8);
                     cr.move_to(x, staff_y);
                     cr.line_to(x, staff_y + staff_line_height);
@@ -838,7 +852,7 @@ fn draw_score(state: &Rc<RefCell<AppState>>, cr: &cairo::Context, width: i32, he
                     x += 20.0;
                 }
                 Event::Note { pitch, duration, dotted } => {
-                    cr.set_source_rgb(color.0, color.1, color.2);
+                    color.apply(cr);
                     let note_y = staff_y + staff_line_height - (*pitch as f64) * 0.5 * staff_space;
                     let glyph = match duration {
                         Duration::Whole => cp::NOTEHEAD_WHOLE,
@@ -853,7 +867,7 @@ fn draw_score(state: &Rc<RefCell<AppState>>, cr: &cairo::Context, width: i32, he
                         let stem_x = if stem_up { x + 14.0 } else { x - 2.0 };
                         let stem_y1 = note_y;
                         let stem_y2 = if stem_up { note_y - 28.0 } else { note_y + 28.0 };
-                        cr.set_source_rgb(color.0, color.1, color.2);
+                        color.apply(cr);
                         cr.set_line_width(1.2);
                         cr.move_to(stem_x, stem_y1);
                         cr.line_to(stem_x, stem_y2);
@@ -874,7 +888,7 @@ fn draw_score(state: &Rc<RefCell<AppState>>, cr: &cairo::Context, width: i32, he
                     x += note_spacing;
                 }
                 Event::Rest { duration } => {
-                    cr.set_source_rgb(color.0, color.1, color.2);
+                    color.apply(cr);
                     let rest_glyph = match duration {
                         Duration::Whole => cp::REST_WHOLE,
                         Duration::Half => cp::REST_HALF,
@@ -891,7 +905,7 @@ fn draw_score(state: &Rc<RefCell<AppState>>, cr: &cairo::Context, width: i32, he
     }
 
     // Footer text
-    cr.set_source_rgb(0.4, 0.4, 0.4);
+    FOOTER.apply(cr);
     cr.select_font_face("Serif", cairo::FontSlant::Normal, cairo::FontWeight::Normal);
     cr.set_font_size(11.0);
     cr.move_to(left_margin, h - 15.0);
@@ -901,10 +915,10 @@ fn draw_score(state: &Rc<RefCell<AppState>>, cr: &cairo::Context, width: i32, he
 /// Draw a Bravura glyph at (x, y) where y is the top of the glyph.
 /// `em_size` is the font size in pixels (staff_space * 4 = one em).
 fn draw_glyph(cr: &cairo::Context, font: &FontVec, ch: char, x: f64, y: f64, em_size: f64) {
-    draw_glyph_colored(cr, font, ch, x, y, em_size, (0.0, 0.0, 0.0));
+    draw_glyph_colored(cr, font, ch, x, y, em_size, INK);
 }
 
-fn draw_glyph_colored(cr: &cairo::Context, font: &FontVec, ch: char, x: f64, y: f64, em_size: f64, color: (f64, f64, f64)) {
+fn draw_glyph_colored(cr: &cairo::Context, font: &FontVec, ch: char, x: f64, y: f64, em_size: f64, color: Color<f64>) {
     let glyph_id = font.glyph_id(ch);
 
     let outline = match font.outline(glyph_id) {
@@ -919,7 +933,7 @@ fn draw_glyph_colored(cr: &cairo::Context, font: &FontVec, ch: char, x: f64, y: 
     let scale_y = -scale;
 
     cr.save().unwrap_or(());
-    cr.set_source_rgb(color.0, color.1, color.2);
+    color.apply(cr);
 
     let offset_x = x - bounds.min.x as f64 * scale_x as f64;
     let offset_y = y - bounds.min.y as f64 * scale_y as f64;

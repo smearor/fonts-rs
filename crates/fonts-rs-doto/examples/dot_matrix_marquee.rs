@@ -33,6 +33,7 @@ use gtk4::prelude::*;
 
 use miette::IntoDiagnostic;
 use miette::Result;
+use smearor_commons_color::Color;
 
 const APP_ID: &str = "io.smearor.fonts_rs.doto_marquee";
 
@@ -41,6 +42,15 @@ const DEFAULT_GLYPH_SPACING: i32 = 2;
 
 /// CSS padding of the marquee background (px, each side).
 const MARQUEE_PADDING: i32 = 24;
+
+/// Initial glyph color (amber).
+const FG_COLOR: Color<f32> = Color::<f32>::new(1.0, 0.4, 0.0);
+/// Initial glow color for the pulse effect.
+const GLOW_COLOR: Color<f32> = Color::<f32>::new(1.0, 0.67, 0.0);
+/// Initial color of inactive glyphs.
+const DIM_COLOR: Color<f32> = Color::<f32>::new(0.2, 0.1, 0.0);
+/// Initial background color.
+const BG_COLOR: Color<f32> = Color::<f32>::new(0.04, 0.04, 0.04);
 
 /// Program start time for debug timestamps.
 static START: std::sync::OnceLock<Instant> = std::sync::OnceLock::new();
@@ -154,28 +164,13 @@ fn char_to_glyph_base(ch: char) -> Option<&'static str> {
     names.iter().find(|(c, _)| *c == ch).map(|(_, name)| *name)
 }
 
-/// Convert a `gdk::RGBA` to a `#rrggbb` hex string (alpha ignored for glyph coloring).
-fn rgba_to_hex(rgba: &gtk4::gdk::RGBA) -> String {
-    format!("#{:02x}{:02x}{:02x}", (rgba.red() * 255.0) as u8, (rgba.green() * 255.0) as u8, (rgba.blue() * 255.0) as u8,)
-}
-
 /// Update the dynamic CSS provider with current colors and transparency.
 fn update_dynamic_css(state: &Rc<RefCell<MarqueeState>>) {
     let s = state.borrow();
-    let bg = &s.bg_color;
+    let bg: Color<u8> = s.bg_color.into();
     let alpha = if s.fullscreen { s.transparency } else { 1.0 };
-    let bg_css = format!(
-        "rgba({}, {}, {}, {:.3})",
-        (bg.red() * 255.0) as u8,
-        (bg.green() * 255.0) as u8,
-        (bg.blue() * 255.0) as u8,
-        alpha,
-    );
-    let window_bg = if s.fullscreen {
-        "transparent".to_string()
-    } else {
-        format!("rgb({}, {}, {})", (bg.red() * 255.0) as u8, (bg.green() * 255.0) as u8, (bg.blue() * 255.0) as u8,)
-    };
+    let bg_css = format!("rgba({}, {}, {}, {alpha:.3})", bg.r, bg.g, bg.b);
+    let window_bg = if s.fullscreen { "transparent".to_string() } else { s.bg_color.to_string() };
     let css = format!(
         "window {{ background-color: {window_bg}; }}\n\
          .marquee-bg {{ background-color: {bg_css}; }}\n"
@@ -220,10 +215,10 @@ struct MarqueeState {
     saved_width: i32,
     saved_slot_count: usize,
     unfullscreening: bool,
-    fg_color: gtk4::gdk::RGBA,
-    glow_color: gtk4::gdk::RGBA,
-    dim_color: gtk4::gdk::RGBA,
-    bg_color: gtk4::gdk::RGBA,
+    fg_color: Color<f32>,
+    glow_color: Color<f32>,
+    dim_color: Color<f32>,
+    bg_color: Color<f32>,
     transparency: f64,
     css_provider: gtk4::CssProvider,
     window: ApplicationWindow,
@@ -508,22 +503,22 @@ fn build_ui(app: &Application) {
 
     let fg_btn = ColorDialogButton::builder().tooltip_text("Vordergrund (Glyphen)").build();
     fg_btn.set_dialog(&color_dialog);
-    fg_btn.set_rgba(&gtk4::gdk::RGBA::new(1.0, 0.4, 0.0, 1.0));
+    fg_btn.set_rgba(&FG_COLOR.into());
     color_row.append(&fg_btn);
 
     let glow_btn = ColorDialogButton::builder().tooltip_text("Glüh-Effekt").build();
     glow_btn.set_dialog(&color_dialog);
-    glow_btn.set_rgba(&gtk4::gdk::RGBA::new(1.0, 0.67, 0.0, 1.0));
+    glow_btn.set_rgba(&GLOW_COLOR.into());
     color_row.append(&glow_btn);
 
     let dim_btn = ColorDialogButton::builder().tooltip_text("Dim (inaktive Glyphen)").build();
     dim_btn.set_dialog(&color_dialog);
-    dim_btn.set_rgba(&gtk4::gdk::RGBA::new(0.2, 0.1, 0.0, 1.0));
+    dim_btn.set_rgba(&DIM_COLOR.into());
     color_row.append(&dim_btn);
 
     let bg_btn = ColorDialogButton::builder().tooltip_text("Hintergrund").build();
     bg_btn.set_dialog(&color_dialog);
-    bg_btn.set_rgba(&gtk4::gdk::RGBA::new(0.04, 0.04, 0.04, 1.0));
+    bg_btn.set_rgba(&BG_COLOR.into());
     color_row.append(&bg_btn);
 
     let opacity_scale = gtk4::Scale::with_range(Orientation::Horizontal, 0.0, 100.0, 5.0);
@@ -582,10 +577,10 @@ fn build_ui(app: &Application) {
         saved_width: 800,
         saved_slot_count: 0,
         unfullscreening: false,
-        fg_color: gtk4::gdk::RGBA::new(1.0, 0.4, 0.0, 1.0),
-        glow_color: gtk4::gdk::RGBA::new(1.0, 0.67, 0.0, 1.0),
-        dim_color: gtk4::gdk::RGBA::new(0.2, 0.1, 0.0, 1.0),
-        bg_color: gtk4::gdk::RGBA::new(0.04, 0.04, 0.04, 1.0),
+        fg_color: FG_COLOR,
+        glow_color: GLOW_COLOR,
+        dim_color: DIM_COLOR,
+        bg_color: BG_COLOR,
         transparency: 1.0,
         css_provider: dynamic_provider,
         window: window.clone(),
@@ -922,7 +917,7 @@ fn build_ui(app: &Application) {
         let state = state.clone();
         fg_btn.connect_notify_local(Some("rgba"), move |btn, _| {
             let mut s = state.borrow_mut();
-            s.fg_color = btn.rgba();
+            s.fg_color = btn.rgba().into();
             drop(s);
             update_marquee(&state);
         });
@@ -933,7 +928,7 @@ fn build_ui(app: &Application) {
         let state = state.clone();
         glow_btn.connect_notify_local(Some("rgba"), move |btn, _| {
             let mut s = state.borrow_mut();
-            s.glow_color = btn.rgba();
+            s.glow_color = btn.rgba().into();
             drop(s);
             update_marquee(&state);
         });
@@ -944,7 +939,7 @@ fn build_ui(app: &Application) {
         let state = state.clone();
         dim_btn.connect_notify_local(Some("rgba"), move |btn, _| {
             let mut s = state.borrow_mut();
-            s.dim_color = btn.rgba();
+            s.dim_color = btn.rgba().into();
             drop(s);
             update_marquee(&state);
         });
@@ -955,7 +950,7 @@ fn build_ui(app: &Application) {
         let state = state.clone();
         bg_btn.connect_notify_local(Some("rgba"), move |btn, _| {
             let mut s = state.borrow_mut();
-            s.bg_color = btn.rgba();
+            s.bg_color = btn.rgba().into();
             drop(s);
             update_dynamic_css(&state);
         });
@@ -1040,9 +1035,9 @@ fn update_marquee(state: &Rc<RefCell<MarqueeState>>) {
                 let full_name = format!("{}-{}", variant::GLYPH_PREFIX, base);
                 // Alternate glow for a subtle pulse effect
                 let hex_color = if (s.offset + i).is_multiple_of(3) {
-                    rgba_to_hex(&s.glow_color)
+                    s.glow_color.to_string()
                 } else {
-                    rgba_to_hex(&s.fg_color)
+                    s.fg_color.to_string()
                 };
                 if let Some(texture) = Doto::glyph_svg(&full_name).and_then(|svg| colorized_texture(&svg, &hex_color)) {
                     img.set_paintable(Some(&texture));

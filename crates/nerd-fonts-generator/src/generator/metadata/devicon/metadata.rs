@@ -26,6 +26,9 @@ impl IconMetadataSource for DeviconMetadata {
 
         let mut mapping = MetadataMapping::new();
         for entry in entries {
+            if let Some(color) = entry.color {
+                mapping.colors.insert(&entry.name, color);
+            }
             if !entry.tags.is_empty() {
                 for tag in &entry.tags {
                     mapping.keywords.add(&entry.name, tag.clone());

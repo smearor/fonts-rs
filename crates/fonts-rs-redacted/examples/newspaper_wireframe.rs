@@ -17,6 +17,7 @@ use gtk4::prelude::*;
 
 use miette::IntoDiagnostic;
 use miette::Result;
+use smearor_commons_color::Color;
 
 const APP_ID: &str = "io.smearor.fonts.rs.redacted.newspaper_wireframe";
 
@@ -31,6 +32,19 @@ const VARIANTS: &[(&str, &str)] = &[
 /// Base size for glyph rasterization in the composed SVG.
 const BASE_GLYPH_WIDTH: u32 = 20;
 const BASE_GLYPH_HEIGHT: u32 = 50;
+
+/// Initial color for headlines.
+const HEADLINE_COLOR: Color<f32> = Color::<f32>::new(0.1, 0.1, 0.1);
+/// Initial color for article headlines.
+const ARTICLE_HEADLINE_COLOR: Color<f32> = Color::<f32>::new(0.2, 0.2, 0.2);
+/// Initial color for body text.
+const BODY_COLOR: Color<f32> = Color::<f32>::new(0.3, 0.3, 0.3);
+/// Initial color for image placeholders.
+const IMAGE_COLOR: Color<f32> = Color::<f32>::new(0.82, 0.82, 0.82);
+/// Initial color for the newspaper background.
+const PAPER_COLOR: Color<f32> = Color::<f32>::new(0.96, 0.94, 0.91);
+/// Initial color for rule accents.
+const ACCENT_COLOR: Color<f32> = Color::<f32>::new(0.2, 0.2, 0.2);
 
 /// Map an ASCII character to its Redacted glyph base name.
 fn char_to_glyph_base(ch: char) -> Option<&'static str> {
@@ -105,10 +119,6 @@ fn char_to_glyph_base(ch: char) -> Option<&'static str> {
         ('~', "asciitilde"),
     ];
     names.iter().find(|(c, _)| *c == ch).map(|(_, name)| *name)
-}
-
-fn rgba_to_hex(rgba: &gtk4::gdk::RGBA) -> String {
-    format!("#{:02x}{:02x}{:02x}", (rgba.red() * 255.0) as u8, (rgba.green() * 255.0) as u8, (rgba.blue() * 255.0) as u8,)
 }
 
 /// Extract the viewBox attribute value from an SVG string.
@@ -189,12 +199,12 @@ struct WireframeState {
     body_size: i32,
     glyph_spacing: i32,
     justify_body: bool,
-    headline_color: gtk4::gdk::RGBA,
-    article_headline_color: gtk4::gdk::RGBA,
-    body_color: gtk4::gdk::RGBA,
-    image_color: gtk4::gdk::RGBA,
-    paper_color: gtk4::gdk::RGBA,
-    accent_color: gtk4::gdk::RGBA,
+    headline_color: Color<f32>,
+    article_headline_color: Color<f32>,
+    body_color: Color<f32>,
+    image_color: Color<f32>,
+    paper_color: Color<f32>,
+    accent_color: Color<f32>,
     transparency: f64,
     fullscreen: bool,
     css_provider: gtk4::CssProvider,
@@ -716,32 +726,32 @@ fn build_ui(app: &Application) {
 
     let headline_btn = ColorDialogButton::builder().tooltip_text("Headline text").build();
     headline_btn.set_dialog(&color_dialog);
-    headline_btn.set_rgba(&gtk4::gdk::RGBA::new(0.1, 0.1, 0.1, 1.0));
+    headline_btn.set_rgba(&HEADLINE_COLOR.into());
     color_row.append(&headline_btn);
 
     let article_headline_btn = ColorDialogButton::builder().tooltip_text("Article headline text").build();
     article_headline_btn.set_dialog(&color_dialog);
-    article_headline_btn.set_rgba(&gtk4::gdk::RGBA::new(0.2, 0.2, 0.2, 1.0));
+    article_headline_btn.set_rgba(&ARTICLE_HEADLINE_COLOR.into());
     color_row.append(&article_headline_btn);
 
     let body_btn = ColorDialogButton::builder().tooltip_text("Body text").build();
     body_btn.set_dialog(&color_dialog);
-    body_btn.set_rgba(&gtk4::gdk::RGBA::new(0.3, 0.3, 0.3, 1.0));
+    body_btn.set_rgba(&BODY_COLOR.into());
     color_row.append(&body_btn);
 
     let image_btn = ColorDialogButton::builder().tooltip_text("Image placeholders").build();
     image_btn.set_dialog(&color_dialog);
-    image_btn.set_rgba(&gtk4::gdk::RGBA::new(0.82, 0.82, 0.82, 1.0));
+    image_btn.set_rgba(&IMAGE_COLOR.into());
     color_row.append(&image_btn);
 
     let paper_btn = ColorDialogButton::builder().tooltip_text("Paper background").build();
     paper_btn.set_dialog(&color_dialog);
-    paper_btn.set_rgba(&gtk4::gdk::RGBA::new(0.96, 0.94, 0.91, 1.0));
+    paper_btn.set_rgba(&PAPER_COLOR.into());
     color_row.append(&paper_btn);
 
     let accent_btn = ColorDialogButton::builder().tooltip_text("Accent (rules)").build();
     accent_btn.set_dialog(&color_dialog);
-    accent_btn.set_rgba(&gtk4::gdk::RGBA::new(0.2, 0.2, 0.2, 1.0));
+    accent_btn.set_rgba(&ACCENT_COLOR.into());
     color_row.append(&accent_btn);
 
     let opacity_scale = gtk4::Scale::with_range(Orientation::Horizontal, 0.0, 100.0, 5.0);
@@ -787,12 +797,12 @@ fn build_ui(app: &Application) {
         body_size: 16,
         glyph_spacing: 0,
         justify_body: true,
-        headline_color: gtk4::gdk::RGBA::new(0.1, 0.1, 0.1, 1.0),
-        article_headline_color: gtk4::gdk::RGBA::new(0.2, 0.2, 0.2, 1.0),
-        body_color: gtk4::gdk::RGBA::new(0.3, 0.3, 0.3, 1.0),
-        image_color: gtk4::gdk::RGBA::new(0.82, 0.82, 0.82, 1.0),
-        paper_color: gtk4::gdk::RGBA::new(0.96, 0.94, 0.91, 1.0),
-        accent_color: gtk4::gdk::RGBA::new(0.2, 0.2, 0.2, 1.0),
+        headline_color: HEADLINE_COLOR,
+        article_headline_color: ARTICLE_HEADLINE_COLOR,
+        body_color: BODY_COLOR,
+        image_color: IMAGE_COLOR,
+        paper_color: PAPER_COLOR,
+        accent_color: ACCENT_COLOR,
         transparency: 1.0,
         fullscreen: false,
         css_provider: dynamic_provider,
@@ -908,7 +918,7 @@ fn build_ui(app: &Application) {
         let state = state.clone();
         headline_btn.connect_notify_local(Some("rgba"), move |btn, _| {
             let mut s = state.borrow_mut();
-            s.headline_color = btn.rgba();
+            s.headline_color = btn.rgba().into();
             drop(s);
             render_textures(&state);
         });
@@ -918,7 +928,7 @@ fn build_ui(app: &Application) {
         let state = state.clone();
         article_headline_btn.connect_notify_local(Some("rgba"), move |btn, _| {
             let mut s = state.borrow_mut();
-            s.article_headline_color = btn.rgba();
+            s.article_headline_color = btn.rgba().into();
             drop(s);
             render_textures(&state);
         });
@@ -928,7 +938,7 @@ fn build_ui(app: &Application) {
         let state = state.clone();
         body_btn.connect_notify_local(Some("rgba"), move |btn, _| {
             let mut s = state.borrow_mut();
-            s.body_color = btn.rgba();
+            s.body_color = btn.rgba().into();
             drop(s);
             render_textures(&state);
         });
@@ -938,7 +948,7 @@ fn build_ui(app: &Application) {
         let state = state.clone();
         image_btn.connect_notify_local(Some("rgba"), move |btn, _| {
             let mut s = state.borrow_mut();
-            s.image_color = btn.rgba();
+            s.image_color = btn.rgba().into();
             drop(s);
             update_dynamic_css(&state);
         });
@@ -948,7 +958,7 @@ fn build_ui(app: &Application) {
         let state = state.clone();
         paper_btn.connect_notify_local(Some("rgba"), move |btn, _| {
             let mut s = state.borrow_mut();
-            s.paper_color = btn.rgba();
+            s.paper_color = btn.rgba().into();
             drop(s);
             update_dynamic_css(&state);
         });
@@ -958,7 +968,7 @@ fn build_ui(app: &Application) {
         let state = state.clone();
         accent_btn.connect_notify_local(Some("rgba"), move |btn, _| {
             let mut s = state.borrow_mut();
-            s.accent_color = btn.rgba();
+            s.accent_color = btn.rgba().into();
             drop(s);
             update_dynamic_css(&state);
         });
@@ -985,7 +995,7 @@ fn category_base_size(s: &WireframeState, category: TextCategory) -> i32 {
 }
 
 /// Get the color for a text category.
-fn category_color(s: &WireframeState, category: TextCategory) -> &gtk4::gdk::RGBA {
+fn category_color(s: &WireframeState, category: TextCategory) -> &Color<f32> {
     match category {
         TextCategory::Headline => &s.headline_color,
         TextCategory::ArticleHeadline => &s.article_headline_color,
@@ -1039,7 +1049,7 @@ fn update_sizes(state: &Rc<RefCell<WireframeState>>) {
 fn render_textures(state: &Rc<RefCell<WireframeState>>) {
     let mut s = state.borrow_mut();
     for category in [TextCategory::Headline, TextCategory::ArticleHeadline, TextCategory::Body] {
-        let hex_color = rgba_to_hex(category_color(&s, category));
+        let hex_color = category_color(&s, category).to_string();
         let cached = category_cached_hex_mut(&mut s, category);
         if hex_color == *cached {
             continue;
@@ -1063,27 +1073,13 @@ fn update_dynamic_css(state: &Rc<RefCell<WireframeState>>) {
     let s = state.borrow();
     let alpha = if s.fullscreen { s.transparency } else { 1.0 };
 
-    let accent_hex = rgba_to_hex(&s.accent_color);
-    let image_hex = rgba_to_hex(&s.image_color);
+    let accent_hex = s.accent_color.to_string();
+    let image_hex = s.image_color.to_string();
 
-    let window_bg = if s.fullscreen {
-        "transparent".to_string()
-    } else {
-        format!(
-            "rgb({},{},{})",
-            (s.paper_color.red() * 255.0) as u8,
-            (s.paper_color.green() * 255.0) as u8,
-            (s.paper_color.blue() * 255.0) as u8,
-        )
-    };
+    let window_bg = if s.fullscreen { "transparent".to_string() } else { s.paper_color.to_string() };
 
-    let paper_alpha = format!(
-        "rgba({},{},{},{:.3})",
-        (s.paper_color.red() * 255.0) as u8,
-        (s.paper_color.green() * 255.0) as u8,
-        (s.paper_color.blue() * 255.0) as u8,
-        alpha,
-    );
+    let paper: Color<u8> = s.paper_color.into();
+    let paper_alpha = format!("rgba({},{},{},{alpha:.3})", paper.r, paper.g, paper.b);
 
     let spacing = s.glyph_spacing;
 

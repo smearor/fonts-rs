@@ -9,6 +9,8 @@
 
 use std::path::Path;
 
+use smearor_commons_color::Color;
+
 use super::mapping::MetadataMapping;
 use super::mapping::RawCategory;
 use super::mapping::RawKeyword;
@@ -42,7 +44,11 @@ pub trait IconMetadataSource {
     fn extract_name(&self, nf_icon_name: &str) -> Option<String> {
         let name = nf_icon_name.strip_prefix(self.prefix())?;
         let name = name.strip_suffix("-symbolic").unwrap_or(name);
-        if name.is_empty() { None } else { Some(name.to_string()) }
+        if name.is_empty() {
+            None
+        } else {
+            Some(name.to_string())
+        }
     }
 
     /// Returns keywords for the upstream icon name, if available.
@@ -53,6 +59,11 @@ pub trait IconMetadataSource {
     /// Returns categories for the upstream icon name, if available.
     fn categories_for(&self, upstream_name: &str) -> Option<&[RawCategory]> {
         self.mapping().categories.get(upstream_name)
+    }
+
+    /// Returns the brand color for the upstream icon name, if available.
+    fn color_for(&self, upstream_name: &str) -> Option<&Color<u8>> {
+        self.mapping().colors.get(upstream_name)
     }
 
     /// Returns the number of icons with keyword data.

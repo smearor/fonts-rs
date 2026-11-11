@@ -51,11 +51,14 @@ mod tests {
 
         let tags = metadata.keywords_for("react").unwrap();
         assert!(tags.contains(&RawKeyword::new("framework".to_string())));
+
+        assert_eq!(metadata.color_for("python"), Some(&smearor_commons_color::Color::<u8>::new(0x37, 0x76, 0xAB)));
+        assert_eq!(metadata.color_for("react"), Some(&smearor_commons_color::Color::<u8>::new(0x61, 0xDA, 0xFB)));
     }
 
     #[test]
     fn devicon_resolves_altnames() {
-        let json = r#"[{"name": "python", "altnames": ["py"], "tags": ["language"], "versions": {}, "color": "", "aliases": []}]"#;
+        let json = r#"[{"name": "python", "altnames": ["py"], "tags": ["language"], "versions": {}, "aliases": []}]"#;
         let tmp = std::env::temp_dir();
         let path = tmp.join("test_devicon_alt.json");
         std::fs::write(&path, json).unwrap();
@@ -83,7 +86,7 @@ mod tests {
 
     #[test]
     fn devicon_empty_tags_not_stored() {
-        let json = r#"[{"name": "foo", "altnames": [], "tags": [], "versions": {}, "color": "", "aliases": []}]"#;
+        let json = r#"[{"name": "foo", "altnames": [], "tags": [], "versions": {}, "aliases": []}]"#;
         let tmp = std::env::temp_dir();
         let path = tmp.join("test_devicon_empty.json");
         std::fs::write(&path, json).unwrap();
@@ -94,7 +97,8 @@ mod tests {
 
     #[test]
     fn devicon_style_aliases() {
-        let json = r#"[{"name": "python", "altnames": ["py"], "tags": ["language"], "versions": {}, "color": "", "aliases": [{"base": "plain", "alias": "plain-wordmark"}]}]"#;
+        let json =
+            r#"[{"name": "python", "altnames": ["py"], "tags": ["language"], "versions": {}, "aliases": [{"base": "plain", "alias": "plain-wordmark"}]}]"#;
         let tmp = std::env::temp_dir();
         let path = tmp.join("test_devicon_style.json");
         std::fs::write(&path, json).unwrap();

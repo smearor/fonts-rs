@@ -85,6 +85,7 @@ glib.workspace = true
 miette.workspace = true
 pango.workspace = true
 base64.workspace = true
+smearor-commons-color = { workspace = true, features = ["gtk4"] }
 
 [[example]]
 name = "dot_matrix_marquee"

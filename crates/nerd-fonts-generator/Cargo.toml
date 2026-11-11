@@ -23,6 +23,7 @@ serde-saphyr.workspace = true
 clap.workspace = true
 miette.workspace = true
 thiserror.workspace = true
+smearor-commons-color = { workspace = true }
 
 [[bin]]
 name = "export_icons"

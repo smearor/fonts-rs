@@ -5,10 +5,14 @@
 //! scanner marks tag names, attributes, delimiters and comments with
 //! [`gtk4::TextTag`]s - enough to make raw SVG XML readable.
 
-use gtk4::TextBuffer;
-use gtk4::TextTag;
 use gtk4::pango::Style;
 use gtk4::prelude::*;
+use gtk4::TextBuffer;
+use gtk4::TextTag;
+use smearor_commons_color::palette_definition;
+use smearor_commons_color::static_palette;
+use smearor_commons_color::Color;
+use smearor_commons_color::StaticPalette;
 
 /// What a byte range in the XML source represents.
 enum Token {
@@ -24,30 +28,54 @@ enum Token {
     Comment,
 }
 
-/// Dim foreground for delimiters and comments - a mid gray that
-/// stays readable on both light and dark themes.
-const DIM: &str = "#9a9996";
+palette_definition! {
+    /// Semantic slots of the XML syntax highlight palette.
+    enum HighlightSlot {
+        /// `<`, `>`, `/`, `=` delimiters and `<!-- -->` comments - a mid
+        /// gray that stays readable on both light and dark themes.
+        Dim => "dim",
+        /// Element name after `<` or `</`.
+        TagName => "tag-name",
+        /// Attribute name inside a tag.
+        AttrName => "attr-name",
+        /// Quoted attribute value including its quotes.
+        AttrValue => "attr-value"
+    }
+}
+
+/// Adwaita highlight colors for light themes (blue 4, purple 4, green 5).
+static LIGHT: StaticPalette<HighlightSlot, u8> = static_palette! {
+    HighlightSlot::Dim => Color::<u8>::new(0x9A, 0x99, 0x96),
+    HighlightSlot::TagName => Color::<u8>::new(0x1C, 0x71, 0xD8),
+    HighlightSlot::AttrName => Color::<u8>::new(0x91, 0x41, 0xAC),
+    HighlightSlot::AttrValue => Color::<u8>::new(0x26, 0xA2, 0x69),
+};
+
+/// Adwaita highlight colors for dark themes (blue 2, purple 1, green 1).
+static DARK: StaticPalette<HighlightSlot, u8> = static_palette! {
+    HighlightSlot::Dim => Color::<u8>::new(0x9A, 0x99, 0x96),
+    HighlightSlot::TagName => Color::<u8>::new(0x62, 0xA0, 0xEA),
+    HighlightSlot::AttrName => Color::<u8>::new(0xDC, 0x8A, 0xDD),
+    HighlightSlot::AttrValue => Color::<u8>::new(0x8F, 0xF0, 0xA4),
+};
 
 /// Applies XML syntax highlighting to `buffer`, which must already
-/// contain `xml`. `dark` selects the palette variant (Adwaita blue 4
-/// vs blue 2 etc.).
+/// contain `xml`. `dark` selects the palette variant (Adwaita blue 2
+/// vs blue 4 etc.).
 pub(super) fn apply(buffer: &TextBuffer, xml: &str, dark: bool) {
-    let (tag_color, attr_color, value_color) = if dark {
-        ("#62a0ea", "#dc8add", "#8ff0a4")
-    } else {
-        ("#1c71d8", "#9141ac", "#26a269")
-    };
+    let palette = if dark { DARK } else { LIGHT };
+    let hex = |slot: HighlightSlot| palette.get(&slot).map(Color::to_string);
     let punct = TextTag::new(None);
-    punct.set_foreground(Some(DIM));
+    punct.set_foreground(hex(HighlightSlot::Dim).as_deref());
     let tag_name = TextTag::new(None);
-    tag_name.set_foreground(Some(tag_color));
+    tag_name.set_foreground(hex(HighlightSlot::TagName).as_deref());
     tag_name.set_weight(700);
     let attr_name = TextTag::new(None);
-    attr_name.set_foreground(Some(attr_color));
+    attr_name.set_foreground(hex(HighlightSlot::AttrName).as_deref());
     let attr_value = TextTag::new(None);
-    attr_value.set_foreground(Some(value_color));
+    attr_value.set_foreground(hex(HighlightSlot::AttrValue).as_deref());
     let comment = TextTag::new(None);
-    comment.set_foreground(Some(DIM));
+    comment.set_foreground(hex(HighlightSlot::Dim).as_deref());
     comment.set_style(Style::Italic);
     let tag_table = buffer.tag_table();
     tag_table.add(&punct);

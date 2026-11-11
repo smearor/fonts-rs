@@ -15,6 +15,8 @@ use std::rc::Rc;
 
 use fonts_rs_dicefont::Dicefont;
 
+use gtk4::glib;
+use gtk4::prelude::*;
 use gtk4::Align;
 use gtk4::Application;
 use gtk4::ApplicationWindow;
@@ -25,13 +27,19 @@ use gtk4::ColorDialogButton;
 use gtk4::Image;
 use gtk4::Label;
 use gtk4::Orientation;
-use gtk4::glib;
-use gtk4::prelude::*;
 
 use miette::IntoDiagnostic;
 use miette::Result;
+use smearor_commons_color::Color;
 
 const APP_ID: &str = "io.smearor.fonts_rs.dice_roller";
+
+/// Initial color for dice glyphs.
+const DICE_COLOR: Color<f32> = Color::<f32>::new(0.85, 0.15, 0.25);
+/// Initial color for the dice tray background.
+const BG_COLOR: Color<f32> = Color::<f32>::new(0.09, 0.13, 0.24);
+/// Initial color for labels and accents.
+const ACCENT_COLOR: Color<f32> = Color::<f32>::new(0.91, 0.27, 0.38);
 
 /// Die type specification: name, sides, and glyph name prefix.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -89,11 +97,6 @@ const ANIMATION_INTERVAL_MS: u64 = 60;
 /// Maximum dice per type.
 const MAX_DICE: u32 = 8;
 
-/// Convert a `gdk::RGBA` to a `#rrggbb` hex string.
-fn rgba_to_hex(rgba: &gtk4::gdk::RGBA) -> String {
-    format!("#{:02x}{:02x}{:02x}", (rgba.red() * 255.0) as u8, (rgba.green() * 255.0) as u8, (rgba.blue() * 255.0) as u8,)
-}
-
 /// Replace `currentColor` in an SVG document with the given hex color
 /// and return a `gdk::Texture`.
 fn colorized_texture(svg: &str, hex_color: &str) -> Option<gtk4::gdk::Texture> {
@@ -149,9 +152,9 @@ struct DiceState {
     use_dot_d6: bool,
     use_fate: bool,
     pixel_size: i32,
-    dice_color: gtk4::gdk::RGBA,
-    bg_color: gtk4::gdk::RGBA,
-    accent_color: gtk4::gdk::RGBA,
+    dice_color: Color<f32>,
+    bg_color: Color<f32>,
+    accent_color: Color<f32>,
     history: Vec<String>,
     history_label: Label,
     total_label: Label,
@@ -429,17 +432,17 @@ fn build_ui(app: &Application) {
 
     let dice_btn = ColorDialogButton::builder().tooltip_text("Dice color").build();
     dice_btn.set_dialog(&color_dialog);
-    dice_btn.set_rgba(&gtk4::gdk::RGBA::new(0.85, 0.15, 0.25, 1.0));
+    dice_btn.set_rgba(&DICE_COLOR.into());
     color_row.append(&dice_btn);
 
     let bg_btn = ColorDialogButton::builder().tooltip_text("Tray background").build();
     bg_btn.set_dialog(&color_dialog);
-    bg_btn.set_rgba(&gtk4::gdk::RGBA::new(0.09, 0.13, 0.24, 1.0));
+    bg_btn.set_rgba(&BG_COLOR.into());
     color_row.append(&bg_btn);
 
     let accent_btn = ColorDialogButton::builder().tooltip_text("Accent / text").build();
     accent_btn.set_dialog(&color_dialog);
-    accent_btn.set_rgba(&gtk4::gdk::RGBA::new(0.91, 0.27, 0.38, 1.0));
+    accent_btn.set_rgba(&ACCENT_COLOR.into());
     color_row.append(&accent_btn);
 
     controls.append(&color_row);
@@ -469,9 +472,9 @@ fn build_ui(app: &Application) {
         use_dot_d6: false,
         use_fate: false,
         pixel_size: 64,
-        dice_color: gtk4::gdk::RGBA::new(0.85, 0.15, 0.25, 1.0),
-        bg_color: gtk4::gdk::RGBA::new(0.09, 0.13, 0.24, 1.0),
-        accent_color: gtk4::gdk::RGBA::new(0.91, 0.27, 0.38, 1.0),
+        dice_color: DICE_COLOR,
+        bg_color: BG_COLOR,
+        accent_color: ACCENT_COLOR,
         history: Vec::new(),
         history_label: history_label.clone(),
         total_label: total_label.clone(),
@@ -547,7 +550,7 @@ fn build_ui(app: &Application) {
         let state = state.clone();
         dice_btn.connect_notify_local(Some("rgba"), move |btn, _| {
             let mut s = state.borrow_mut();
-            s.dice_color = btn.rgba();
+            s.dice_color = btn.rgba().into();
             drop(s);
             recolor_dice(&state);
         });
@@ -557,7 +560,7 @@ fn build_ui(app: &Application) {
         let state = state.clone();
         bg_btn.connect_notify_local(Some("rgba"), move |btn, _| {
             let mut s = state.borrow_mut();
-            s.bg_color = btn.rgba();
+            s.bg_color = btn.rgba().into();
             drop(s);
             update_dynamic_css(&state);
         });
@@ -567,7 +570,7 @@ fn build_ui(app: &Application) {
         let state = state.clone();
         accent_btn.connect_notify_local(Some("rgba"), move |btn, _| {
             let mut s = state.borrow_mut();
-            s.accent_color = btn.rgba();
+            s.accent_color = btn.rgba().into();
             drop(s);
             update_dynamic_css(&state);
         });
@@ -585,10 +588,8 @@ fn build_ui(app: &Application) {
 /// Update the dynamic CSS with current colors.
 fn update_dynamic_css(state: &Rc<RefCell<DiceState>>) {
     let s = state.borrow();
-    let bg = &s.bg_color;
-    let accent = &s.accent_color;
-    let accent_hex = rgba_to_hex(accent);
-    let bg_css = format!("rgba({}, {}, {}, 1.0)", (bg.red() * 255.0) as u8, (bg.green() * 255.0) as u8, (bg.blue() * 255.0) as u8,);
+    let accent_hex = s.accent_color.to_string();
+    let bg_css = s.bg_color.to_string();
     let css = format!(
         ".dice-tray {{ background-color: {bg_css}; }}\n\
          .section-label {{ color: {accent_hex}; }}\n\
@@ -600,7 +601,7 @@ fn update_dynamic_css(state: &Rc<RefCell<DiceState>>) {
 /// Recolor all displayed dice with the current dice color.
 fn recolor_dice(state: &Rc<RefCell<DiceState>>) {
     let s = state.borrow();
-    let hex = rgba_to_hex(&s.dice_color);
+    let hex = s.dice_color.to_string();
     for dw in &s.die_widgets {
         let glyph = if dw.frame >= ANIMATION_FRAMES {
             format!("dicefont-{}", dw.final_face_name)
@@ -639,7 +640,7 @@ fn start_roll(state: &Rc<RefCell<DiceState>>) {
 
     // Create new die widgets
     let pixel_size = s.pixel_size;
-    let hex_color = rgba_to_hex(&s.dice_color);
+    let hex_color = s.dice_color.to_string();
 
     let mut widgets = Vec::new();
 
@@ -692,7 +693,7 @@ fn animate_roll(state: &Rc<RefCell<DiceState>>) {
         return;
     }
 
-    let hex_color = rgba_to_hex(&s.dice_color);
+    let hex_color = s.dice_color.to_string();
 
     // Check if all dice have finished animating
     let all_done = s.die_widgets.iter().all(|dw| dw.frame >= ANIMATION_FRAMES);

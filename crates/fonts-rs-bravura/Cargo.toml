@@ -92,6 +92,7 @@ miette.workspace = true
 ab_glyph.workspace = true
 pango.workspace = true
 base64.workspace = true
+smearor-commons-color = { workspace = true, features = ["cairo"] }
 
 [lints]
 workspace = true

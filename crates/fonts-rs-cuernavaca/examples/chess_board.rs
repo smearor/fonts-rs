@@ -33,15 +33,64 @@ use gtk4::prelude::*;
 
 use miette::IntoDiagnostic;
 use miette::Result;
+use smearor_commons_color::Color;
+use smearor_commons_color::StaticPalette;
+use smearor_commons_color::palette_definition;
+use smearor_commons_color::static_palette;
 
 const APP_ID: &str = "io.smearor.fonts_rs.chess_board";
 
-/// Board colors (RGB tuples).
-const LIGHT_SQUARE: (f64, f64, f64) = (0.93, 0.85, 0.65);
-const DARK_SQUARE: (f64, f64, f64) = (0.55, 0.40, 0.25);
-const HIGHLIGHT: (f64, f64, f64, f64) = (0.20, 0.60, 0.20, 0.45);
-const LAST_MOVE: (f64, f64, f64, f64) = (0.80, 0.70, 0.10, 0.40);
-const CHECK_COLOR: (f64, f64, f64, f64) = (0.80, 0.15, 0.15, 0.50);
+palette_definition! {
+    /// Semantic paint slots of the chess board scene.
+    enum BoardPaint {
+        /// Light board squares.
+        LightSquare => "light-square",
+        /// Dark board squares.
+        DarkSquare => "dark-square",
+        /// Highlight of the selected square.
+        Highlight => "highlight",
+        /// Highlight of the last move's squares.
+        LastMove => "last-move",
+        /// Marker under the king in check.
+        Check => "check",
+        /// Ring hint on capturable target squares.
+        CaptureHint => "capture-hint",
+        /// Dot hint on free target squares.
+        MoveHint => "move-hint",
+        /// File/rank labels along the board edges.
+        Coordinate => "coordinate",
+        /// Glyph fill of white pieces.
+        WhitePiece => "white-piece",
+        /// Glyph fill of black pieces.
+        BlackPiece => "black-piece"
+    }
+}
+
+/// Paints of the board scene keyed by [`BoardPaint`].
+static PAINTS: StaticPalette<BoardPaint, f64> = static_palette! {
+    BoardPaint::LightSquare => Color::<f64>::new(0.93, 0.85, 0.65),
+    BoardPaint::DarkSquare => Color::<f64>::new(0.55, 0.40, 0.25),
+    BoardPaint::Highlight => Color::<f64>::new_rgba(0.20, 0.60, 0.20, 0.45),
+    BoardPaint::LastMove => Color::<f64>::new_rgba(0.80, 0.70, 0.10, 0.40),
+    BoardPaint::Check => Color::<f64>::new_rgba(0.80, 0.15, 0.15, 0.50),
+    BoardPaint::CaptureHint => Color::<f64>::new_rgba(0.80, 0.20, 0.20, 0.50),
+    BoardPaint::MoveHint => Color::<f64>::new_rgba(0.20, 0.50, 0.20, 0.40),
+    BoardPaint::Coordinate => Color::<f64>::new(0.30, 0.30, 0.30),
+    BoardPaint::WhitePiece => Color::<f64>::new(0.95, 0.95, 0.92),
+    BoardPaint::BlackPiece => Color::<f64>::new(0.12, 0.12, 0.12),
+};
+
+/// Returns the paint registered for `slot` - `PAINTS` is statically
+/// complete, so the fallback is unreachable.
+fn paint(slot: BoardPaint) -> Color<f64> {
+    PAINTS.get_or(&slot, Color::<f64>::BLACK)
+}
+
+/// Sets the paint for `slot` as the cairo source, honoring its alpha.
+fn apply_paint(cr: &cairo::Context, slot: BoardPaint) {
+    let color = paint(slot);
+    color.apply_alpha(cr, color.a);
+}
 
 /// Piece types.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -56,7 +105,7 @@ enum PieceType {
 
 /// Piece color.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-enum Color {
+enum PieceColor {
     White,
     Black,
 }
@@ -65,7 +114,7 @@ enum Color {
 #[derive(Clone, Copy, Debug)]
 struct Piece {
     piece_type: PieceType,
-    color: Color,
+    color: PieceColor,
 }
 
 /// Square coordinates (0-based, from bottom-left).
@@ -117,7 +166,7 @@ struct Move {
 /// Game state.
 struct GameState {
     board: [[Option<Piece>; 8]; 8],
-    turn: Color,
+    turn: PieceColor,
     selected: Option<Square>,
     history: Vec<Move>,
     last_move: Option<(Square, Square)>,
@@ -157,24 +206,24 @@ impl GameState {
         for file in 0..8 {
             board[0][file] = Some(Piece {
                 piece_type: white_back[file],
-                color: Color::White,
+                color: PieceColor::White,
             });
             board[1][file] = Some(Piece {
                 piece_type: PieceType::Pawn,
-                color: Color::White,
+                color: PieceColor::White,
             });
             board[6][file] = Some(Piece {
                 piece_type: PieceType::Pawn,
-                color: Color::Black,
+                color: PieceColor::Black,
             });
             board[7][file] = Some(Piece {
                 piece_type: black_back[file],
-                color: Color::Black,
+                color: PieceColor::Black,
             });
         }
         Self {
             board,
-            turn: Color::White,
+            turn: PieceColor::White,
             selected: None,
             history: vec![],
             last_move: None,
@@ -193,7 +242,7 @@ impl GameState {
     }
 
     /// Check if a square is attacked by the given color.
-    fn is_attacked(&self, sq: Square, by: Color) -> bool {
+    fn is_attacked(&self, sq: Square, by: PieceColor) -> bool {
         for rank in 0..8 {
             for file in 0..8 {
                 if let Some(piece) = self.board[rank][file]
@@ -217,7 +266,7 @@ impl GameState {
         let abs_dr = dr.abs();
         match piece.piece_type {
             PieceType::Pawn => {
-                let dir = if piece.color == Color::White { 1 } else { -1 };
+                let dir = if piece.color == PieceColor::White { 1 } else { -1 };
                 abs_df == 1 && dr == dir
             }
             PieceType::Knight => (abs_df == 2 && abs_dr == 1) || (abs_df == 1 && abs_dr == 2),
@@ -295,8 +344,8 @@ impl GameState {
         let abs_dr = dr.abs();
         match piece.piece_type {
             PieceType::Pawn => {
-                let dir = if piece.color == Color::White { 1 } else { -1 };
-                let start_rank = if piece.color == Color::White { 1 } else { 6 };
+                let dir = if piece.color == PieceColor::White { 1 } else { -1 };
+                let start_rank = if piece.color == PieceColor::White { 1 } else { 6 };
                 // Forward one square
                 if df == 0 && dr == dir && self.piece_at(to).is_none() {
                     return true;
@@ -333,7 +382,7 @@ impl GameState {
                     return true;
                 }
                 // Castling
-                if abs_dr == 0 && abs_df == 2 && from.rank == if piece.color == Color::White { 0 } else { 7 } {
+                if abs_dr == 0 && abs_df == 2 && from.rank == if piece.color == PieceColor::White { 0 } else { 7 } {
                     return self.can_castle(from, to, piece.color);
                 }
                 false
@@ -342,8 +391,8 @@ impl GameState {
     }
 
     /// Check castling availability.
-    fn can_castle(&self, from: Square, to: Square, color: Color) -> bool {
-        let king_rank = if color == Color::White { 0 } else { 7 };
+    fn can_castle(&self, from: Square, to: Square, color: PieceColor) -> bool {
+        let king_rank = if color == PieceColor::White { 0 } else { 7 };
         if from.rank != king_rank || from.file != 4 {
             return false;
         }
@@ -379,7 +428,7 @@ impl GameState {
             }
         }
         // King is not in check, and doesn't pass through check
-        let opponent = if color == Color::White { Color::Black } else { Color::White };
+        let opponent = if color == PieceColor::White { PieceColor::Black } else { PieceColor::White };
         if self.is_attacked(Square::new(4, king_rank), opponent) {
             return false;
         }
@@ -416,7 +465,7 @@ impl GameState {
         let mut is_en_passant = false;
         // En passant capture
         if piece.piece_type == PieceType::Pawn && to == self.en_passant_target.unwrap_or(Square::new(0, 9)) {
-            let ep_rank = if piece.color == Color::White { to.rank - 1 } else { to.rank + 1 };
+            let ep_rank = if piece.color == PieceColor::White { to.rank - 1 } else { to.rank + 1 };
             captured = self.piece_at(Square::new(to.file, ep_rank)).map(|p| p.piece_type);
             self.board[ep_rank as usize][to.file as usize] = None;
             is_en_passant = true;
@@ -425,7 +474,7 @@ impl GameState {
         self.board[from.rank as usize][from.file as usize] = None;
         // Promotion to queen
         let moved_piece = if piece.piece_type == PieceType::Pawn {
-            let promotion_rank = if piece.color == Color::White { 7 } else { 0 };
+            let promotion_rank = if piece.color == PieceColor::White { 7 } else { 0 };
             if to.rank == promotion_rank {
                 Some(Piece {
                     piece_type: PieceType::Queen,
@@ -463,7 +512,7 @@ impl GameState {
         }
         // Record captured piece
         if let Some(cap) = captured {
-            if piece.color == Color::White {
+            if piece.color == PieceColor::White {
                 self.white_captured.push(cap);
             } else {
                 self.black_captured.push(cap);
@@ -486,7 +535,11 @@ impl GameState {
             notation,
         });
         self.last_move = Some((from, to));
-        self.turn = if self.turn == Color::White { Color::Black } else { Color::White };
+        self.turn = if self.turn == PieceColor::White {
+            PieceColor::Black
+        } else {
+            PieceColor::White
+        };
     }
 
     /// Build algebraic notation for a move.
@@ -513,7 +566,7 @@ impl GameState {
             String::new()
         };
         let promotion = if piece.piece_type == PieceType::Pawn {
-            let promo_rank = if piece.color == Color::White { 7 } else { 0 };
+            let promo_rank = if piece.color == PieceColor::White { 7 } else { 0 };
             if to.rank == promo_rank { "=Q" } else { "" }
         } else {
             ""
@@ -522,7 +575,7 @@ impl GameState {
     }
 
     /// Find the king of the given color.
-    fn find_king(&self, color: Color) -> Option<Square> {
+    fn find_king(&self, color: PieceColor) -> Option<Square> {
         for rank in 0..8 {
             for file in 0..8 {
                 if let Some(p) = self.board[rank][file]
@@ -537,16 +590,16 @@ impl GameState {
     }
 
     /// Check if the given color's king is in check.
-    fn is_in_check(&self, color: Color) -> bool {
+    fn is_in_check(&self, color: PieceColor) -> bool {
         let Some(king_sq) = self.find_king(color) else {
             return false;
         };
-        let opponent = if color == Color::White { Color::Black } else { Color::White };
+        let opponent = if color == PieceColor::White { PieceColor::Black } else { PieceColor::White };
         self.is_attacked(king_sq, opponent)
     }
 
     /// Check if the given color has any legal moves.
-    fn has_legal_moves(&self, color: Color) -> bool {
+    fn has_legal_moves(&self, color: PieceColor) -> bool {
         for rank in 0..8 {
             for file in 0..8 {
                 if let Some(piece) = self.board[rank][file]
@@ -572,7 +625,7 @@ impl GameState {
         if !self.has_legal_moves(self.turn) {
             self.game_over = true;
             if in_check {
-                let winner = if self.turn == Color::White { "Black" } else { "White" };
+                let winner = if self.turn == PieceColor::White { "Black" } else { "White" };
                 self.status_message = format!("Checkmate! {} wins", winner);
             } else {
                 self.status_message = "Stalemate! Draw".to_string();
@@ -588,18 +641,18 @@ impl GameState {
 /// Map a piece to the Cuernavaca font character.
 fn piece_to_char(piece: Piece) -> char {
     match (piece.color, piece.piece_type) {
-        (Color::White, PieceType::Rook) => 'R',
-        (Color::White, PieceType::Knight) => 'N',
-        (Color::White, PieceType::Bishop) => 'B',
-        (Color::White, PieceType::Queen) => 'Q',
-        (Color::White, PieceType::King) => 'K',
-        (Color::White, PieceType::Pawn) => 'P',
-        (Color::Black, PieceType::Rook) => 'T',
-        (Color::Black, PieceType::Knight) => 'M',
-        (Color::Black, PieceType::Bishop) => 'V',
-        (Color::Black, PieceType::Queen) => 'W',
-        (Color::Black, PieceType::King) => 'L',
-        (Color::Black, PieceType::Pawn) => 'O',
+        (PieceColor::White, PieceType::Rook) => 'R',
+        (PieceColor::White, PieceType::Knight) => 'N',
+        (PieceColor::White, PieceType::Bishop) => 'B',
+        (PieceColor::White, PieceType::Queen) => 'Q',
+        (PieceColor::White, PieceType::King) => 'K',
+        (PieceColor::White, PieceType::Pawn) => 'P',
+        (PieceColor::Black, PieceType::Rook) => 'T',
+        (PieceColor::Black, PieceType::Knight) => 'M',
+        (PieceColor::Black, PieceType::Bishop) => 'V',
+        (PieceColor::Black, PieceType::Queen) => 'W',
+        (PieceColor::Black, PieceType::King) => 'L',
+        (PieceColor::Black, PieceType::Pawn) => 'O',
     }
 }
 
@@ -674,20 +727,11 @@ fn trace_glyph_path(cr: &cairo::Context, font: &FontVec, ch: char, x: f64, y: f6
 }
 
 /// Draw a filled glyph using EvenOdd fill rule (correct for chess piece outlines with internal cutouts).
-fn draw_glyph_with_outline(
-    cr: &cairo::Context,
-    font: &FontVec,
-    ch: char,
-    x: f64,
-    y: f64,
-    size: f64,
-    fill_color: (f64, f64, f64),
-    _outline_color: (f64, f64, f64),
-) {
+fn draw_glyph_with_outline(cr: &cairo::Context, font: &FontVec, ch: char, x: f64, y: f64, size: f64, fill_color: Color<f64>, _outline_color: Color<f64>) {
     cr.save().unwrap_or(());
     cr.set_fill_rule(cairo::FillRule::EvenOdd);
     if trace_glyph_path(cr, font, ch, x, y, size) {
-        cr.set_source_rgb(fill_color.0, fill_color.1, fill_color.2);
+        fill_color.apply(cr);
         cr.fill().unwrap_or(());
     }
     cr.restore().unwrap_or(());
@@ -815,8 +859,8 @@ fn build_ui(app: &Application) {
                     let x = board_x + display_file as f64 * cell;
                     let y = board_y + (7 - display_rank) as f64 * cell;
                     let is_light = (rank + file) % 2 != 0;
-                    let color = if is_light { LIGHT_SQUARE } else { DARK_SQUARE };
-                    cr.set_source_rgb(color.0, color.1, color.2);
+                    let color = if is_light { BoardPaint::LightSquare } else { BoardPaint::DarkSquare };
+                    apply_paint(cr, color);
                     cr.rectangle(x, y, cell, cell);
                     cr.fill().unwrap_or(());
 
@@ -824,7 +868,7 @@ fn build_ui(app: &Application) {
                     if let Some((from, to)) = s.last_move {
                         let sq = Square::new(file, rank);
                         if sq == from || sq == to {
-                            cr.set_source_rgba(LAST_MOVE.0, LAST_MOVE.1, LAST_MOVE.2, LAST_MOVE.3);
+                            apply_paint(cr, BoardPaint::LastMove);
                             cr.rectangle(x, y, cell, cell);
                             cr.fill().unwrap_or(());
                         }
@@ -834,7 +878,7 @@ fn build_ui(app: &Application) {
                     if let Some(sel) = s.selected
                         && Square::new(file, rank) == sel
                     {
-                        cr.set_source_rgba(HIGHLIGHT.0, HIGHLIGHT.1, HIGHLIGHT.2, HIGHLIGHT.3);
+                        apply_paint(cr, BoardPaint::Highlight);
                         cr.rectangle(x, y, cell, cell);
                         cr.fill().unwrap_or(());
                     }
@@ -846,13 +890,13 @@ fn build_ui(app: &Application) {
                             if *mv == Square::new(file, rank) {
                                 if s.piece_at(*mv).is_some() {
                                     // Capture: draw ring
-                                    cr.set_source_rgba(0.8, 0.2, 0.2, 0.5);
+                                    apply_paint(cr, BoardPaint::CaptureHint);
                                     cr.set_line_width(3.0);
                                     cr.arc(x + cell / 2.0, y + cell / 2.0, cell * 0.42, 0.0, std::f64::consts::TAU);
                                     cr.stroke().unwrap_or(());
                                 } else {
                                     // Move: draw dot
-                                    cr.set_source_rgba(0.2, 0.5, 0.2, 0.4);
+                                    apply_paint(cr, BoardPaint::MoveHint);
                                     cr.arc(x + cell / 2.0, y + cell / 2.0, cell * 0.15, 0.0, std::f64::consts::TAU);
                                     cr.fill().unwrap_or(());
                                 }
@@ -865,7 +909,7 @@ fn build_ui(app: &Application) {
                         && let Some(king_sq) = s.find_king(s.turn)
                         && Square::new(file, rank) == king_sq
                     {
-                        cr.set_source_rgba(CHECK_COLOR.0, CHECK_COLOR.1, CHECK_COLOR.2, CHECK_COLOR.3);
+                        apply_paint(cr, BoardPaint::Check);
                         cr.rectangle(x, y, cell, cell);
                         cr.fill().unwrap_or(());
                     }
@@ -873,7 +917,7 @@ fn build_ui(app: &Application) {
             }
 
             // Draw coordinates
-            cr.set_source_rgb(0.3, 0.3, 0.3);
+            apply_paint(cr, BoardPaint::Coordinate);
             cr.set_font_size(11.0);
             for i in 0..8u8 {
                 let file_label = if s.flipped { 7 - i } else { i };
@@ -895,18 +939,12 @@ fn build_ui(app: &Application) {
                         let x = board_x + display_file as f64 * cell + (cell - piece_size) / 2.0;
                         let y = board_y + (7 - display_rank) as f64 * cell + (cell - piece_size) / 2.0;
                         let ch = piece_to_char(piece);
-                        let color = if piece.color == Color::White {
-                            (0.95, 0.95, 0.92)
-                        } else {
-                            (0.12, 0.12, 0.12)
-                        };
                         // Draw outline (contrast color) then fill (piece color)
-                        let outline_color = if piece.color == Color::White {
-                            (0.12, 0.12, 0.12)
-                        } else {
-                            (0.95, 0.95, 0.92)
+                        let (fill, outline) = match piece.color {
+                            PieceColor::White => (BoardPaint::WhitePiece, BoardPaint::BlackPiece),
+                            PieceColor::Black => (BoardPaint::BlackPiece, BoardPaint::WhitePiece),
                         };
-                        draw_glyph_with_outline(cr, font, ch, x, y, piece_size, color, outline_color);
+                        draw_glyph_with_outline(cr, font, ch, x, y, piece_size, paint(fill), paint(outline));
                     }
                 }
             }
@@ -920,7 +958,7 @@ fn build_ui(app: &Application) {
                 .map(|p| {
                     piece_to_char(Piece {
                         piece_type: *p,
-                        color: Color::Black,
+                        color: PieceColor::Black,
                     })
                 })
                 .collect();
@@ -930,7 +968,7 @@ fn build_ui(app: &Application) {
                 .map(|p| {
                     piece_to_char(Piece {
                         piece_type: *p,
-                        color: Color::White,
+                        color: PieceColor::White,
                     })
                 })
                 .collect();

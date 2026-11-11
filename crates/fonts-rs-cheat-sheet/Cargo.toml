@@ -17,6 +17,8 @@ fonts-rs-model = { workspace = true, features = ["gtk"] }
 gtk4 = { workspace = true, features = ["v4_12"] }
 libadwaita.workspace = true
 miette.workspace = true
+serde.workspace = true
+smearor-commons-color = { workspace = true }
 
 [lints]
 workspace = true
