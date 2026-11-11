@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["DIM"],"enum":["Token"],"fn":["apply","is_name_byte","tokenize"]};
+window.SIDEBAR_ITEMS = {"enum":["HighlightSlot","Token"],"fn":["apply","is_name_byte","tokenize"],"static":["DARK","LIGHT"]};
